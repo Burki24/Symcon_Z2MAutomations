@@ -20,6 +20,7 @@ trait AutomationEditorConditions
                 $this->DebugEvent('FEHLER', 'Bedingungsliste noch nicht gültig; lesbare Eigenschaften und passende Vergleiche wählen.');
                 return false;
             }
+            $this->RememberEditorListChoices('Condition', json_decode($Conditions, true, 8, JSON_THROW_ON_ERROR), 'current');
             $this->DebugEvent(
                 'AKTION',
                 $Change === 'delete'
@@ -91,7 +92,7 @@ trait AutomationEditorConditions
 
     private function EditorConditionColumns(array $snapshot, array $rows = []): array
     {
-        $columns = $this->EditorTriggerColumns($snapshot, $rows);
+        $columns = $this->EditorTriggerColumns($snapshot, $rows, 'Condition');
         $columns[0]['caption'] = $this->Translate('Device, property and value');
         return array_slice($columns, 0, 2);
     }

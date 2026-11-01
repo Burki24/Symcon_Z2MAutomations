@@ -197,6 +197,7 @@ trait AutomationEditorManagement
 
     private function SetEditorSelection(array $draft, string $id, string $newType = ''): void
     {
+        $this->SetBuffer('EditorRowChoices', '{}');
         $previousArea = $this->ActiveEditorArea();
         $this->WriteAttributeString('EditorSelection', $id === '' ? '' : json_encode(['id' => $id, 'checksum' => $draft['draftChecksum'], 'token' => bin2hex(random_bytes(16))], JSON_THROW_ON_ERROR));
         $fields = $this->EditorSelectionFields($draft);

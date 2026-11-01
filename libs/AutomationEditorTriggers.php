@@ -21,6 +21,7 @@ trait AutomationEditorTriggers
                 return false;
             }
             $comparisons = array_count_values(array_column($triggers, 'operator'));
+            $this->RememberEditorListChoices('Source', json_decode($Triggers, true, 8, JSON_THROW_ON_ERROR), 'current');
             $details = $Change === 'delete' ? ['AuslöserVorLöschen' => count($triggers)] : ['Auslöser' => count($triggers)];
             $details['Vergleiche'] = $comparisons;
             $details['NurBeiWertänderung'] = count(array_filter($triggers, static fn (array $trigger): bool => $trigger['on_change'] ?? false));
@@ -110,17 +111,10 @@ trait AutomationEditorTriggers
         return $rows;
     }
 
-    private function EditorTriggerColumns(array $snapshot, array $rows = []): array
+    private function EditorTriggerColumns(array $snapshot, array $rows = [], string $bucket = 'Source'): array
     {
         $options = [['caption' => $this->Translate('Choose device and event'), 'value' => '']];
-        foreach ($snapshot['devices'] ?? [] as $id => $device) {
-            foreach ($this->EditorChoices($snapshot, $id, 'Source') as $choice) {
-                if ($choice['value'] !== '') {
-                    $options[] = ['caption' => $device['name'] . ' (' . $id . ') — ' . $choice['caption'], 'value' => $id . ':' . $choice['value']];
-                }
-            }
-        }
-        $options = $this->ExtraEditorChoiceOptions($snapshot, 'Source', $options, $rows);
+        $options = $this->ExtraEditorChoiceOptions($snapshot, 'Source', $options, $rows, $bucket);
         return [['name' => 'Choice', 'caption' => $this->Translate('Device and event'), 'width' => 'auto', 'add' => '', 'edit' => ['type' => 'Select', 'options' => $options]],
             ['name' => 'Compare', 'caption' => $this->Translate('Comparison'), 'width' => '140px', 'add' => 'eq', 'edit' => ['type' => 'Select', 'options' => $this->EditorComparisonOptions('numeric')]],
             ['name'    => 'Hold', 'caption' => $this->Translate('Minimum duration (s)'), 'width' => '140px', 'add' => 0,

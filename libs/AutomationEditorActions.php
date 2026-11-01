@@ -26,6 +26,7 @@ trait AutomationEditorActions
                 $this->DebugEvent('AKTION', 'Löschen eines Aktionsschritts gemeldet; übergebene Anzahl ist der Vorbestand. Die verbleibende Liste wird beim Übernehmen geprüft.', ['Bereich' => $this->EditorTypeLabel($this->ActiveEditorArea()), 'AktionenVorLöschen' => count($actions)]);
                 return true;
             }
+            $this->RememberEditorListChoices('Target', json_decode($Steps, true, 8, JSON_THROW_ON_ERROR), 'current');
             $this->DebugEvent('AKTION', 'Aktionsliste im Formular bearbeitet; noch nicht in den Regelentwurf übernommen.', ['Bereich' => $this->EditorTypeLabel($this->ActiveEditorArea()), 'Änderung' => $Change, 'Aktionen' => count($actions)]);
             $this->DebugEditorActionSteps($actions);
             return true;
@@ -137,13 +138,6 @@ trait AutomationEditorActions
     private function EditorActionColumns(array $snapshot, array $rows = []): array
     {
         $options = [['caption' => $this->Translate('Choose device and action'), 'value' => '']];
-        foreach ($snapshot['devices'] ?? [] as $id => $device) {
-            foreach ($this->EditorChoices($snapshot, $id, 'Target') as $choice) {
-                if ($choice['value'] !== '') {
-                    $options[] = ['caption' => $this->EditorDeviceLabel($device, $id) . ' — ' . $choice['caption'], 'value' => $id . ':' . $choice['value']];
-                }
-            }
-        }
         $options = $this->ExtraEditorChoiceOptions($snapshot, 'Target', $options, $rows);
         return [['name' => 'Choice', 'caption' => $this->Translate('Device and action'), 'width' => 'auto', 'add' => '',
             'edit'      => ['type' => 'Select', 'options' => $options]],

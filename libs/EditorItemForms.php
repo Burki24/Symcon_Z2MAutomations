@@ -121,10 +121,8 @@ trait EditorItemForms
             $this->UpdateFormField('RowNumber', 'visible', $numeric);
             $this->UpdateFormField('Choice', 'value', $choice ?? '');
             if ($choice !== null) {
-                $saved = $this->GetBuffer('EditorRowChoices');
-                $saved = $saved === '' ? [] : json_decode($saved, true, 16, JSON_THROW_ON_ERROR);
-                $saved[] = $choice;
-                $this->SetBuffer('EditorRowChoices', json_encode(array_slice(array_values(array_unique($saved)), -128), JSON_THROW_ON_ERROR));
+                $bucket = $context['duration'] === '' ? 'Condition' : $context['side'];
+                $this->RememberEditorListChoices($bucket, [['Choice' => $choice]], 'pending');
                 $columns = str_ends_with($List, 'ConditionList') ? $this->EditorConditionColumns($snapshot) : ($context['side'] === 'Target' ? $this->EditorActionColumns($snapshot) : $this->EditorTriggerColumns($snapshot));
                 $this->UpdateEditorField($List, 'columns', json_encode($columns, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             }
@@ -181,11 +179,24 @@ trait EditorItemForms
         });
     }
 
-    private function ExtraEditorChoiceOptions(array $snapshot, string $side, array $options, array $rows): array
+    private function RememberEditorListChoices(string $bucket, array $rows, string $origin = 'selection'): array
     {
         $saved = $this->GetBuffer('EditorRowChoices');
         $saved = $saved === '' ? [] : json_decode($saved, true, 16, JSON_THROW_ON_ERROR);
-        foreach (array_unique(array_merge($saved, array_column($rows, 'Choice'))) as $encoded) {
+        // This is a short-lived display cache, not the device catalog or rule storage.
+        if (array_is_list($saved)) {
+            $saved = [];
+        }
+        if ($rows !== [] || $origin === 'current') {
+            $saved[$bucket][$origin] = array_slice(array_column($rows, 'Choice'), 0, $origin === 'pending' ? 1 : ($bucket === 'Source' ? 8 : 16));
+        }
+        $this->SetBuffer('EditorRowChoices', json_encode($saved, JSON_THROW_ON_ERROR));
+        return array_values(array_unique(array_merge($saved[$bucket]['selection'] ?? [], $saved[$bucket]['current'] ?? [], $saved[$bucket]['pending'] ?? [])));
+    }
+
+    private function ExtraEditorChoiceOptions(array $snapshot, string $side, array $options, array $rows, string $bucket = ''): array
+    {
+        foreach ($this->RememberEditorListChoices($bucket === '' ? $side : $bucket, $rows) as $encoded) {
             $parts = explode(':', $encoded);
             if (count($parts) !== 2 || in_array($encoded, array_column($options, 'value'), true)) {
                 continue;

@@ -709,9 +709,11 @@ try {
         $check(count($choice) === 1, 'Each channel has an explicit localized off-event choice');
         $channelTriggers[] = ['Choice' => '0x0000000000000004:' . $choice[0]['value'], 'Compare' => 'eq', 'Hold' => $channel];
     }
-    $channelAction = array_values(array_filter($fields['DeviceEditorActions']['columns'][0]['edit']['options'], static fn (array $option): bool => str_contains($option['caption'], 'L2') && preg_match('/(?:On|Ein)$/', $option['caption']) === 1));
+    $module->SelectEditorDevice('Target', '0x0000000000000004', 'device');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $channelAction = array_values(array_filter($fields['DeviceEditorTargetChoice']['options'], static fn (array $option): bool => str_contains($option['caption'], 'L2') && preg_match('/(?:On|Ein)$/', $option['caption']) === 1));
     $check(count($channelAction) === 1, 'Channel-specific actions use the same clear channel label');
-    $channelActions = [['Choice' => $channelAction[0]['value'], 'Delay' => 3]];
+    $channelActions = [['Choice' => '0x0000000000000004:' . $channelAction[0]['value'], 'Delay' => 3]];
     $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, ['DeviceEditorName' => 'Channel selection regression', 'DeviceEditorEnabled' => false,
         'DeviceEditorTriggers'                                                                  => new ArrayIterator($channelTriggers), 'DeviceEditorActions' => new ArrayIterator($channelActions)]);
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);

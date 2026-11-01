@@ -1,5 +1,12 @@
 # Unveröffentlicht
 
+## Fehlerkorrekturen
+
+- Konfigurationsformulare mit großen Geräte- und Aktionskatalogen bleiben unter
+  der Symcon-Ausgabegrenze. Listen übertragen nur verwendete Einträge; Geräte,
+  Eigenschaften, Kanäle und Szenen bleiben im Zeilendialog vollständig auswählbar.
+  Vorbelegung und noch nicht übernommene Zeilen bleiben dabei erhalten.
+
 ## Features
 
 - Vorhandene Z2M-Szenen als Aktionen im Klick-Editor: Auswahl mit Szenennamen,

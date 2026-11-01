@@ -367,6 +367,7 @@ trait AutomationEditor
         $this->FillTriggerSequenceForm($form, $selection, $snapshot);
         $this->FillConditionSequenceForm($form, $selection, $snapshot);
         $this->FillAutomationSections($form, $draft, $selection);
+        $this->DebugEvent('AKTION', 'Listenanzeige aus verwendeten Einträgen aufgebaut; die vollständige Geräteauswahl bleibt in den Zeilendialogen verfügbar.', ['Geräte' => count($snapshot['devices'] ?? [])]);
     }
 
     private function EditorRuleRows(array $draft, string $type = ''): array
