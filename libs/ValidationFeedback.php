@@ -12,7 +12,8 @@ final class ValidationFeedback
         'id'                                 => 'Identifier', 'name' => 'Automation name', 'enabled' => 'Rule enabled', 'triggers' => 'Trigger', 'conditions' => 'Condition', 'actions' => 'Action',
         'type'                               => 'Type', 'device' => 'Device', 'property' => 'Property or channel', 'operator' => 'Comparison', 'value' => 'Value', 'for_seconds' => 'Minimum duration (s)',
         'on_change'                          => 'Only on value change', 'at' => 'Time', 'timezone' => 'Timezone', 'after' => 'Start of time window', 'before' => 'End of time window',
-        'weekdays'                           => 'Weekdays', 'target' => 'Target device', 'system' => 'Partner system', 'values' => 'Action values', 'delay_seconds' => 'Wait before step (s)'];
+        'weekdays'                           => 'Weekdays', 'target' => 'Target device', 'system' => 'Partner system', 'values' => 'Action values', 'delay_seconds' => 'Wait before step (s)',
+        'scene_id'                           => 'Scene', 'endpoint' => 'Device channel'];
     private const REASONS = ['required' => 'This entry is missing.', 'type' => 'The value has the wrong type (for example text instead of a number).',
         'number'                        => 'Enter a number here.', 'integer' => 'Enter a whole number here.', 'boolean' => 'Choose enabled or disabled here.',
         'string'                        => 'Enter text here.', 'array' => 'A list of entries is required here.', 'object' => 'A group of settings is required here.',
@@ -26,7 +27,8 @@ final class ValidationFeedback
         'duplicate_id'                  => 'This identifier is already used by another automation.', 'timezone' => 'This timezone is not recognised.',
         'time_window'                   => 'The start and end of the time window must be different.',
         'remote_permission'             => 'The partner system for this action is not permitted. Select the partner module and save the draft again.',
-        'yaml_syntax'                   => 'The YAML could not be read. Check its syntax and indentation.'];
+        'yaml_syntax'                   => 'The YAML could not be read. Check its syntax and indentation.',
+        'scene_unavailable'             => 'This scene is no longer available on the selected device or group. Reload the device data and select an existing scene.'];
     private const LIMIT_REASONS = ['minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength', 'minProperties', 'maxProperties'];
 
     public static function Normalize(mixed $data): ?array

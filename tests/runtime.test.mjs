@@ -3,7 +3,7 @@ import test from 'node:test';
 import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import Extension from '../libs/z2m/z2m-automations.mjs';
+import Extension, {validateYaml, entityScenes, buildEditorScenes} from '../libs/z2m/z2m-automations.mjs';
 
 const sourceID = '0x0000000000000001';
 const targetID = '0x0000000000000002';
@@ -84,6 +84,93 @@ async function harness(directory = null, nativeDispatch = true, beforeStart = ()
     h.deactivate = () => h.request('deactivate', {session: h.session});
     return h;
 }
+
+test('scene catalog reads persisted endpoint/group identities without commands or foreign group scenes', () => {
+    const endpoints = [{ID: 1, meta: {scenes: {'0_0': {name: 'Synthetic zero'}, '5_7': {name: 'Synthetic group'}, '255_0': {name: 'Synthetic last'},
+        '256_0': {}, '3_9': {}, '4_0': {name: 'private\ntext'}}}}, {ID: 2, meta: {scenes: {'0_0': {name: 'Synthetic second channel'}}}}];
+    const device = {zh: {endpoints}, endpoint: () => endpoints[0]};
+    assert.deepEqual(entityScenes(device, 'device').map(s => [s.id, s.endpoint]), [[0, 1], [4, 1], [255, 1], [0, 2]]);
+    assert.equal(entityScenes(device, 'device')[1].name, '');
+    const group = {ID: 7, zh: {members: [endpoints[0], endpoints[0]]}};
+    assert.deepEqual(entityScenes(group, 'group'), [{id: 5, name: 'Synthetic group'}]);
+    const catalog = buildEditorScenes({resolveEntity: () => device, groupsIterator: () => [group]},
+        [{id: targetID, properties: [{property: 'state', access: 2, endpoint: ''}]}], [{id: 7}]);
+    assert.equal(catalog.length, 4, 'Only scenes on the controlled endpoint plus the group are offered');
+    assert.ok(catalog.every(entry => entry.control_property === 'state'));
+});
+
+test('scene actions validate references, recall the correct endpoint/group and preserve delays', async () => {
+    const h = await harness();
+    try {
+        const target = h.devices.get(targetID);
+        target.zh = {endpoints: [{ID: 2, meta: {scenes: {'0_0': {name: 'Synthetic device scene'}}}}]};
+        h.group.zh = {members: [{ID: 1, meta: {scenes: {'5_7': {name: 'Synthetic group scene'}}}}]};
+        const r = rule();
+        r.actions = [{type: 'scene', target: {type: 'device', id: targetID}, scene_id: 0, endpoint: 2},
+            {type: 'scene', target: {type: 'group', id: 7}, scene_id: 5, delay_seconds: 2}];
+        assert.equal((await h.store(yaml([r]))).status, 'ok');
+        assert.equal(h.commands.length, 0);
+        assert.equal((await h.activate()).status, 'ok');
+        await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1);
+        assert.equal(h.commands[0].topic, 'synthetic/target/2/set');
+        assert.deepEqual(h.commands[0].data, {scene_recall: 0});
+        await h.clock.advance(2000);
+        assert.deepEqual(h.commands[1].data, {scene_recall: 5});
+        assert.equal(h.commands[1].topic, 'synthetic/group/set');
+        assert.ok(h.logs.some(line => line.includes('Szenenaufruf an native')));
+        assert.ok(!h.logs.join().includes('Synthetic device scene'));
+    } finally { await h.close(); }
+});
+
+test('deleted scenes are rejected during validation, storage, activation and delayed execution', async () => {
+    const h = await harness();
+    try {
+        const r = rule();
+        r.actions = [{type: 'scene', target: {type: 'group', id: 7}, scene_id: 5, delay_seconds: 2}];
+        const rejected = await h.request('validate', {yaml: yaml([r])});
+        assert.equal(rejected.error.code, 'invalid_semantics');
+        assert.deepEqual(rejected.error.details.issues[0], {path: '/automations/0/actions/0/scene_id', reason: 'scene_unavailable'});
+        assert.equal((await h.store(yaml([r]))).status, 'error');
+        h.group.zh = {members: [{ID: 1, meta: {scenes: {'5_7': {name: 'Synthetic group scene'}}}}]};
+        assert.equal((await h.store(yaml([r]))).status, 'ok');
+        const metadata = h.group.zh;
+        delete h.group.zh;
+        assert.equal((await h.activate()).error.code, 'scene_unavailable');
+        h.group.zh = metadata;
+        assert.equal((await h.activate()).status, 'ok');
+        await h.event({occupancy: true});
+        delete h.group.zh;
+        await h.clock.advance(2000);
+        assert.equal(h.commands.length, 0);
+        assert.equal(h.extension.status().runtime_error, 'scene_unavailable');
+        for (const action of [{...r.actions[0], endpoint: 1}, {...r.actions[0], scene_id: -1}, {...r.actions[0], scene_id: 256},
+            {...r.actions[0], scene_id: '5'}, {...r.actions[0], target: {type: 'device', id: targetID}}]) {
+            assert.throws(() => validateYaml(yaml([{...r, actions: [action]}])), error => error.code === 'invalid_schema');
+        }
+    } finally { await h.close(); }
+});
+
+test('scene restart requires the persisted scene; stop cancels a pending scene recall', async () => {
+    let h = await harness();
+    try {
+        h.group.zh = {members: [{ID: 1, meta: {scenes: {'5_7': {name: 'Synthetic restart scene'}}}}]};
+        const r = rule();
+        r.actions = [{type: 'scene', target: {type: 'group', id: 7}, scene_id: 5, delay_seconds: 2}];
+        await h.store(yaml([r])); await h.activate();
+        await h.event({occupancy: true});
+        await h.deactivate();
+        await h.clock.advance(3000);
+        assert.equal(h.commands.length, 0);
+        await h.activate();
+        const directory = h.directory;
+        await h.close(false);
+        h = await harness(directory);
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().resume_error, 'scene_unavailable');
+        assert.equal(h.commands.length, 0);
+    } finally { await h.close(); }
+});
 
 test('storage never executes; explicit activation executes a fresh device trigger through native set topics', async () => {
     const h = await harness();

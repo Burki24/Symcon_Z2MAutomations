@@ -1,3 +1,32 @@
+## Vorhandene Szenen als Aktionen
+
+EditorScenes und src/scenes.mjs sind librarylokal; vorhandene zentrale Formular-,
+Datenfluss- und DebugFlow-Helper bleiben unverändert. Szenenmetadaten werden
+begrenzt gelesen und mit dem passenden Geräteendpoint bzw. der Gruppe verbunden.
+Der Editor bindet jede Szene an die native Schaltberechtigung des Kanals. Die
+eigene Schema-1-Aktion `scene` speichert ausschließlich stabile Z2M-Identitäten.
+Prüfung und Speicherung melden fehlende lokale Szenen mit präziser Regel-/
+Schrittposition. Aktivierung, Wiederanlauf und jede Übergabe prüfen erneut;
+bei entfernten Szenen übernimmt dies der vorhandene Mesh-Empfänger.
+
+`tests/editor-scenes.inc.php` verwendet die realen nativen Formularskripte und
+den erzeugten JavaScript-Empfänger: Geräte-/Zeiteditor, Szenennamen, getrennte
+Gerätekanäle, Callback-Auswahl, Prüfung/Speicherung, Wiederladen, Bearbeitung,
+Partnerauswahl, Rechteentzug und bereinigtes Debug. Runtime-/Mesh-Tests prüfen
+Szenen-ID 0, Endpoints, fremde Gruppenmetadaten, Verzögerung, gelöschte Szenen,
+Stopp, blockierten Wiederanlauf und genau einmalige entfernte Übergabe.
+Es werden ausschließlich synthetische Daten und temporäre Speicher verwendet.
+Kein Zugriff auf Test- oder Live-Installation; native Sichtprüfung und reale
+Geräteszenen sind noch offen. Modul und Erweiterungen benötigen den neuen Stand.
+
+Nachweise am 01.11.2026: `php tests/run.php` vollständig erfolgreich; nach
+Ergänzung des zweiten Endpoint-/Mesh-Nachweises die PHP-/JS-Integration und
+alle 73 JavaScript-Tests erneut erfolgreich. `php tests/validate_structure.php`,
+Kodierungsprüfung, `npm run check:extension`, offizielle StylePHP-JSON-Prüfung
+der eigenen Projektdateien und PHP CS Fixer 3.95.27 im Prüfmodus bestanden.
+JSON-Style lief auf einer temporären Kopie der eigenen JSON-Dateien, ohne
+Fremdquellen oder node_modules zu verschieben. Geänderte Texte verwenden LF.
+
 ## Wiederanlauf nach Z2M-Neustart
 
 Die Moduloption ResumeAfterRestart (Default true) wird im Aktivierungsauftrag

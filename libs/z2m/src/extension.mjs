@@ -8,6 +8,7 @@ import {parseEvents, constructFromEvents, JSON_SCHEMA, mapTag, EVENT_ID} from 'j
 import AUTOMATIONS_SCHEMA from '../automations.schema.json' with {type: 'json'};
 import {AutomationRuntime, RuntimeError} from './runtime.mjs';
 import {MeshTransport, meshSystemValid} from './mesh.mjs';
+import {buildEditorScenes, hasScene} from './scenes.mjs';
 
 export const LIMITS = Object.freeze({yamlBytes: 131072, requestBytes: 1048576, queuedRequests: 16});
 const PREFIX = 'symcon/automations';
@@ -26,6 +27,7 @@ const ERRORS = Object.freeze({
     not_ready: 'Extension is not accepting requests.',
     runtime_unavailable: 'Required Z2M runtime interfaces are unavailable.',
     unknown_entity: 'A configured device or group is unavailable.',
+    scene_unavailable: 'The selected scene is no longer available on the target.',
     checksum_mismatch: 'Activation checksum does not match the stored configuration.',
     activation_expired: 'Request a fresh activation token before activating the stored revision.',
     mesh_unavailable: 'The bridge transport is unavailable.',
@@ -60,7 +62,7 @@ function selectDiagnosticBranches(node) {
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
 const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
-    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds']);
+    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
 function schemaDetails(document) {
@@ -427,6 +429,20 @@ export default class Z2MAutomationsExtension {
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
     }
 
+    validateScenes(candidate) {
+        const issues = [];
+        for (const [rule, automation] of candidate.document.automations.entries()) {
+            for (const [step, action] of automation.actions.entries()) {
+                if (action.type !== 'scene' || action.target.system !== undefined) continue;
+                let available = false;
+                try { available = hasScene(this.runtime.target(action.target), action.target.type, action); }
+                catch { /* A missing entity is reported at the same actionable scene position. */ }
+                if (!available) issues.push({path: `/automations/${rule}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+            }
+        }
+        if (issues.length) fail('invalid_semantics', {issues: issues.slice(0, 20), truncated: issues.length > 20});
+    }
+
     async persistExecution(active, enabled = this.executionIntent?.enabled ?? false) {
         const intent = {version: 1, system: this.baseTopic, enabled, active,
             revision: this.store.current?.document.revision ?? 0, checksum: this.store.current?.checksum ?? null};
@@ -549,10 +565,16 @@ export default class Z2MAutomationsExtension {
                     data = {...this.status(), activation_token: this.activationToken.value};
                 }
                 if (operation === 'get') data = {...this.store.metadata(), executing: this.runtime.metadata().executing, yaml: this.store.current?.yaml ?? null};
-                if (operation === 'editor') data = {...this.status(), editor_version: 1, devices: buildEditorCatalog(this.zigbee), groups: buildEditorGroups(this.zigbee), yaml: this.store.current?.yaml ?? null,
-                    configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}};
+                if (operation === 'editor') {
+                    const devices = buildEditorCatalog(this.zigbee), groups = buildEditorGroups(this.zigbee);
+                    const scenes = buildEditorScenes(this.zigbee, devices, groups);
+                    data = {...this.status(), editor_version: 1, devices, groups, scenes, yaml: this.store.current?.yaml ?? null,
+                        configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}};
+                    this.runtime.log('AKTION', 'Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet.', {Szenen: scenes.length});
+                }
                 if (operation === 'validate') {
                     const candidate = validateYaml(request.yaml);
+                    this.validateScenes(candidate);
                     data = {valid: true, revision: candidate.document.revision, checksum: candidate.checksum,
                         automation_count: candidate.document.automations.length, executing: false};
                 }
@@ -560,6 +582,7 @@ export default class Z2MAutomationsExtension {
                     if (request.session !== this.session || event.retain === true) fail('session_mismatch');
                     if (!isRevision(request.expected_revision)) fail('invalid_request');
                     const candidate = validateYaml(request.yaml);
+                    this.validateScenes(candidate);
                     if (candidate.checksum !== this.store.current?.checksum && ['ok', 'empty'].includes(this.store.state)
                         && request.expected_revision === (this.store.current?.document.revision ?? 0)
                         && candidate.document.revision === request.expected_revision + 1) {

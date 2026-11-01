@@ -1,4 +1,4 @@
-// Generated from src/extension.mjs, src/runtime.mjs, src/mesh.mjs and automations.schema.json. Do not edit.
+// Generated from src/extension.mjs, src/runtime.mjs, src/mesh.mjs, src/scenes.mjs and automations.schema.json. Do not edit.
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -6,7 +6,8 @@ import {fileURLToPath} from 'node:url';
 import {TextDecoder} from 'node:util';
 import Ajv from 'ajv';
 import {parseEvents, constructFromEvents, JSON_SCHEMA, mapTag, EVENT_ID} from 'js-yaml';
-const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"}}};
+const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"sceneAction":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"scene"},"target":{"$ref":"#/definitions/target"},"scene_id":{"type":"integer","minimum":0,"maximum":255},"endpoint":{"type":"integer","minimum":1,"maximum":240},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","scene_id"],"allOf":[{"if":{"properties":{"target":{"type":"object","properties":{"type":{"const":"group"}}}}},"then":{"properties":{"endpoint":false}},"else":{"properties":{"endpoint":{"type":"integer","minimum":1,"maximum":240}},"required":["endpoint"]}}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"}}};
+
 // Library-local execution policy. No foreign automation implementation is bundled.
 export const RUNTIME_LIMITS = Object.freeze({concurrentRules: 16, commandsPerSecond: 20, ruleCooldownMs: 1000, publishTimeoutMs: 5000});
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -103,7 +104,8 @@ export class AutomationRuntime {
                     if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
                     continue;
                 }
-                this.target(action.target);
+                const entity = this.target(action.target);
+                if (action.type === 'scene' && !hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
                 if (action.type === 'toggle' && typeof this.readState !== 'function') throw new RuntimeError('runtime_unavailable');
             }
         }
@@ -265,6 +267,11 @@ export class AutomationRuntime {
         if (!this.active || generation !== this.generation) throw new RuntimeError('mesh_stopped');
         const entity = this.target(action.target);
         let values = action.values;
+        if (action.type === 'scene') {
+            if (!hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
+            values = {scene_recall: action.scene_id};
+            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined});
+        }
         if (action.type === 'toggle') {
             const current = this.readState(entity)?.[action.property];
             if (current !== 'ON' && current !== 'OFF') throw new RuntimeError('state_unavailable');
@@ -275,13 +282,14 @@ export class AutomationRuntime {
         this.sentAt = this.sentAt.filter(time => now - time < 1000);
         if (this.sentAt.length >= RUNTIME_LIMITS.commandsPerSecond) throw new RuntimeError('rate_limited');
         this.sentAt.push(now);
-        this.log('SENDEN', 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
+        this.log('SENDEN', action.type === 'scene' ? 'Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.'
+            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
         let timeout;
         try {
             await Promise.race([
                 Promise.resolve().then(() => {
                     if (!this.active || this.generation !== generation) throw new RuntimeError('mesh_stopped');
-                    return this.dispatch(entity.name + '/set', JSON.stringify(values));
+                    return this.dispatch(entity.name + (action.type === 'scene' && action.endpoint !== undefined ? '/' + action.endpoint : '') + '/set', JSON.stringify(values));
                 }),
                 new Promise((_, reject) => { timeout = this.clock.setTimeout(() => reject(new RuntimeError('action_timeout')), RUNTIME_LIMITS.publishTimeoutMs); })
             ]);
@@ -393,7 +401,7 @@ export class MeshTransport {
         if (generation !== this.runtime.generation || !this.allowed(destination)) throw new RuntimeError('mesh_stopped');
         if (challenge.status !== 'ok' || typeof challenge.token !== 'string' || !/^[a-f0-9-]{36}$/.test(challenge.token)) throw new RuntimeError('mesh_rejected');
         const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result');
-        if (result.status !== 'ok') throw new RuntimeError('mesh_rejected');
+        if (result.status !== 'ok') throw new RuntimeError(result.error === 'scene_unavailable' ? 'scene_unavailable' : 'mesh_rejected');
         this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.');
     }
 
@@ -441,13 +449,70 @@ export class MeshTransport {
                     this.runtime.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
                     this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError});
                 }
-                await this.publish(message.source, 'result', {transaction: message.transaction, status});
+                await this.publish(message.source, 'result', {transaction: message.transaction, status,
+                    ...(status === 'error' && this.runtime.lastError === 'scene_unavailable' ? {error: 'scene_unavailable'} : {})});
             }
         } catch (error) {
             this.runtime.log('FEHLER', 'Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion.', {Grund: error instanceof RuntimeError ? error.code : 'mesh_invalid'});
         }
         return true;
     }
+}
+
+// Read only Z2M's persisted scene metadata; discovery never sends Zigbee commands.
+const sceneObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const sceneEndpoint = value => Number.isInteger(value) && value >= 1 && value <= 240;
+
+export function entityScenes(entity, type) {
+    const result = [];
+    const endpoints = type === 'group' ? entity?.zh?.members : entity?.zh?.endpoints;
+    if (!Array.isArray(endpoints)) return result;
+    const seen = new Set();
+    for (const endpoint of endpoints.slice(0, 256)) {
+        if (type === 'device' && !sceneEndpoint(endpoint?.ID)) continue;
+        const metadata = endpoint?.meta?.scenes;
+        if (!sceneObject(metadata)) continue;
+        for (const key of Object.keys(metadata).slice(0, 512)) {
+            const match = /^(0|[1-9][0-9]{0,2})_(0|[1-9][0-9]{0,4})$/.exec(key);
+            if (!match || Number(match[1]) > 255 || Number(match[2]) !== (type === 'group' ? entity.ID : 0)) continue;
+            const id = Number(match[1]);
+            const channel = type === 'device' ? endpoint.ID : 0;
+            const identity = channel + '.' + id;
+            if (seen.has(identity) || result.length >= 64 || !sceneObject(metadata[key])) continue;
+            seen.add(identity);
+            const raw = metadata[key].name;
+            const name = typeof raw === 'string' && !/[\u0000-\u001f\u007f]/.test(raw) ? [...raw].slice(0, 120).join('') : '';
+            result.push({id, name, ...(channel ? {endpoint: channel} : {})});
+        }
+    }
+    return result.sort((a, b) => (a.endpoint ?? 0) - (b.endpoint ?? 0) || a.id - b.id);
+}
+
+export function hasScene(entity, type, action) {
+    return entityScenes(entity, type).some(scene => scene.id === action.scene_id && scene.endpoint === action.endpoint);
+}
+
+export function buildEditorScenes(zigbee, devices, groups) {
+    const result = [];
+    for (const entry of [...devices.map(device => ({type: 'device', id: device.id, entry: device})),
+        ...groups.map(group => ({type: 'group', id: group.id, entry: group}))]) {
+        const entity = entry.type === 'device' ? zigbee.resolveEntity?.(entry.id)
+            : [...(zigbee.groupsIterator?.() ?? [])].find(group => group.ID === entry.id);
+        for (const scene of entityScenes(entity, entry.type)) {
+            if (result.length >= 512) return result;
+            let control = 'state';
+            if (entry.type === 'device') {
+                control = entry.entry.properties.find(property => {
+                    if (!(property.access & 2) || !/^state(?:_[A-Za-z0-9_]+)?$/.test(property.property)) return false;
+                    try { return entity.endpoint?.(property.endpoint || 'default')?.ID === scene.endpoint; }
+                    catch { return false; }
+                })?.property;
+                if (!control) continue;
+            }
+            result.push({...scene, target: {type: entry.type, id: entry.id}, control_property: control});
+        }
+    }
+    return result;
 }
 
 
@@ -468,6 +533,7 @@ const ERRORS = Object.freeze({
     not_ready: 'Extension is not accepting requests.',
     runtime_unavailable: 'Required Z2M runtime interfaces are unavailable.',
     unknown_entity: 'A configured device or group is unavailable.',
+    scene_unavailable: 'The selected scene is no longer available on the target.',
     checksum_mismatch: 'Activation checksum does not match the stored configuration.',
     activation_expired: 'Request a fresh activation token before activating the stored revision.',
     mesh_unavailable: 'The bridge transport is unavailable.',
@@ -502,7 +568,7 @@ function selectDiagnosticBranches(node) {
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
 const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
-    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds']);
+    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
 function schemaDetails(document) {
@@ -869,6 +935,20 @@ export default class Z2MAutomationsExtension {
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
     }
 
+    validateScenes(candidate) {
+        const issues = [];
+        for (const [rule, automation] of candidate.document.automations.entries()) {
+            for (const [step, action] of automation.actions.entries()) {
+                if (action.type !== 'scene' || action.target.system !== undefined) continue;
+                let available = false;
+                try { available = hasScene(this.runtime.target(action.target), action.target.type, action); }
+                catch { /* A missing entity is reported at the same actionable scene position. */ }
+                if (!available) issues.push({path: `/automations/${rule}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+            }
+        }
+        if (issues.length) fail('invalid_semantics', {issues: issues.slice(0, 20), truncated: issues.length > 20});
+    }
+
     async persistExecution(active, enabled = this.executionIntent?.enabled ?? false) {
         const intent = {version: 1, system: this.baseTopic, enabled, active,
             revision: this.store.current?.document.revision ?? 0, checksum: this.store.current?.checksum ?? null};
@@ -991,10 +1071,16 @@ export default class Z2MAutomationsExtension {
                     data = {...this.status(), activation_token: this.activationToken.value};
                 }
                 if (operation === 'get') data = {...this.store.metadata(), executing: this.runtime.metadata().executing, yaml: this.store.current?.yaml ?? null};
-                if (operation === 'editor') data = {...this.status(), editor_version: 1, devices: buildEditorCatalog(this.zigbee), groups: buildEditorGroups(this.zigbee), yaml: this.store.current?.yaml ?? null,
-                    configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}};
+                if (operation === 'editor') {
+                    const devices = buildEditorCatalog(this.zigbee), groups = buildEditorGroups(this.zigbee);
+                    const scenes = buildEditorScenes(this.zigbee, devices, groups);
+                    data = {...this.status(), editor_version: 1, devices, groups, scenes, yaml: this.store.current?.yaml ?? null,
+                        configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}};
+                    this.runtime.log('AKTION', 'Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet.', {Szenen: scenes.length});
+                }
                 if (operation === 'validate') {
                     const candidate = validateYaml(request.yaml);
+                    this.validateScenes(candidate);
                     data = {valid: true, revision: candidate.document.revision, checksum: candidate.checksum,
                         automation_count: candidate.document.automations.length, executing: false};
                 }
@@ -1002,6 +1088,7 @@ export default class Z2MAutomationsExtension {
                     if (request.session !== this.session || event.retain === true) fail('session_mismatch');
                     if (!isRevision(request.expected_revision)) fail('invalid_request');
                     const candidate = validateYaml(request.yaml);
+                    this.validateScenes(candidate);
                     if (candidate.checksum !== this.store.current?.checksum && ['ok', 'empty'].includes(this.store.state)
                         && request.expected_revision === (this.store.current?.document.revision ?? 0)
                         && candidate.document.revision === request.expected_revision + 1) {

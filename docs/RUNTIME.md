@@ -1,5 +1,15 @@
 # Automationen ausführen
 
+## Vorhandene Szenen
+
+Eine `scene`-Aktion wird über dieselbe native Befehlsübergabe wie Set-Aktionen
+ausgeführt. Die Erweiterung erzeugt ausschließlich `{scene_recall: scene_id}`;
+bei Geräten wird der gespeicherte numerische Endpoint im Zielpfad verwendet.
+Lokale Prüfung/Speicherung, Aktivierung und jede tatsächliche Übergabe prüfen die
+vorhandene Zuordnung neu. Das Zielsystem prüft entfernte Szenen. Eine gelöschte
+Szene beendet die verbleibende Folge mit `scene_unavailable`; kein Retry und
+keine Ersatzszene. Verzögerung, Stopp, Begrenzungen und Wiederanlauf bleiben gültig.
+
 ## Systemübergreifende Aktionen
 
 `target.system` delegiert Set-/Toggle-Aktionen an das ausgewählte zweite Z2M.

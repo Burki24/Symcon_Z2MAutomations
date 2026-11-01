@@ -1,5 +1,19 @@
 # Erweiterungsprotokoll Version 1
 
+## Szenenkatalog
+
+Die `editor`-Antwort ergänzt optional `scenes` mit höchstens 512 Einträgen.
+Ein Eintrag enthält `target` (`type` device/group und `id`), `id` (0–255),
+`name` (höchstens 120 Unicode-Zeichen), `control_property` (zugehöriger state-Kanal)
+und für Geräte zwingend `endpoint` (1–240). Pro Ziel liefert die begrenzte
+Metadatenlesung höchstens 64 Szenen. Fehlendes `scenes` bedeutet keine angebotenen
+Szenen; unvollständige, doppelte oder ungültige Einträge werden nicht übernommen.
+Es werden keine Zigbee-Abfragen oder Szenenänderungen zur Ermittlung ausgelöst.
+Lokale fehlende Szenen ergeben bei validate/store `invalid_semantics` mit genauer
+Position und Ursache `scene_unavailable`. Bei Aktivierung und Ausführung ist
+`scene_unavailable` ein fester Fehlercode. Mesh-Ergebnisse können diesen festen
+Code zusätzlich übertragen; andere Fehler bleiben wie bisher `mesh_rejected`.
+
 Der additive Gerätekatalog enthält optional `numeric`: bis zu 64 lesbare
 numerische Eigenschaften je Gerät mit `property` und einer auf 24 Unicode-Zeichen
 begrenzten `unit`. Sie zählen zur gemeinsamen Grenze von 1024 Auswahlwerten.

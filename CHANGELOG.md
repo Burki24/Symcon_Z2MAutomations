@@ -2,6 +2,12 @@
 
 ## Features
 
+- Vorhandene Z2M-Szenen als Aktionen im Klick-Editor: Auswahl mit Szenennamen,
+  Gerätekanal und Wartezeit, vollständige Vorbelegung sowie Aufruf im ausgewählten
+  zweiten Z2M-System. Schaltrechte werden weiterhin geprüft. Fehlende Szenen
+  werden bei lokaler Prüfung, Aktivierung und Ausführung verständlich gemeldet;
+  entfernte Szenen prüft das Zielsystem. Keine Szenenerstellung oder -änderung.
+
 - Automatischer Wiederanlauf nach Z2M-Neustart oder Erweiterungsneuladen für den
   zuvor ausdrücklich aktivierten Regelstand. Formularoption standardmäßig an;
   Übertragung beim Aktivieren. Bestätigtes Stoppen bleibt dauerhaft wirksam.

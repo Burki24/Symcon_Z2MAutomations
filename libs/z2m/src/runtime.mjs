@@ -1,3 +1,5 @@
+import {hasScene} from './scenes.mjs';
+
 // Library-local execution policy. No foreign automation implementation is bundled.
 export const RUNTIME_LIMITS = Object.freeze({concurrentRules: 16, commandsPerSecond: 20, ruleCooldownMs: 1000, publishTimeoutMs: 5000});
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -94,7 +96,8 @@ export class AutomationRuntime {
                     if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
                     continue;
                 }
-                this.target(action.target);
+                const entity = this.target(action.target);
+                if (action.type === 'scene' && !hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
                 if (action.type === 'toggle' && typeof this.readState !== 'function') throw new RuntimeError('runtime_unavailable');
             }
         }
@@ -256,6 +259,11 @@ export class AutomationRuntime {
         if (!this.active || generation !== this.generation) throw new RuntimeError('mesh_stopped');
         const entity = this.target(action.target);
         let values = action.values;
+        if (action.type === 'scene') {
+            if (!hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
+            values = {scene_recall: action.scene_id};
+            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined});
+        }
         if (action.type === 'toggle') {
             const current = this.readState(entity)?.[action.property];
             if (current !== 'ON' && current !== 'OFF') throw new RuntimeError('state_unavailable');
@@ -266,13 +274,14 @@ export class AutomationRuntime {
         this.sentAt = this.sentAt.filter(time => now - time < 1000);
         if (this.sentAt.length >= RUNTIME_LIMITS.commandsPerSecond) throw new RuntimeError('rate_limited');
         this.sentAt.push(now);
-        this.log('SENDEN', 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
+        this.log('SENDEN', action.type === 'scene' ? 'Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.'
+            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
         let timeout;
         try {
             await Promise.race([
                 Promise.resolve().then(() => {
                     if (!this.active || this.generation !== generation) throw new RuntimeError('mesh_stopped');
-                    return this.dispatch(entity.name + '/set', JSON.stringify(values));
+                    return this.dispatch(entity.name + (action.type === 'scene' && action.endpoint !== undefined ? '/' + action.endpoint : '') + '/set', JSON.stringify(values));
                 }),
                 new Promise((_, reject) => { timeout = this.clock.setTimeout(() => reject(new RuntimeError('action_timeout')), RUNTIME_LIMITS.publishTimeoutMs); })
             ]);

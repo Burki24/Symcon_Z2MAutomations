@@ -12,8 +12,8 @@ final class ExtensionContract
     public const VERSION = '0.1.0';
     public const PREFIX = 'symcon/automations/';
     public const MAX_YAML_BYTES = 131072;
-    public const ERROR_CODES = ['invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed'];
-    public const RUNTIME_ERRORS = ['', 'unknown_entity', 'action_failed', 'action_timeout', 'rate_limited', 'state_unavailable', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_timeout', 'mesh_rejected', 'mesh_stopped', 'mesh_busy'];
+    public const ERROR_CODES = ['invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'scene_unavailable', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed'];
+    public const RUNTIME_ERRORS = ['', 'unknown_entity', 'scene_unavailable', 'action_failed', 'action_timeout', 'rate_limited', 'state_unavailable', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_timeout', 'mesh_rejected', 'mesh_stopped', 'mesh_busy'];
 
     public static function ValidYamlText(string $yaml): bool
     {
@@ -123,6 +123,7 @@ final class ExtensionContract
             'checksum_mismatch'    => 'The stored configuration changed before activation.',
             'state_unavailable'    => 'The current Z2M target state is unknown. Toggle was not executed.',
             'unknown_entity'       => 'A configured device or group is unavailable in Z2M.',
+            'scene_unavailable'    => 'The selected scene is no longer available. Reload the device data and select an existing scene.',
             'runtime_unavailable'  => 'Update the bundled extension to use execution controls.',
             'mesh_unavailable'     => 'The connection to the second Z2M system is unavailable. Check the bridge and Z2M permissions.',
             'mesh_not_allowed'     => 'The second Z2M system is not allowed. Select the partner module, store and activate both systems.',

@@ -47,6 +47,7 @@ trait EditorSymconVariables
 
     private function EditorActionVariable(array $snapshot, string $device, string $property): ?array
     {
+        $property = $snapshot['devices'][$device]['properties'][$property]['controlProperty'] ?? $property;
         if (str_starts_with($device, 'remote.')) {
             return $this->RemoteActionVariable($snapshot, $device, $property);
         }

@@ -1,5 +1,26 @@
 # Z2MAutomations
 
+## Vorhandene Szenen aufrufen
+
+Mit **Geräte und gespeicherte Automationen laden** werden auch die in Z2M
+bekannten Szenen geladen. Fügen Sie in der Aktionsfolge einen Schritt hinzu,
+wählen Sie das Gerät oder die Gruppe und anschließend **Szene aufrufen**.
+Bei Geräten wird der zugehörige Kanal angezeigt. Wählen Sie die Szene anhand
+ihres Namens aus und stellen Sie bei Bedarf eine Wartezeit vor diesem Schritt ein.
+Die Auswahl wird beim Bearbeiten einer vorhandenen Automation wieder vorbelegt.
+
+Angeboten werden Szenen, deren zugehöriger Schaltkanal in Symcon schaltbar ist.
+Für das zweite Z2M-System wählen Sie ein Ziel mit dessen Basistopic vor dem Namen;
+zuvor müssen die Gerätedaten auch im Partnermodul geladen sein. Die Freigaben und
+die Aktivierung beider Systeme gelten genauso wie bei anderen entfernten Aktionen.
+
+Diese Funktion ruft vorhandene Szenen auf. Sie legt keine Szene an und verändert
+keine gespeicherten Szeneneinstellungen. Fehlt eine Szene, laden Sie die Gerätedaten
+neu und wählen Sie eine vorhandene Szene. Lokale Szenen werden auch bei der
+Entwurfsprüfung kontrolliert; Szenen des zweiten Systems prüft dessen Erweiterung
+unmittelbar vor der Ausführung. Eine erfolgreiche Befehlsübergabe bestätigt noch
+nicht die tatsächliche Gerätewirkung.
+
 ## Ein Gerät auf dem zweiten Z2M-System schalten
 
 Jedes Z2M-System erhält sein eigenes Automationsmodul mit eigenem Basistopic.

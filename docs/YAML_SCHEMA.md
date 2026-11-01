@@ -87,6 +87,14 @@ Symcon- oder Z2M-Rechners verwendet.
 
 ## Aktionen
 
+`type: scene` ruft eine vorhandene Z2M-Szene auf. Erforderlich sind `target`
+wie bei Set-Aktionen und `scene_id` als Ganzzahl von 0 bis 255. Geräteziele
+benötigen zusätzlich `endpoint` als Ganzzahl von 1 bis 240; bei Gruppen ist
+dieses Feld verboten. Optional ist `delay_seconds` wie bei anderen Aktionen.
+`target.system` erlaubt den Aufruf auf dem ausgewählten Partnersystem.
+Die Szenen-ID gehört immer zum Ziel und gegebenenfalls Geräteendpoint.
+Anzeigenamen sind keine Identität und werden nicht in der Aktion gespeichert.
+
 type: set mit target und values. target ist entweder type: device mit einer
 IEEE-Adresse in id oder type: group mit einer numerischen id von 1 bis 65535.
 values enthält 1–32 Eigenschaften als JSON-kompatible Werte; verschachtelte

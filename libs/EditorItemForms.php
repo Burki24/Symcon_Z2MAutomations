@@ -27,8 +27,7 @@ trait EditorItemForms
             $parts = explode(':', $Choice);
             $device = count($parts) === 2 ? $parts[0] : '';
             $choice = count($parts) === 2 ? $this->FindEditorChoice($snapshot, $device, $parts[1], $context['side']) : null;
-            $binding = $choice !== null && $context['side'] === 'Target' ? $this->EditorActionVariable($snapshot, $device, $choice['property']) : null;
-            $property = $choice === null ? '' : ($binding === null ? $choice['property'] : (string) $binding['id']);
+            $property = $choice === null ? '' : $this->EditorPropertyToken($snapshot, $device, $choice['property'], $context['side']);
             $meta = $this->EditorItemProperty($snapshot, $device, $property, $context['side']);
             $numeric = ($meta['type'] ?? '') === 'numeric';
             foreach ($template as &$field) {
@@ -40,6 +39,7 @@ trait EditorItemForms
                     $field['options'] = $this->EditorItemProperties($snapshot, $device, $context['side']);
                     $field['value'] = $property;
                 } elseif ($name === 'RowValue') {
+                    $field['caption'] = $this->Translate(isset($meta['sceneEndpoint']) ? 'Scene' : 'Value');
                     $field['options'] = $this->EditorItemValues($snapshot, $device, $meta, $context['side']);
                     $field['value'] = !$numeric && $choice !== null ? $parts[1] : '';
                     $field['visible'] = !$numeric;
@@ -117,6 +117,7 @@ trait EditorItemForms
                 $choice = null;
             }
             $this->UpdateFormField('RowValue', 'visible', !$numeric);
+            $this->UpdateFormField('RowValue', 'caption', $this->Translate(isset($meta['sceneEndpoint']) ? 'Scene' : 'Value'));
             $this->UpdateFormField('RowNumber', 'visible', $numeric);
             $this->UpdateFormField('Choice', 'value', $choice ?? '');
             if ($choice !== null) {
@@ -144,9 +145,8 @@ trait EditorItemForms
     {
         $options = [['caption' => $this->Translate('Choose property or channel'), 'value' => '']];
         foreach ($this->EditorProperties($snapshot, $device, $side) as $property => $meta) {
-            $binding = $side === 'Target' ? $this->EditorActionVariable($snapshot, $device, $property) : null;
             $options[] = ['caption' => $this->EditorPropertyLabel($snapshot, $device, $property, $side),
-                'value'             => $binding === null ? $property : (string) $binding['id']];
+                'value'             => $this->EditorPropertyToken($snapshot, $device, $property, $side)];
         }
         return $options;
     }
@@ -154,8 +154,7 @@ trait EditorItemForms
     private function EditorItemProperty(array $snapshot, string $device, string $token, string $side): ?array
     {
         foreach ($this->EditorProperties($snapshot, $device, $side) as $property => $meta) {
-            $binding = $side === 'Target' ? $this->EditorActionVariable($snapshot, $device, $property) : null;
-            if (($binding === null ? $property : (string) $binding['id']) === $token) {
+            if ($this->EditorPropertyToken($snapshot, $device, $property, $side) === $token) {
                 return $meta;
             }
         }
@@ -168,7 +167,7 @@ trait EditorItemForms
         foreach ($meta['values'] ?? [] as $value) {
             $key = $this->EditorValueKey($snapshot, $device, $meta['property'], $value, $side);
             if ($key !== null) {
-                $options[] = ['caption' => $this->EditorValueLabel($value), 'value' => $key];
+                $options[] = ['caption' => $this->EditorChoiceValueLabel($snapshot, $device, $meta['property'], $value), 'value' => $key];
             }
         }
         return $options;
@@ -194,8 +193,8 @@ trait EditorItemForms
             [$device, $key] = $parts;
             $choice = $this->FindEditorChoice($snapshot, $device, $key, $side);
             if ($choice !== null) {
-                $options[] = ['caption'                                                                                                                      => $this->EditorDeviceLabel($snapshot['devices'][$device], $device) . ' — '
-                    . $this->EditorPropertyLabel($snapshot, $device, $choice['property'], $side) . ': ' . $this->EditorValueLabel($choice['value']), 'value' => $encoded];
+                $options[] = ['caption'                                                                                                                                                                     => $this->EditorDeviceLabel($snapshot['devices'][$device], $device) . ' — '
+                    . $this->EditorPropertyLabel($snapshot, $device, $choice['property'], $side) . ': ' . $this->EditorChoiceValueLabel($snapshot, $device, $choice['property'], $choice['value']), 'value' => $encoded];
             }
         }
         return $options;

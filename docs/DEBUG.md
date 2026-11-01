@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Szenenaufrufe
+
+Der Katalogempfang nennt die Szenenanzahl. Aktionsschritte unterscheiden einen
+vorbereiteten Szenenaufruf von gewöhnlichen Schaltaktionen und nennen Schritt,
+Wartezeit und die Verwendung des Partnersystems. Z2M protokolliert die erneute
+Szenenprüfung sowie die native Übergabe. Fehlende Szenen erhalten den festen
+Code `scene_unavailable`, bei Entwurfsprüfung zusätzlich die genaue Regel-/Schrittposition.
+Szenennamen, Szenenwerte, Geräteidentitäten und Metadaten werden nicht zusätzlich
+in den Debug übernommen. Die Oberflächenauswahl zeigt Namen ausschließlich zur Bedienung.
+
 ## Status nach Speicherung
 
 Debug unterscheidet die bestätigte Speicherung, die automatische Statusrückfrage

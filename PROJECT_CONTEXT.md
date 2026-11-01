@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Vorhandene Z2M-Szenen lokal als eigene `scene`-Aktionen integriert: lesender
+  Katalog mit Geräteendpoint und Gruppenidentität, benannte Auswahl im Geräte-
+  und Zeiteditor, vollständige Vorbelegung, Symcon-Schaltrechte und Partnerziele.
+  Lokale Prüfung/Speicherung und ausführendes Z2M erkennen fehlende Szenen.
+  Native Szenenübergabe und Mesh verwenden die bestehende Laufzeit einschließlich
+  Verzögerungen, Stopp und Wiederanlauf. Deutsche Diagnose ergänzt; keine Szene
+  angelegt oder verändert. Noch keine Installation oder native Praxisprüfung.
+  Siehe ADR 0011 und docs/DEVELOPMENT.md.
+
 - Automatische Statusbestätigung nach Speicherung lokal ergänzt: passender
   vollständiger Status bestätigt den gespeicherten Snapshot und gibt den
   Aktivierungsbutton frei. Fehlende/abweichende Bestätigung meldet

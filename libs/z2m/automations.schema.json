@@ -338,6 +338,9 @@
         "action": {
             "oneOf": [
                 {
+                    "$ref": "#/definitions/sceneAction"
+                },
+                {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
@@ -404,6 +407,71 @@
                         "target",
                         "property"
                     ]
+                }
+            ]
+        },
+        "sceneAction": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "scene"
+                },
+                "target": {
+                    "$ref": "#/definitions/target"
+                },
+                "scene_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "endpoint": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 240
+                },
+                "delay_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 86400
+                }
+            },
+            "required": [
+                "type",
+                "target",
+                "scene_id"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "target": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "const": "group"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "endpoint": false
+                        }
+                    },
+                    "else": {
+                        "properties": {
+                            "endpoint": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 240
+                            }
+                        },
+                        "required": [
+                            "endpoint"
+                        ]
+                    }
                 }
             ]
         },

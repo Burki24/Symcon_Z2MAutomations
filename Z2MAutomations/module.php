@@ -10,6 +10,7 @@ require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/AutomaticStatusRefresh.php';
 require_once __DIR__ . '/../libs/EditorGroupTargets.php';
+require_once __DIR__ . '/../libs/EditorScenes.php';
 require_once __DIR__ . '/../libs/Z2MInstanceDiscovery.php';
 require_once __DIR__ . '/../libs/SymconEventImport.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
@@ -40,6 +41,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\AutomaticStatusRefresh;
     use Z2MAutomations\EditorGroupTargets;
+    use Z2MAutomations\EditorScenes;
     use Z2MAutomations\Z2MInstanceDiscovery;
     use Z2MAutomations\SymconEventImport;
     use Z2MAutomations\ExtensionIntegration;

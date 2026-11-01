@@ -74,6 +74,10 @@ trait EditorPropertyCatalog
 
     private function EditorPropertyLabel(array $snapshot, string $device, string $property, string $side): string
     {
+        $sceneEndpoint = $snapshot['devices'][$device]['properties'][$property]['sceneEndpoint'] ?? null;
+        if ($sceneEndpoint !== null) {
+            return $this->Translate('Recall scene') . ($sceneEndpoint === 0 ? '' : ' (' . sprintf($this->Translate('Channel %s'), $sceneEndpoint) . ')');
+        }
         if ($side === 'Target') {
             $binding = $this->EditorActionVariable($snapshot, $device, $property);
             if ($binding !== null) {

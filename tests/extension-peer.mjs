@@ -33,7 +33,15 @@ devices.set('0x0000000000000004', {ID: '0x0000000000000004', ieeeAddr: '0x000000
     {property: 'level', label: 'Level', type: 'numeric', access: 3, value_min: 0, value_max: 100, value_step: 5},
     {property: 'write_only', label: 'Write only', type: 'numeric', access: 2, value_min: 10, value_max: 50, value_step: 10},
     {property: 'display_flag', label: 'Display flag', type: 'binary', access: 3, value_on: true, value_off: false}]});
-const zigbee = {resolveEntity: id => devices.get(id), devicesIterator: () => devices.values(), groupsIterator: () => [{ID: 7, name: 'synthetic/group', isDevice: () => false}].values()};
+const sceneEndpoint = (ID, name) => ({ID, meta: {scenes: {'3_0': {name}}}});
+for (const id of ['0x0000000000000002', '0x0000000000000004']) {
+    const device = devices.get(id);
+    device.zh = {endpoints: [sceneEndpoint(1, 'Synthetic scene one'), sceneEndpoint(2, 'Synthetic scene two')]};
+    device.endpoint = key => device.zh.endpoints.find(endpoint => endpoint.ID === (key === 'default' ? 1 : Number(String(key).replace('l', ''))));
+}
+const group = {ID: 7, name: 'synthetic/group', isDevice: () => false,
+    zh: {members: [{ID: 1, meta: {scenes: {'5_7': {name: 'Synthetic group scene'}}}}]}};
+const zigbee = {resolveEntity: id => devices.get(id), devicesIterator: () => devices.values(), groupsIterator: () => [group].values()};
 const bus = {onMQTTMessage: (_owner, callback) => { listener = callback; },
     emitMQTTMessage: event => {
         messages.push({topic: event.topic, payload: JSON.parse(event.message), retain: false});

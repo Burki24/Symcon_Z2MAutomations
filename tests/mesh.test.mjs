@@ -19,7 +19,9 @@ async function pair() {
         const directory = await mkdtemp(join(tmpdir(), 'z2ma-mesh-'));
         const node = {system, directory, connected: true, subscriptions: new Set(), messages: [], commands: [], logs: []};
         const device = {ieeeAddr: source, ID: source, name: 'synthetic/button', isDevice: () => true};
-        const group = {ID: 7, name: system + '/group'};
+        node.device = device;
+        const group = {ID: 7, name: system + '/group', zh: {members: [{ID: 1, meta: {scenes: {'5_7': {name: 'Synthetic mesh scene'}}}}]}};
+        node.group = group;
         const bus = {onMQTTMessage: () => {}, onPublishEntityState: (_owner, callback) => { node.event = callback; }, removeListeners: () => {},
             emitMQTTMessage: event => { node.commands.push(event); }};
         const mqtt = {isConnected: () => node.connected,
@@ -84,6 +86,43 @@ test('two independent extensions execute a remote group toggle once without Symc
         assert.ok(h.wire.every(message => message.options.baseTopic === 'z2ma' && message.options.clientOptions.retain === false && message.options.clientOptions.qos === 0));
         assert.ok(h.a.logs.some(message => message.includes('native Befehlsübergabe bestätigt')));
         assert.ok(h.b.logs.some(message => message.includes('Einmalig freigegebene Aktion')));
+    } finally { await h.close(); }
+});
+
+test('remote scenes are recalled only on the selected system and rechecked by the receiver', async () => {
+    const h = await pair();
+    try {
+        const r = remoteRule();
+        r.actions = [{type: 'scene', target: r.actions[0].target, scene_id: 5}];
+        await h.a.load([r]); await h.b.load([]);
+        h.network.duplicateExecute = true;
+        await h.a.trigger();
+        assert.equal(h.a.commands.length, 0);
+        assert.equal(h.b.commands.length, 1);
+        assert.deepEqual(JSON.parse(h.b.commands[0].message), {scene_recall: 5});
+        assert.equal(h.a.extension.status().runtime_error, '');
+        assert.ok(h.b.logs.some(line => line.includes('Szenenaufruf')));
+        delete h.b.group.zh;
+        h.advance(1000);
+        await h.a.trigger();
+        assert.equal(h.b.commands.length, 1);
+        assert.equal(h.b.extension.status().runtime_error, 'scene_unavailable');
+        assert.equal(h.a.extension.status().runtime_error, 'scene_unavailable');
+    } finally { await h.close(); }
+});
+
+test('remote device scenes keep endpoint identity even when both systems know the same device', async () => {
+    const h = await pair();
+    try {
+        h.b.device.zh = {endpoints: [{ID: 2, meta: {scenes: {'0_0': {name: 'Synthetic endpoint scene'}}}}]};
+        const r = remoteRule();
+        r.actions = [{type: 'scene', target: {type: 'device', id: source, system: 'synthetic/b'}, scene_id: 0, endpoint: 2}];
+        await h.a.load([r]); await h.b.load([]);
+        await h.a.trigger();
+        assert.equal(h.a.commands.length, 0);
+        assert.equal(h.b.commands.length, 1);
+        assert.equal(h.b.commands[0].topic, 'synthetic/b/synthetic/button/2/set');
+        assert.deepEqual(JSON.parse(h.b.commands[0].message), {scene_recall: 0});
     } finally { await h.close(); }
 });
 

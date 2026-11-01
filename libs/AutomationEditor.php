@@ -171,7 +171,8 @@ trait AutomationEditor
             }
         }
         $groups = $this->ReadEditorGroups($data);
-        if ($groups === null) {
+        $scenes = $groups === null ? null : $this->ReadEditorScenes($data, $devices, $groups);
+        if ($groups === null || $scenes === null) {
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
         }
@@ -192,7 +193,7 @@ trait AutomationEditor
             $this->FinishExtensionWorkflow($state, 'error', 'editor_changed');
             return;
         }
-        $this->WriteAttributeString('EditorSnapshot', json_encode(['scope' => $state['scope'], 'devices' => $devices, 'groups' => $groups], JSON_THROW_ON_ERROR));
+        $this->WriteAttributeString('EditorSnapshot', json_encode(['scope' => $state['scope'], 'devices' => $devices, 'groups' => $groups, 'scenes' => $scenes], JSON_THROW_ON_ERROR));
         if ($preserved !== null) {
             // Only renew the receiver session. Keep YAML bytes, rules and current selection.
             $preserved['session'] = $metadata['session'];
@@ -221,7 +222,7 @@ trait AutomationEditor
             $readable += count($this->EditorProperties($filtered, $id, 'Source'));
             $writable += count($this->EditorProperties($filtered, $id, 'Target'));
         }
-        $this->DebugEvent('EMPFANG', 'Gerätekatalog übernommen; Aktionsziele anhand aktiver Symcon-Aktionen geprüft.', ['Geräte' => count($devices), 'Gruppen' => count($groups), 'Automationen' => $metadata['automationCount'], 'LesbareEigenschaften' => $readable, 'SchaltbareEigenschaften' => $writable]);
+        $this->DebugEvent('EMPFANG', 'Gerätekatalog übernommen; Aktionsziele anhand aktiver Symcon-Aktionen geprüft.', ['Geräte' => count($devices), 'Gruppen' => count($groups), 'Szenen' => count($scenes), 'Automationen' => $metadata['automationCount'], 'LesbareEigenschaften' => $readable, 'SchaltbareEigenschaften' => $writable]);
         $this->FinishExtensionWorkflow($state, 'editor_loaded');
     }
 
@@ -254,7 +255,7 @@ trait AutomationEditor
     private function LocalEditorSnapshot(): array
     {
         $json = $this->ReadAttributeString('EditorSnapshot');
-        return $json === '' ? [] : $this->FilterEditorActions($this->AddEditorGroupTargets(json_decode($json, true, 32, JSON_THROW_ON_ERROR)));
+        return $json === '' ? [] : $this->FilterEditorActions($this->AddEditorScenes($this->AddEditorGroupTargets(json_decode($json, true, 32, JSON_THROW_ON_ERROR))));
     }
 
     private function EditorDevices(array $snapshot, string $side): array
@@ -277,7 +278,7 @@ trait AutomationEditor
     {
         $options = [['caption' => $this->Translate('Choose event or action'), 'value' => '']];
         foreach ($snapshot['devices'][$id][$side === 'Target' ? 'actions' : 'triggers'] ?? [] as $key => $choice) {
-            $options[] = ['caption' => $this->EditorPropertyLabel($snapshot, $id, $choice['property'], $side) . ': ' . $this->EditorValueLabel($choice['value']), 'value' => $key];
+            $options[] = ['caption' => $this->EditorPropertyLabel($snapshot, $id, $choice['property'], $side) . ': ' . $this->EditorChoiceValueLabel($snapshot, $id, $choice['property'], $choice['value']), 'value' => $key];
         }
         return $options;
     }

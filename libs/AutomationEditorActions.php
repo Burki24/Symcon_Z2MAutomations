@@ -73,6 +73,10 @@ trait AutomationEditorActions
     {
         $target = $this->EditorTargetIdentity($key);
         $meta = $this->EditorProperties($this->EditorSnapshot(), $key, 'Target')[$choice['property']] ?? [];
+        if (isset($meta['sceneEndpoint'])) {
+            return ['type' => 'scene', 'target' => $target, 'scene_id' => $choice['value'], 'delay_seconds' => $delay]
+                + ($meta['sceneEndpoint'] > 0 ? ['endpoint' => $meta['sceneEndpoint']] : []);
+        }
         return $choice['value'] === 'TOGGLE' && ($meta['type'] ?? '') === 'binary'
             && preg_match('/\Astate(?:_[A-Za-z0-9_]+)?\z/D', $choice['property']) === 1
             ? ['type' => 'toggle', 'target' => $target, 'property' => $choice['property'], 'delay_seconds' => $delay]
@@ -81,6 +85,9 @@ trait AutomationEditorActions
 
     private function EditorActionValues(array $action): array
     {
+        if (($action['type'] ?? '') === 'scene') {
+            return ['z2ma_scene' . (isset($action['endpoint']) ? '_' . $action['endpoint'] : '') => $action['scene_id']];
+        }
         return ($action['type'] ?? '') === 'toggle' ? [$action['property'] => 'TOGGLE'] : ($action['values'] ?? []);
     }
 
@@ -94,7 +101,7 @@ trait AutomationEditorActions
         $rows = [];
         foreach ($actions as $action) {
             $values = $this->EditorActionValues($action);
-            if (!in_array($action['type'] ?? '', ['set', 'toggle'], true) || !in_array($action['target']['type'] ?? '', ['device', 'group'], true)
+            if (!in_array($action['type'] ?? '', ['set', 'toggle', 'scene'], true) || !in_array($action['target']['type'] ?? '', ['device', 'group'], true)
                 || count($values) !== 1 || !is_int($action['delay_seconds'] ?? 0)
                 || ($action['delay_seconds'] ?? 0) < 0 || ($action['delay_seconds'] ?? 0) > 86400) {
                 return null;
@@ -109,7 +116,8 @@ trait AutomationEditorActions
             }
             $found = null;
             foreach ($snapshot['devices'][$device]['actions'] ?? [] as $key => $choice) {
-                if ($choice['property'] === $property && $choice['value'] === $values[$property]) {
+                if ($choice['property'] === $property && $choice['value'] === $values[$property]
+                    && $this->EditorValueAllowed($snapshot, $device, $property, $choice['value'], 'Target')) {
                     $found = $device . ':' . $key;
                     break;
                 }
@@ -158,7 +166,11 @@ trait AutomationEditorActions
     private function DebugEditorActionSteps(array $actions): void
     {
         foreach ($actions as $index => $action) {
-            $this->DebugEvent('AKTION', 'Aktionsschritt mit Wartezeit vor der Ausführung vorbereitet.', ['Schritt' => $index + 1, 'VerzögerungSekunden' => $action['delay_seconds'] ?? 0]);
+            $this->DebugEvent(
+                'AKTION',
+                $action['type'] === 'scene' ? 'Aufruf einer vorhandenen Szene mit Wartezeit vorbereitet.' : 'Aktionsschritt mit Wartezeit vor der Ausführung vorbereitet.',
+                ['Schritt' => $index + 1, 'VerzögerungSekunden' => $action['delay_seconds'] ?? 0, 'ZweitesSystem' => isset($action['target']['system'])]
+            );
         }
     }
 }

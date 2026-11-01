@@ -20,7 +20,7 @@ Z2M denselben Regelstand auch nach einem Neustart automatisch. Ohne Freigabe
 oder nach bestätigtem Stoppen bleibt die Engine aus; siehe [Laufzeitvertrag](../../docs/RUNTIME.md).
 
 - Hochladbare Einzeldatei: z2m-automations.mjs.
-- Eigener Quellcode: src/extension.mjs, src/runtime.mjs und src/mesh.mjs.
+- Eigener Quellcode: src/extension.mjs, src/runtime.mjs, src/mesh.mjs und src/scenes.mjs.
 - Kanonisches Schema: automations.schema.json, JSON Schema Draft 7.
 - Synthetisches Beispiel: examples/automations.yaml.
 
@@ -47,6 +47,13 @@ Verträge und Zuständigkeiten stehen in [Architektur](../../docs/ARCHITECTURE.m
 Keine Implementierung aus fremden Automationsprojekten übernehmen.
 
 ## Gruppen und Umschalten
+
+Vorhandene Geräte- und Gruppenszenen werden lesend aus den Endpoint-Metadaten
+bereitgestellt. Die eigene `scene`-Aktion verwendet Szenen-ID und bei Geräten
+den numerischen Endpoint. Vor jedem nativen `scene_recall` wird die Zuordnung
+erneut geprüft, auch auf einem Mesh-Ziel. `scene_unavailable` erklärt eine
+inzwischen fehlende Szene. Es werden keine Szenen angelegt oder verändert.
+Für diese Aktion müssen Modul und ausführende Erweiterungen aktualisiert sein.
 
 Editorantworten enthalten zusätzlich bis zu 256 Gruppen mit stabiler ID und
 Anzeigename. Symcon prüft die zugehörige native Aktionsvariable und bietet

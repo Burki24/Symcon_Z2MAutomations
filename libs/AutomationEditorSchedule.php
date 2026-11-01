@@ -315,7 +315,7 @@ trait AutomationEditorSchedule
             return null;
         }
         $values = $this->EditorActionValues($a);
-        if (!in_array($a['type'], ['set', 'toggle'], true) || !in_array($a['target']['type'], ['device', 'group'], true) || count($values) !== 1) {
+        if (!in_array($a['type'], ['set', 'toggle', 'scene'], true) || !in_array($a['target']['type'], ['device', 'group'], true) || count($values) !== 1) {
             return null;
         }
         $property = array_key_first($values);

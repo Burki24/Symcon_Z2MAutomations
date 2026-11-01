@@ -104,7 +104,7 @@ export class MeshTransport {
         if (generation !== this.runtime.generation || !this.allowed(destination)) throw new RuntimeError('mesh_stopped');
         if (challenge.status !== 'ok' || typeof challenge.token !== 'string' || !/^[a-f0-9-]{36}$/.test(challenge.token)) throw new RuntimeError('mesh_rejected');
         const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result');
-        if (result.status !== 'ok') throw new RuntimeError('mesh_rejected');
+        if (result.status !== 'ok') throw new RuntimeError(result.error === 'scene_unavailable' ? 'scene_unavailable' : 'mesh_rejected');
         this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.');
     }
 
@@ -152,7 +152,8 @@ export class MeshTransport {
                     this.runtime.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
                     this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError});
                 }
-                await this.publish(message.source, 'result', {transaction: message.transaction, status});
+                await this.publish(message.source, 'result', {transaction: message.transaction, status,
+                    ...(status === 'error' && this.runtime.lastError === 'scene_unavailable' ? {error: 'scene_unavailable'} : {})});
             }
         } catch (error) {
             this.runtime.log('FEHLER', 'Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion.', {Grund: error instanceof RuntimeError ? error.code : 'mesh_invalid'});

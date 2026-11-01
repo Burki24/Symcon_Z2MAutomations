@@ -1,5 +1,17 @@
 # Architektur
 
+## Vorhandene Szenen als Aktionen
+
+Die eigene Z2M-Erweiterung liest Szenen ausschließlich aus den vorhandenen
+Endpoint-Metadaten. Der begrenzte Editor-Katalog enthält Geräte-/Gruppenidentität,
+Szenen-ID, optionalen numerischen Geräteendpoint, Anzeigename und den zugehörigen
+Schaltkanal. EditorScenes ergänzt daraus auswählbare Aktionswerte. Die Berechtigung
+bleibt an die native Symcon-Aktion dieses Kanals gebunden, auch beim Partnerexport.
+Das YAML speichert eine eigene `scene`-Aktion ohne Namen oder Symcon-IDs.
+Schema, Prüfung, Aktivierung, Laufzeit und Mesh-Empfänger prüfen die passenden
+Grenzen; die tatsächliche Szenenverfügbarkeit wird am ausführenden System geprüft.
+Siehe [ADR 0011](adr/0011-recall-existing-z2m-scenes.md).
+
 ## Zwei eigenständige Z2M-Systeme
 
 `RemoteAutomationTargets` erweitert nur Aktionsziele um den ausdrücklich
