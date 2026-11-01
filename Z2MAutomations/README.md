@@ -50,6 +50,17 @@ ist. Wenn eine Aktion erforderlich ist, nennt die Meldung den nächsten Schritt.
 dass die Verbindung gestört ist. Mit **Erweiterungsstatus abfragen** lässt sich
 der aktuelle Stand aus Z2M laden.
 
+Nach dem Speichern bestätigt das Modul den aktuellen Z2M-Status automatisch.
+Währenddessen steht dort **Die Automationen sind in Z2M gespeichert. Der aktuelle
+Laufzeitstatus wird automatisch abgefragt. Bitte kurz warten.** Sobald die passende
+Antwort vorliegt, wird der Aktivierungsbutton freigegeben. Dies aktiviert noch
+keine Regel. Ein bereits gespeicherter unveränderter Entwurf wird als gespeichert
+angezeigt; erst neue Änderungen benötigen wieder eine Prüfung und Speicherung.
+
+Fehlt die anschließende Statusantwort, bleibt die Speicherung trotzdem bestätigt.
+Die Meldung fordert dann **Erweiterungsstatus abfragen**. Wegen dieser Meldung
+nicht erneut speichern. Die Aktivierung bleibt bis zur Statusbestätigung gesperrt.
+
 Lehnt **Entwurf in Z2M prüfen** eine Datei ab, zeigt die Fehlerliste die Nummer
 der Automation und die betroffene Angabe, zum Beispiel **Automation 12 → Aktion 2
 → Wartezeit vor dem Schritt: Der Wert muss mindestens 0 sein**. Bei Entwürfen aus

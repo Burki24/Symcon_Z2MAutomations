@@ -931,6 +931,8 @@ $before = count($parent->sent);
 $replyStatus(array_replace($remote, ['storage' => 'recovered_read_only']));
 $check($controlledState()['lastError'] === 'storage_unavailable' && count($parent->sent) === $before, 'Read-only recovery blocks store before publishing YAML');
 
+require __DIR__ . '/store-confirmation.inc.php';
+
 $pending = $controlled->RequestExtensionStatus();
 $before = count($parent->sent);
 $check($controlled->StoreYaml($source) === '' && $controlledState()['lastError'] === 'busy'

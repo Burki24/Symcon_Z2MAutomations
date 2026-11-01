@@ -1,5 +1,14 @@
 # Debug und MQTT-Diagnose
 
+## Status nach Speicherung
+
+Debug unterscheidet die bestätigte Speicherung, die automatische Statusrückfrage
+und den passend bestätigten vollständigen Laufzeitstatus. Er nennt Revision und
+Ausführungszustand, ohne YAML, Prüfsummen oder Sitzungen zusätzlich auszugeben.
+Ein Abbruch erklärt, dass die Speicherung bereits bestätigt wurde und nur der
+Status fehlt: keine erneute Speicherung senden, sondern Erweiterungsstatus
+abfragen. Die Rückfrage aktiviert keine Automation und sendet keine Schaltbefehle.
+
 ## Abgelehnte Entwurfsprüfung
 
 Z2M und Symcon protokollieren für jeden der höchstens 20 Diagnoseeinträge eine

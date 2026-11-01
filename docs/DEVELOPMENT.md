@@ -1022,3 +1022,20 @@ nicht geprüft; keine Produktivdaten oder echten Geräteaktionen in den Tests.
 Nachweise: `php tests/run.php` einschließlich 67 JavaScript-Tests und der echten
 PHP-/JS-Integration, Strukturprüfung, offizielle StylePHP-JSON-Prüfung,
 php-cs-fixer 3.95.27 im Prüfmodus und aktuelle Erweiterungserzeugung erfolgreich.
+## Statusabgleich nach Speicherung
+
+Die partielle Speicherantwort enthielt bisher alte Mesh-/Wiederanlauffelder aus
+dem Vorabstatus. Der nächste vollständige Broadcast entzog deshalb erneut die
+Statusbestätigung und sperrte den Aktivierungsbutton. `verifyStorage` führt den
+Speicherworkflow jetzt mit einer eigenen frischen Statusrückfrage fort. Der
+gespeicherte Snapshot muss vollständig zur Antwort passen; Fehler ergeben
+`stored_unconfirmed`. Die Vorschau behandelt einen exakten Prüfsummentreffer
+als bereits gespeicherten Entwurf, ohne eine neue Speicherfreigabe zu erzeugen.
+
+`store-confirmation.inc.php` reproduzierte zunächst die fehlende Rückfrage.
+Es prüft frische gegenüber retained Antworten, geänderte Sitzungen, Revisionen,
+Prüfsummen, Regelanzahlen, Speicher- und Laufzeitzustände, Timeout ohne erneuten
+Schreibversuch, spätere manuelle Erholung und unverändert gespeicherte aktive
+Stände. Die bestehende echte PHP-/JS-Integration prüft denselben Ablauf über
+das erzeugte Artefakt. Nur Moduländerung; noch keine Installation oder native
+Praxisprüfung der Korrektur.

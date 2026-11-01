@@ -20,6 +20,12 @@
 
 ## Fixes
 
+- Nach bestätigter Speicherung fragt das Modul automatisch den vollständigen
+  Z2M-Laufzeitstatus ab. Erst eine frische passende Antwort gibt die Aktivierung
+  frei; fehlende oder abweichende Bestätigung führt nicht zu erneuter Speicherung.
+  Bereits gespeicherte unveränderte Entwürfe werden als gespeichert angezeigt,
+  statt als „noch nicht geprüft“. Deutsche Status- und Debug-Meldungen ergänzt.
+
 - Detaillierte Prüfungsfehler bleiben bei automatischen und manuellen
   Statusabfragen erhalten, bis die nächste Entwurfsprüfung beginnt. Fehler eines
   anderen Vorgangs werden zusätzlich angezeigt. Debug erklärt Erhalt und Ablösung

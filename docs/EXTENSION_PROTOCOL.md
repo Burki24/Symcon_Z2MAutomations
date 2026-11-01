@@ -201,3 +201,23 @@ Statusmeldungen ergänzen resume_version, resume_enabled, resume_status und
 resume_error; Werte und dauerhafte Semantik stehen in [RUNTIME.md](RUNTIME.md).
 Die Freigabe gehört zum aktivierten Regelstand und wird nicht durch retained
 Aktivierungsbefehle oder eine Symcon-Statusabfrage ersetzt.
+
+## Statusbestätigung nach Speicherung
+
+Nach einer passenden `response/store` fordert das Modul im selben Workflow einen
+frischen `status` mit neuem Anfragebezug an. Bis zu dessen Antwort sind Laufzeit
+und Aktivierungsbutton unbestätigt. Verglichen werden Sitzung, gespeicherte
+Revision, Prüfsumme, Regelanzahl, Speicherzustand und der in der Speicherantwort
+genannte Ausführungszustand. Erst die passende vollständige Runtime-Version-1-
+Antwort schließt den Auftrag als `stored` ab. Retained-/fremde/verspätete Antworten
+erteilen keine Freigabe. Der vollständige Snapshot verhindert, dass ein identischer
+anschließender Statusbroadcast wegen veralteter Mesh-/Wiederanlauffelder erneut
+die Bestätigung entzieht. Unverändertes Speichern erhält eine laufende Ausführung.
+
+Fehler oder Timeout nach Speicherbestätigung ergeben `stored_unconfirmed` mit
+Fehlercode, nicht die Behauptung einer fehlgeschlagenen Speicherung. Keine
+automatische erneute Speicherung, Aktivierung oder Deaktivierung. Ein späterer
+lesender Statusauftrag kann die Bestätigung wiederherstellen. Die Vorschau
+erkennt anhand der exakten Entwurfsprüfsumme einen bereits gespeicherten Stand,
+auch wenn der Validierungsbeleg nach dem Speichern verbraucht wurde. Sie vergibt
+dadurch keinen neuen Validierungsbeleg. Keine Erweiterungs-/Schemaänderung.

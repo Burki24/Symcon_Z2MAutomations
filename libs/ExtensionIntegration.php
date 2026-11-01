@@ -223,6 +223,12 @@ trait ExtensionIntegration
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        if (($state['workflow']['verifyStorage'] ?? false) && $status !== 'stored') {
+            $status = 'stored_unconfirmed';
+            $state['extensionConfirmed'] = false;
+            $state['runtimeConfirmed'] = false;
+            $this->DebugEvent('FEHLER', 'Speicherung wurde bestätigt, der anschließende Status jedoch nicht. Keine erneute Speicherung senden; Erweiterungsstatus abfragen.', ['Grund' => $error]);
+        }
         if ($error !== '' && in_array($state['workflow']['kind'] ?? '', ['activate', 'deactivate'], true)) {
             $state['runtimeConfirmed'] = false;
         }
@@ -340,6 +346,28 @@ trait ExtensionIntegration
             }
             if ($workflow['kind'] === 'install' && $metadata['session'] === $workflow['previousSession']) {
                 $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
+                return null;
+            }
+            if ($workflow['verifyStorage'] ?? false) {
+                $stored = $workflow['storedSnapshot'];
+                $error = match (true) {
+                    $metadata['session'] !== $stored['session'] => 'session_mismatch',
+                    $metadata['storedRevision'] !== $stored['storedRevision'] || $metadata['checksum'] !== $stored['checksum']
+                        || $metadata['automationCount'] !== $stored['automationCount'] => 'revision_conflict',
+                    $metadata['storage'] !== 'ok'                                      => 'storage_unavailable',
+                    $metadata['runtimeVersion'] !== 1                                  => 'runtime_unavailable',
+                    $metadata['executing'] !== $stored['executing']                    => 'runtime_mismatch',
+                    default                                                            => ''
+                };
+                if ($error !== '') {
+                    $this->FinishExtensionWorkflow($state, 'error', $error);
+                    return null;
+                }
+                $state['extension'] = $metadata;
+                $state['extensionConfirmed'] = true;
+                $state['runtimeConfirmed'] = true;
+                $this->DebugEvent('AKTION', 'Gespeicherter Stand und Laufzeitstatus durch frische Z2M-Antwort bestätigt; Aktivierungsbutton wird freigegeben. Keine Automation wurde aktiviert.', ['Revision' => $metadata['storedRevision'], 'Ausführung' => $metadata['executing']]);
+                $this->FinishExtensionWorkflow($state, 'stored');
                 return null;
             }
             // A fresh, correlated status response authorizes only this snapshot.
@@ -465,11 +493,13 @@ trait ExtensionIntegration
             $state['extension']['activeChecksum'] = null;
             $state['extension']['enabledCount'] = 0;
         }
-        $state['extensionConfirmed'] = true;
-        $state['runtimeConfirmed'] = $state['extension']['runtimeVersion'] === 1;
+        $state['extensionConfirmed'] = false;
+        $state['runtimeConfirmed'] = false;
         $state['validation'] = null;
-        $this->FinishExtensionWorkflow($state, 'stored');
-        return null;
+        $state['workflow']['verifyStorage'] = true;
+        $state['workflow']['storedSnapshot'] = $metadata + ['session' => $workflow['target']['session']];
+        $this->DebugEvent('AKTION', 'Z2M hat die Speicherung bestätigt; vollständigen Laufzeitstatus automatisch nachfragen. Aktivierungsbutton bleibt bis zur passenden Antwort gesperrt.', ['Revision' => $metadata['storedRevision'], 'Unverändert' => $payload->data->unchanged]);
+        return $this->ExtensionFrame($state, 'status');
     }
 
     private function ReceiptMatches(array $receipt, array $metadata): bool
@@ -588,25 +618,36 @@ trait ExtensionIntegration
 
     private function OperationText(array $state): string
     {
+        if ($state['workflow']['verifyStorage'] ?? false) {
+            return $this->Translate('Automations are stored in Z2M. Automatically confirming the runtime status; please wait.');
+        }
         return $this->Translate(match ($state['operation']['status']) {
-            'installed'       => 'Extension installed and receiver confirmed.',
-            'validated'       => 'YAML validated. Review the preview before storing.',
-            'stored'          => 'YAML stored. Activation is a separate step.',
-            'status_received' => 'Receiver status confirmed.',
-            'activated'       => 'Stored revision activated and confirmed by Z2M.',
-            'stopped'         => 'Execution stopped and confirmed by Z2M.',
-            'editor_loaded'   => 'Devices and stored automations loaded. Choose source and target.',
-            'draft_created'   => 'Automation added to the draft. Validate, store and activate it next.',
-            'rule_selected'   => 'Automation selected. Changes affect the local draft only.',
-            'draft_updated'   => 'Automation updated in the draft. Validate and store it next.',
-            'draft_deleted'   => 'Automation removed from the draft. Validate and store it next.',
-            default           => ucfirst($state['operation']['status'])
+            'installed'          => 'Extension installed and receiver confirmed.',
+            'validated'          => 'YAML validated. Review the preview before storing.',
+            'stored'             => 'YAML stored. Activation is a separate step.',
+            'stored_unconfirmed' => 'Z2M confirmed storage, but its current runtime status could not be confirmed. Request the extension status; do not store again just for this message.',
+            'status_received'    => 'Receiver status confirmed.',
+            'activated'          => 'Stored revision activated and confirmed by Z2M.',
+            'stopped'            => 'Execution stopped and confirmed by Z2M.',
+            'editor_loaded'      => 'Devices and stored automations loaded. Choose source and target.',
+            'draft_created'      => 'Automation added to the draft. Validate, store and activate it next.',
+            'rule_selected'      => 'Automation selected. Changes affect the local draft only.',
+            'draft_updated'      => 'Automation updated in the draft. Validate and store it next.',
+            'draft_deleted'      => 'Automation removed from the draft. Validate and store it next.',
+            default              => ucfirst($state['operation']['status'])
         });
     }
 
     private function ValidationPreview(array $state): string
     {
+        if ($state['workflow']['verifyStorage'] ?? false) {
+            return $this->Translate('The draft has been stored. Its runtime status is being confirmed automatically.');
+        }
         $receipt = $state['validation'];
+        if ($receipt === null && ($state['extension']['storage'] ?? '') === 'ok'
+            && ($state['extension']['storedRevision'] ?? 0) > 0 && ($state['extension']['checksum'] ?? null) === hash('sha256', $this->ReadAttributeString('YamlDraft'))) {
+            return sprintf($this->Translate('This draft is already stored in Z2M (revision %d). Further changes must be validated and stored again.'), $state['extension']['storedRevision']);
+        }
         return $receipt === null ? $this->Translate('No current YAML validation.')
             : sprintf(
                 $this->Translate('Validated revision %d, %d automations. Stored revision: %d. SHA-256: %s'),

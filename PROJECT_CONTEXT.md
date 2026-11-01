@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Automatische Statusbestätigung nach Speicherung lokal ergänzt: passender
+  vollständiger Status bestätigt den gespeicherten Snapshot und gibt den
+  Aktivierungsbutton frei. Fehlende/abweichende Bestätigung meldet
+  `stored_unconfirmed` ohne erneuten Schreibversuch. Exakt gespeicherte Entwürfe
+  werden nicht mehr als „noch nicht geprüft“ angezeigt. Synthetische Negativfälle
+  und echter PHP-/JS-Ablauf geprüft; Erweiterung unverändert, noch nicht installiert.
+
 - Löschung der detaillierten Prüfungsfehler durch automatische Statusabfragen
   lokal korrigiert. Prüfungsbericht und letzter Vorgangsfehler sind unabhängig:
   Statusabfragen erhalten den Bericht, zusätzliche Fehler bleiben sichtbar;
