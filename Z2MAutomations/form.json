@@ -969,7 +969,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -982,7 +982,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -995,7 +995,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "NumberSpinner",
@@ -1005,7 +1005,7 @@
                                             "digits": 6,
                                             "moreDigits": true,
                                             "visible": false,
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'DeviceEditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "ValidationTextBox",
@@ -1812,7 +1812,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -1825,7 +1825,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -1838,7 +1838,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "NumberSpinner",
@@ -1848,7 +1848,7 @@
                                             "digits": 6,
                                             "moreDigits": true,
                                             "visible": false,
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'TimeEditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "ValidationTextBox",
@@ -2654,7 +2654,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -2667,7 +2667,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "Select",
@@ -2680,7 +2680,7 @@
                                                     "value": ""
                                                 }
                                             ],
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "NumberSpinner",
@@ -2690,7 +2690,7 @@
                                             "digits": 6,
                                             "moreDigits": true,
                                             "visible": false,
-                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR));"
+                                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'EditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR), 'eq');"
                                         },
                                         {
                                             "type": "ValidationTextBox",

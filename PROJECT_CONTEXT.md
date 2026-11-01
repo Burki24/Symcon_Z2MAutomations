@@ -13,9 +13,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
   und Zeiteditor, vollständige Vorbelegung, Symcon-Schaltrechte und Partnerziele.
   Lokale Prüfung/Speicherung und ausführendes Z2M erkennen fehlende Szenen.
   Native Szenenübergabe und Mesh verwenden die bestehende Laufzeit einschließlich
-  Verzögerungen, Stopp und Wiederanlauf. Deutsche Diagnose ergänzt; keine Szene
-  angelegt oder verändert. Noch keine Installation oder native Praxisprüfung.
-  Siehe ADR 0011 und docs/DEVELOPMENT.md.
+  Verzögerungen, Stopp und Wiederanlauf. Deutsche Diagnose ergänzt; das Modul
+  legt selbst keine Szenen an oder ändert sie. Auf ausdrücklichen Praxisauftrag
+  temporäre Geräteszene angelegt: native Auswahl, Vorbelegung, Z2M-Prüfung und
+  Speicherung einer ausgeschalteten Regel bestätigt; kein Szenenaufruf.
+  Testregel und Szene entfernt, ursprüngliche Regeln und Laufzeit wiederhergestellt.
+  Dabei fehlenden Parameter in allen Aktionsdialog-Callbacks korrigiert und
+  gegen Symcons verpflichtende Wrapper-Argumentzahl geprüft. Testmodul aktualisiert;
+  Produktiv-Symcon unverändert. Siehe ADR 0011 und docs/DEVELOPMENT.md.
 
 - Automatische Statusbestätigung nach Speicherung lokal ergänzt: passender
   vollständiger Status bestätigt den gespeicherten Snapshot und gibt den

@@ -9,6 +9,23 @@ $sceneChoice = 'group.7:' . hash('sha256', json_encode(['property' => 'z2ma_scen
 $sceneDialog = formFields(json_decode($module->GetEditorItemForm('DeviceEditorActions', $sceneChoice, 4), true, 512, JSON_THROW_ON_ERROR));
 $sceneOptions = $sceneDialog['RowValue']['options'];
 $sceneKey = substr($sceneChoice, strpos($sceneChoice, ':') + 1);
+$configureNative = static function (int $instance, string $change, string $list, string $device, string $property, string $value, string $compare) use ($module): void
+{
+    $module->ConfigureEditorItem($change, $list, $device, $property, $value, $compare);
+};
+// The real kernel wrapper requires every argument, including PHP optional ones.
+foreach (['DeviceEditorActions', 'TimeEditorActions', 'EditorActions'] as $actionList) {
+    $module->SelectAutomation('', '', false, str_starts_with($actionList, 'Time') ? 'time' : 'device');
+    $dialog = formFields(json_decode($module->GetEditorItemForm($actionList, '', 0), true, 512, JSON_THROW_ON_ERROR));
+    foreach (['RowDevice', 'RowProperty', 'RowValue', 'RowNumber'] as $fieldName) {
+        $RowDevice = 'group.7';
+        $RowProperty = 'z2ma_scene';
+        $RowValue = $sceneKey;
+        $RowNumber = 0;
+        eval(str_replace('Z2MA_ConfigureEditorItem(', '$configureNative(', $dialog[$fieldName]['onChange']));
+    }
+}
+$module->SelectAutomation('', '', false, 'device');
 $check(in_array($sceneKey, array_column($sceneOptions, 'value'), true), 'Existing group scenes are offered in the action dialog');
 $sceneCaption = array_values(array_filter($sceneOptions, static fn (array $option): bool => $option['value'] === $sceneKey))[0]['caption'];
 $check(str_contains($sceneCaption, 'Synthetic group scene'), 'Scene choices display the existing scene name');

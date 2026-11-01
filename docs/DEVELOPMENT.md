@@ -16,8 +16,27 @@ Partnerauswahl, Rechteentzug und bereinigtes Debug. Runtime-/Mesh-Tests prüfen
 Szenen-ID 0, Endpoints, fremde Gruppenmetadaten, Verzögerung, gelöschte Szenen,
 Stopp, blockierten Wiederanlauf und genau einmalige entfernte Übergabe.
 Es werden ausschließlich synthetische Daten und temporäre Speicher verwendet.
-Kein Zugriff auf Test- oder Live-Installation; native Sichtprüfung und reale
-Geräteszenen sind noch offen. Modul und Erweiterungen benötigen den neuen Stand.
+Diese Offline-Tests greifen nicht auf Test- oder Live-Installationen zu.
+
+Native Praxisprüfung am 01.11.2026 über die Test-Symcon-Installation am gemeinsam
+genutzten Z2M: vorübergehende Geräteszene angelegt, Gerät und Szenenkanal im
+Aktionsdialog ausgewählt und als deaktivierte Zeitregel mit zwei Sekunden
+Wartezeit übernommen. Z2M-Prüfung und Speicherung sowie erneutes Laden und
+native Vorbelegung von Gerät, Kanal, Szenenname, Wartezeit und Regelstatus
+bestätigt. Die Szene wurde nicht aufgerufen. Testregel und Geräteszene danach
+entfernt; ursprüngliche Regeln einschließlich Aktivierungskennzeichen und
+Mesh-Freigaben bis auf die fortgeschriebene Revision unverändert. Vorherige
+Ausführung und Wiederanlauffreigabe anschließend durch Z2M bestätigt.
+Deutsche Debug-Ausgaben belegen Katalog, Auswahl, Vorbelegung und Speicherung.
+Die zusätzliche Partnerzuordnung im Testmodul wurde wieder entfernt.
+
+Dabei aufgedeckten Aktionsdialogfehler korrigiert: öffentliche Kernel-Wrapper
+verlangen auch für PHP-Optionen die vollständige Parameterliste. Alle Geräte-,
+Eigenschafts- und Wert-Callbacks der drei Aktionsbereiche übergeben nun den
+Vergleich explizit. Ein Regressionstest führt sämtliche betroffenen Skripte
+mit derselben verpflichtenden Argumentanzahl aus; vorher ArgumentCountError,
+danach erfolgreich. Reale Szenenausführung und entfernte Szenen bleiben durch
+diesen rein administrativen Praxislauf ungeprüft.
 
 Nachweise am 01.11.2026: `php tests/run.php` vollständig erfolgreich; nach
 Ergänzung des zweiten Endpoint-/Mesh-Nachweises die PHP-/JS-Integration und

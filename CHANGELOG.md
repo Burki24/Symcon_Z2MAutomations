@@ -2,6 +2,9 @@
 
 ## Fehlerkorrekturen
 
+- Geräte, Eigenschaften und Werte lassen sich im Aktionsdialog wieder auswählen,
+  ohne dass die Konsole wegen eines fehlenden Funktionsparameters abbricht.
+
 - Konfigurationsformulare mit großen Geräte- und Aktionskatalogen bleiben unter
   der Symcon-Ausgabegrenze. Listen übertragen nur verwendete Einträge; Geräte,
   Eigenschaften, Kanäle und Szenen bleiben im Zeilendialog vollständig auswählbar.
