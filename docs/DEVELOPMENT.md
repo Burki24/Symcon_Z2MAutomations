@@ -999,7 +999,12 @@ wurden nicht in diesen Nachweis oder in Testfixtures übernommen.
 `ValidationFeedback` normalisiert ausschließlich bekannte Diagnosefelder und
 formuliert sie für Formular und Fehler-Statusvariable. Namen werden aus der
 geprüften Editor-Anfrage aufgelöst; sie erscheinen nicht im Debug oder öffentlichen
-Transportstatus. Kein neuer zentraler Helper: Diagnosepfade und Ursachen sind
+Transportstatus. Der Prüfungsbericht ist unabhängig von `lastError`: Start und
+Abschluss einer Statusabfrage dürfen ihn weder löschen noch ausblenden. Erst ein
+neuer tatsächlich angenommener Validierungsauftrag setzt ihn zurück. Andere
+Vorgangsfehler erscheinen zusätzlich, damit die erhaltene Diagnose keine aktuelle
+Störung verdeckt. Debug erklärt Erhalt und Ablösung ohne Regelinhalte.
+Kein neuer zentraler Helper: Diagnosepfade und Ursachen sind
 Teil des librarylokalen Automationsprotokolls. ConfigurationFormHelper und
 DebugFlowHelper bleiben unverändert eingebunden.
 
@@ -1007,7 +1012,11 @@ Die synthetischen Tests prüfen 50 Regeln mit mehreren tatsächlichen Fehlern,
 unterschiedliche Schema-Zweige, Semantik, Syntaxpositionen, Begrenzung auf 20,
 ungültige Rückmeldungen, fehlende Details alter Empfänger, erneuten Formularabruf,
 Live-Feldaktualisierung, bereinigte Debug-Ausgaben und Löschen nach erfolgreicher
-Prüfung. Native Live-Konsole und reale Installation sind für diese Änderung noch
+Prüfung. Der Regressionstest reproduzierte zuerst die Löschung durch den echten
+automatischen Timerpfad (Health und Erweiterungsstatus). Er prüft jetzt den
+Erhalt bei automatischen, wartenden, fehlgeschlagenen und erfolgreichen manuellen
+Abfragen sowie das Zurücksetzen vor einer neuen Validierungsantwort. Native
+Live-Konsole und reale Installation sind für diese Korrektur noch
 nicht geprüft; keine Produktivdaten oder echten Geräteaktionen in den Tests.
 
 Nachweise: `php tests/run.php` einschließlich 67 JavaScript-Tests und der echten

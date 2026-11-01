@@ -9,7 +9,10 @@ gegebenenfalls Grenze, Zeile und Spalte. Namen werden nur im Formular und der
 zugehörigen Fehler-Statusvariable aus dem geprüften Klick-Editor-Entwurf ergänzt;
 der Transportstatus-Export entfernt diese Namenszuordnung. Keine Rohantworten,
 Ajv-/Parsertexte, YAML-Ausschnitte, dynamischen Wertschlüssel oder Schaltwerte
-werden in den Debug übernommen. Erfolg und neue Aufträge löschen alte Details.
+werden in den Debug übernommen. Statusabfragen protokollieren ausdrücklich den
+Erhalt der Diagnose; eine neue Entwurfsprüfung meldet deren Ablösung. Erfolgreiche
+andere Aufträge löschen die Diagnose nicht. Ein zusätzlicher Vorgangsfehler bleibt
+neben dem Prüfungsbericht sichtbar, ohne die bereinigte Debug-Ausgabe zu erweitern.
 
 ## Automatischer Wiederanlauf
 

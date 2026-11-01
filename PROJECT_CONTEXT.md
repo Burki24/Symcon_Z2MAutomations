@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Löschung der detaillierten Prüfungsfehler durch automatische Statusabfragen
+  lokal korrigiert. Prüfungsbericht und letzter Vorgangsfehler sind unabhängig:
+  Statusabfragen erhalten den Bericht, zusätzliche Fehler bleiben sichtbar;
+  erst die nächste Entwurfsprüfung löst ihn ab. Echten automatischen Timerpfad,
+  manuelle Abfragen einschließlich Warte-/Fehlerfall, Formular/Statusvariable
+  und deutsche Debug-Ausgaben synthetisch geprüft. Nur Moduländerung, keine
+  Erweiterungsänderung und noch keine Installation der Korrektur.
+
 - Detaillierte Z2M-Prüfungsfehler lokal implementiert: betroffene Automation,
   Schritt, Feld und Ursache; Namen aus der geprüften Klick-Editor-Anfrage,
   Syntaxpositionen nach Möglichkeit. Bis zu 20 Fehler mit erkennbarem Überlauf,

@@ -59,8 +59,11 @@ einschließlich ausgeschalteter Regeln. Bei selbst geschriebener YAML helfen die
 Nummer sowie bei Syntaxfehlern nach Möglichkeit Zeile und Spalte.
 
 Es erscheinen bis zu 20 Fehler gleichzeitig. Nach der Korrektur die Änderung
-zunächst in den Entwurf übernehmen und erneut prüfen. Eine erfolgreiche Prüfung
-entfernt die alte Fehlerliste. Für diese ausführlichen Rückmeldungen müssen
+zunächst in den Entwurf übernehmen und erneut prüfen. Die Fehlerliste gehört zur
+letzten Prüfung und bleibt auch bei automatischen und manuellen Statusabfragen
+erhalten. Erst beim Start der nächsten Entwurfsprüfung wird sie durch deren
+Ergebnis ersetzt. Meldet ein anderer Vorgang einen Fehler, erscheint dieser
+zusätzlich unter der Fehlerliste. Für diese ausführlichen Rückmeldungen müssen
 sowohl das Modul als auch die mitgelieferte Z2M-Erweiterung aktualisiert sein.
 
 ## Nach einem Z2M-Neustart automatisch weiterarbeiten

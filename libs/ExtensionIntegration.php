@@ -56,7 +56,7 @@ trait ExtensionIntegration
     private function NewExtensionState(): array
     {
         return ['extension' => null, 'extensionConfirmed' => false, 'runtimeConfirmed' => false, 'workflow' => null, 'validation' => null,
-            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => ''];
+            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => '', 'validationDetails' => null];
     }
 
     private function StartExtensionWorkflow(string $kind, string $yaml = '', string $code = '', bool $notify = false, bool $automatic = false, ?int $importEvent = null, bool $preserveDraft = false): string
@@ -95,7 +95,12 @@ trait ExtensionIntegration
                 return [];
             }
             $error = '';
-            $state['validationDetails'] = null;
+            if ($kind === 'validate') {
+                if (($state['validationDetails'] ?? null) !== null) {
+                    $this->DebugEvent('AKTION', 'Neue Entwurfsprüfung gestartet; bisherige detaillierte Prüfungsfehler werden durch das neue Ergebnis ersetzt.');
+                }
+                $state['validationDetails'] = null;
+            }
             if (in_array($kind, ['validate', 'store'], true)) {
                 if (!ExtensionContract::ValidYamlText($yaml)) {
                     $error = 'invalid_yaml';
@@ -228,7 +233,9 @@ trait ExtensionIntegration
         $importEvent = $state['workflow']['importEvent'] ?? null;
         $state['operation']['status'] = $status;
         $state['lastError'] = $error;
-        $state['validationDetails'] = null;
+        if (($state['workflow']['kind'] ?? '') === 'status' && ($state['validationDetails'] ?? null) !== null) {
+            $this->DebugEvent('AKTION', 'Statusabfrage beendet; der detaillierte Prüfungsfehler bleibt bis zur nächsten Entwurfsprüfung erhalten.', ['Prüfungsfehler' => count($state['validationDetails']['issues'])]);
+        }
         $state['workflow'] = null;
         if ($importEvent !== null) {
             $this->FinishImportDeviceLoad($importEvent, $status, $error, $state);
@@ -535,10 +542,13 @@ trait ExtensionIntegration
 
     private function ExtensionErrorText(array $state): string
     {
-        if (in_array($state['lastError'], ['invalid_yaml', 'invalid_schema', 'invalid_semantics'], true) && ($state['validationDetails'] ?? null) !== null) {
-            return ValidationFeedback::Text($state['validationDetails'], fn (string $text): string => $this->Translate($text));
+        $error = $this->Translate(ExtensionContract::ErrorText($state['lastError']));
+        if (($state['validationDetails'] ?? null) !== null) {
+            $details = ValidationFeedback::Text($state['validationDetails'], fn (string $text): string => $this->Translate($text));
+            return $details . ($error !== '' && !in_array($state['lastError'], ['invalid_yaml', 'invalid_schema', 'invalid_semantics'], true)
+                ? "\n\n" . $this->Translate('Additional operation message:') . ' ' . $error : '');
         }
-        return $this->Translate(ExtensionContract::ErrorText($state['lastError']));
+        return $error;
     }
 
     private function RestartText(array $state): string

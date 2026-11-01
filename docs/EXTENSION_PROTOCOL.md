@@ -64,7 +64,10 @@ Symcon akzeptiert ausschließlich begrenzte, bekannte Felder und Codes; fehlt
 die optionale Diagnose oder ist sie ungültig, bleibt die feste Kurzmeldung.
 Namen löst es ausschließlich aus der tatsächlich geprüften JSON/YAML-Anfrage
 des Klick-Editors auf. Die Diagnose verändert weder gespeicherte Regeln noch
-ihre Ausführung. Ein neuer Auftrag verwirft alte Diagnosedaten.
+ihre Ausführung. Erst der Start einer neuen Entwurfsprüfung verwirft alte
+Diagnosedaten. `validationDetails` bleibt unabhängig vom letzten Vorgangsfehler
+erhalten; automatische/manuelle Statusabfragen und deren Fehler löschen es nicht.
+Zusätzliche Vorgangsfehler werden im Formular neben der Diagnose angezeigt.
 
 status, get und editor haben keine weiteren Felder. Die zusätzlichen Felder für
 activate/deactivate stehen in [RUNTIME.md](RUNTIME.md).

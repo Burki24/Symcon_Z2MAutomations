@@ -20,6 +20,11 @@
 
 ## Fixes
 
+- Detaillierte Prüfungsfehler bleiben bei automatischen und manuellen
+  Statusabfragen erhalten, bis die nächste Entwurfsprüfung beginnt. Fehler eines
+  anderen Vorgangs werden zusätzlich angezeigt. Debug erklärt Erhalt und Ablösung
+  der Diagnose; keine Änderung an der Z2M-Erweiterung.
+
 - Abgelehnte Z2M-Prüfungen nennen die betroffene Automation mit Nummer und bei
   Klick-Editor-Entwürfen mit Namen, Auslöser/Bedingung/Aktionsschritt und konkreter
   Ursache. Syntaxfehler nennen nach Möglichkeit Zeile und Spalte. Mehrere Fehler

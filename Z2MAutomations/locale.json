@@ -368,6 +368,7 @@
             "Start of time window": "Beginn des Zeitfensters",
             "End of time window": "Ende des Zeitfensters",
             "Z2M rejected the draft. Correct the following entries:": "Z2M hat den Entwurf abgelehnt. Bitte folgende Angaben korrigieren:",
+            "Additional operation message:": "Zusätzliche Meldung zum aktuellen Vorgang:",
             "This entry is missing.": "Diese Angabe fehlt.",
             "Enter a number here.": "Hier muss eine Zahl stehen.",
             "Enter a whole number here.": "Hier muss eine ganze Zahl stehen.",
