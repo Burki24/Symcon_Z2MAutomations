@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Detaillierte Z2M-Prüfungsfehler lokal implementiert: betroffene Automation,
+  Schritt, Feld und Ursache; Namen aus der geprüften Klick-Editor-Anfrage,
+  Syntaxpositionen nach Möglichkeit. Bis zu 20 Fehler mit erkennbarem Überlauf,
+  sichere Kurzmeldung bei alten/ungültigen Antworten. Native Debug-Ausgaben
+  enthalten nur Position und feste Ursachen. Synthetische 50-Regel-Prüfung,
+  PHP-/JS-Datenfluss und Geheimnisschutz ergänzt. Noch nicht installiert oder
+  in der nativen Live-Konsole geprüft; keine Live-Änderungen.
+
 - Wiederanlauf lokal implementiert: ResumeAfterRestart ist standardmäßig true
   und wird bei ausdrücklicher Aktivierung übertragen. Z2M persistiert System,
   aktiven Betriebswunsch, Option und exakte Revision/Prüfsumme getrennt von YAML.

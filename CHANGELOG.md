@@ -20,6 +20,12 @@
 
 ## Fixes
 
+- Abgelehnte Z2M-Prüfungen nennen die betroffene Automation mit Nummer und bei
+  Klick-Editor-Entwürfen mit Namen, Auslöser/Bedingung/Aktionsschritt und konkreter
+  Ursache. Syntaxfehler nennen nach Möglichkeit Zeile und Spalte. Mehrere Fehler
+  werden gemeinsam angezeigt, bis zu 20 pro Prüfung. Debug bleibt ohne Namen,
+  YAML-Inhalte oder Schaltwerte; alte Erweiterungen behalten die sichere Kurzmeldung.
+
 - Die rote Topic-Warnung nach einem Gateway-Wechsel entfällt: Bei geändertem
   Gateway, Basistopic oder Topic-Angebot wird das native Formular neu aufgebaut.
   Statusmeldungen bei unverändertem Kontext laden das Formular nicht neu.

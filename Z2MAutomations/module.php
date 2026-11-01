@@ -14,6 +14,7 @@ require_once __DIR__ . '/../libs/Z2MInstanceDiscovery.php';
 require_once __DIR__ . '/../libs/SymconEventImport.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
 require_once __DIR__ . '/../libs/ExtensionContract.php';
+require_once __DIR__ . '/../libs/ValidationFeedback.php';
 require_once __DIR__ . '/../libs/ExtensionIntegration.php';
 require_once __DIR__ . '/../libs/AutomationEditor.php';
 require_once __DIR__ . '/../libs/AutomationEditorManagement.php';
@@ -151,7 +152,7 @@ class Z2MAutomations extends IPSModuleStrict
                 } elseif (($field['name'] ?? '') === 'ValidationInfo') {
                     $field['caption'] = $this->ValidationPreview($state);
                 } elseif (($field['name'] ?? '') === 'ErrorInfo') {
-                    $field['caption'] = $this->Translate(\Z2MAutomations\ExtensionContract::ErrorText($state['lastError']));
+                    $field['caption'] = $this->ExtensionErrorText($state);
                 } elseif (($field['name'] ?? '') === 'OperationInfo') {
                     $field['caption'] = $this->OperationText($state);
                 }
@@ -302,6 +303,7 @@ class Z2MAutomations extends IPSModuleStrict
                 $state = $this->RefreshState();
                 $this->SaveState($state);
                 unset($state['scope'], $state['pending'], $state['workflow']);
+                unset($state['validationDetails']['names']);
                 if ($state['extension'] !== null) {
                     unset($state['extension']['session']);
                 }

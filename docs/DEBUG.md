@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Abgelehnte Entwurfsprüfung
+
+Z2M und Symcon protokollieren für jeden der höchstens 20 Diagnoseeinträge eine
+feste Ursache sowie die Position, etwa `/automations/11/actions/1/delay_seconds`.
+Der native Symcon-Debug ergänzt einen übersetzten verständlichen Hinweis und
+gegebenenfalls Grenze, Zeile und Spalte. Namen werden nur im Formular und der
+zugehörigen Fehler-Statusvariable aus dem geprüften Klick-Editor-Entwurf ergänzt;
+der Transportstatus-Export entfernt diese Namenszuordnung. Keine Rohantworten,
+Ajv-/Parsertexte, YAML-Ausschnitte, dynamischen Wertschlüssel oder Schaltwerte
+werden in den Debug übernommen. Erfolg und neue Aufträge löschen alte Details.
+
 ## Automatischer Wiederanlauf
 
 Die Aktivierung protokolliert die übertragene Option NachNeustartFortsetzen.

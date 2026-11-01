@@ -47,6 +47,25 @@ neuen Präfix nicht ab.
 Jede Anfrage ist ein JSON-Objekt mit protocol_version: 1 und transaction als
 String mit 1–64 ASCII-Zeichen aus A–Z, a–z, 0–9, _ und -.
 Unbekannte Felder werden abgewiesen. validate benötigt zusätzlich yaml.
+
+Bei `invalid_yaml`, `invalid_schema` oder `invalid_semantics` kann `error.details`
+die Felder `issues` (höchstens 20 Einträge) und `truncated` (Boolean) enthalten.
+Jeder Eintrag besitzt einen nullbasierten JSON-Pointer `path` und einen festen
+`reason`-Code; Zahlenbegrenzungen ergänzen `limit`, YAML-Syntaxfehler optional
+einsbasierte `line`/`column`. Namen, Werte, Parserausschnitte und dynamische
+Schlüssel aus Schaltwerten werden nicht zurückgegeben. Beispiel:
+`{"path":"/automations/11/actions/1/delay_seconds","reason":"minimum","limit":0}`.
+Die ursprüngliche Schema-Prüfung entscheidet weiterhin unverändert über die
+Annahme. Eine zusätzliche Diagnoseprüfung wählt anhand des deklarierten Typs
+den passenden Schema-Zweig und sammelt Fehler, ohne Meldungen unpassender
+Alternativen (etwa Set statt Toggle) auszugeben. Semantische Prüfungen ordnen
+doppelte Kennungen, Zeitzonen, Zeitfenster und Partnerfreigaben konkret zu.
+Symcon akzeptiert ausschließlich begrenzte, bekannte Felder und Codes; fehlt
+die optionale Diagnose oder ist sie ungültig, bleibt die feste Kurzmeldung.
+Namen löst es ausschließlich aus der tatsächlich geprüften JSON/YAML-Anfrage
+des Klick-Editors auf. Die Diagnose verändert weder gespeicherte Regeln noch
+ihre Ausführung. Ein neuer Auftrag verwirft alte Diagnosedaten.
+
 status, get und editor haben keine weiteren Felder. Die zusätzlichen Felder für
 activate/deactivate stehen in [RUNTIME.md](RUNTIME.md).
 

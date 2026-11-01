@@ -186,6 +186,7 @@ try {
     $check($state()['extension']['storedRevision'] === 1 && GetValue(IPS_GetObjectIDByIdent('StoredRevision', $id)) === 1, 'Store acknowledgement updates revision');
     $check($module->ValidateYaml('schema_version: [') !== '' && $state()['lastError'] === 'invalid_yaml', 'Real parser errors reach fixed module messages');
     $check($state()['extension']['storedRevision'] === 1, 'Failed validation does not change stored revision');
+    require __DIR__ . '/validation-feedback.inc.php';
     $second = str_replace('revision: 1', 'revision: 2', $yaml);
     $module->ValidateYaml($second);
     $check($module->StoreYaml($second . '# edited') === '' && $state()['lastError'] === 'not_validated', 'Editing a validated draft revokes approval');
@@ -905,6 +906,15 @@ $controlled->ValidateYaml($source);
 $replyStatus($remote);
 $answer(['protocol_version' => 1, 'status' => 'error', 'error' => (object) ['code' => 'untrusted-secret-code', 'message' => 'synthetic-private-detail']]);
 $check($controlledState()['lastError'] === 'extension_error' && !str_contains($controlled->GetTransportState(), 'synthetic-private'), 'Unknown extension error messages are not copied');
+
+foreach ([null, (object) ['issues' => [(object) ['path' => '/synthetic-private', 'reason' => 'required']], 'truncated' => false]] as $details) {
+    $controlled->ValidateYaml($source);
+    $replyStatus($remote);
+    $answer(['protocol_version' => 1, 'status' => 'error', 'error' => (object) ['code' => 'invalid_schema', 'details' => $details, 'message' => 'synthetic-private']]);
+    $feedbackFields = formFields(json_decode($controlled->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($feedbackFields['ErrorInfo']['caption'] === \Z2MAutomations\ExtensionContract::ErrorText('invalid_schema')
+        && ($controlledState()['validationDetails'] ?? null) === null, 'Old receivers and malformed diagnostic payloads fall back to the safe fixed message');
+}
 
 $validate();
 $controlled->StoreYaml($source);

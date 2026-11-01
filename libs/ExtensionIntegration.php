@@ -95,6 +95,7 @@ trait ExtensionIntegration
                 return [];
             }
             $error = '';
+            $state['validationDetails'] = null;
             if (in_array($kind, ['validate', 'store'], true)) {
                 if (!ExtensionContract::ValidYamlText($yaml)) {
                     $error = 'invalid_yaml';
@@ -227,6 +228,7 @@ trait ExtensionIntegration
         $importEvent = $state['workflow']['importEvent'] ?? null;
         $state['operation']['status'] = $status;
         $state['lastError'] = $error;
+        $state['validationDetails'] = null;
         $state['workflow'] = null;
         if ($importEvent !== null) {
             $this->FinishImportDeviceLoad($importEvent, $status, $error, $state);
@@ -300,6 +302,15 @@ trait ExtensionIntegration
                 $state['extensionConfirmed'] = false;
             }
             $this->FinishExtensionWorkflow($state, 'error', $code);
+            if (in_array($workflow['wire'], ['validate', 'store'], true) && in_array($code, ['invalid_yaml', 'invalid_schema', 'invalid_semantics'], true)) {
+                $details = ValidationFeedback::Normalize($payload->error->details ?? null);
+                if ($details !== null) {
+                    $state['validationDetails'] = $details + ['names' => ValidationFeedback::Names($workflow['yaml'])];
+                    foreach ($details['issues'] as $issue) {
+                        $this->DebugEvent('FEHLER', 'Z2M hat diese Stelle im Entwurf abgelehnt; Details stehen im Formular.', ['Position' => $issue['path'], 'Ursache' => $issue['reason'], 'Hinweis' => ValidationFeedback::Reason($issue, fn (string $text): string => $this->Translate($text))] + array_intersect_key($issue, array_flip(['limit', 'line', 'column'])));
+                    }
+                }
+            }
             return null;
         }
         if (($payload->status ?? null) !== 'ok' || !($payload->data ?? null) instanceof stdClass) {
@@ -514,12 +525,20 @@ trait ExtensionIntegration
         $this->UpdateFormField('ActivateButton', 'enabled', $confirmed && ($state['extension']['storedRevision'] ?? 0) > 0 && $state['workflow'] === null);
         $this->UpdateFormField('StopButton', 'enabled', $state['mqttConnected']);
         $status = $this->OperationText($state);
-        $error = $this->Translate(ExtensionContract::ErrorText($state['lastError']));
+        $error = $this->ExtensionErrorText($state);
         $this->SetValue('OperationStatus', $status);
         $this->SetValue('LastError', $error);
         $this->UpdateFormField('OperationInfo', 'caption', $status);
         $this->UpdateFormField('ErrorInfo', 'caption', $error);
         $this->UpdateFormField('ValidationInfo', 'caption', $this->ValidationPreview($state));
+    }
+
+    private function ExtensionErrorText(array $state): string
+    {
+        if (in_array($state['lastError'], ['invalid_yaml', 'invalid_schema', 'invalid_semantics'], true) && ($state['validationDetails'] ?? null) !== null) {
+            return ValidationFeedback::Text($state['validationDetails'], fn (string $text): string => $this->Translate($text));
+        }
+        return $this->Translate(ExtensionContract::ErrorText($state['lastError']));
     }
 
     private function RestartText(array $state): string

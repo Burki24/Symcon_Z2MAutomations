@@ -50,6 +50,19 @@ ist. Wenn eine Aktion erforderlich ist, nennt die Meldung den nächsten Schritt.
 dass die Verbindung gestört ist. Mit **Erweiterungsstatus abfragen** lässt sich
 der aktuelle Stand aus Z2M laden.
 
+Lehnt **Entwurf in Z2M prüfen** eine Datei ab, zeigt die Fehlerliste die Nummer
+der Automation und die betroffene Angabe, zum Beispiel **Automation 12 → Aktion 2
+→ Wartezeit vor dem Schritt: Der Wert muss mindestens 0 sein**. Bei Entwürfen aus
+dem Klick-Editor steht zusätzlich der Name der Automation dabei. Die Nummern
+beziehen sich auf die Reihenfolge aller Automationen in der geprüften Datei,
+einschließlich ausgeschalteter Regeln. Bei selbst geschriebener YAML helfen die
+Nummer sowie bei Syntaxfehlern nach Möglichkeit Zeile und Spalte.
+
+Es erscheinen bis zu 20 Fehler gleichzeitig. Nach der Korrektur die Änderung
+zunächst in den Entwurf übernehmen und erneut prüfen. Eine erfolgreiche Prüfung
+entfernt die alte Fehlerliste. Für diese ausführlichen Rückmeldungen müssen
+sowohl das Modul als auch die mitgelieferte Z2M-Erweiterung aktualisiert sein.
+
 ## Nach einem Z2M-Neustart automatisch weiterarbeiten
 
 Unter **Betrieb der Automationen** ist **Aktivierte Automationen nach einem

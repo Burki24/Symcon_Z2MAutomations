@@ -114,7 +114,7 @@ async function harness(options = {}) {
     }};
     const eventBus = {onMQTTMessage: (_owner, listener) => { handler = listener; }, removeListeners: () => { handler = undefined; }};
     const settings = {get: () => ({mqtt: {base_topic: 'synthetic/z2m'}})};
-    const logger = {error: text => logs.push(text), warning: text => logs.push(text)};
+    const logger = {error: text => logs.push(text), warning: text => logs.push(text), debug: text => logs.push(text)};
     const extension = new Extension(null, mqtt, null, null, eventBus, null, null, null, settings, logger, {directory, io: options.io});
     await extension.start();
     const session = messages.at(-1)?.payload.session ?? extension.status().session;
@@ -137,6 +137,72 @@ async function harness(options = {}) {
 test('schema accepts the complete synthetic example and an empty rule list', () => {
     assert.equal(validateYaml(fixtureYaml).document.automations.length, 2);
     assert.equal(validateYaml(emptyYaml(1)).document.revision, 1);
+});
+
+test('validation identifies actual failing branches among fifty rules without returning values', async () => {
+    const h = await harness();
+    try {
+        const template = validateYaml(fixtureYaml).document.automations[0];
+        const document = {schema_version: 1, revision: 1, automations: Array.from({length: 50}, (_, i) =>
+            ({...structuredClone(template), id: 'rule_' + i, name: 'Synthetic private name ' + i}))};
+        document.automations[41].actions = [{type: 'toggle', target: {type: 'group', id: 7}, property: 'state', delay_seconds: -1}];
+        document.automations[48].triggers[0].operator = 'gt';
+        document.automations[48].triggers[0].value = 'synthetic-private-value';
+        const response = await h.request('validate', {yaml: JSON.stringify(document)});
+        assert.equal(response.error.code, 'invalid_schema');
+        assert.deepEqual(response.error.details.issues, [
+            {path: '/automations/41/actions/0/delay_seconds', reason: 'minimum', limit: 0},
+            {path: '/automations/48/triggers/0/value', reason: 'number'}
+        ]);
+        assert.equal(response.error.details.truncated, false);
+        assert.ok(!JSON.stringify(response).includes('Synthetic private'));
+        assert.ok(!JSON.stringify(response).includes('synthetic-private-value'));
+        assert.deepEqual(await readdir(h.directory), [], 'Validation never writes or activates rules');
+        assert.ok(h.logs.some(line => line.includes('/automations/41/actions/0/delay_seconds')));
+        assert.ok(!h.logs.join('').includes('synthetic-private'));
+    } finally { await h.close(); }
+});
+
+test('semantic diagnostics locate duplicates, timezones, windows and remote permissions', async () => {
+    const h = await harness();
+    try {
+        const document = structuredClone(validateYaml(fixtureYaml).document);
+        document.automations[1].id = document.automations[0].id;
+        const window = document.automations[0].conditions.find(c => c.type === 'time_window');
+        window.timezone = 'NoSuch/Timezone';
+        window.before = window.after;
+        document.automations[0].enabled = true;
+        document.automations[0].actions[0].target.system = 'unapproved';
+        const response = await h.request('validate', {yaml: JSON.stringify(document)});
+        assert.equal(response.error.code, 'invalid_semantics');
+        const issues = response.error.details.issues;
+        assert.ok(issues.some(i => i.path === '/automations/1/id' && i.reason === 'duplicate_id'));
+        assert.ok(issues.some(i => i.path.endsWith('/timezone') && i.reason === 'timezone'));
+        assert.ok(issues.some(i => i.path.endsWith('/before') && i.reason === 'time_window'));
+        assert.ok(issues.some(i => i.path.endsWith('/target/system') && i.reason === 'remote_permission'));
+    } finally { await h.close(); }
+});
+
+test('diagnostics are bounded and YAML errors expose positions without source excerpts', async () => {
+    const h = await harness();
+    try {
+        const template = validateYaml(fixtureYaml).document.automations[0];
+        const document = {schema_version: 1, revision: 1, automations: Array.from({length: 50}, (_, i) =>
+            ({...structuredClone(template), id: 'rule_' + i, enabled: 'invalid'}))};
+        const response = await h.request('validate', {yaml: JSON.stringify(document)});
+        assert.equal(response.error.details.issues.length, 20);
+        assert.equal(response.error.details.truncated, true);
+        const syntax = await h.request('validate', {yaml: 'schema_version: 1\nrevision: [synthetic-private-source\n'});
+        assert.equal(syntax.error.code, 'invalid_yaml');
+        assert.ok(syntax.error.details.issues[0].line >= 1);
+        assert.ok(!JSON.stringify(syntax).includes('synthetic-private-source'));
+        const custom = structuredClone(validateYaml(fixtureYaml).document);
+        custom.automations[0].actions[0].values = {'private-secret-key': 'private-secret-value'};
+        const nested = await h.request('validate', {yaml: JSON.stringify(custom)});
+        assert.equal(nested.error.code, 'invalid_schema');
+        assert.ok(nested.error.details.issues.every(issue => issue.path === '/automations/0/actions/0/values'));
+        assert.ok(!JSON.stringify(nested).includes('private-secret'));
+    } finally { await h.close(); }
 });
 
 test('strict YAML and schema validation reject malformed or ambiguous documents', () => {

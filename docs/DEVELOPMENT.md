@@ -993,3 +993,23 @@ Symcon-Ereigniskonfigurationen blieben unverändert. Native Debug-Ausgaben beleg
 Entwurfserhalt und jede Übernahme. Gespeicherte Z2M-Prüfsumme und Revision blieben
 unverändert; die Ausführung blieb gestoppt. Private Geräte- und Ereignisdaten
 wurden nicht in diesen Nachweis oder in Testfixtures übernommen.
+
+## Detaillierte Validierungsrückmeldung
+
+`ValidationFeedback` normalisiert ausschließlich bekannte Diagnosefelder und
+formuliert sie für Formular und Fehler-Statusvariable. Namen werden aus der
+geprüften Editor-Anfrage aufgelöst; sie erscheinen nicht im Debug oder öffentlichen
+Transportstatus. Kein neuer zentraler Helper: Diagnosepfade und Ursachen sind
+Teil des librarylokalen Automationsprotokolls. ConfigurationFormHelper und
+DebugFlowHelper bleiben unverändert eingebunden.
+
+Die synthetischen Tests prüfen 50 Regeln mit mehreren tatsächlichen Fehlern,
+unterschiedliche Schema-Zweige, Semantik, Syntaxpositionen, Begrenzung auf 20,
+ungültige Rückmeldungen, fehlende Details alter Empfänger, erneuten Formularabruf,
+Live-Feldaktualisierung, bereinigte Debug-Ausgaben und Löschen nach erfolgreicher
+Prüfung. Native Live-Konsole und reale Installation sind für diese Änderung noch
+nicht geprüft; keine Produktivdaten oder echten Geräteaktionen in den Tests.
+
+Nachweise: `php tests/run.php` einschließlich 67 JavaScript-Tests und der echten
+PHP-/JS-Integration, Strukturprüfung, offizielle StylePHP-JSON-Prüfung,
+php-cs-fixer 3.95.27 im Prüfmodus und aktuelle Erweiterungserzeugung erfolgreich.

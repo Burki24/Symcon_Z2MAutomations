@@ -475,17 +475,58 @@ const ERRORS = Object.freeze({
 });
 
 class ConfigurationError extends Error {
-    constructor(code) {
+    constructor(code, details = null) {
         super(ERRORS[code]);
         this.code = code;
+        this.details = details;
     }
 }
 
-const fail = code => { throw new ConfigurationError(code); };
+const fail = (code, details = null) => { throw new ConfigurationError(code, details); };
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const isRevision = value => Number.isSafeInteger(value) && value >= 0;
 const hash = text => createHash('sha256').update(text, 'utf8').digest('hex');
 const validateSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: false}).compile(AUTOMATIONS_SCHEMA);
+// Diagnostics select the declared branch, avoiding errors about other trigger/action types.
+// Acceptance is still decided exclusively by the unchanged public schema above.
+const diagnosticSchema = structuredClone(AUTOMATIONS_SCHEMA);
+function selectDiagnosticBranches(node) {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node.oneOf) && node.oneOf.every(branch =>
+        (branch.$ref ? AUTOMATIONS_SCHEMA.definitions[branch.$ref.split('/').at(-1)] : branch)?.properties?.type?.const)) {
+        node.type = 'object';
+        node.discriminator = {propertyName: 'type'};
+    }
+    for (const child of Object.values(node)) selectDiagnosticBranches(child);
+}
+selectDiagnosticBranches(diagnosticSchema);
+const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds']);
+const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
+    'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
+function schemaDetails(document) {
+    diagnoseSchema(document);
+    const issues = [];
+    const seen = new Set();
+    for (const error of diagnoseSchema.errors ?? []) {
+        if (!DETAIL_REASONS.has(error.keyword)) continue;
+        const parts = error.instancePath.split('/').slice(1);
+        if (error.keyword === 'required') parts.push(error.params.missingProperty);
+        const safe = [];
+        for (const part of parts) {
+            if (!DETAIL_FIELDS.has(part) && !/^(?:0|[1-9][0-9]{0,2})$/.test(part)) break;
+            safe.push(part);
+            if (part === 'values' || part === 'value') break; // Never include user-authored object keys or values.
+        }
+        const issue = {path: safe.length ? '/' + safe.join('/') : '', reason: error.keyword};
+        if (error.keyword === 'type' && ['number', 'integer', 'boolean', 'string', 'array', 'object'].includes(error.params.type)) issue.reason = error.params.type;
+        if (typeof error.params.limit === 'number') issue.limit = error.params.limit;
+        const key = JSON.stringify(issue);
+        if (!seen.has(key)) { seen.add(key); issues.push(issue); }
+    }
+    return {issues: issues.slice(0, 20), truncated: issues.length > 20};
+}
 const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/action');
 const yamlSchema = JSON_SCHEMA.withTags({
     ...mapTag,
@@ -511,26 +552,39 @@ export function validateYaml(yaml) {
                 || (event.directives && event.directives.length !== 0)) fail('invalid_yaml');
         }
         [document] = constructFromEvents(events, {source: yaml, schema: yamlSchema, json: false, maxAliases: 0, maxTotalMergeKeys: 0});
-    } catch {
-        fail('invalid_yaml');
+    } catch (error) {
+        const issue = {path: '', reason: 'yaml_syntax'};
+        if (Number.isInteger(error.mark?.line) && error.mark.line >= 0 && error.mark.line < 1000000) {
+            issue.line = error.mark.line + 1;
+            if (Number.isInteger(error.mark.column) && error.mark.column >= 0 && error.mark.column < 1000000) issue.column = error.mark.column + 1;
+        }
+        fail('invalid_yaml', {issues: [issue], truncated: false});
     }
-    if (!validateSchema(document)) fail('invalid_schema');
+    if (!validateSchema(document)) fail('invalid_schema', schemaDetails(document));
     const ids = new Set();
-    for (const automation of document.automations) {
-        if (ids.has(automation.id)) fail('invalid_semantics');
+    const issues = [];
+    for (const [index, automation] of document.automations.entries()) {
+        const path = '/automations/' + index;
+        if (ids.has(automation.id)) issues.push({path: path + '/id', reason: 'duplicate_id'});
         ids.add(automation.id);
-        if (automation.enabled && automation.actions.some(action => action.target.system !== undefined && !document.mesh_peers?.includes(action.target.system))) fail('invalid_semantics');
-        for (const clause of [...automation.triggers, ...automation.conditions]) {
+        for (const [step, action] of automation.actions.entries()) {
+            if (automation.enabled && action.target.system !== undefined && !document.mesh_peers?.includes(action.target.system)) {
+                issues.push({path: path + '/actions/' + step + '/target/system', reason: 'remote_permission'});
+            }
+        }
+        for (const section of ['triggers', 'conditions']) for (const [step, clause] of automation[section].entries()) {
+            const location = path + '/' + section + '/' + step;
             if (clause.timezone !== undefined) {
                 try {
                     new Intl.DateTimeFormat('en', {timeZone: clause.timezone}).format(0);
                 } catch {
-                    fail('invalid_semantics');
+                    issues.push({path: location + '/timezone', reason: 'timezone'});
                 }
             }
-            if (clause.type === 'time_window' && clause.after === clause.before) fail('invalid_semantics');
+            if (clause.type === 'time_window' && clause.after === clause.before) issues.push({path: location + '/before', reason: 'time_window'});
         }
     }
+    if (issues.length) fail('invalid_semantics', {issues: issues.slice(0, 20), truncated: issues.length > 20});
     return {yaml, document, checksum: hash(yaml)};
 }
 
@@ -992,7 +1046,9 @@ export default class Z2MAutomationsExtension {
                 if (this.store.state === 'error') this.runtime.deactivate();
                 const code = error instanceof ConfigurationError || error instanceof RuntimeError ? error.code : 'storage_error';
                 this.runtime.log('FEHLER', 'Erweiterungsauftrag abgewiesen.', {Auftrag: operation, Grund: code});
-                await this.respond(operation, request.transaction, null, code);
+                const details = error instanceof ConfigurationError ? error.details : null;
+                for (const issue of details?.issues ?? []) this.runtime.log('FEHLER', 'Entwurf an dieser Stelle korrigieren.', {Position: issue.path, Grund: issue.reason});
+                await this.respond(operation, request.transaction, null, code, details);
             } finally {
                 this.pending--;
             }
@@ -1002,9 +1058,9 @@ export default class Z2MAutomationsExtension {
         await task;
     }
 
-    async respond(operation, transaction, data, code = null) {
+    async respond(operation, transaction, data, code = null, details = null) {
         await this.publish('response/' + operation, code === null
             ? {protocol_version: 1, transaction, status: 'ok', data}
-            : {protocol_version: 1, transaction, status: 'error', error: {code, message: ERRORS[code]}});
+            : {protocol_version: 1, transaction, status: 'error', error: {code, message: ERRORS[code], ...(details ? {details} : {})}});
     }
 }
