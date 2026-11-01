@@ -50,6 +50,33 @@ ist. Wenn eine Aktion erforderlich ist, nennt die Meldung den nächsten Schritt.
 dass die Verbindung gestört ist. Mit **Erweiterungsstatus abfragen** lässt sich
 der aktuelle Stand aus Z2M laden.
 
+## Nach einem Z2M-Neustart automatisch weiterarbeiten
+
+Unter **Betrieb der Automationen** ist **Aktivierte Automationen nach einem
+Z2M-Neustart automatisch fortsetzen** standardmäßig eingeschaltet. Einstellungen
+übernehmen und anschließend **Gespeicherte Automationen in Z2M aktivieren** wählen:
+Erst diese Aktivierung überträgt die Option und speichert den Betriebszustand in Z2M.
+Eine reine Änderung im Symcon-Formular ändert den bereits gespeicherten Z2M-Zustand nicht.
+
+Danach aktiviert Z2M denselben geprüften Regelstand nach einem Neustart selbstständig,
+auch wenn Symcon nicht läuft. **Stoppen** wird ebenfalls dauerhaft gespeichert;
+bewusst gestoppte Automationen bleiben aus. Das bloße Speichern geänderter Regeln
+berechtigt nicht zum Wiederanlauf. Ohne eingeschaltete Option ist nach einem
+Z2M-Neustart eine manuelle Aktivierung erforderlich. Die Statuszeile zeigt das
+von Z2M bestätigte Verhalten und einen gegebenenfalls fehlgeschlagenen Wiederanlauf.
+
+Verpasste Schaltzeiten werden nicht nachgeholt, unterbrochene Aktionsfolgen und
+Wartezeiten werden verworfen. Gerätebedingungen warten auf neue Sensorwerte.
+Fehlende Geräte, beschädigte Dateien oder ein veränderter Regelstand verhindern
+den Wiederanlauf. Bei Speicherfehlern wird Aktivierung oder Stopp nicht als
+dauerhaft bestätigt; Fehler beheben und den Auftrag erneut ausführen.
+
+Nach erstmaliger Installation dieser Erweiterung einmal ausdrücklich aktivieren,
+um die Wiederanlauf-Freigabe anzulegen. Ein Update allein aktiviert keine Regeln.
+Auch ein Neuladen der Erweiterung verwendet anschließend den gespeicherten
+Betriebszustand. Beide Partner einer systemübergreifenden Automation benötigen
+jeweils ihre eigene Aktivierung und Wiederanlauf-Freigabe.
+
 ## MQTT-Gateway und Suchbereich
 
 Für zwei Z2M-Systeme mit unterschiedlichen Basistopics werden zwei getrennte

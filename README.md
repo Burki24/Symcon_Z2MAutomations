@@ -33,7 +33,9 @@ eigene Format; der [YAML-Vertrag](docs/YAML_SCHEMA.md) beschreibt die Felder.
 
 Weitere Auslöser, Bedingungen und Gruppen sind über die zusätzliche YAML-Ansicht
 möglich. Die Ausführung aktivierter Regeln findet in Z2M statt und benötigt
-kein laufendes Symcon. Nach einem Z2M-Neustart ist ausdrücklich neu zu aktivieren.
+kein laufendes Symcon. Auf Wunsch startet Z2M den zuletzt aktivierten Regelstand
+nach einem Neustart selbstständig wieder; bestätigtes Stoppen bleibt wirksam.
+Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertragen.
 
 ## Voraussetzungen
 

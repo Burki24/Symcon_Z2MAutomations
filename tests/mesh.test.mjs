@@ -203,3 +203,22 @@ test('a lost acknowledgement reports uncertainty without automatically executing
         assert.ok(!h.a.logs.some(message => message.includes('native Befehlsübergabe bestätigt')));
     } finally { await h.close(); }
 });
+
+
+test('both systems resume their stored permission after restart and exchange fresh commands', async () => {
+    const h = await pair();
+    try {
+        await h.a.load([remoteRule('set')]); await h.b.load([]);
+        await h.a.extension.stop(); await h.b.extension.stop();
+        await h.a.extension.start(); await h.b.extension.start();
+        for (const node of [h.a, h.b]) {
+            assert.equal(node.extension.status().resume_status, 'resumed');
+            assert.equal(node.extension.status().executing, true);
+            assert.equal(node.extension.status().mesh_ready, true);
+            assert.equal(node.commands.length, 0);
+        }
+        await h.a.trigger();
+        assert.equal(h.b.commands.length, 1);
+        assert.equal(h.a.extension.status().runtime_error, '');
+    } finally { await h.close(); }
+});

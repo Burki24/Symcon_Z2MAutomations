@@ -171,3 +171,11 @@ Vertragsprüfung am 27.10.2026 gegen Z2M 2.14.2. Offline geprüft mit js-yaml 5.
 Ajv 8.20.0, echter Dateispeicherung in temporären Testordnern und synthetischem
 MQTT-/Eventbus. Keine fremde Automationsimplementierung übernommen.
 Die Tests bestätigen keinen Betrieb in einer echten Z2M-Installation.
+
+## Wiederanlauf
+
+request/activate kann resume_after_restart (Boolean, Default true) enthalten.
+Statusmeldungen ergänzen resume_version, resume_enabled, resume_status und
+resume_error; Werte und dauerhafte Semantik stehen in [RUNTIME.md](RUNTIME.md).
+Die Freigabe gehört zum aktivierten Regelstand und wird nicht durch retained
+Aktivierungsbefehle oder eine Symcon-Statusabfrage ersetzt.

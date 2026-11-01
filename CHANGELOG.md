@@ -2,6 +2,12 @@
 
 ## Features
 
+- Automatischer Wiederanlauf nach Z2M-Neustart oder Erweiterungsneuladen für den
+  zuvor ausdrücklich aktivierten Regelstand. Formularoption standardmäßig an;
+  Übertragung beim Aktivieren. Bestätigtes Stoppen bleibt dauerhaft wirksam.
+  Eigener Status und deutsche Debug-Ausgaben; keine Fortsetzung alter Folgen oder
+  Nachholung verpasster Zeiten. Speicher- und Prüfungsfehler werden sichtbar gemeldet.
+
 - Aktionen können Geräte und Gruppen eines ausdrücklich ausgewählten zweiten
   Z2M-Systems schalten. Klick-Editor, Vorbelegung und Ereignisimport erhalten
   systemgebundene Ziele und prüfen weiterhin native Symcon-Schaltrechte.

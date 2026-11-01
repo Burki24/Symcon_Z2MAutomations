@@ -15,7 +15,9 @@ Bedingungen und geordneten Set-/Umschaltaktionen. Speichern allein aktiviert nic
 Das Symcon-Modul bietet Aktivierungs-/Stoppbuttons und einen ersten Klick-Editor.
 Die Erweiterung stellt dafür einen begrenzten Gerätekatalog aus diskreten Exposes
 und die bereits gespeicherte Konfiguration bereit. Nach der Aktivierung laufen
-Regeln ohne Symcon weiter; ein Z2M-Neustart erfordert weiterhin erneutes Aktivieren.
+Regeln ohne Symcon weiter. Mit gespeicherter Wiederanlauf-Freigabe aktiviert
+Z2M denselben Regelstand auch nach einem Neustart automatisch. Ohne Freigabe
+oder nach bestätigtem Stoppen bleibt die Engine aus; siehe [Laufzeitvertrag](../../docs/RUNTIME.md).
 
 - Hochladbare Einzeldatei: z2m-automations.mjs.
 - Eigener Quellcode: src/extension.mjs, src/runtime.mjs und src/mesh.mjs.

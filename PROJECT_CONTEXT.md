@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Wiederanlauf lokal implementiert: ResumeAfterRestart ist standardmäßig true
+  und wird bei ausdrücklicher Aktivierung übertragen. Z2M persistiert System,
+  aktiven Betriebswunsch, Option und exakte Revision/Prüfsumme getrennt von YAML.
+  Bestätigter Stopp und geändertes Speichern disarmieren den Wiederanlauf.
+  Alte Installationen ohne Freigabe bleiben inaktiv. Status-/Formularmeldungen
+  und Debug ergänzt; Tests für echte neue Instanzen, Mesh, Stoppvorrang,
+  Bedingungen, verpasste Zeiten und fehlerhafte Speicherung. Noch nicht installiert
+  oder nativ praktisch geprüft. Siehe ADR 0010 und RUNTIME.md.
+
 - Verbliebene rote Topic-Warnung beim Gateway-Wechsel korrigiert und nativ auf
   der Testinstallation geprüft: MultiSelect-Optionen werden nicht live ersetzt.
   Bei geändertem Gateway-/Topic-Kontext baut ReloadForm die Auswahl neu auf;

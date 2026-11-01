@@ -60,6 +60,7 @@ class Z2MAutomations extends IPSModuleStrict
         {
             parent::Create();
             $this->RegisterPropertyBoolean('Active', false);
+            $this->RegisterPropertyBoolean('ResumeAfterRestart', true);
             $this->RegisterPropertyString('BaseTopic', 'zigbee2mqtt');
             $this->RegisterPropertyInteger('PeerModuleID', 0);
             $this->RegisterPropertyInteger('RequestTimeout', 10);
@@ -137,6 +138,8 @@ class Z2MAutomations extends IPSModuleStrict
                 if (($field['name'] ?? '') === 'YamlInput') {
                     $field['value'] = $this->ReadAttributeString('YamlDraft');
                     $field['visible'] = true;
+                } elseif (($field['name'] ?? '') === 'RestartInfo') {
+                    $field['caption'] = $this->RestartText($state);
                 } elseif (($field['name'] ?? '') === 'ExecutionInfo') {
                     $field['caption'] = $this->ExecutionText($state);
                 } elseif (($field['name'] ?? '') === 'RuntimeErrorInfo') {

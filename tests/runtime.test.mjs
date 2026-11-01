@@ -38,7 +38,7 @@ class Clock {
     }
 }
 
-async function harness(directory = null, nativeDispatch = true) {
+async function harness(directory = null, nativeDispatch = true, beforeStart = () => {}) {
     directory ??= await mkdtemp(join(tmpdir(), 'z2ma-runtime-'));
     const clock = new Clock();
     const messages = [], commands = [], logs = [];
@@ -72,6 +72,7 @@ async function harness(directory = null, nativeDispatch = true) {
         },
         event: async (payload, extra = {}) => { publishState?.({entity: devices.get(sourceID), payload, message: payload, ...extra}); await flush(); },
         close: async (remove = true) => { await extension.stop(); if (remove) await rm(directory, {recursive: true, force: true}); }};
+    await beforeStart(h);
     await extension.start();
     h.session = extension.status().session;
     h.store = text => h.request('store', {yaml: text, expected_revision: extension.status().stored_revision, session: h.session});
@@ -276,10 +277,10 @@ test('action transport failures abort sequences without retry and diagnostics ne
     } finally { await h.close(); }
 });
 
-test('activation refuses corrupted disk and restarts load stored rules without executing them', async () => {
+test('activation refuses corrupted disk; disabled automatic restart keeps stored rules stopped', async () => {
     let h = await harness(); const directory = h.directory;
     try {
-        await h.store(yaml()); await h.activate();
+        await h.store(yaml()); await h.activate({resume_after_restart: false});
         await h.close(false); h = await harness(directory);
         assert.equal(h.extension.status().stored_revision, 1);
         assert.equal(h.extension.status().executing, false);
@@ -513,5 +514,149 @@ test('uncached event properties start from the first fresh report and restart th
         assert.equal((await h.activate()).status, 'ok');
         await h.event({action: 'single'}); await Promise.all([...h.extension.runtime.tasks]);
         assert.equal(h.commands.length, 3);
+    } finally { await h.close(); }
+});
+
+
+test('restart restores the explicitly activated snapshot without Symcon; stop persists across restart', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        await h.store(yaml());
+        assert.equal(h.extension.status().executing, false);
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, false, 'Saving never authorizes restart');
+        assert.equal((await h.activate()).status, 'ok');
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, true);
+        assert.equal(h.extension.status().resume_status, 'resumed');
+        assert.equal(h.commands.length, 0, 'Startup never emits a device command');
+        await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1);
+        assert.equal((await h.deactivate()).status, 'ok');
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().resume_status, 'stopped');
+        await h.event({occupancy: true}); assert.equal(h.commands.length, 0);
+        assert.ok(h.logs.some(line => line.includes('bewusst gestoppt')));
+    } finally { await h.close(); }
+});
+
+test('restart cancels old action sequences and waits for fresh condition observations', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = rule();
+        r.conditions = [{type: 'device_value', device: sourceID, property: 'illuminance', operator: 'lt', value: 50}];
+        r.actions.push({type: 'set', target: {type: 'device', id: targetID}, values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r])); await h.activate();
+        await h.event({occupancy: true, illuminance: 10});
+        assert.equal(h.commands.length, 1);
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, true);
+        await h.clock.advance(6000); assert.equal(h.commands.length, 0, 'Old delayed actions are discarded');
+        await h.event({occupancy: true}); assert.equal(h.commands.length, 0, 'Unknown condition is not fulfilled');
+        await h.event({occupancy: true, illuminance: 10}); assert.equal(h.commands.length, 1);
+    } finally { await h.close(); }
+});
+
+test('restart rejects changed YAML, corrupt intent, another system and recovered backup', async () => {
+    for (const mutation of [
+        async dir => writeFile(join(dir, 'automations.yaml'), yaml([], 2)),
+        async dir => writeFile(join(dir, 'execution-state.json'), '{broken'),
+        async dir => { const {readFile} = await import('node:fs/promises'); const intent = JSON.parse(await readFile(join(dir, 'execution-state.json'), 'utf8')); intent.system = 'synthetic/other'; await writeFile(join(dir, 'execution-state.json'), JSON.stringify(intent)); },
+        async dir => { await writeFile(join(dir, 'automations.previous.yaml'), yaml()); await writeFile(join(dir, 'automations.yaml'), 'broken: ['); }
+    ]) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            await h.store(yaml()); await h.activate(); await h.close(false);
+            await mutation(directory); h = await harness(directory);
+            assert.equal(h.extension.status().executing, false);
+            assert.equal(h.extension.status().resume_status, 'blocked');
+            assert.ok(h.extension.status().resume_error);
+            await h.event({occupancy: true}); assert.equal(h.commands.length, 0);
+            assert.ok(h.logs.some(line => line.includes('Wiederanlauf abgebrochen')));
+        } finally { await h.close(); }
+    }
+});
+
+test('missing activation state never authorizes startup; unavailable devices block restart', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        await h.store(yaml()); await h.activate(); await h.close(false);
+        h = await harness(directory, true, context => context.devices.delete(targetID));
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().resume_error, 'unknown_entity');
+        await h.close(false);
+        await rm(join(directory, 'execution-state.json'));
+        h = await harness(directory);
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().resume_status, 'unconfigured');
+    } finally { await h.close(); }
+});
+
+test('changed storage disarms restart while idempotent storage retains explicit activation', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        await h.store(yaml()); await h.activate();
+        assert.equal((await h.store(yaml())).data.unchanged, true);
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, true);
+        await h.store(yaml([rule()], 2));
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().executing, false);
+    } finally { await h.close(); }
+});
+
+test('activation and stop report persistence failures instead of confirming a durable change', async () => {
+    const h = await harness();
+    try {
+        await h.store(yaml());
+        const write = h.extension.store.atomicWrite.bind(h.extension.store);
+        let calls = 0;
+        h.extension.store.atomicWrite = async (...args) => { if (++calls === 2) throw new Error('private storage detail'); return write(...args); };
+        assert.equal((await h.activate()).error.code, 'storage_error');
+        assert.equal(h.extension.status().executing, false);
+        h.extension.store.atomicWrite = write;
+        await h.activate();
+        h.extension.store.atomicWrite = async () => { throw new Error('private storage detail'); };
+        assert.equal((await h.deactivate()).error.code, 'storage_error');
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().resume_status, 'blocked');
+        assert.ok(!h.logs.join('').includes('private storage detail'));
+    } finally { await h.close(); }
+});
+
+
+test('an explicit stop received during startup wins over automatic recovery', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        await h.store(yaml()); await h.activate(); await h.close(false);
+        let release, entered, startingContext;
+        const gate = new Promise(resolve => { release = resolve; });
+        const reached = new Promise(resolve => { entered = resolve; });
+        const io = await import('node:fs/promises');
+        const starting = harness(directory, true, context => {
+            startingContext = context;
+            context.extension.store.io = {...io, readFile: async path => { entered(); await gate; return io.readFile(path); }};
+        });
+        await reached;
+        const stopping = startingContext.extension.receive({topic: 'synthetic/z2m/symcon/automations/request/deactivate',
+            message: JSON.stringify({protocol_version: 1, transaction: 'synthetic-stop-startup', session: startingContext.extension.session})});
+        release(); h = await starting; await stopping;
+        assert.equal(h.extension.status().executing, false);
+        await h.close(false); h = await harness(directory);
+        assert.equal(h.extension.status().resume_status, 'stopped');
+        assert.equal(h.extension.status().executing, false);
+    } finally { await h.close(); }
+});
+
+test('automatic recovery does not replay a switching time missed during downtime', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = rule(); r.triggers = [{type: 'time', at: '12:05:00', timezone: 'UTC'}];
+        await h.store(yaml([r])); await h.activate(); await h.close(false);
+        h = await harness(directory, true, context => { context.clock.wall = Date.parse('2026-10-26T12:10:00Z'); });
+        assert.equal(h.extension.status().executing, true);
+        await h.clock.advance(10000);
+        assert.equal(h.commands.length, 0);
     } finally { await h.close(); }
 });

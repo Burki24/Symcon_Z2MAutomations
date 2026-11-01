@@ -335,7 +335,18 @@
             "The saved base topic was not found on this gateway. Choose a detected topic or enter it manually, then apply the settings.": "Das gespeicherte Basistopic wurde an diesem Gateway nicht gefunden. Bitte ein gefundenes Topic auswählen oder das gewünschte Topic manuell eingeben und die Einstellungen übernehmen.",
             "Several base topics were found. Select the intended Z2M system; the gateway alone does not determine its topic.": "An diesem Gateway wurden mehrere Basistopics gefunden. Bitte das gewünschte Z2M-System auswählen; das Gateway allein legt sein Topic nicht fest.",
             "The saved base topic matches the devices on this gateway.": "Das gespeicherte Basistopic passt zu den Geräten an diesem Gateway.",
-            "Select the base topic for the connected gateway, then apply the settings.": "Bitte das Basistopic für das verbundene Gateway auswählen und die Einstellungen übernehmen."
+            "Select the base topic for the connected gateway, then apply the settings.": "Bitte das Basistopic für das verbundene Gateway auswählen und die Einstellungen übernehmen.",
+            "Automation operation": "Betrieb der Automationen",
+            "Automatically resume activated automations after a Z2M restart": "Aktivierte Automationen nach einem Z2M-Neustart automatisch fortsetzen",
+            "Apply settings, then activate the stored automations to transfer this option to Z2M. Stop remains effective after restart. Interrupted sequences and missed switching times are not replayed.": "Einstellungen übernehmen und anschließend die gespeicherten Automationen aktivieren, um diese Option an Z2M zu übertragen. Stoppen bleibt nach einem Neustart wirksam. Unterbrochene Abläufe und verpasste Schaltzeiten werden nicht nachgeholt.",
+            "Automatic restart is enabled for the activated rules.": "Aktivierte Automationen starten nach einem Z2M-Neustart automatisch wieder.",
+            "Automations were automatically activated after restart.": "Automationen wurden nach dem Neustart automatisch aktiviert.",
+            "Automations were stopped and will remain stopped after restart.": "Automationen sind gestoppt und bleiben auch nach einem Neustart gestoppt.",
+            "Automatic restart is disabled. Activate manually after restarting Z2M.": "Automatischer Wiederanlauf ist ausgeschaltet. Nach einem Z2M-Neustart manuell aktivieren.",
+            "No restart approval is stored in Z2M. Activate once to transfer this setting.": "In Z2M ist noch kein Wiederanlauf freigegeben. Zum Übertragen dieser Einstellung einmal aktivieren.",
+            "Automatic restart failed. Automations remain stopped.": "Automatischer Wiederanlauf fehlgeschlagen. Die Automationen bleiben gestoppt.",
+            "Restart behavior has not yet been confirmed by Z2M.": "Das Verhalten nach einem Neustart wurde von Z2M noch nicht bestätigt.",
+            "The operating state could not be saved permanently. After restarting Z2M, the previously saved state may apply. Resolve the storage error and confirm stop or activation again.": "Der Betriebszustand konnte nicht dauerhaft gespeichert werden. Nach einem Z2M-Neustart kann der zuvor gespeicherte Zustand gelten. Speicherfehler beheben und Stoppen oder Aktivieren erneut bestätigen."
         }
     }
 }

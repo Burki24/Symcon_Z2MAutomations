@@ -314,11 +314,16 @@ export default class Z2MAutomationsExtension {
         this.accepting = false;
         this.session = '';
         this.activationToken = null;
+        this.executionIntent = null;
+        this.resumeStatus = 'unconfigured';
+        this.resumeError = '';
         this.monotonicNow = options.clock?.now ?? (() => performance.now());
     }
 
     status() {
         return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0',
+            resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
+            resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
             mesh_peer_count: this.runtime.active?.document.mesh_peers?.length ?? 0,
             session: this.session, state: this.accepting ? 'ready' : 'stopped', ...this.store.metadata(), ...this.runtime.metadata()};
@@ -342,11 +347,14 @@ export default class Z2MAutomationsExtension {
             this.activationToken = null;
             await this.store.load();
             this.accepting = true;
+            // Serialize user commands behind startup recovery, especially explicit stop.
+            this.queue = this.restoreExecution();
             this.eventBus.onMQTTMessage(this, message => this.receive(message));
             this.eventBus.onPublishEntityState?.(this, event => {
                 try { this.runtime.receive(event); }
                 catch { this.runtime.log('FEHLER', 'Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen.'); }
             });
+            await this.queue;
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Startaufruf beendet.', {Bereit: this.accepting}); }
     }
@@ -363,6 +371,79 @@ export default class Z2MAutomationsExtension {
             await this.runtime.stop();
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
+    }
+
+    async persistExecution(active, enabled = this.executionIntent?.enabled ?? false) {
+        const intent = {version: 1, system: this.baseTopic, enabled, active,
+            revision: this.store.current?.document.revision ?? 0, checksum: this.store.current?.checksum ?? null};
+        try {
+            await this.store.atomicWrite('execution-state.json', JSON.stringify(intent));
+        } catch {
+            this.resumeStatus = 'blocked';
+            this.resumeError = 'storage_error';
+            fail('storage_error');
+        }
+        this.executionIntent = intent;
+        this.resumeStatus = active ? (enabled ? 'armed' : 'disabled') : 'stopped';
+        this.resumeError = '';
+    }
+
+    async prepareMesh() {
+        if (!this.accepting) fail('not_ready');
+        const peers = this.store.current.document.mesh_peers ?? [];
+        if (peers.length) {
+            if (peers.includes(this.baseTopic) || !meshSystemValid(this.baseTopic)) fail('mesh_not_allowed');
+            await this.mesh.start();
+        }
+        if (!this.accepting) {
+            await this.mesh.stop();
+            fail('not_ready');
+        }
+    }
+
+    async restoreExecution() {
+        this.executionIntent = null;
+        this.resumeStatus = 'unconfigured';
+        this.resumeError = '';
+        try {
+            const path = join(this.store.directory, 'execution-state.json');
+            let intent;
+            try {
+                const stat = await this.store.io.lstat(path);
+                if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 4096) fail('storage_unavailable');
+                const bytes = await this.store.io.readFile(path);
+                if (bytes.length > 4096) fail('storage_unavailable');
+                intent = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(bytes));
+            } catch (error) {
+                if (error.code === 'ENOENT') {
+                    this.runtime.log('AKTION', 'Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt.');
+                    return;
+                }
+                throw error;
+            }
+            if (!isObject(intent) || Object.keys(intent).length !== 6 || intent.version !== 1 || intent.system !== this.baseTopic
+                || typeof intent.enabled !== 'boolean' || typeof intent.active !== 'boolean' || !isRevision(intent.revision)
+                || (intent.revision === 0 ? intent.checksum !== null : !/^[a-f0-9]{64}$/.test(intent.checksum))) fail('storage_unavailable');
+            this.executionIntent = intent;
+            this.resumeStatus = !intent.active ? 'stopped' : !intent.enabled ? 'disabled' : 'armed';
+            if (!intent.active || !intent.enabled) {
+                this.runtime.log('AKTION', 'Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet.');
+                return;
+            }
+            if (this.store.state !== 'ok' || !this.store.current || intent.revision !== this.store.current.document.revision
+                || intent.checksum !== this.store.current.checksum) fail('storage_unavailable');
+            await this.store.verifyDisk();
+            await this.prepareMesh();
+            this.runtime.activate(this.store.current);
+            this.resumeStatus = 'resumed';
+            this.runtime.log('AKTION', 'Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet.',
+                {Revision: intent.revision, Regeln: this.runtime.rules.length});
+        } catch (error) {
+            this.runtime.deactivate();
+            this.resumeStatus = 'blocked';
+            this.resumeError = error instanceof ConfigurationError || error instanceof RuntimeError ? error.code : 'storage_unavailable';
+            this.runtime.log('FEHLER', 'Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt.', {Grund: this.resumeError});
+        }
     }
 
     async receive(event) {
@@ -387,6 +468,10 @@ export default class Z2MAutomationsExtension {
                 ...(operation === 'store' ? ['session', 'expected_revision'] : []),
                 ...(operation === 'activate' ? ['session', 'expected_revision', 'checksum', 'activation_token'] : []),
                 ...(operation === 'deactivate' ? ['session'] : [])];
+            if (operation === 'activate' && Object.hasOwn(request, 'resume_after_restart')) {
+                if (typeof request.resume_after_restart !== 'boolean') fail('invalid_request');
+                keys.push('resume_after_restart');
+            }
             if (Object.keys(request).length !== keys.length || keys.some(key => !Object.hasOwn(request, key))) fail('invalid_request');
         } catch {
             this.runtime.log('FEHLER', 'Ungültigen Erweiterungsauftrag abgewiesen.', {Auftrag: operation, Grund: 'invalid_request'});
@@ -420,7 +505,14 @@ export default class Z2MAutomationsExtension {
                 if (operation === 'store') {
                     if (request.session !== this.session || event.retain === true) fail('session_mismatch');
                     if (!isRevision(request.expected_revision)) fail('invalid_request');
-                    data = await this.store.save(validateYaml(request.yaml), request.expected_revision);
+                    const candidate = validateYaml(request.yaml);
+                    if (candidate.checksum !== this.store.current?.checksum && ['ok', 'empty'].includes(this.store.state)
+                        && request.expected_revision === (this.store.current?.document.revision ?? 0)
+                        && candidate.document.revision === request.expected_revision + 1) {
+                        this.runtime.deactivate();
+                        await this.persistExecution(false);
+                    }
+                    data = await this.store.save(candidate, request.expected_revision);
                     this.activationToken = null;
                     if (!data.unchanged) this.runtime.deactivate();
                     data.executing = this.runtime.metadata().executing;
@@ -437,16 +529,18 @@ export default class Z2MAutomationsExtension {
                         if (!this.accepting) fail('not_ready');
                         if (request.expected_revision !== this.store.current.document.revision) fail('revision_conflict');
                         if (request.checksum !== this.store.current.checksum) fail('checksum_mismatch');
-                        const peers = this.store.current.document.mesh_peers ?? [];
-                        if (peers.length) {
-                            if (peers.includes(this.baseTopic) || !meshSystemValid(this.baseTopic)) fail('mesh_not_allowed');
-                            await this.mesh.start();
-                        }
+                        await this.prepareMesh();
+                        // Disarm the previous durable intent before attempting a new activation.
+                        await this.persistExecution(false, request.resume_after_restart ?? true);
                         if (!this.accepting) fail('not_ready');
                         this.runtime.activate(this.store.current);
+                        try { await this.persistExecution(true, request.resume_after_restart ?? true); }
+                        catch (error) { this.runtime.deactivate(); throw error; }
+                        if (!this.accepting) this.runtime.deactivate();
                     } else {
                         this.activationToken = null;
                         this.runtime.deactivate();
+                        await this.persistExecution(false);
                     }
                     data = this.status();
                 }

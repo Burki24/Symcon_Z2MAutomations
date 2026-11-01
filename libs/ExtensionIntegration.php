@@ -360,6 +360,8 @@ trait ExtensionIntegration
                         return null;
                     }
                     $command += ['activation_token' => $token, 'expected_revision' => $metadata['storedRevision'], 'checksum' => $metadata['checksum']];
+                    $command['resume_after_restart'] = $this->ReadPropertyBoolean('ResumeAfterRestart');
+                    $this->DebugEvent('AKTION', 'Wiederanlauf-Einstellung mit ausdrücklicher Aktivierung an Z2M übertragen.', ['NachNeustartFortsetzen' => $command['resume_after_restart']]);
                 }
                 return $this->ExtensionFrame($state, $workflow['kind'], $command);
             }
@@ -495,6 +497,20 @@ trait ExtensionIntegration
         $this->DebugFlowWriteValue('RuntimeError', $runtimeError, __FUNCTION__, __LINE__);
         $this->UpdateFormField('RuntimeErrorInfo', 'caption', $runtimeError);
         $this->UpdateFormField('ExecutionInfo', 'caption', $runtime);
+        $restart = $this->RestartText($state);
+        $this->UpdateFormField('RestartInfo', 'caption', $restart);
+        if ($this->GetBuffer('RestartStatusText') !== $restart) {
+            $this->SetBuffer('RestartStatusText', $restart);
+            $blocked = $state['extensionConfirmed'] && ($state['extension']['resumeStatus'] ?? '') === 'blocked';
+            $this->DebugEvent(
+                $blocked ? 'FEHLER' : 'AKTION',
+                $blocked
+                ? 'Z2M meldet einen Fehler beim Wiederanlauf oder beim dauerhaften Speichern des Betriebszustands; Statusanzeige und Speicher prüfen.'
+                : 'Anzeige des von Z2M bestätigten Wiederanlaufverhaltens aktualisiert.',
+                ['Bestätigt'      => $state['extensionConfirmed'], 'Zustand' => $state['extension']['resumeStatus'] ?? 'unknown',
+                    'Freigegeben' => $state['extension']['resumeEnabled'] ?? false, 'Fehlercode' => $state['extension']['resumeError'] ?? '']
+            );
+        }
         $this->UpdateFormField('ActivateButton', 'enabled', $confirmed && ($state['extension']['storedRevision'] ?? 0) > 0 && $state['workflow'] === null);
         $this->UpdateFormField('StopButton', 'enabled', $state['mqttConnected']);
         $status = $this->OperationText($state);
@@ -504,6 +520,25 @@ trait ExtensionIntegration
         $this->UpdateFormField('OperationInfo', 'caption', $status);
         $this->UpdateFormField('ErrorInfo', 'caption', $error);
         $this->UpdateFormField('ValidationInfo', 'caption', $this->ValidationPreview($state));
+    }
+
+    private function RestartText(array $state): string
+    {
+        $status = $state['extensionConfirmed'] ? ($state['extension']['resumeStatus'] ?? '') : '';
+        if ($status === 'blocked' && ($state['extension']['resumeError'] ?? '') === 'storage_error') {
+            return $this->Translate('The operating state could not be saved permanently. After restarting Z2M, the previously saved state may apply. Resolve the storage error and confirm stop or activation again.');
+        }
+        $text = match ($status) {
+            'armed'        => 'Automatic restart is enabled for the activated rules.',
+            'resumed'      => 'Automations were automatically activated after restart.',
+            'stopped'      => 'Automations were stopped and will remain stopped after restart.',
+            'disabled'     => 'Automatic restart is disabled. Activate manually after restarting Z2M.',
+            'unconfigured' => 'No restart approval is stored in Z2M. Activate once to transfer this setting.',
+            'blocked'      => 'Automatic restart failed. Automations remain stopped.',
+            default        => 'Restart behavior has not yet been confirmed by Z2M.'
+        };
+        $error = $status === 'blocked' ? $this->Translate(ExtensionContract::ErrorText($state['extension']['resumeError'] ?? '')) : '';
+        return $this->Translate($text) . ($error === '' ? '' : ' ' . $error);
     }
 
     private function ExecutionText(array $state): string

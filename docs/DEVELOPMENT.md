@@ -1,3 +1,20 @@
+## Wiederanlauf nach Z2M-Neustart
+
+Die Moduloption ResumeAfterRestart (Default true) wird im Aktivierungsauftrag
+übertragen. Statusvertrag und Formular zeigen die tatsächliche Z2M-Freigabe.
+Die eigene Erweiterung speichert Betriebswunsch und Snapshot-Identität in
+execution-state.json über ihren vorhandenen atomaren Speichercode. Kein neuer
+zentraler Helper und keine Änderung am YAML-Schema. Siehe ADR 0010 und RUNTIME.md.
+
+Offline-Nachweise: neue Erweiterungsinstanzen über echten temporären Dateien,
+aktivierter und ausgeschalteter Wiederanlauf, dauerhaft bestätigter Stopp,
+Stopp während Start, veränderte und beschädigte Dateien, fehlende Ziele,
+geänderte gegenüber identischer Speicherung, Schreibfehler, frische Bedingungen,
+verworfene Verzögerungen und keine Nachholung verpasster Zeiten. Beide Mesh-Seiten
+starten mit neuer Empfangsfreigabe. PHP-/JS-Integration bestätigt beide Werte der
+Formularoption über die echte Erweiterung. Native Konsole, Installation und
+reale Z2M-Neustarts sind für diesen Stand noch nicht geprüft oder beauftragt.
+
 ## Gateway-Wechsel und native Topic-Auswahl
 
 Die native MultiSelect verlangt in jeder Option dieselben Property-Namen.

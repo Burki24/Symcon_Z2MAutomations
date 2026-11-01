@@ -83,6 +83,23 @@
                     "width": "100%"
                 }
             ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Automation operation",
+            "expanded": false,
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "ResumeAfterRestart",
+                    "caption": "Automatically resume activated automations after a Z2M restart"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Apply settings, then activate the stored automations to transfer this option to Z2M. Stop remains effective after restart. Interrupted sequences and missed switching times are not replayed.",
+                    "width": "100%"
+                }
+            ]
         }
     ],
     "actions": [
@@ -115,6 +132,12 @@
             "type": "Label",
             "name": "ExecutionInfo",
             "caption": "Execution state unknown. Refresh extension status.",
+            "width": "100%"
+        },
+        {
+            "type": "Label",
+            "name": "RestartInfo",
+            "caption": "Restart behavior has not yet been confirmed by Z2M.",
             "width": "100%"
         },
         {

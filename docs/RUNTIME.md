@@ -13,7 +13,7 @@ Kein automatisches Nachholen, Wiederholen oder Starten nach Neustart.
 Siehe [ADR 0009](adr/0009-cross-system-actions-over-mqtt-bridge.md).
 
 Die Erweiterung kann gespeicherte Schema-1-Automationen ausführen. Sie lädt die
-YAML beim Start, bleibt zunächst aber inaktiv. Speichern, Validieren und
+YAML beim Start. Ohne gültige gespeicherte Wiederanlauf-Freigabe bleibt sie inaktiv. Speichern, Validieren und
 Aktivieren sind getrennte Vorgänge. Die Symcon-Oberfläche bietet dafür eigene
 Aktivierungs-/Stoppbuttons mit erneuter Statusbestätigung sowie einen ersten
 Klick-Editor; siehe [Bedienung](../Z2MAutomations/README.md). Die folgenden
@@ -114,9 +114,9 @@ bestätigte `runtime_error`-Gerätefehler ausgegeben. Der Übergabe-Timeout bede
 nicht, dass ein bereits gestarteter Auftrag zurückgenommen wurde.
 Ein Stopp verhindert weitere Übergaben, kann aber keinen schon gesendeten
 Zigbee-Befehl zurückrufen. Trigger, Timer und Wiederholungen werden nicht auf Platte
-geschrieben. Nach Neustart, Erweiterungsupdate oder geänderter gespeicherter YAML
-ist eine ausdrückliche erneute Aktivierung erforderlich. Das schützt bestehende
-Konfigurationen vor unvermittelter Ausführung beim Update.
+geschrieben. Nach Neustart oder Erweiterungsupdate kann derselbe freigegebene Regelstand
+automatisch starten; siehe Wiederanlaufvertrag unten. Geänderte gespeicherte YAML
+entzieht diese Freigabe und benötigt eine ausdrückliche neue Aktivierung.
 
 Die Engine schreibt sichere deutsche Ereignismeldungen in Z2Ms Debugkanal:
 Aktivierung, Stopp, Beginn/Ende einer Folge, Übergabe und feste Fehlercodes.
@@ -158,3 +158,43 @@ fehlt dort eine Eigenschaft (z. B. nicht gespeicherte Tastendrücke), zählt ihr
 erster frischer Bericht als Änderung. Cacheveröffentlichungen ändern diesen
 Vergleich nicht. Stopp löscht die Beobachtung. Bedingungen verwenden weiterhin
 ihr eigenes, aus frischen Berichten aufgebautes Wertebild.
+
+## Dauerhafter Betriebszustand und Wiederanlauf
+
+Aktivierung akzeptiert zusätzlich `resume_after_restart` als Boolean (Default true).
+Das Modul überträgt seine standardmäßig eingeschaltete Property `ResumeAfterRestart`
+bei ausdrücklicher Aktivierung. Nur die empfangene Option gilt für Z2M; eine lokale
+Formularänderung allein verändert keine laufende Engine.
+
+`execution-state.json` liegt neben der YAML im Erweiterungsverzeichnis. Version 1
+speichert ausschließlich System-Basistopic, Freigabe enabled, Betriebswunsch active,
+Revision und Prüfsumme. Keine Timer, Sensorwerte, Tokens oder MQTT-Aufträge werden
+persistiert. Atomarer Dateiaustausch mit vorherigem Dateisync verwendet denselben
+eigenen Speichercode wie YAML. Ein neuer Regelstand disarmiert die Freigabe vor
+seiner Speicherung. Identisches Speichern erhält die aktive Freigabe.
+
+Aktivieren disarmiert zunächst den alten Betriebswunsch, validiert die Laufzeit
+und bestätigt erst nach dauerhafter Speicherung die aktive Freigabe. Stoppen
+beendet die Laufzeit unmittelbar und bestätigt den dauerhaften Stopp erst nach
+Speicherung. Ein Schreibfehler wird als storage_error gemeldet; der bisherige
+Dateistand kann dann nach einem Neustart weiterhin gelten. Es gibt keine falsche
+Erfolgsmeldung und keinen automatischen Schreib-Retry.
+
+Beim Start werden YAML und die begrenzte Zustandsdatei neu gelesen und geprüft.
+Nur enabled=true, active=true, dasselbe System und exakt dieselbe Revision/Prüfsumme
+bei storage=ok erlauben die normale native Aktivierung einschließlich Mesh-Prüfung.
+Fehlende, beschädigte oder fremde Freigaben, wiederhergestellte YAML-Backups und
+fehlende Ziele starten nichts. Ohne Freigabedatei erfolgt keine Migration eines
+vermuteten alten Betriebswunsches. Neue Sitzungen und Mesh-Freigaben bleiben frisch;
+Startbefehle stehen in derselben Warteschlange wie nachfolgende Bedienaufträge.
+Ein expliziter Stopp während des Starts hat damit Vorrang vor späteren Auslösern.
+
+Status enthält resume_version=1, resume_enabled, resume_status und resume_error.
+Zustände: unconfigured, stopped, disabled, armed, resumed, blocked. blocked trägt
+einen festen Fehlercode, die übrigen einen leeren Fehlertext. Symcon wertet diese
+Felder aus und zeigt die bestätigte Einstellung bzw. den Abbruchgrund an.
+
+Neustart und Neuladen der Erweiterung sind gleich behandelt. Es gibt keine
+Fortsetzung unterbrochener Folgen, kein Nachholen verpasster Schaltzeiten und keine
+Initialauslösung durch alte Cachewerte. Bedingungen warten weiterhin auf frische
+Beobachtungen; Tages-/Timerhistorien werden nicht über Neustarts hinweg gespeichert.

@@ -124,9 +124,11 @@ Die Erweiterung hält die letzte gültige YAML im eigenen persistenten Unterordn
 und lädt sie beim Neustart. Revisionskontrolle, Prüfsumme, Größenlimits,
 idempotente Wiederholung und Sicherung der Vorversion sind implementiert.
 Offline-Tests decken echte Dateischreibvorgänge, Schreibfehler und Wiederanlauf ab.
-Die neue Engine startet inaktiv, verwirft bei Stopp Verzögerungen und wird durch
-eine geänderte erfolgreich gespeicherte Revision deaktiviert. Kein automatischer
-Wiederanlauf von Regeln nach einem Z2M- oder Erweiterungsneustart.
+Die Engine verwirft bei Stopp Verzögerungen und wird vor dem Speichern einer
+geänderten Revision deaktiviert. Eine getrennte persistente Betriebsfreigabe
+erlaubt nach Z2M- oder Erweiterungsneustart ausschließlich denselben ausdrücklich
+aktivierten Regelstand. Ohne Freigabe oder nach bestätigtem Stoppen bleibt sie aus.
+Siehe [ADR 0010](adr/0010-persist-explicit-execution-intent.md).
 
 Code-Updates und Regeländerungen sind getrennte Vorgänge. Der offizielle Upload
 schreibt JavaScript vor dem Laden und garantiert keinen automatischen Rollback.

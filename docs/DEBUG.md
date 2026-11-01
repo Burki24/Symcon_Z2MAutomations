@@ -1,5 +1,14 @@
 # Debug und MQTT-Diagnose
 
+## Automatischer Wiederanlauf
+
+Die Aktivierung protokolliert die übertragene Option NachNeustartFortsetzen.
+Statuswechsel melden die von Z2M bestätigte Freigabe, den erfolgreichen
+Wiederanlauf oder einen festen Abbruchgrund. Die Erweiterung nennt Revision und
+Regelanzahl nach erfolgreicher Wiederherstellung; YAML, Tokens, Aktionswerte und
+Dateipfade erscheinen nicht im Debug. Ein Speicherfehler bestätigt keinen
+permanenten Stopp und wird mit Hinweis auf den bisher gespeicherten Zustand angezeigt.
+
 ## Gateway- und Topic-Wechsel
 
 Nach Übernahme oder Verbindungswechsel meldet die native Diagnose das tatsächliche

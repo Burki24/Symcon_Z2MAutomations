@@ -300,6 +300,14 @@ try {
     $check($module->ValidateAutomationDraft() !== '' && $state()['operation']['status'] === 'validated', 'Generated JSON/YAML validates without exposing or reading a hidden form field');
     $check($module->StoreAutomationDraft() !== '' && $state()['operation']['status'] === 'stored', 'Generated rule persists without handwritten YAML');
     $check($module->ActivateAutomations() !== '' && $state()['operation']['status'] === 'activated', 'Activation waits for native command acknowledgement and an additional fresh status');
+    $check(($state()['extension']['resumeEnabled'] ?? null) === true && ($state()['extension']['resumeStatus'] ?? '') === 'armed', 'Default activation confirms durable automatic restart from the real extension');
+    IPS_SetProperty($id, 'ResumeAfterRestart', false);
+    IPS_ApplyChanges($id);
+    $check($module->ActivateAutomations() !== '' && ($state()['extension']['resumeEnabled'] ?? null) === false
+        && ($state()['extension']['resumeStatus'] ?? '') === 'disabled', 'The disabled native form option reaches and is confirmed by the real extension');
+    IPS_SetProperty($id, 'ResumeAfterRestart', true);
+    IPS_ApplyChanges($id);
+    $check($module->ActivateAutomations() !== '' && ($state()['extension']['resumeEnabled'] ?? null) === true, 'Explicit reactivation transfers the enabled restart option again');
     $check(GetValue(IPS_GetObjectIDByIdent('ExecutionActive', $id)) && GetValue(IPS_GetObjectIDByIdent('ActiveRevision', $id)) === 3
         && GetValue(IPS_GetObjectIDByIdent('EnabledAutomations', $id)) === 1, 'Confirmed execution has visible status variables');
     IPS_DisconnectInstance($id);

@@ -80,7 +80,17 @@ final class ExtensionContract
             }
             $mesh = ['meshReady' => $data->mesh_ready, 'meshPeerCount' => $data->mesh_peer_count];
         }
-        return $storage + $runtime + $mesh + ['session' => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
+        $resume = [];
+        if (property_exists($data, 'resume_version')) {
+            if ($data->resume_version !== 1 || !is_bool($data->resume_enabled ?? null)
+                || !in_array($data->resume_status ?? null, ['unconfigured', 'stopped', 'disabled', 'armed', 'resumed', 'blocked'], true)
+                || !in_array($data->resume_error ?? null, array_merge([''], self::ERROR_CODES, self::RUNTIME_ERRORS), true)
+                || (($data->resume_status === 'blocked') !== ($data->resume_error !== ''))) {
+                return null;
+            }
+            $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
+        }
+        return $storage + $runtime + $mesh + $resume + ['session' => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
     }
 
     public static function ErrorText(string $code): string
