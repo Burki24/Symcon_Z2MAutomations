@@ -22,6 +22,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
   gegen Symcons verpflichtende Wrapper-Argumentzahl geprüft. Testmodul aktualisiert;
   Produktiv-Symcon unverändert. Siehe ADR 0011 und docs/DEVELOPMENT.md.
 
+- Reale Szenenausführung anschließend auf ausdrücklichen Auftrag geprüft:
+  Zeitregel ruft eine temporäre Geräteszene nach zwei Sekunden Wartezeit auf.
+  Z2M bestätigt den Aufruf; frische Geräte- und Symcon-Rückmeldungen bestätigen
+  Ein-Zustand und Szenenhelligkeit, Laufzeitfehler leer. Modul-/Bridge-Debug
+  geprüft; interne Engine-Debugmeldungen wurden nicht über MQTT geliefert.
+  Testregel und Szene entfernt, vorherige Regeln bis auf Revision unverändert,
+  Ausführung, Mesh und Wiederanlauf wiederhergestellt. Lichtzustand und
+  Protokollstufe zurückgesetzt. Keine Funktionsänderungen, Details in DEVELOPMENT.md.
+
 - Automatische Statusbestätigung nach Speicherung lokal ergänzt: passender
   vollständiger Status bestätigt den gespeicherten Snapshot und gibt den
   Aktivierungsbutton frei. Fehlende/abweichende Bestätigung meldet

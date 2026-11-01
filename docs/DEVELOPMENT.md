@@ -35,8 +35,29 @@ verlangen auch für PHP-Optionen die vollständige Parameterliste. Alle Geräte-
 Eigenschafts- und Wert-Callbacks der drei Aktionsbereiche übergeben nun den
 Vergleich explizit. Ein Regressionstest führt sämtliche betroffenen Skripte
 mit derselben verpflichtenden Argumentanzahl aus; vorher ArgumentCountError,
-danach erfolgreich. Reale Szenenausführung und entfernte Szenen bleiben durch
-diesen rein administrativen Praxislauf ungeprüft.
+danach erfolgreich. Dieser erste Praxislauf prüfte ausschließlich die Verwaltung.
+
+Anschließender ausdrücklich beauftragter Ausführungstest am 01.11.2026:
+temporäre Geräteszene mit Ein-Zustand und definierter Helligkeit angelegt und
+über eine zeitgesteuerte Regel mit zwei Sekunden Verzögerung aufgerufen.
+Vor dem Termin meldete das Ziel Aus; zum erwarteten Ausführungszeitpunkt
+bestätigte Z2M den Szenenaufruf. Frische MQTT-Geräterückmeldungen enthielten
+Ein und exakt den Szenen-Helligkeitswert; die nativen Symcon-Variablen zeigten
+den passenden Zustand und umgerechneten Prozentwert. Laufzeitstatus ohne Fehler.
+Symcon-Debug belegt Prüfung, Speicherung und Aktivierung; der Bridge-Debug
+enthält die erfolgreiche native Szenenbestätigung und Geräte-Rückmeldungen.
+Die internen Debug-Meldungen der eigenen Z2M-Engine wurden nicht über MQTT
+geliefert; deren vollständige Start-/Endfolge ist damit kein Praxisnachweis.
+Keine zusätzliche manuelle Szenenwiederholung über die Bridge.
+
+Testregel und Szene anschließend entfernt, ursprüngliche Regeln einschließlich
+Mesh-Freigaben und Aktivierungskennzeichen bis auf die Revision erhalten.
+Gespeicherte Prüfsumme entspricht exakt dem Wiederherstellungsdokument;
+bisherige Ausführung und Wiederanlauf wieder bestätigt. Licht auf den vorab
+gelesenen Ein-Zustand und Prozentwert zurückgesetzt, Z2M-Protokollstufe wieder
+auf den Ausgangswert gesetzt und temporäre Debug-Aufzeichnungen beendet.
+Keine Modul- oder Erweiterungsänderung in diesem Ausführungstest.
+Entfernte Szenen sind weiterhin nur offline geprüft.
 
 Nachweise am 01.11.2026: `php tests/run.php` vollständig erfolgreich; nach
 Ergänzung des zweiten Endpoint-/Mesh-Nachweises die PHP-/JS-Integration und
