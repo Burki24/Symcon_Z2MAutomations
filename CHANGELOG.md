@@ -18,7 +18,10 @@
   Laufbezüge verbinden auch Aktionen zwischen zwei Z2M-Systemen. Unabhängige
   Aufzeichnungen mehrerer Instanzen, bereinigte Inhalte und begrenzter Versand
   ohne Warten der Automationen auf die Diagnose. Modul und Erweiterung müssen
-  gemeinsam aktualisiert werden; noch keine Installation dieses Stands.
+  gemeinsam aktualisiert werden. Über Test-Symcon installiert und Start,
+  Zeitablauf, Stopp sowie unabhängige Aufzeichnungen praktisch geprüft. Der
+  gemeinsame Laufbezug einer realen systemübergreifenden Geräteaktion ist
+  noch praktisch zu prüfen.
 
 - Vorhandene Z2M-Szenen als Aktionen im Klick-Editor: Auswahl mit Szenennamen,
   Gerätekanal und Wartezeit, vollständige Vorbelegung sowie Aufruf im ausgewählten

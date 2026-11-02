@@ -12,8 +12,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
   unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,
   Regel-/Schritt-/Laufzuordnung über Mesh und unveränderter DebugFlowHelper.
   Begrenzter nicht blockierender Versand, Verlusthinweise, strikter Empfang
-  und automatische lokale Beendigung. Offline-Nachweise in DEVELOPMENT.md;
-  noch keine Installation, Live-Änderung oder native Praxisprüfung. ADR 0012.
+  und automatische lokale Beendigung. Testmodul dateigenau bestätigt und beide
+  gemeinsam genutzten Z2M-Erweiterungen per Test-Symcon aktualisiert. Echte
+  Starts, nativer Timerablauf, Remote-Frist, Stopp, unabhängige Clients und
+  native deutsche Debugmeldungen praktisch bestätigt; Entwürfe und bestehender
+  Betrieb erhalten, Testmonitor entfernt. Gemeinsamer Laufbezug einer realen
+  systemübergreifenden Geräteaktion mangels Tasterbetätigung noch offen.
+  Details und Testgrenzen in DEVELOPMENT.md; ADR 0012.
 
 - Vorhandene Z2M-Szenen lokal als eigene `scene`-Aktionen integriert: lesender
   Katalog mit Geräteendpoint und Gruppenidentität, benannte Auswahl im Geräte-

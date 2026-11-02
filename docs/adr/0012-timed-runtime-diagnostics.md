@@ -1,6 +1,8 @@
 # ADR 0012: Zeitlich begrenzter eigener MQTT-Debugkanal
 
-Status: angenommen, lokal implementiert; noch nicht installiert.
+Status: angenommen, implementiert und am 02.11.2026 über Test-Symcon installiert.
+Start, Ablauf, Stopp und Systemzuordnung praktisch geprüft; gemeinsamer Laufbezug
+einer realen systemübergreifenden Geräteaktion noch offen.
 
 ## Anlass
 
@@ -45,5 +47,6 @@ Offline-Tests prüfen lokale Folgen, Bedingungen, Mindestdauer, Fehlerschritte,
 Mesh-Zuordnung und Duplikate, unabhängige Clients, Zeitablauf, Neustart,
 defekte/hängende Ausgabe, Überlast, strikte Empfangsprüfung, Formularstatus
 und den echten PHP-/JavaScript-Datenfluss über das generierte Artefakt.
-Native Praxisprüfung und Installation erfolgen ausschließlich auf gesonderten
-Auftrag. Der Debugkanal bestätigt keine physische Gerätewirkung.
+Installation und Praxisprüfung erfolgten auf gesonderten Auftrag; Umfang und
+verbleibende Hardware-Testgrenze stehen in DEVELOPMENT.md. Der Debugkanal
+bestätigt keine physische Gerätewirkung.

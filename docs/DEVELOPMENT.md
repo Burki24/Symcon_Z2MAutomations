@@ -1164,3 +1164,67 @@ Debug-Mitschnitte vor der getrennten Negativtestphase frei, um unter dem
 normalen PHP-Speicherlimit zu bleiben. Keine Änderung an Fremdquellen,
 keine Installation und keine Änderungen am Live-System. Native Konsole und
 reale Brokerzustellung dieses neuen Kanals sind noch praktisch zu prüfen.
+
+## MQTT-Debugkanal: Praxisprüfung am 02.11.2026
+
+Auf ausdrücklichen Auftrag Test-Symcon und seine beiden real genutzten
+Z2M-Systeme geprüft. Das Testmodul samt Formular, Übersetzung, Vertrag,
+Meldungskatalog und Uploadartefakt war bereits dateigenau auf dem geprüften
+lokalen Stand; die neuen öffentlichen Methoden waren registriert. Kein
+unnötiger Reload. Beide Z2M-Erweiterungen anschließend über den echten
+Installationsauftrag des Moduls aktualisiert. Die vorherigen Erweiterungen,
+YAML und Metadaten wurden ausschließlich außerhalb des Repositorys gesichert.
+
+Die offizielle Uploadantwort und die nachfolgende Sitzungs-/Statusbestätigung
+bestanden. Zusätzlich entsprach der von Z2M veröffentlichte Erweiterungscode
+bytegenau dem lokalen Uploadartefakt. Beide Laufzeiten nahmen ihre bestehende
+Betriebsfreigabe wieder auf; Mesh und automatischer Wiederanlauf waren bereit,
+Ausführungsfehler leer. Kein Neustart der Z2M-Dienste erforderlich. Andere
+installierte Erweiterungen blieben bytegleich.
+
+Frische Statusanfragen erzeugten echte Meldungen im eigenen MQTT-Debugkanal.
+Symcons native Debugdateien belegten die bestätigten Aufzeichnungsstarts,
+feste deutsche Z2M-Ablaufmeldungen und getrennte korrekte Systembezüge. Wegen
+des stark belegten gemeinsamen Debugpuffers wurde der Nachweis zusätzlich über
+die gezielt gestarteten nativen Datei-Aufzeichnungen geführt. Keine allgemeinen
+Z2M-Rohlogs oder Änderung des globalen Protokolllevels.
+
+Geprüfte Abläufe:
+
+- Über öffentliche Modulmethoden Start mit passenden Antworten auf beiden
+  Systemen; Formulartext „Aufzeichnung läuft“ und freigegebener Stopp.
+- Verkürzte erlaubte API-Testfrist von 20 Sekunden: echter nativer Timer endet
+  ohne manuelles Auslösen, deutscher Ablaufhinweis und deaktivierter Stopp.
+  Die längere Aufzeichnung am zweiten System blieb währenddessen aktiv.
+- Vorzeitiges Beenden mit `seconds: 0`: frische Bestätigung, Formularmeldung
+  über beendete eigene Aufzeichnung, anschließend keine weiteren fachlichen
+  Z2M-Debugmeldungen in dieser Modulinstanz.
+- Zwei unabhängige Clients an derselben Erweiterung: vor dem eigenen Stopp
+  zwei Empfänger, danach nur der zweite Client. Dessen Aufzeichnung lief
+  weiter, während die gestoppte Modulinstanz keine fachlichen Meldungen mehr
+  annahm. Auch der zusätzliche Client wurde anschließend beendet.
+- Zusätzlicher Acht-Sekunden-Test direkt am tatsächlichen MQTT-Ausgang:
+  14 frische Ablaufpakete, letzte Ankunft nach rund sieben Sekunden; danach
+  trotz vier weiterer Statusanfragen keine Pakete mehr. Damit ist die
+  Frist auch auf Z2M-Seite und nicht nur durch die lokale Anzeige belegt.
+
+Grenzen: Die Methoden wurden per MCP aufgerufen und die tatsächlichen
+Formularzustände ausgelesen; kein Zeigerklick in der nativen Konsole.
+Die Zuordnung jedes tatsächlichen MQTT-Kanals zum richtigen System ist
+bestätigt. Der Nutzer konnte den vorgesehenen Taster nicht betätigen.
+Deshalb wurde keine reale Geräteaktion ausgelöst; der gemeinsame Regellauf-
+und Schrittbezug einer systemübergreifenden Schaltaktion bleibt praktisch
+offen. Sein bisheriger Offline-Nachweis mit zwei echten Erweiterungsobjekten
+wird dadurch nicht zu einem Hardware-Nachweis.
+
+Aufräumen und Erhalt: alle Test-Aufzeichnungen beendet oder abgelaufen,
+zusätzliche WebSocket-Verbindungen geschlossen, gezielt gestartete native
+Debugsitzungen/Datei-Aufzeichnungen beendet und temporären Modulmonitor samt
+seinen Variablen entfernt. Gespeicherte YAML beider Systeme, Revisionen und
+Prüfsummen blieben unverändert. Der vorhandene lokale Formularentwurf blieb
+bytegleich. Nach Entfernen des Monitors liefen beide bestehenden
+Betriebsfreigaben weiterhin mit Mesh, Wiederanlauf und leerem Laufzeitfehler.
+Keine Originalereignisse, Gerätezuordnungen oder MQTT-Brokerrechte geändert.
+Keine Änderungen am Produktiv-Symcon-Modul; die gemeinsam genutzten realen
+Z2M-Erweiterungen wurden wie beauftragt aktualisiert. Keine Änderung am
+Funktionscode dieses Repositorys im Rahmen dieses Praxisauftrags.
