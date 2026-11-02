@@ -63,3 +63,12 @@ invertiert und als normaler Set-Wert übergeben. Ohne Cachewert endet die Folge 
 `state_unavailable`; ohne Host-Schnittstelle wird die Aktivierung abgewiesen.
 Gruppen werden anhand ihres Aggregatzustands einheitlich ein-/ausgeschaltet.
 `toggle` besitzt keine `values`, `set` keine `property`.
+
+## Begrenzte Ablaufaufzeichnung
+
+Die eigene `request/debug`-Operation und `debug_version: 1` erlauben flüchtige,
+zeitlich begrenzte MQTT-Aufzeichnungen ohne Änderungen am globalen Z2M-Loglevel.
+`src/debug.mjs` und `debug-events.json` werden zusammen mit der Runtime in das
+Uploadartefakt eingebettet. Keine zusätzlichen Host-Abhängigkeiten oder Dateien
+installieren. Das zugehörige Symcon-Modul empfängt und übersetzt nur diese feste
+Diagnose, keine allgemeinen Z2M-Logtexte. Protokoll: [EXTENSION_PROTOCOL.md](../../docs/EXTENSION_PROTOCOL.md).

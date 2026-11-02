@@ -1,4 +1,4 @@
-// Generated from src/extension.mjs, src/runtime.mjs, src/mesh.mjs, src/scenes.mjs and automations.schema.json. Do not edit.
+// Generated from own extension, runtime, mesh, scenes, diagnostics, event catalog and schema sources. Do not edit.
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -60,10 +60,18 @@ export class AutomationRuntime {
             active_checksum: this.active?.checksum ?? null, enabled_count: this.rules.length, runtime_error: this.lastError};
     }
 
-    log(event, message, details = {}) {
+    log(event, message, details = {}, context = {}) {
         try {
-            this.logger.debug?.('Z2MAutomations | ' + event + ' | ' + JSON.stringify({Meldung: message, Bezug: details}));
+            const safeContext = {...context};
+            if (typeof safeContext.origin === 'string') safeContext.origin = createHash('sha256').update(safeContext.origin).digest('hex');
+            this.logger.debug?.('Z2MAutomations | ' + event + ' | ' + JSON.stringify({Meldung: message, Bezug: {...details, ...safeContext}}));
         } catch { /* A broken diagnostic sink cannot alter execution. */ }
+        try { this.diagnostics?.emit(message, details, context); } catch { /* Independent from local logging. */ }
+    }
+
+    trace(rule, extra = {}) {
+        return {run: randomUUID(), rule: (this.active?.document.automations.indexOf(rule) ?? -1) + 1,
+            revision: this.active?.document.revision, origin: this.system, ...extra};
     }
 
     device(id) {
@@ -132,7 +140,10 @@ export class AutomationRuntime {
         this.timer = null;
         for (const [timer, resolve] of this.waits) { this.clock.clearTimeout(timer); resolve(false); }
         this.waits.clear();
-        for (const hold of this.holds.values()) if (hold.timer !== null) this.clock.clearTimeout(hold.timer);
+        for (const hold of this.holds.values()) {
+            if (hold.timer !== null) this.clock.clearTimeout(hold.timer);
+            this.log('AKTION', 'Mindestdauer abgebrochen.', {}, hold.context);
+        }
         this.holds.clear();
         this.values.clear();
         this.changes.clear();
@@ -152,15 +163,20 @@ export class AutomationRuntime {
         return {day: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}:${p.second}`};
     }
 
-    conditions(rule) {
-        return rule.conditions.every(clause => {
-            if (clause.type === 'device_value') return this.device(clause.device) && compare(this.values.get(clause.device)?.[clause.property], clause);
-            const local = this.local(clause.timezone);
-            const overnight = clause.after > clause.before;
-            if (!(overnight ? local.time >= clause.after || local.time < clause.before : local.time >= clause.after && local.time < clause.before)) return false;
-            const anchor = new Date(local.day + 'T00:00:00Z');
-            if (overnight && local.time < clause.before) anchor.setUTCDate(anchor.getUTCDate() - 1);
-            return !clause.weekdays || clause.weekdays.includes(anchor.getUTCDay() || 7);
+    conditions(rule, context = {}) {
+        return rule.conditions.every((clause, index) => {
+            let passed;
+            if (clause.type === 'device_value') passed = Boolean(this.device(clause.device) && compare(this.values.get(clause.device)?.[clause.property], clause));
+            else {
+                const local = this.local(clause.timezone);
+                const overnight = clause.after > clause.before;
+                const anchor = new Date(local.day + 'T00:00:00Z');
+                if (overnight && local.time < clause.before) anchor.setUTCDate(anchor.getUTCDate() - 1);
+                passed = (overnight ? local.time >= clause.after || local.time < clause.before : local.time >= clause.after && local.time < clause.before)
+                    && (!clause.weekdays || clause.weekdays.includes(anchor.getUTCDay() || 7));
+            }
+            this.log('AKTION', 'Bedingung geprüft.', {Erfüllt: passed}, {...context, condition: index + 1});
+            return passed;
         });
     }
 
@@ -183,19 +199,27 @@ export class AutomationRuntime {
                 if (trigger.type !== 'device' || trigger.device !== id || !Object.hasOwn(event.payload, trigger.property)) return;
                 const key = rule.id + ':' + index;
                 const matches = compare(values[trigger.property], trigger);
+                const priorContext = this.holds.get(key)?.context;
+                const context = priorContext ?? this.trace(rule, {trigger: index + 1});
+                this.log('AKTION', 'Auslöser geprüft.', {Erfüllt: matches}, context);
                 const changed = !Object.hasOwn(previous, trigger.property) || previous[trigger.property] !== values[trigger.property];
-                if (matches && trigger.on_change && !changed) this.log('AKTION', 'Wert unverändert; Auslöser verlangt eine Wertänderung.', {Regel: rule.id, Auslöser: index + 1});
-                if (!trigger.for_seconds) { if (matches && (!trigger.on_change || changed)) this.launch(rule); return; }
+                if (matches && trigger.on_change && !changed) this.log('AKTION', 'Wert unverändert; Auslöser verlangt eine Wertänderung.', {Regel: rule.id, Auslöser: index + 1}, context);
+                if (!trigger.for_seconds) { if (matches && (!trigger.on_change || changed)) this.launch(rule, context); return; }
                 const prior = this.holds.get(key);
                 if (!matches) {
                     if (prior?.timer !== null && prior?.timer !== undefined) this.clock.clearTimeout(prior.timer);
+                    if (prior) this.log('AKTION', 'Mindestdauer abgebrochen.', {}, context);
                     this.holds.delete(key);
                 } else if (!prior && (!trigger.on_change || changed)) {
                     const generation = this.generation;
-                    const hold = {timer: this.clock.setTimeout(() => {
+                    this.log('AKTION', 'Mindestdauer begonnen.', {}, {...context, delay: trigger.for_seconds});
+                    const hold = {context, timer: this.clock.setTimeout(() => {
                         hold.timer = null;
                         if (generation === this.generation && this.active && compare(this.values.get(id)?.[trigger.property], trigger)
-                            && this.device(id)) this.launch(rule);
+                            && this.device(id)) {
+                            this.log('AKTION', 'Mindestdauer erreicht.', {}, context);
+                            this.launch(rule, context);
+                        }
                     }, trigger.for_seconds * 1000)};
                     hold.timer?.unref?.();
                     this.holds.set(key, hold);
@@ -212,7 +236,9 @@ export class AutomationRuntime {
             const key = rule.id + ':' + index;
             if (local.time === trigger.at && (!this.days.has(key) || local.day > this.days.get(key))) {
                 this.days.set(key, local.day);
-                this.launch(rule);
+                const context = this.trace(rule, {trigger: index + 1});
+                this.log('AKTION', 'Zeitpunkt erreicht.', {}, context);
+                this.launch(rule, context);
             }
         });
     }
@@ -227,63 +253,74 @@ export class AutomationRuntime {
         });
     }
 
-    launch(rule) {
+    launch(rule, context = this.trace(rule)) {
         const now = this.clock.now();
         const reason = !this.active ? 'inactive' : this.running.has(rule.id) ? 'already_running'
             : this.tasks.size >= RUNTIME_LIMITS.concurrentRules ? 'concurrency_limit'
                 : now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown'
-                    : !this.conditions(rule) ? 'conditions_not_met' : '';
-        if (reason) { this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}); return; }
+                    : !this.conditions(rule, context) ? 'conditions_not_met' : '';
+        if (reason) { this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}, context); return; }
         const generation = this.generation;
         this.cooldowns.set(rule.id, now);
-        this.log('START', 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id});
+        this.log('START', 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
-        const task = Promise.resolve().then(() => this.run(rule, generation)).catch(error => {
+        const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
             this.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
-            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: this.lastError});
+            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: this.lastError}, context);
         }).finally(() => {
             if (this.running.get(rule.id) === task) this.running.delete(rule.id);
             this.tasks.delete(task);
-            this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id});
+            this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
         });
         this.running.set(rule.id, task);
         this.tasks.add(task);
     }
 
-    async run(rule, generation) {
-        for (const action of rule.actions) {
-            if (!await this.wait((action.delay_seconds ?? 0) * 1000, generation)) return;
+    async run(rule, generation, context) {
+        for (const [index, action] of rule.actions.entries()) {
+            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0};
+            if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
+            if (!await this.wait(step.delay * 1000, generation)) {
+                this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
+                return;
+            }
+            if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
             if (!this.active || this.generation !== generation) return;
-            if (!this.conditions(rule)) { this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}); return; }
-            if (action.target.system !== undefined) {
-                await this.remoteDispatch(action);
-            } else {
-                await this.executeLocal(action, generation);
+            if (!this.conditions(rule, step)) { this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return; }
+            try {
+                if (action.target.system !== undefined) {
+                    await this.remoteDispatch(action, step);
+                } else {
+                    await this.executeLocal(action, generation, step);
+                }
+            } catch (error) {
+                this.log('FEHLER', 'Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen.', {Grund: error instanceof RuntimeError ? error.code : 'action_failed'}, step);
+                throw error;
             }
         }
     }
 
-    async executeLocal(action, generation = this.generation) {
+    async executeLocal(action, generation = this.generation, context = {}) {
         if (!this.active || generation !== this.generation) throw new RuntimeError('mesh_stopped');
         const entity = this.target(action.target);
         let values = action.values;
         if (action.type === 'scene') {
             if (!hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
             values = {scene_recall: action.scene_id};
-            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined});
+            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined}, context);
         }
         if (action.type === 'toggle') {
             const current = this.readState(entity)?.[action.property];
             if (current !== 'ON' && current !== 'OFF') throw new RuntimeError('state_unavailable');
             values = {[action.property]: current === 'ON' ? 'OFF' : 'ON'};
-            this.log('AKTION', 'Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt.', {Zielart: action.target.type});
+            this.log('AKTION', 'Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt.', {Zielart: action.target.type}, context);
         }
         const now = this.clock.now();
         this.sentAt = this.sentAt.filter(time => now - time < 1000);
         if (this.sentAt.length >= RUNTIME_LIMITS.commandsPerSecond) throw new RuntimeError('rate_limited');
         this.sentAt.push(now);
         this.log('SENDEN', action.type === 'scene' ? 'Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.'
-            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
+            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length}, context);
         let timeout;
         try {
             await Promise.race([
@@ -293,6 +330,7 @@ export class AutomationRuntime {
                 }),
                 new Promise((_, reject) => { timeout = this.clock.setTimeout(() => reject(new RuntimeError('action_timeout')), RUNTIME_LIMITS.publishTimeoutMs); })
             ]);
+            this.log('EMPFANG', 'Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt.', {}, context);
         } finally { this.clock.clearTimeout(timeout); }
     }
 }
@@ -387,7 +425,7 @@ export class MeshTransport {
         });
     }
 
-    async dispatch(action) {
+    async dispatch(action, context = {}) {
         const destination = action.target.system;
         if (!this.allowed(destination)) throw new RuntimeError('mesh_not_allowed');
         const generation = this.runtime.generation;
@@ -396,13 +434,14 @@ export class MeshTransport {
         delete local.delay_seconds;
         const digest = createHash('sha256').update(JSON.stringify(local)).digest('hex');
         const transaction = this.uuid();
-        this.runtime.log('SENDEN', 'Freigabe für eine Aktion im zweiten Z2M-System angefordert.');
-        const challenge = await this.exchange(destination, 'prepare', {transaction, digest}, 'challenge');
+        this.runtime.log('SENDEN', 'Freigabe für eine Aktion im zweiten Z2M-System angefordert.', {}, context);
+        const trace = debugTrace(context);
+        const challenge = await this.exchange(destination, 'prepare', {transaction, digest, ...(trace ? {trace} : {})}, 'challenge');
         if (generation !== this.runtime.generation || !this.allowed(destination)) throw new RuntimeError('mesh_stopped');
         if (challenge.status !== 'ok' || typeof challenge.token !== 'string' || !/^[a-f0-9-]{36}$/.test(challenge.token)) throw new RuntimeError('mesh_rejected');
         const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result');
         if (result.status !== 'ok') throw new RuntimeError(result.error === 'scene_unavailable' ? 'scene_unavailable' : 'mesh_rejected');
-        this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.');
+        this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.', {}, context);
     }
 
     async receive(event) {
@@ -425,12 +464,13 @@ export class MeshTransport {
             }
             const key = message.source + ':' + message.transaction;
             if (phase === 'prepare') {
-                if (Object.keys(message).sort().join(',') !== 'digest,mesh_version,source,transaction'
+                if (Object.keys(message).filter(key => key !== 'trace').sort().join(',') !== 'digest,mesh_version,source,transaction'
                     || typeof message.digest !== 'string' || !/^[a-f0-9]{64}$/.test(message.digest)) throw new RuntimeError('mesh_invalid');
                 for (const [id, entry] of this.challenges) if (entry.expires <= this.clock.now()) this.challenges.delete(id);
                 if (this.challenges.has(key) || this.challenges.size >= 64) throw new RuntimeError('mesh_busy');
                 const token = this.uuid();
-                this.challenges.set(key, {token, digest: message.digest, generation: this.runtime.generation, expires: this.clock.now() + MESH_TIMEOUT});
+                this.challenges.set(key, {token, digest: message.digest, generation: this.runtime.generation, expires: this.clock.now() + MESH_TIMEOUT,
+                    trace: {...debugTrace(message.trace), origin: message.source}});
                 await this.publish(message.source, 'challenge', {transaction: message.transaction, status: 'ok', token});
             } else if (phase === 'execute') {
                 const challenge = this.challenges.get(key);
@@ -441,13 +481,14 @@ export class MeshTransport {
                     || challenge.generation !== this.runtime.generation || !this.validateAction(message.action)
                     || message.action.target.system !== undefined || message.action.delay_seconds !== undefined
                     || createHash('sha256').update(JSON.stringify(message.action)).digest('hex') !== challenge.digest) throw new RuntimeError('mesh_rejected');
-                this.runtime.log('EMPFANG', 'Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen.');
+                const context = challenge.trace;
+                this.runtime.log('EMPFANG', 'Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen.', {}, context);
                 let status = 'ok';
-                try { await this.runtime.executeLocal(message.action); }
+                try { await this.runtime.executeLocal(message.action, this.runtime.generation, context); }
                 catch (error) {
                     status = 'error';
                     this.runtime.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
-                    this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError});
+                    this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError}, context);
                 }
                 await this.publish(message.source, 'result', {transaction: message.transaction, status,
                     ...(status === 'error' && this.runtime.lastError === 'scene_unavailable' ? {error: 'scene_unavailable'} : {})});
@@ -513,6 +554,101 @@ export function buildEditorScenes(zigbee, devices, groups) {
         }
     }
     return result;
+}
+
+const DEBUG_EVENTS = {"event_01":{"event":"AKTION","message":"Gespeicherte Revision für neue Auslöser aktiviert."},"event_02":{"event":"AKTION","message":"Ausführung gestoppt; ausstehende Verzögerungen verworfen."},"event_03":{"event":"EMPFANG","message":"Neue Eigenschaften einer konfigurierten Quelle ausgewertet."},"event_04":{"event":"AKTION","message":"Wert unverändert; Auslöser verlangt eine Wertänderung."},"event_05":{"event":"AKTION","message":"Regellauf nicht gestartet."},"event_06":{"event":"START","message":"Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."},"event_07":{"event":"FEHLER","message":"Aktionsfolge abgebrochen; keine automatische Wiederholung."},"event_08":{"event":"ENDE","message":"Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."},"event_09":{"event":"AKTION","message":"Bedingung vor Aktion nicht mehr erfüllt."},"event_10":{"event":"AKTION","message":"Vorhandene Szene für den Aufruf erneut geprüft."},"event_11":{"event":"AKTION","message":"Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."},"event_12":{"event":"FEHLER","message":"Bridge-Abonnement konnte beim Stopp nicht entfernt werden."},"event_13":{"event":"SENDEN","message":"Freigabe für eine Aktion im zweiten Z2M-System angefordert."},"event_14":{"event":"EMPFANG","message":"Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."},"event_15":{"event":"EMPFANG","message":"Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."},"event_16":{"event":"FEHLER","message":"Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."},"event_17":{"event":"FEHLER","message":"Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."},"event_18":{"event":"FEHLER","message":"MQTT-Antwort konnte nicht veröffentlicht werden."},"event_19":{"event":"START","message":"Erweiterung starten."},"event_20":{"event":"FEHLER","message":"Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."},"event_21":{"event":"ENDE","message":"Startaufruf beendet."},"event_22":{"event":"START","message":"Erweiterung stoppen."},"event_23":{"event":"ENDE","message":"Stoppaufruf beendet."},"event_24":{"event":"AKTION","message":"Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."},"event_25":{"event":"AKTION","message":"Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."},"event_26":{"event":"AKTION","message":"Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."},"event_27":{"event":"FEHLER","message":"Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."},"event_28":{"event":"START","message":"Erweiterungsauftrag empfangen."},"event_29":{"event":"ENDE","message":"Erweiterungsauftrag beendet; Ergebnis siehe Antwort."},"event_30":{"event":"FEHLER","message":"Ungültigen Erweiterungsauftrag abgewiesen."},"event_31":{"event":"AKTION","message":"Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."},"event_32":{"event":"FEHLER","message":"Erweiterungsauftrag abgewiesen."},"event_33":{"event":"FEHLER","message":"Entwurf an dieser Stelle korrigieren."},"event_34":{"event":"AKTION","message":"Bedingung geprüft."},"event_35":{"event":"AKTION","message":"Auslöser geprüft."},"event_36":{"event":"AKTION","message":"Mindestdauer begonnen."},"event_37":{"event":"AKTION","message":"Mindestdauer abgebrochen."},"event_38":{"event":"AKTION","message":"Mindestdauer erreicht."},"event_39":{"event":"AKTION","message":"Zeitpunkt erreicht."},"event_40":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt begonnen."},"event_41":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt beendet."},"event_42":{"event":"AKTION","message":"Aktionsschritt wegen Stopp abgebrochen."},"event_43":{"event":"EMPFANG","message":"Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."},"event_44":{"event":"SENDEN","message":"Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"scene_send":{"event":"SENDEN","message":"Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"step_failed":{"event":"FEHLER","message":"Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."}};
+
+export {DEBUG_EVENTS};
+const debugCodes = new Map(Object.entries(DEBUG_EVENTS).map(([code, entry]) => [entry.message, code]));
+const debugUUID = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
+export const debugTrace = value => value && debugUUID(value.run) && Number.isInteger(value.rule) && value.rule >= 1 && value.rule <= 100
+    && Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 && Number.isSafeInteger(value.revision) && value.revision >= 1
+    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision} : undefined;
+
+// Live diagnostics only: no disk, retries, MQTT retain or awaited device-side work.
+export class RuntimeDiagnostics {
+    constructor(mqtt, clock = {}) {
+        this.mqtt = mqtt;
+        this.now = clock.now ?? (() => performance.now());
+        this.wall = clock.wallNow ?? (() => Date.now());
+        this.clients = new Map();
+        this.queue = [];
+        this.sending = false;
+        this.setTimeout = clock.setTimeout ?? setTimeout;
+        this.clearTimeout = clock.clearTimeout ?? clearTimeout;
+        this.sentAt = [];
+        this.dropped = 0;
+        this.closed = false;
+    }
+
+    configure(client, seconds) {
+        this.prune();
+        if (this.closed || !debugUUID(client) || !Number.isInteger(seconds) || seconds < 0 || seconds > 900) return null;
+        if (seconds > 0 && !this.clients.has(client) && this.clients.size >= 8) return null;
+        if (seconds === 0) this.clients.delete(client);
+        else this.clients.set(client, this.now() + seconds * 1000);
+        return {debug_version: 1, client, seconds, active: seconds > 0};
+    }
+
+    prune() {
+        for (const [client, until] of this.clients) if (until <= this.now()) this.clients.delete(client);
+    }
+
+    emit(message, details = {}, context = {}) {
+        try {
+            this.prune();
+            const code = debugCodes.get(message);
+            if (this.closed || !code || this.clients.size === 0 || this.mqtt.isConnected?.() === false) return;
+            this.sentAt = this.sentAt.filter(time => this.now() - time < 1000);
+            if (this.queue.length >= 128 || this.sentAt.length >= 80) { this.dropped = Math.min(1000000, this.dropped + 1); return; }
+            const record = {id: randomUUID(), at: Math.trunc(this.wall()), event: code};
+            if (debugUUID(context.run)) record.run = context.run;
+            for (const [key, max] of Object.entries({rule: 100, trigger: 8, condition: 16, step: 16, revision: Number.MAX_SAFE_INTEGER, delay: 86400})) {
+                if (Number.isSafeInteger(context[key]) && context[key] >= (key === 'delay' ? 0 : 1) && context[key] <= max) record[key] = context[key];
+            }
+            if (typeof context.origin === 'string' && context.origin.length <= 1024) record.origin = createHash('sha256').update(context.origin).digest('hex');
+            if (typeof details.Erfüllt === 'boolean') record.passed = details.Erfüllt;
+            const reason = details.Grund;
+            if (['inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'].includes(reason)) record.reason = reason;
+            this.sentAt.push(this.now());
+            this.queue.push({clients: [...this.clients.keys()], record});
+            if (!this.sending) void this.drain().catch(() => { this.dropped = Math.min(1000000, this.dropped + 1); });
+        } catch { /* Diagnostics must not affect automation behavior. */ }
+    }
+
+    async drain() {
+        this.sending = true;
+        try {
+            while (this.queue.length && !this.closed) {
+                this.prune();
+                const item = this.queue.shift();
+                const clients = item.clients.filter(client => this.clients.has(client));
+                if (!clients.length || this.mqtt.isConnected?.() === false) continue;
+                const dropped = this.dropped;
+                this.dropped = 0;
+                let timer;
+                try {
+                    await Promise.race([
+                        Promise.resolve().then(() => {
+                            this.prune();
+                            const recipients = clients.filter(client => this.clients.has(client));
+                            if (this.closed || !recipients.length) return;
+                            return this.mqtt.publish('symcon/automations/debug', JSON.stringify({protocol_version: 1,
+                                debug_version: 1, session: this.session, clients: recipients, dropped, record: item.record}),
+                            {skipLog: true, skipReceive: true, clientOptions: {qos: 0, retain: false}});
+                        }),
+                        new Promise((_, reject) => { timer = this.setTimeout(() => reject(new Error()), 2000); timer?.unref?.(); })
+                    ]);
+                } catch {
+                    this.dropped = Math.min(1000000, this.dropped + dropped + 1 + this.queue.length);
+                    this.queue.length = 0;
+                }
+                finally { this.clearTimeout(timer); }
+            }
+        } finally { this.sending = false; }
+    }
+
+    stop() { this.closed = true; this.clients.clear(); this.queue.length = 0; }
 }
 
 
@@ -862,12 +998,14 @@ export default class Z2MAutomationsExtension {
         this.logger = logger;
         this.zigbee = _zigbee;
         this.clock = options.clock;
+        this.diagnostics = new RuntimeDiagnostics(mqtt, options.clock);
         this.runtime = new AutomationRuntime({zigbee: _zigbee, logger, clock: options.clock,
-            remoteDispatch: action => this.mesh.dispatch(action),
+            remoteDispatch: (action, context) => this.mesh.dispatch(action, context),
             onDeactivate: () => this.mesh?.cancel(),
             readState: typeof _state?.get === 'function' ? entity => _state.get(entity) : undefined,
             dispatch: (topic, message) => this.eventBus.emitMQTTMessage({topic: this.baseTopic + '/' + topic, message}),
             available: typeof eventBus.onPublishEntityState === 'function' && typeof eventBus.emitMQTTMessage === 'function'});
+        this.runtime.diagnostics = this.diagnostics;
         // A real deployed file is in data/external_extensions, including Z2M temporary import copies.
         const directory = options.directory ?? fileURLToPath(new URL('../z2m-automations/', import.meta.url));
         this.store = new ConfigurationStore(directory, options.io ?? fs);
@@ -883,7 +1021,7 @@ export default class Z2MAutomationsExtension {
     }
 
     status() {
-        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0',
+        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', debug_version: 1,
             resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
@@ -903,9 +1041,15 @@ export default class Z2MAutomationsExtension {
         this.runtime.log('START', 'Erweiterung starten.');
         try {
             if (this.accepting) return;
+            if (this.diagnostics.closed) {
+                this.diagnostics = new RuntimeDiagnostics(this.mqtt, this.clock);
+                this.runtime.diagnostics = this.diagnostics;
+            }
             this.baseTopic = this.settings.get().mqtt.base_topic;
+            this.runtime.system = this.baseTopic;
             this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
             this.session = randomUUID();
+            this.diagnostics.session = this.session;
             this.activationToken = null;
             await this.store.load();
             this.accepting = true;
@@ -931,6 +1075,7 @@ export default class Z2MAutomationsExtension {
             await this.mesh?.stop();
             await this.queue;
             await this.runtime.stop();
+            this.diagnostics.stop();
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
     }
@@ -1027,6 +1172,25 @@ export default class Z2MAutomationsExtension {
         const prefix = this.baseTopic + '/' + PREFIX + '/request/';
         if (typeof event?.topic !== 'string' || !event.topic.startsWith(prefix)) return;
         const operation = event.topic.slice(prefix.length);
+        if (operation === 'debug') {
+            // Debug leases never enter the automation/storage queue or alter its status.
+            let request;
+            try {
+                if (event.retain === true || typeof event.message !== 'string' || Buffer.byteLength(event.message) > 1024) throw new Error();
+                request = JSON.parse(event.message);
+                if (!isObject(request) || Object.keys(request).sort().join(',') !== 'client,protocol_version,seconds,session,transaction'
+                    || request.protocol_version !== 1 || (typeof request.transaction !== 'string' || !VALID_TRANSACTION.test(request.transaction))
+                    || request.session !== this.session || !this.accepting) throw new Error();
+                const data = this.diagnostics.configure(request.client, request.seconds);
+                if (!data) throw new Error();
+                await this.publish('response/debug', {protocol_version: 1, transaction: request.transaction, status: 'ok', data});
+            } catch {
+                if (typeof request?.transaction === 'string' && VALID_TRANSACTION.test(request.transaction)) {
+                    await this.publish('response/debug', {protocol_version: 1, transaction: request.transaction, status: 'error', error: {code: 'invalid_request'}});
+                }
+            }
+            return;
+        }
         if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor'].includes(operation)) return;
         this.runtime.log('START', 'Erweiterungsauftrag empfangen.', {Auftrag: operation});
         try { await this.handleRequest(operation, event); }

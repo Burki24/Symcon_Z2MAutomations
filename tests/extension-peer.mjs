@@ -78,6 +78,8 @@ try {
         } else if (listener) {
             await listener({topic: command.topic, message: JSON.stringify(command.payload)});
         }
+        // Drain bounded diagnostic microtasks before returning this exchange.
+        for (let i = 0; i < 300; i++) await Promise.resolve();
         process.stdout.write(JSON.stringify(messages) + '\n');
     }
 } finally {

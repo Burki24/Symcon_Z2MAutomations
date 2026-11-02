@@ -406,7 +406,26 @@
             "The YAML could not be read. Check its syntax and indentation.": "Die YAML-Datei konnte nicht gelesen werden. Bitte Schreibweise und Einrückung prüfen.",
             "Line %d": "Zeile %d",
             "Column %d": "Spalte %d",
-            "Only the first 20 problems are shown. Correct them and validate again.": "Es werden die ersten 20 Fehler angezeigt. Bitte diese korrigieren und anschließend erneut prüfen."
+            "Only the first 20 problems are shown. Correct them and validate again.": "Es werden die ersten 20 Fehler angezeigt. Bitte diese korrigieren und anschließend erneut prüfen.",
+            "Record Z2M execution messages in the native debug window for a limited time. For cross-system actions, start recording on both automation modules.": "Z2M-Abläufe für eine begrenzte Zeit im Debugfenster aufzeichnen. Bei Aktionen zwischen zwei Z2M-Systemen die Aufzeichnung in beiden Automationsmodulen starten.",
+            "Recording duration": "Dauer der Aufzeichnung",
+            "5 minutes": "5 Minuten",
+            "10 minutes": "10 Minuten",
+            "15 minutes": "15 Minuten",
+            "Start Z2M recording": "Z2M-Aufzeichnung starten",
+            "Stop own Z2M recording": "Eigene Z2M-Aufzeichnung beenden",
+            "Aufzeichnung beendet: Verbindung oder Z2M-Sitzung hat sich geändert. Bei Bedarf erneut starten.": "Aufzeichnung beendet: Verbindung oder Z2M-Sitzung hat sich geändert. Bei Bedarf erneut starten.",
+            "Keine Bestätigung für die Aufzeichnung erhalten. Erweiterungsstatus prüfen und erneut starten.": "Keine Bestätigung für die Aufzeichnung erhalten. Erweiterungsstatus prüfen und erneut starten.",
+            "Aufzeichnung nach Ablauf der gewählten Zeit automatisch beendet.": "Aufzeichnung nach Ablauf der gewählten Zeit automatisch beendet.",
+            "Aufzeichnung nicht gestartet: Dauer von 1 bis 900 Sekunden und bestätigte Erweiterung mit Debugkanal erforderlich; zum Beenden muss eine eigene Aufzeichnung bestehen.": "Aufzeichnung nicht gestartet: Dauer von 1 bis 900 Sekunden und bestätigte Erweiterung mit Debugkanal erforderlich; zum Beenden muss eine eigene Aufzeichnung bestehen.",
+            "Aufzeichnung nicht verfügbar. Erweiterungsstatus abfragen und bei Bedarf die Erweiterung aktualisieren.": "Aufzeichnung nicht verfügbar. Erweiterungsstatus abfragen und bei Bedarf die Erweiterung aktualisieren.",
+            "Bestätigung von Z2M steht aus.": "Bestätigung von Z2M steht aus.",
+            "Aufzeichnung konnte nicht angefragt werden. MQTT-Verbindung prüfen.": "Aufzeichnung konnte nicht angefragt werden. MQTT-Verbindung prüfen.",
+            "Z2M hat die Aufzeichnung nicht bestätigt. Erweiterungsstatus prüfen und erneut starten.": "Z2M hat die Aufzeichnung nicht bestätigt. Erweiterungsstatus prüfen und erneut starten.",
+            "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.": "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.",
+            "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.": "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.",
+            "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.": "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.",
+            "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.": "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten."
         }
     }
 }

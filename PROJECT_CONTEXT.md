@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Eigener zeitlich begrenzter MQTT-Debugkanal lokal implementiert: flüchtige
+  unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,
+  Regel-/Schritt-/Laufzuordnung über Mesh und unveränderter DebugFlowHelper.
+  Begrenzter nicht blockierender Versand, Verlusthinweise, strikter Empfang
+  und automatische lokale Beendigung. Offline-Nachweise in DEVELOPMENT.md;
+  noch keine Installation, Live-Änderung oder native Praxisprüfung. ADR 0012.
+
 - Vorhandene Z2M-Szenen lokal als eigene `scene`-Aktionen integriert: lesender
   Katalog mit Geräteendpoint und Gruppenidentität, benannte Auswahl im Geräte-
   und Zeiteditor, vollständige Vorbelegung, Symcon-Schaltrechte und Partnerziele.

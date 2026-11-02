@@ -1,4 +1,5 @@
 import {hasScene} from './scenes.mjs';
+import {createHash, randomUUID} from 'node:crypto';
 
 // Library-local execution policy. No foreign automation implementation is bundled.
 export const RUNTIME_LIMITS = Object.freeze({concurrentRules: 16, commandsPerSecond: 20, ruleCooldownMs: 1000, publishTimeoutMs: 5000});
@@ -52,10 +53,18 @@ export class AutomationRuntime {
             active_checksum: this.active?.checksum ?? null, enabled_count: this.rules.length, runtime_error: this.lastError};
     }
 
-    log(event, message, details = {}) {
+    log(event, message, details = {}, context = {}) {
         try {
-            this.logger.debug?.('Z2MAutomations | ' + event + ' | ' + JSON.stringify({Meldung: message, Bezug: details}));
+            const safeContext = {...context};
+            if (typeof safeContext.origin === 'string') safeContext.origin = createHash('sha256').update(safeContext.origin).digest('hex');
+            this.logger.debug?.('Z2MAutomations | ' + event + ' | ' + JSON.stringify({Meldung: message, Bezug: {...details, ...safeContext}}));
         } catch { /* A broken diagnostic sink cannot alter execution. */ }
+        try { this.diagnostics?.emit(message, details, context); } catch { /* Independent from local logging. */ }
+    }
+
+    trace(rule, extra = {}) {
+        return {run: randomUUID(), rule: (this.active?.document.automations.indexOf(rule) ?? -1) + 1,
+            revision: this.active?.document.revision, origin: this.system, ...extra};
     }
 
     device(id) {
@@ -124,7 +133,10 @@ export class AutomationRuntime {
         this.timer = null;
         for (const [timer, resolve] of this.waits) { this.clock.clearTimeout(timer); resolve(false); }
         this.waits.clear();
-        for (const hold of this.holds.values()) if (hold.timer !== null) this.clock.clearTimeout(hold.timer);
+        for (const hold of this.holds.values()) {
+            if (hold.timer !== null) this.clock.clearTimeout(hold.timer);
+            this.log('AKTION', 'Mindestdauer abgebrochen.', {}, hold.context);
+        }
         this.holds.clear();
         this.values.clear();
         this.changes.clear();
@@ -144,15 +156,20 @@ export class AutomationRuntime {
         return {day: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}:${p.second}`};
     }
 
-    conditions(rule) {
-        return rule.conditions.every(clause => {
-            if (clause.type === 'device_value') return this.device(clause.device) && compare(this.values.get(clause.device)?.[clause.property], clause);
-            const local = this.local(clause.timezone);
-            const overnight = clause.after > clause.before;
-            if (!(overnight ? local.time >= clause.after || local.time < clause.before : local.time >= clause.after && local.time < clause.before)) return false;
-            const anchor = new Date(local.day + 'T00:00:00Z');
-            if (overnight && local.time < clause.before) anchor.setUTCDate(anchor.getUTCDate() - 1);
-            return !clause.weekdays || clause.weekdays.includes(anchor.getUTCDay() || 7);
+    conditions(rule, context = {}) {
+        return rule.conditions.every((clause, index) => {
+            let passed;
+            if (clause.type === 'device_value') passed = Boolean(this.device(clause.device) && compare(this.values.get(clause.device)?.[clause.property], clause));
+            else {
+                const local = this.local(clause.timezone);
+                const overnight = clause.after > clause.before;
+                const anchor = new Date(local.day + 'T00:00:00Z');
+                if (overnight && local.time < clause.before) anchor.setUTCDate(anchor.getUTCDate() - 1);
+                passed = (overnight ? local.time >= clause.after || local.time < clause.before : local.time >= clause.after && local.time < clause.before)
+                    && (!clause.weekdays || clause.weekdays.includes(anchor.getUTCDay() || 7));
+            }
+            this.log('AKTION', 'Bedingung geprüft.', {Erfüllt: passed}, {...context, condition: index + 1});
+            return passed;
         });
     }
 
@@ -175,19 +192,27 @@ export class AutomationRuntime {
                 if (trigger.type !== 'device' || trigger.device !== id || !Object.hasOwn(event.payload, trigger.property)) return;
                 const key = rule.id + ':' + index;
                 const matches = compare(values[trigger.property], trigger);
+                const priorContext = this.holds.get(key)?.context;
+                const context = priorContext ?? this.trace(rule, {trigger: index + 1});
+                this.log('AKTION', 'Auslöser geprüft.', {Erfüllt: matches}, context);
                 const changed = !Object.hasOwn(previous, trigger.property) || previous[trigger.property] !== values[trigger.property];
-                if (matches && trigger.on_change && !changed) this.log('AKTION', 'Wert unverändert; Auslöser verlangt eine Wertänderung.', {Regel: rule.id, Auslöser: index + 1});
-                if (!trigger.for_seconds) { if (matches && (!trigger.on_change || changed)) this.launch(rule); return; }
+                if (matches && trigger.on_change && !changed) this.log('AKTION', 'Wert unverändert; Auslöser verlangt eine Wertänderung.', {Regel: rule.id, Auslöser: index + 1}, context);
+                if (!trigger.for_seconds) { if (matches && (!trigger.on_change || changed)) this.launch(rule, context); return; }
                 const prior = this.holds.get(key);
                 if (!matches) {
                     if (prior?.timer !== null && prior?.timer !== undefined) this.clock.clearTimeout(prior.timer);
+                    if (prior) this.log('AKTION', 'Mindestdauer abgebrochen.', {}, context);
                     this.holds.delete(key);
                 } else if (!prior && (!trigger.on_change || changed)) {
                     const generation = this.generation;
-                    const hold = {timer: this.clock.setTimeout(() => {
+                    this.log('AKTION', 'Mindestdauer begonnen.', {}, {...context, delay: trigger.for_seconds});
+                    const hold = {context, timer: this.clock.setTimeout(() => {
                         hold.timer = null;
                         if (generation === this.generation && this.active && compare(this.values.get(id)?.[trigger.property], trigger)
-                            && this.device(id)) this.launch(rule);
+                            && this.device(id)) {
+                            this.log('AKTION', 'Mindestdauer erreicht.', {}, context);
+                            this.launch(rule, context);
+                        }
                     }, trigger.for_seconds * 1000)};
                     hold.timer?.unref?.();
                     this.holds.set(key, hold);
@@ -204,7 +229,9 @@ export class AutomationRuntime {
             const key = rule.id + ':' + index;
             if (local.time === trigger.at && (!this.days.has(key) || local.day > this.days.get(key))) {
                 this.days.set(key, local.day);
-                this.launch(rule);
+                const context = this.trace(rule, {trigger: index + 1});
+                this.log('AKTION', 'Zeitpunkt erreicht.', {}, context);
+                this.launch(rule, context);
             }
         });
     }
@@ -219,63 +246,74 @@ export class AutomationRuntime {
         });
     }
 
-    launch(rule) {
+    launch(rule, context = this.trace(rule)) {
         const now = this.clock.now();
         const reason = !this.active ? 'inactive' : this.running.has(rule.id) ? 'already_running'
             : this.tasks.size >= RUNTIME_LIMITS.concurrentRules ? 'concurrency_limit'
                 : now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown'
-                    : !this.conditions(rule) ? 'conditions_not_met' : '';
-        if (reason) { this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}); return; }
+                    : !this.conditions(rule, context) ? 'conditions_not_met' : '';
+        if (reason) { this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}, context); return; }
         const generation = this.generation;
         this.cooldowns.set(rule.id, now);
-        this.log('START', 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id});
+        this.log('START', 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
-        const task = Promise.resolve().then(() => this.run(rule, generation)).catch(error => {
+        const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
             this.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
-            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: this.lastError});
+            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: this.lastError}, context);
         }).finally(() => {
             if (this.running.get(rule.id) === task) this.running.delete(rule.id);
             this.tasks.delete(task);
-            this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id});
+            this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
         });
         this.running.set(rule.id, task);
         this.tasks.add(task);
     }
 
-    async run(rule, generation) {
-        for (const action of rule.actions) {
-            if (!await this.wait((action.delay_seconds ?? 0) * 1000, generation)) return;
+    async run(rule, generation, context) {
+        for (const [index, action] of rule.actions.entries()) {
+            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0};
+            if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
+            if (!await this.wait(step.delay * 1000, generation)) {
+                this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
+                return;
+            }
+            if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
             if (!this.active || this.generation !== generation) return;
-            if (!this.conditions(rule)) { this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}); return; }
-            if (action.target.system !== undefined) {
-                await this.remoteDispatch(action);
-            } else {
-                await this.executeLocal(action, generation);
+            if (!this.conditions(rule, step)) { this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return; }
+            try {
+                if (action.target.system !== undefined) {
+                    await this.remoteDispatch(action, step);
+                } else {
+                    await this.executeLocal(action, generation, step);
+                }
+            } catch (error) {
+                this.log('FEHLER', 'Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen.', {Grund: error instanceof RuntimeError ? error.code : 'action_failed'}, step);
+                throw error;
             }
         }
     }
 
-    async executeLocal(action, generation = this.generation) {
+    async executeLocal(action, generation = this.generation, context = {}) {
         if (!this.active || generation !== this.generation) throw new RuntimeError('mesh_stopped');
         const entity = this.target(action.target);
         let values = action.values;
         if (action.type === 'scene') {
             if (!hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
             values = {scene_recall: action.scene_id};
-            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined});
+            this.log('AKTION', 'Vorhandene Szene für den Aufruf erneut geprüft.', {Zielart: action.target.type, Gerätekanal: action.endpoint !== undefined}, context);
         }
         if (action.type === 'toggle') {
             const current = this.readState(entity)?.[action.property];
             if (current !== 'ON' && current !== 'OFF') throw new RuntimeError('state_unavailable');
             values = {[action.property]: current === 'ON' ? 'OFF' : 'ON'};
-            this.log('AKTION', 'Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt.', {Zielart: action.target.type});
+            this.log('AKTION', 'Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt.', {Zielart: action.target.type}, context);
         }
         const now = this.clock.now();
         this.sentAt = this.sentAt.filter(time => now - time < 1000);
         if (this.sentAt.length >= RUNTIME_LIMITS.commandsPerSecond) throw new RuntimeError('rate_limited');
         this.sentAt.push(now);
         this.log('SENDEN', action.type === 'scene' ? 'Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.'
-            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length});
+            : 'Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt.', {Zielart: action.target.type, Eigenschaften: Object.keys(values).length}, context);
         let timeout;
         try {
             await Promise.race([
@@ -285,6 +323,7 @@ export class AutomationRuntime {
                 }),
                 new Promise((_, reject) => { timeout = this.clock.setTimeout(() => reject(new RuntimeError('action_timeout')), RUNTIME_LIMITS.publishTimeoutMs); })
             ]);
+            this.log('EMPFANG', 'Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt.', {}, context);
         } finally { this.clock.clearTimeout(timeout); }
     }
 }

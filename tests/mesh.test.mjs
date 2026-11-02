@@ -89,6 +89,30 @@ test('two independent extensions execute a remote group toggle once without Symc
     } finally { await h.close(); }
 });
 
+test('recordings on both systems retain one run and step across the mesh without disclosing action bodies', async () => {
+    const h = await pair();
+    try {
+        await h.a.load([remoteRule()]); await h.b.load([]);
+        for (const node of [h.a, h.b]) {
+            await node.extension.receive({topic: node.system + '/symcon/automations/request/debug', message: JSON.stringify({protocol_version: 1,
+                transaction: 'synthetic-debug', session: node.extension.status().session, client: '11111111-1111-4111-8111-111111111111', seconds: 60})});
+        }
+        h.network.duplicateExecute = true;
+        await h.a.trigger(); await flush();
+        const source = h.a.messages.filter(m => m.topic.endsWith('/automations/debug')).map(m => m.data.record);
+        const destination = h.b.messages.filter(m => m.topic.endsWith('/automations/debug')).map(m => m.data.record);
+        const run = source.find(r => r.step === 1)?.run;
+        assert.ok(run && destination.length >= 3);
+        const traced = destination.filter(r => r.run === run);
+        assert.ok(traced.length >= 3 && traced.every(r => r.rule === 1 && r.step === 1 && r.revision === 1));
+        assert.ok(traced.every(r => r.origin === source.find(r => r.step === 1).origin));
+        assert.equal(h.b.commands.length, 1);
+        assert.ok(!JSON.stringify([...source, ...destination]).includes('synthetic/') && !JSON.stringify(destination).includes('0x0000000000000001'));
+        const prepare = h.wire.find(m => m.event.topic.endsWith('/prepare'));
+        assert.equal(JSON.parse(prepare.event.message).trace.run, run);
+    } finally { await h.close(); }
+});
+
 test('remote scenes are recalled only on the selected system and rechecked by the receiver', async () => {
     const h = await pair();
     try {

@@ -13,6 +13,111 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+test('live MQTT recording is leased independently and follows an ordered automation without raw values', async () => {
+    const h = await harness();
+    try {
+        const client = '11111111-1111-4111-8111-111111111111';
+        const second = '22222222-2222-4222-8222-222222222222';
+        const recording = await h.request('debug', {session: h.session, client, seconds: 10});
+        assert.equal(recording?.status, 'ok');
+        await h.request('debug', {session: h.session, client: second, seconds: 20});
+        const r = rule();
+        r.conditions = [{type: 'device_value', device: sourceID, property: 'temperature', operator: 'lt', value: 20}];
+        r.actions[0].delay_seconds = 2;
+        await h.store(yaml([r])); await h.activate();
+        await h.event({occupancy: true, temperature: 15, privateText: 'synthetic-private-text'});
+        await h.clock.advance(2000);
+        const records = h.messages.filter(m => m.topic === 'symcon/automations/debug');
+        assert.ok(records.length > 0);
+        assert.ok(records.every(m => !m.options.clientOptions.retain && m.options.skipLog));
+        const {DEBUG_EVENTS} = await import('../libs/z2m/src/debug.mjs');
+        const recordText = records.map(m => DEBUG_EVENTS[m.data.record.event]?.message).join('\n');
+        for (const text of ['Auslöser geprüft.', 'Bedingung geprüft.', 'Wartezeit vor Aktionsschritt begonnen.', 'Wartezeit vor Aktionsschritt beendet.', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.']) assert.ok(recordText.includes(text), text);
+        const steps = records.map(m => m.data.record).filter(r => r.step === 1);
+        assert.ok(steps.length >= 3 && steps.every(r => r.run === steps[0].run && r.rule === 1));
+        assert.equal(h.commands.length, 1);
+        assert.ok(!JSON.stringify(records).includes('synthetic-private-text') && !JSON.stringify(records).includes(sourceID));
+        await h.request('debug', {session: h.session, client, seconds: 0});
+        await h.clock.advance(1000); await h.event({occupancy: true, temperature: 15}); await h.clock.advance(2000);
+        assert.deepEqual(h.messages.filter(m => m.topic === 'symcon/automations/debug').at(-1).data.clients, [second]);
+        await h.clock.advance(20000);
+        const count = h.messages.filter(m => m.topic === 'symcon/automations/debug').length;
+        await h.event({occupancy: true, temperature: 15}); await h.clock.advance(2000);
+        assert.equal(h.messages.filter(m => m.topic === 'symcon/automations/debug').length, count);
+        assert.equal(await h.request('debug', {session: h.session, client, seconds: 1}, {retain: true}), undefined);
+    } finally { await h.close(); }
+});
+
+test('recorded decisions identify failed conditions, minimum duration cancellation and the failing step', async () => {
+    const h = await harness();
+    try {
+        const {DEBUG_EVENTS} = await import('../libs/z2m/src/debug.mjs');
+        const records = () => h.messages.filter(m => m.topic === 'symcon/automations/debug').map(m => m.data.record);
+        const message = r => DEBUG_EVENTS[r.event].message;
+        await h.request('debug', {session: h.session, client: '11111111-1111-4111-8111-111111111111', seconds: 60});
+        const r = rule();
+        r.conditions = [{type: 'device_value', device: sourceID, property: 'temperature', operator: 'lt', value: 20}];
+        await h.store(yaml([r])); await h.activate();
+        await h.event({occupancy: true, temperature: 25});
+        const condition = records().find(r => r.condition === 1 && r.passed === false);
+        assert.ok(condition && records().some(r => r.run === condition.run && r.reason === 'conditions_not_met'));
+        assert.equal(h.commands.length, 0);
+        r.triggers[0].for_seconds = 2; r.conditions = [];
+        await h.store(yaml([r], 2)); await h.activate();
+        await h.event({occupancy: true}); await h.clock.advance(1000); await h.event({occupancy: false});
+        const start = records().find(r => message(r) === 'Mindestdauer begonnen.');
+        assert.ok(start && records().some(r => r.run === start.run && message(r) === 'Mindestdauer abgebrochen.'));
+        await h.clock.advance(2000); assert.equal(h.commands.length, 0);
+        h.sendFault = true; h.logFault = true;
+        await h.event({occupancy: true}); await h.clock.advance(2000); await flush();
+        assert.ok(records().some(r => r.step === 1 && r.rule === 1 && r.reason === 'action_failed'));
+        assert.equal(h.commands.length, 1, 'Only one device handoff is attempted even with failing debug sinks');
+        assert.ok(!JSON.stringify(records()).includes('synthetic-private-body'));
+    } finally { await h.close(); }
+});
+
+test('recording validates control envelopes and never survives an extension restart', async () => {
+    let h = await harness();
+    try {
+        const client = '11111111-1111-4111-8111-111111111111';
+        for (const fields of [{seconds: 901}, {seconds: -1}, {seconds: '60'}, {session: client}, {client: 'unsafe'}, {unexpected: true}]) {
+            assert.equal((await h.request('debug', {session: h.session, client, seconds: 60, ...fields})).status, 'error');
+        }
+        await h.request('debug', {session: h.session, client, seconds: 60});
+        await h.store(yaml()); await h.activate({resume_after_restart: true});
+        const directory = h.directory;
+        await h.close(false);
+        h = await harness(directory);
+        await h.event({occupancy: true}); await flush();
+        assert.equal(h.messages.filter(m => m.topic === 'symcon/automations/debug').length, 0);
+        assert.notEqual(h.session, client);
+    } finally { await h.close(); }
+});
+
+test('timed triggers and stop cancellation remain traceable while an unavailable debug publisher cannot block execution', async () => {
+    const h = await harness();
+    try {
+        const {DEBUG_EVENTS} = await import('../libs/z2m/src/debug.mjs');
+        await h.request('debug', {session: h.session, client: '11111111-1111-4111-8111-111111111111', seconds: 60});
+        const r = rule();
+        r.triggers = [{type: 'time', at: '12:00:01', timezone: 'UTC'}];
+        r.actions[0].delay_seconds = 5;
+        await h.store(yaml([r])); await h.activate(); await h.clock.advance(1000);
+        await h.deactivate();
+        for (let n = 0; n < 300; n++) await Promise.resolve();
+        const records = h.messages.filter(m => m.topic === 'symcon/automations/debug').map(m => m.data.record);
+        const timed = records.find(r => DEBUG_EVENTS[r.event].message === 'Zeitpunkt erreicht.');
+        assert.ok(timed && records.some(r => r.run === timed.run && r.step === 1 && DEBUG_EVENTS[r.event].message === 'Aktionsschritt wegen Stopp abgebrochen.'));
+        assert.equal(h.commands.length, 0);
+        h.extension.diagnostics.mqtt = {publish: () => new Promise(() => {})};
+        await h.store(yaml([rule()], 2)); await h.activate(); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1, 'Device execution finishes while a debug Publish is still unresolved');
+        await h.clock.advance(2001);
+        await h.extension.stop(); await h.extension.start(); h.session = h.extension.status().session;
+        assert.equal((await h.request('debug', {session: h.session, client: '11111111-1111-4111-8111-111111111111', seconds: 60})).status, 'ok', 'A reused extension object accepts a new explicit recording after restart');
+    } finally { await h.close(); }
+});
+
 class Clock {
     time = 0;
     wall = Date.parse('2026-10-26T12:00:00Z');

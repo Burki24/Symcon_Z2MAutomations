@@ -1,5 +1,6 @@
 import {createHash, randomUUID} from 'node:crypto';
 import {RuntimeError} from './runtime.mjs';
+import {debugTrace} from './debug.mjs';
 
 // Library-local bridge protocol. Credentials and broker configuration stay outside Z2M.
 const MESH_ROOT = 'z2ma/mesh/';
@@ -90,7 +91,7 @@ export class MeshTransport {
         });
     }
 
-    async dispatch(action) {
+    async dispatch(action, context = {}) {
         const destination = action.target.system;
         if (!this.allowed(destination)) throw new RuntimeError('mesh_not_allowed');
         const generation = this.runtime.generation;
@@ -99,13 +100,14 @@ export class MeshTransport {
         delete local.delay_seconds;
         const digest = createHash('sha256').update(JSON.stringify(local)).digest('hex');
         const transaction = this.uuid();
-        this.runtime.log('SENDEN', 'Freigabe für eine Aktion im zweiten Z2M-System angefordert.');
-        const challenge = await this.exchange(destination, 'prepare', {transaction, digest}, 'challenge');
+        this.runtime.log('SENDEN', 'Freigabe für eine Aktion im zweiten Z2M-System angefordert.', {}, context);
+        const trace = debugTrace(context);
+        const challenge = await this.exchange(destination, 'prepare', {transaction, digest, ...(trace ? {trace} : {})}, 'challenge');
         if (generation !== this.runtime.generation || !this.allowed(destination)) throw new RuntimeError('mesh_stopped');
         if (challenge.status !== 'ok' || typeof challenge.token !== 'string' || !/^[a-f0-9-]{36}$/.test(challenge.token)) throw new RuntimeError('mesh_rejected');
         const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result');
         if (result.status !== 'ok') throw new RuntimeError(result.error === 'scene_unavailable' ? 'scene_unavailable' : 'mesh_rejected');
-        this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.');
+        this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.', {}, context);
     }
 
     async receive(event) {
@@ -128,12 +130,13 @@ export class MeshTransport {
             }
             const key = message.source + ':' + message.transaction;
             if (phase === 'prepare') {
-                if (Object.keys(message).sort().join(',') !== 'digest,mesh_version,source,transaction'
+                if (Object.keys(message).filter(key => key !== 'trace').sort().join(',') !== 'digest,mesh_version,source,transaction'
                     || typeof message.digest !== 'string' || !/^[a-f0-9]{64}$/.test(message.digest)) throw new RuntimeError('mesh_invalid');
                 for (const [id, entry] of this.challenges) if (entry.expires <= this.clock.now()) this.challenges.delete(id);
                 if (this.challenges.has(key) || this.challenges.size >= 64) throw new RuntimeError('mesh_busy');
                 const token = this.uuid();
-                this.challenges.set(key, {token, digest: message.digest, generation: this.runtime.generation, expires: this.clock.now() + MESH_TIMEOUT});
+                this.challenges.set(key, {token, digest: message.digest, generation: this.runtime.generation, expires: this.clock.now() + MESH_TIMEOUT,
+                    trace: {...debugTrace(message.trace), origin: message.source}});
                 await this.publish(message.source, 'challenge', {transaction: message.transaction, status: 'ok', token});
             } else if (phase === 'execute') {
                 const challenge = this.challenges.get(key);
@@ -144,13 +147,14 @@ export class MeshTransport {
                     || challenge.generation !== this.runtime.generation || !this.validateAction(message.action)
                     || message.action.target.system !== undefined || message.action.delay_seconds !== undefined
                     || createHash('sha256').update(JSON.stringify(message.action)).digest('hex') !== challenge.digest) throw new RuntimeError('mesh_rejected');
-                this.runtime.log('EMPFANG', 'Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen.');
+                const context = challenge.trace;
+                this.runtime.log('EMPFANG', 'Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen.', {}, context);
                 let status = 'ok';
-                try { await this.runtime.executeLocal(message.action); }
+                try { await this.runtime.executeLocal(message.action, this.runtime.generation, context); }
                 catch (error) {
                     status = 'error';
                     this.runtime.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
-                    this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError});
+                    this.runtime.log('FEHLER', 'Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung.', {Grund: this.runtime.lastError}, context);
                 }
                 await this.publish(message.source, 'result', {transaction: message.transaction, status,
                     ...(status === 'error' && this.runtime.lastError === 'scene_unavailable' ? {error: 'scene_unavailable'} : {})});

@@ -125,6 +125,50 @@
                     "type": "Button",
                     "onClick": "Z2MA_InstallExtension($id, true);",
                     "name": "InstallButton"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Record Z2M execution messages in the native debug window for a limited time. For cross-system actions, start recording on both automation modules.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Select",
+                    "name": "RuntimeDebugDuration",
+                    "caption": "Recording duration",
+                    "value": 600,
+                    "options": [
+                        {
+                            "caption": "5 minutes",
+                            "value": 300
+                        },
+                        {
+                            "caption": "10 minutes",
+                            "value": 600
+                        },
+                        {
+                            "caption": "15 minutes",
+                            "value": 900
+                        }
+                    ]
+                },
+                {
+                    "type": "Button",
+                    "name": "RuntimeDebugStart",
+                    "caption": "Start Z2M recording",
+                    "onClick": "Z2MA_StartRuntimeDebug($id, $RuntimeDebugDuration);"
+                },
+                {
+                    "type": "Button",
+                    "name": "RuntimeDebugStop",
+                    "caption": "Stop own Z2M recording",
+                    "enabled": false,
+                    "onClick": "Z2MA_StopRuntimeDebug($id);"
+                },
+                {
+                    "type": "Label",
+                    "name": "RuntimeDebugInfo",
+                    "caption": "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.",
+                    "width": "100%"
                 }
             ]
         },

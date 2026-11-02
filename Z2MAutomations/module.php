@@ -8,6 +8,7 @@ require_once __DIR__ . '/../libs/helper/VariablePresentationHelper.php';
 require_once __DIR__ . '/../libs/helper/ConfigurationFormHelper.php';
 require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
+require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/AutomaticStatusRefresh.php';
 require_once __DIR__ . '/../libs/EditorGroupTargets.php';
 require_once __DIR__ . '/../libs/EditorScenes.php';
@@ -39,6 +40,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\ConfigurationFormHelper;
     use Burki24\SymconModuleHelper\DebugFlowHelper;
     use Z2MAutomations\ModuleDiagnostics;
+    use Z2MAutomations\RuntimeDebug;
     use Z2MAutomations\AutomaticStatusRefresh;
     use Z2MAutomations\EditorGroupTargets;
     use Z2MAutomations\EditorScenes;
@@ -78,6 +80,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('EditorConditionProperty', '');
             $this->RegisterAttributeString('EditorModes', '');
             $this->RegisterAttributeBoolean('ShowYaml', false);
+            $this->RegisterTimer('RuntimeDebugExpiry', 0, 'Z2MA_ExpireRuntimeDebug($_IPS[\'TARGET\']);');
             $this->RegisterTimer('StatusRefresh', 0, 'Z2MA_RefreshStatus($_IPS[\'TARGET\']);');
             $this->RegisterTimer('RequestTimeout', 0, 'Z2MA_ExpireRequest($_IPS[\'TARGET\']);');
             $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -110,6 +113,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->SetReceiveDataFilter($this->ReadPropertyBoolean('Active') ? Z2MProtocol::ReceiveFilter($this->ReadPropertyString('BaseTopic')) : Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->WithTransportLock(function (): void
             {
+                $this->ResetRuntimeDebug('Aufzeichnung nach Übernahme der Einstellungen beendet. Bei Bedarf erneut starten.');
                 $this->ObserveParent();
                 $this->SaveState($this->RefreshState());
             });
@@ -164,6 +168,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->PrepareEditorItemForms($form);
             $this->FillEventImportForm($form);
             $this->FillGatewayTopics($form);
+            $this->FillRuntimeDebugForm($form);
             $this->QueueAutomaticStatusRefresh('Formular geöffnet');
             return $this->EncodeConfigurationForm($form);
         });
@@ -211,6 +216,12 @@ class Z2MAutomations extends IPSModuleStrict
                 $suffix = substr($packet['Topic'], strlen($base) + 1);
                 if (!str_starts_with($packet['Topic'], $base . '/') || !in_array($suffix, Z2MProtocol::TOPICS, true)) {
                     $this->DebugEvent('AKTION', 'MQTT-Nachricht außerhalb der abonnierten Modultopics verworfen.');
+                    return '';
+                }
+                if (in_array($suffix, ['symcon/automations/debug', 'symcon/automations/response/debug'], true)) {
+                    if (strlen($packet['Payload']) <= 16384) {
+                        $this->ReceiveRuntimeDebug($suffix, Z2MProtocol::DecodePayload($packet['Payload']), $packet['Retain']);
+                    }
                     return '';
                 }
                 $this->DebugEvent('EMPFANG', 'MQTT-PUBLISH empfangen.', ['Basistopic' => $base, 'Untertopic' => $suffix, 'Retain' => $packet['Retain'], 'Nutzdatenbytes' => intdiv(strlen($packet['Payload']), 2)]);
@@ -458,6 +469,8 @@ class Z2MAutomations extends IPSModuleStrict
     private function SaveState(array $state): void
     {
         $state['bridgeOnline'] = $state['mqttConnected'] && $state['bridgeState'] === 'online';
+        $this->SyncRuntimeDebug($state);
+        $this->UpdateRuntimeDebugForm();
         $this->SetBuffer('TransportState', json_encode($state, JSON_THROW_ON_ERROR));
         $this->SetValue('MQTTConnected', $state['mqttConnected']);
         $this->SetValue('BridgeOnline', $state['bridgeOnline']);

@@ -1108,3 +1108,59 @@ Schreibversuch, spätere manuelle Erholung und unverändert gespeicherte aktive
 Stände. Die bestehende echte PHP-/JS-Integration prüft denselben Ablauf über
 das erzeugte Artefakt. Nur Moduländerung; noch keine Installation oder native
 Praxisprüfung der Korrektur.
+
+## Eigener MQTT-Debugkanal (lokaler Stand)
+
+`RuntimeDiagnostics` in der Erweiterung und der PHP-Trait `RuntimeDebug` bilden
+einen eigenständigen begrenzten Aufzeichnungspfad. `RuntimeDebugContract` und
+der beim Build eingebettete eigene `debug-events.json` begrenzen die Ausgabe
+auf bekannte Meldungen, Positionen und sichere Laufbezüge. Passende zentrale
+Helper wurden geprüft: DebugFlowHelper, DataFlowHelper und ConfigurationFormHelper
+werden unverändert weiterverwendet. Kein weiterer zentraler Helper ist nötig.
+Quellstand und Buildartefakt enthalten ausschließlich unsere Implementierung.
+
+Die Bedienung befindet sich in „Einrichtung und Diagnose“ mit Dauerwahl und
+Start/Stopp. Steuerantworten korrelieren Sitzung, Client, Transaktion, Dauer und
+Zustand. Ohne Antwort bleibt die Aufzeichnung unbestätigt und endet lokal nach
+dem Antwortzeitlimit. Ein eigener einmaliger Timer beendet die lokale Freigabe
+auch ohne Folgepakete. Verbindungs-/Sitzungswechsel und ApplyChanges beenden
+sie ebenfalls. Eine mögliche Remote-Freigabe endet unabhängig davon nach ihrer
+ursprünglichen Frist. Andere Clients werden nicht beendet. Automationsstatus,
+Entwurf, Persistenz und Gerätebefehle werden durch Aufzeichnen nicht verändert.
+
+Frische Meldungen werden ohne erneutes SaveState pro Datensatz durch den
+kanonischen DebugFlowHelper geführt. Die ursprünglichen lokalen Funktionspaare
+bleiben ausgeglichen; Z2M-Start/Ende sind fachliche Meldungen mit eigener Phase.
+Mesh übergibt nur einen optionalen geprüften Laufbezug in `prepare`, bewahrt ihn
+in der Challenge und verwendet ihn bei `execute`. Regelnummer/Revision bezeichnen
+auch am Empfänger den Ursprung, nicht einen gleich nummerierten lokalen Eintrag.
+
+Neue Nachweise:
+
+- `debug.test.mjs`: aus im Grundzustand, begrenzte unabhängige Freigaben,
+  Sanitizing, Mengenlimit, sichtbare Verluste, hängender/fehlerhafter Publish,
+  keine Wiederholung alter Meldungen und kein Versand nach Stopp.
+- `runtime.test.mjs`: vollständige verzögerte Folge, erfüllte/unerfüllte
+  Bedingungen, Mindestdauerabbruch, genauer Fehlerschritt, Zeittrigger und
+  Stopp während Wartezeit; schaltender Pfad trotz hängendem Debug; keine
+  automatische Aufzeichnung nach Neustart, auch bei wiederverwendetem Objekt.
+- `mesh.test.mjs`: zwei echte Erweiterungen behalten einen gemeinsamen Lauf
+  samt Schritt/Revision/Ursprung. Doppelte Zustellung bewirkt keine zweite Aktion.
+- `runtime-debug-contract.php`: positive Grenzwerte und strikt abgewiesene
+  unbekannte Felder, Typen, Sitzungen, Uhrzeiten und Meldungstexte.
+- `runtime-debug.inc.php`: echter PHP-/JS-Datenfluss über das erzeugte Artefakt,
+  native deutsche Ausgabe, Wiederöffnen, Statusabfrage, bestätigter Stopp,
+  Duplikate, retained Daten/Antworten, unbekannte Texte, Zeitablauf, fehlende
+  Bestätigung, erneuter Start, ApplyChanges und Sitzungswechsel. Nur synthetische
+  Daten; Schaltbefehle bleiben an der synthetischen Z2M-Schnittstelle.
+
+`php tests/run.php` besteht einschließlich 81 JavaScript-Tests, Kodierungs-,
+Struktur- und Größenprüfung sowie echter PHP-/JS-Integration. Zusätzlich bestanden:
+`php tests/validate_structure.php`, `npm run check:extension`, offizieller
+StylePHP-JSON-Check in einer temporären Kopie der eigenen JSON-Dateien ohne
+node_modules/Fremdquellen und PHP CS Fixer 3.95.27 im Prüfmodus.
+Die umfangreiche Integration gibt ihre bereits vollständig geprüften
+Debug-Mitschnitte vor der getrennten Negativtestphase frei, um unter dem
+normalen PHP-Speicherlimit zu bleiben. Keine Änderung an Fremdquellen,
+keine Installation und keine Änderungen am Live-System. Native Konsole und
+reale Brokerzustellung dieses neuen Kanals sind noch praktisch zu prüfen.

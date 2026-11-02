@@ -1,5 +1,42 @@
 # Erweiterungsprotokoll Version 1
 
+## Zeitlich begrenzte Ablaufdiagnose (debug_version 1)
+
+Der Status ergänzt additiv `debug_version: 1`. Ohne diese Fähigkeit bietet
+Symcon keine bestätigte Aufzeichnung an. Anfrage an `request/debug`:
+`{protocol_version: 1, transaction, session, client, seconds}` mit exakt diesen
+Feldern. `session` ist die aktuelle Erweiterungssitzung, `client` eine eigene
+zufällige UUID je Aufzeichnung/Instanz, `seconds` eine Ganzzahl 1–900 oder 0 zum
+Beenden nur dieses Clients. Erneutes Starten mit demselben Client erneuert die
+Frist. Acht aktive Clients sind erlaubt; weitere werden abgewiesen. Retained
+Anfragen werden ohne Ausführung und Antwort ignoriert. Sonstige ungültige
+Anfragen erhalten bei gültiger Transaktion `invalid_request`.
+
+`response/debug` liefert `{protocol_version: 1, transaction, status: "ok",
+data: {debug_version: 1, client, seconds, active}}`. Die Antwort betrifft allein
+die Aufzeichnungsfreigabe und hat keine Auswirkung auf Speicher, Ausführung,
+Aktivierungsfreigabe oder Z2M-Protokolllevel. Fehlende Antworten werden nicht
+automatisch wiederholt. Beide Topics sind nicht retained.
+
+`debug` veröffentlicht `{protocol_version: 1, debug_version: 1, session,
+clients, dropped, record}` mit QoS 0, retain false, skipLog und skipReceive.
+`clients` enthält höchstens acht noch berechtigte UUIDs; `dropped` zählt bekannte
+verlorene Meldungen seit der letzten Ausgabe. `record` hat UUID `id`, UTC-Epoch-
+Millisekunden `at` und `event` aus `debug-events.json`. Optional: UUID `run`,
+SHA-256 `origin`, einsbasierte `rule` (1–100), `trigger` (1–8), `condition`
+(1–16), `step` (1–16), sichere positive `revision`, `delay` (0–86400), boolesches
+`passed` und ein fester `reason` aus RuntimeDebugContract. Texte werden lokal
+aufgelöst; fremde Texte sind nicht Bestandteil des Protokolls. Begrenzungen
+und Verlustverhalten: [DEBUG.md](DEBUG.md).
+
+Mesh-`prepare` darf optional `trace: {run, rule, step, revision}` tragen. Diese
+Diagnose wird nach Prüfung mit der freigegebenen Quelle in der Challenge
+gehalten und bei `execute` verwendet. Sie ist keine Aktionsfreigabe und ändert
+keinen Aktionsdigest. Eine ungültige optionale Diagnose wird ignoriert; die
+bestehende Aktionsvalidierung bleibt unverändert. Für `execute` sind weiterhin
+keine zusätzlichen Trace-Felder zulässig. Es gibt keine Debug-Weiterleitung
+über das Mesh: jede Erweiterung veröffentlicht nur im eigenen Basistopic.
+
 ## Szenenkatalog
 
 Die `editor`-Antwort ergänzt optional `scenes` mit höchstens 512 Einträgen.

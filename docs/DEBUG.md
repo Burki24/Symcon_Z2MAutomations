@@ -1,5 +1,45 @@
 # Debug und MQTT-Diagnose
 
+## Eigener zeitlich begrenzter MQTT-Debugkanal
+
+`request/debug` startet eine eigene flüchtige Aufzeichnungsfreigabe; ausschließlich
+frische, passende Antworten bestätigen sie. Die Ablaufmeldungen kommen über
+`<Basistopic>/symcon/automations/debug` und werden mit dem unveränderten zentralen
+DebugFlowHelper in den nativen Instanzdebug geschrieben. Kein `bridge/logging`,
+kein globaler Z2M-Loglevel und kein Rohdatenmitschnitt. Z2M und PHP verwenden
+einen gemeinsamen festen Meldungskatalog. Fremde Texte, unbekannte Felder,
+retained Meldungen, alte Sitzungen und doppelte Datensätze werden verworfen.
+
+Der lokale kanonische `Vorgang`/`Aufruf` bleibt erhalten. `Regellauf` bezeichnet
+den zusätzlichen Z2M-Lauf; `Z2MPhase` beschreibt dessen Start/Ende als fachliche
+Meldung innerhalb des lokalen Empfangsaufrufs. Regel-, Auslöser-, Bedingungs-
+und Aktionsnummern sind einsbasiert. Bei Remote-Aktionen gelten Regelnummer und
+Revision für das Ursprungssystem. `Systembezug` und `Ursprungssystem` sind die
+ersten 16 Hexzeichen von SHA-256 des jeweiligen Basistopics. Der Ablaufbezug
+wird in der bestehenden Einmalfreigabe weitergegeben, ohne deren Rechte zu erweitern.
+Die empfangende Erweiterung übernimmt keine frei formulierten Debugtexte.
+
+Eine Freigabe gilt höchstens 900 Sekunden. Maximal acht getrennte Clients
+können aufzeichnen; Beenden betrifft nur den eigenen Client. Keine Persistenz,
+kein automatischer Wiederanlauf der Aufzeichnung, keine Speicherung im YAML.
+Der native Ablauf nennt Bestätigung, Zeitablauf, Abbruch und Übertragungsfehler.
+Bei fehlender Symcon-Verbindung läuft nur die ursprüngliche begrenzte Frist aus;
+es werden keine Meldungen für eine spätere Zustellung gespeichert.
+
+Die Erweiterung begrenzt auf 80 neue Meldungen pro gleitender Sekunde und
+128 wartende Meldungen. Nur ein Publish wird gleichzeitig abgewartet, maximal
+zwei Sekunden; Automation und Mesh warten nie darauf. Fehler verwerfen den
+Rückstau ohne Wiederholung. `dropped` meldet bekannte Verluste mit der nächsten
+übertragenen Meldung, begrenzt auf eine Million. QoS 0 kann weitere unbemerkte
+Verluste haben; ohne folgende Meldung kann auch der Lückenhinweis ausbleiben.
+PHP begrenzt ebenfalls auf 80 angenommene Datensätze pro Sekunde und hält
+höchstens 128 IDs zur Duplikaterkennung. Der Empfang prüft maximal 8 KiB Payload
+und eine Zeitabweichung von höchstens 120 Sekunden; beide Z2M-Rechner und
+Symcon benötigen eine passende Uhrzeit. Ungültige/überzählige Meldungen werden
+höchstens einmal pro Sekunde als Lücke gemeldet. Kein Roh-Payload oder
+Exception-Text geht in die Ausgabe. Aktualisierung von Modul und Erweiterung
+ist erforderlich; die native Praxisprüfung dieses neuen Kanals steht noch aus.
+
 ## Szenenaufrufe
 
 Der Katalogempfang nennt die Szenenanzahl. Aktionsschritte unterscheiden einen

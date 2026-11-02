@@ -1,0 +1,186 @@
+{
+    "event_01": {
+        "event": "AKTION",
+        "message": "Gespeicherte Revision für neue Auslöser aktiviert."
+    },
+    "event_02": {
+        "event": "AKTION",
+        "message": "Ausführung gestoppt; ausstehende Verzögerungen verworfen."
+    },
+    "event_03": {
+        "event": "EMPFANG",
+        "message": "Neue Eigenschaften einer konfigurierten Quelle ausgewertet."
+    },
+    "event_04": {
+        "event": "AKTION",
+        "message": "Wert unverändert; Auslöser verlangt eine Wertänderung."
+    },
+    "event_05": {
+        "event": "AKTION",
+        "message": "Regellauf nicht gestartet."
+    },
+    "event_06": {
+        "event": "START",
+        "message": "Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."
+    },
+    "event_07": {
+        "event": "FEHLER",
+        "message": "Aktionsfolge abgebrochen; keine automatische Wiederholung."
+    },
+    "event_08": {
+        "event": "ENDE",
+        "message": "Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."
+    },
+    "event_09": {
+        "event": "AKTION",
+        "message": "Bedingung vor Aktion nicht mehr erfüllt."
+    },
+    "event_10": {
+        "event": "AKTION",
+        "message": "Vorhandene Szene für den Aufruf erneut geprüft."
+    },
+    "event_11": {
+        "event": "AKTION",
+        "message": "Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."
+    },
+    "event_12": {
+        "event": "FEHLER",
+        "message": "Bridge-Abonnement konnte beim Stopp nicht entfernt werden."
+    },
+    "event_13": {
+        "event": "SENDEN",
+        "message": "Freigabe für eine Aktion im zweiten Z2M-System angefordert."
+    },
+    "event_14": {
+        "event": "EMPFANG",
+        "message": "Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."
+    },
+    "event_15": {
+        "event": "EMPFANG",
+        "message": "Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."
+    },
+    "event_16": {
+        "event": "FEHLER",
+        "message": "Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."
+    },
+    "event_17": {
+        "event": "FEHLER",
+        "message": "Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."
+    },
+    "event_18": {
+        "event": "FEHLER",
+        "message": "MQTT-Antwort konnte nicht veröffentlicht werden."
+    },
+    "event_19": {
+        "event": "START",
+        "message": "Erweiterung starten."
+    },
+    "event_20": {
+        "event": "FEHLER",
+        "message": "Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."
+    },
+    "event_21": {
+        "event": "ENDE",
+        "message": "Startaufruf beendet."
+    },
+    "event_22": {
+        "event": "START",
+        "message": "Erweiterung stoppen."
+    },
+    "event_23": {
+        "event": "ENDE",
+        "message": "Stoppaufruf beendet."
+    },
+    "event_24": {
+        "event": "AKTION",
+        "message": "Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."
+    },
+    "event_25": {
+        "event": "AKTION",
+        "message": "Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."
+    },
+    "event_26": {
+        "event": "AKTION",
+        "message": "Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."
+    },
+    "event_27": {
+        "event": "FEHLER",
+        "message": "Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."
+    },
+    "event_28": {
+        "event": "START",
+        "message": "Erweiterungsauftrag empfangen."
+    },
+    "event_29": {
+        "event": "ENDE",
+        "message": "Erweiterungsauftrag beendet; Ergebnis siehe Antwort."
+    },
+    "event_30": {
+        "event": "FEHLER",
+        "message": "Ungültigen Erweiterungsauftrag abgewiesen."
+    },
+    "event_31": {
+        "event": "AKTION",
+        "message": "Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."
+    },
+    "event_32": {
+        "event": "FEHLER",
+        "message": "Erweiterungsauftrag abgewiesen."
+    },
+    "event_33": {
+        "event": "FEHLER",
+        "message": "Entwurf an dieser Stelle korrigieren."
+    },
+    "event_34": {
+        "event": "AKTION",
+        "message": "Bedingung geprüft."
+    },
+    "event_35": {
+        "event": "AKTION",
+        "message": "Auslöser geprüft."
+    },
+    "event_36": {
+        "event": "AKTION",
+        "message": "Mindestdauer begonnen."
+    },
+    "event_37": {
+        "event": "AKTION",
+        "message": "Mindestdauer abgebrochen."
+    },
+    "event_38": {
+        "event": "AKTION",
+        "message": "Mindestdauer erreicht."
+    },
+    "event_39": {
+        "event": "AKTION",
+        "message": "Zeitpunkt erreicht."
+    },
+    "event_40": {
+        "event": "AKTION",
+        "message": "Wartezeit vor Aktionsschritt begonnen."
+    },
+    "event_41": {
+        "event": "AKTION",
+        "message": "Wartezeit vor Aktionsschritt beendet."
+    },
+    "event_42": {
+        "event": "AKTION",
+        "message": "Aktionsschritt wegen Stopp abgebrochen."
+    },
+    "event_43": {
+        "event": "EMPFANG",
+        "message": "Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."
+    },
+    "event_44": {
+        "event": "SENDEN",
+        "message": "Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."
+    },
+    "scene_send": {
+        "event": "SENDEN",
+        "message": "Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."
+    },
+    "step_failed": {
+        "event": "FEHLER",
+        "message": "Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."
+    }
+}

@@ -48,6 +48,11 @@ class ObservedAutomationModule extends Z2MAutomations
     public array $debugMessages = [];
     public bool $debugFails = false;
     public array $formUpdates = [];
+    public ?int $debugNow = null;
+    public function DebugLease(): array
+    {
+        return json_decode($this->GetBuffer('RuntimeDebug') ?: '[]', true, 16, JSON_THROW_ON_ERROR);
+    }
     public function ClearSyntheticImportCatalog(): void
     {
         $this->WriteAttributeString('EditorSnapshot', '');
@@ -66,6 +71,10 @@ class ObservedAutomationModule extends Z2MAutomations
         $previous = $this->GetBuffer('TransportState');
         $this->SetBuffer('TransportState', $value);
         return $previous;
+    }
+    protected function Now(): int
+    {
+        return $this->debugNow ?? time();
     }
     protected function ImportEventIDs(): array
     {
@@ -319,6 +328,7 @@ try {
     $parent->publish('synthetic/z2m/bridge/state', ['state' => 'online']);
     $check($module->StopAutomations() !== '' && $state()['operation']['status'] === 'stopped'
         && !GetValue(IPS_GetObjectIDByIdent('ExecutionActive', $id)), 'Stop is confirmed through the real receiver');
+    require __DIR__ . '/runtime-debug.inc.php';
     $module->LoadAutomationEditor();
     $module->SelectEditorDevice('Source', '0x0000000000000001');
     $module->SelectEditorDevice('Target', '0x0000000000000002');
@@ -794,6 +804,11 @@ try {
     $exit = proc_close($peer);
     $check($exit === 0, 'Synthetic peer must shut down cleanly: ' . $stderr);
 }
+
+// The first phase has asserted all captured debug records. Release its instrumentation
+// before the separate negative protocol phase.
+$module->debugMessages = [];
+unset($captured);
 
 // Deterministic negative protocol scenarios use the native stub boundary only.
 $parent->onPublish = null;

@@ -9,6 +9,7 @@ import AUTOMATIONS_SCHEMA from '../automations.schema.json' with {type: 'json'};
 import {AutomationRuntime, RuntimeError} from './runtime.mjs';
 import {MeshTransport, meshSystemValid} from './mesh.mjs';
 import {buildEditorScenes, hasScene} from './scenes.mjs';
+import {RuntimeDiagnostics} from './debug.mjs';
 
 export const LIMITS = Object.freeze({yamlBytes: 131072, requestBytes: 1048576, queuedRequests: 16});
 const PREFIX = 'symcon/automations';
@@ -356,12 +357,14 @@ export default class Z2MAutomationsExtension {
         this.logger = logger;
         this.zigbee = _zigbee;
         this.clock = options.clock;
+        this.diagnostics = new RuntimeDiagnostics(mqtt, options.clock);
         this.runtime = new AutomationRuntime({zigbee: _zigbee, logger, clock: options.clock,
-            remoteDispatch: action => this.mesh.dispatch(action),
+            remoteDispatch: (action, context) => this.mesh.dispatch(action, context),
             onDeactivate: () => this.mesh?.cancel(),
             readState: typeof _state?.get === 'function' ? entity => _state.get(entity) : undefined,
             dispatch: (topic, message) => this.eventBus.emitMQTTMessage({topic: this.baseTopic + '/' + topic, message}),
             available: typeof eventBus.onPublishEntityState === 'function' && typeof eventBus.emitMQTTMessage === 'function'});
+        this.runtime.diagnostics = this.diagnostics;
         // A real deployed file is in data/external_extensions, including Z2M temporary import copies.
         const directory = options.directory ?? fileURLToPath(new URL('../z2m-automations/', import.meta.url));
         this.store = new ConfigurationStore(directory, options.io ?? fs);
@@ -377,7 +380,7 @@ export default class Z2MAutomationsExtension {
     }
 
     status() {
-        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0',
+        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', debug_version: 1,
             resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
@@ -397,9 +400,15 @@ export default class Z2MAutomationsExtension {
         this.runtime.log('START', 'Erweiterung starten.');
         try {
             if (this.accepting) return;
+            if (this.diagnostics.closed) {
+                this.diagnostics = new RuntimeDiagnostics(this.mqtt, this.clock);
+                this.runtime.diagnostics = this.diagnostics;
+            }
             this.baseTopic = this.settings.get().mqtt.base_topic;
+            this.runtime.system = this.baseTopic;
             this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
             this.session = randomUUID();
+            this.diagnostics.session = this.session;
             this.activationToken = null;
             await this.store.load();
             this.accepting = true;
@@ -425,6 +434,7 @@ export default class Z2MAutomationsExtension {
             await this.mesh?.stop();
             await this.queue;
             await this.runtime.stop();
+            this.diagnostics.stop();
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
     }
@@ -521,6 +531,25 @@ export default class Z2MAutomationsExtension {
         const prefix = this.baseTopic + '/' + PREFIX + '/request/';
         if (typeof event?.topic !== 'string' || !event.topic.startsWith(prefix)) return;
         const operation = event.topic.slice(prefix.length);
+        if (operation === 'debug') {
+            // Debug leases never enter the automation/storage queue or alter its status.
+            let request;
+            try {
+                if (event.retain === true || typeof event.message !== 'string' || Buffer.byteLength(event.message) > 1024) throw new Error();
+                request = JSON.parse(event.message);
+                if (!isObject(request) || Object.keys(request).sort().join(',') !== 'client,protocol_version,seconds,session,transaction'
+                    || request.protocol_version !== 1 || (typeof request.transaction !== 'string' || !VALID_TRANSACTION.test(request.transaction))
+                    || request.session !== this.session || !this.accepting) throw new Error();
+                const data = this.diagnostics.configure(request.client, request.seconds);
+                if (!data) throw new Error();
+                await this.publish('response/debug', {protocol_version: 1, transaction: request.transaction, status: 'ok', data});
+            } catch {
+                if (typeof request?.transaction === 'string' && VALID_TRANSACTION.test(request.transaction)) {
+                    await this.publish('response/debug', {protocol_version: 1, transaction: request.transaction, status: 'error', error: {code: 'invalid_request'}});
+                }
+            }
+            return;
+        }
         if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor'].includes(operation)) return;
         this.runtime.log('START', 'Erweiterungsauftrag empfangen.', {Auftrag: operation});
         try { await this.handleRequest(operation, event); }

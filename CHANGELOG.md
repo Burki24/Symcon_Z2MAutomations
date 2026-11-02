@@ -12,6 +12,14 @@
 
 ## Features
 
+- Zeitlich begrenzte Z2M-Ablaufaufzeichnung im nativen Symcon-Debug: Start für
+  5, 10 oder 15 Minuten, eigene Bestätigung und Stopp. Meldungen erklären
+  Auslöser, Bedingungen, Wartezeiten, Schritte und Fehler; gemeinsame
+  Laufbezüge verbinden auch Aktionen zwischen zwei Z2M-Systemen. Unabhängige
+  Aufzeichnungen mehrerer Instanzen, bereinigte Inhalte und begrenzter Versand
+  ohne Warten der Automationen auf die Diagnose. Modul und Erweiterung müssen
+  gemeinsam aktualisiert werden; noch keine Installation dieses Stands.
+
 - Vorhandene Z2M-Szenen als Aktionen im Klick-Editor: Auswahl mit Szenennamen,
   Gerätekanal und Wartezeit, vollständige Vorbelegung sowie Aufruf im ausgewählten
   zweiten Z2M-System. Schaltrechte werden weiterhin geprüft. Fehlende Szenen

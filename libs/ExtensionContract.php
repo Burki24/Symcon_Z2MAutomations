@@ -90,7 +90,8 @@ final class ExtensionContract
             }
             $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
         }
-        return $storage + $runtime + $mesh + $resume + ['session' => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
+        return $storage + $runtime + $mesh + $resume + ['debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
+            'session'                                                  => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
     }
 
     public static function ErrorText(string $code): string

@@ -161,3 +161,14 @@ Erweiterungen zunächst deaktiviert; die Freischaltung benötigt einen Neustart.
 Die unterstützte Z2M-Mindestversion wird erst nach Verifikation festgelegt.
 YAML-Upload ist eine eigene Erweiterungsfunktion; der offizielle Erweiterungsupload
 akzeptiert nur JavaScript-Dateien.
+
+## Unabhängige Laufzeitdiagnose
+
+`RuntimeDiagnostics` veröffentlicht auf ausdrücklichen zeitlich begrenzten
+Auftrag nur bekannte Ereigniscodes und sicheren Ablaufkontext. `RuntimeDebug`
+empfängt sie im eigenen Basistopic und nutzt den zentralen DebugFlowHelper.
+Der eigene Meldungskatalog wird beim Build eingebettet und von PHP gelesen.
+Aufzeichnungssteuerung liegt außerhalb von Speicher-/Aktivierungsworkflows;
+begrenzte Warteschlange und Publish-Timeout entkoppeln sie von der Runtime.
+Mesh erhält lediglich geprüften zusätzlichen Ablaufkontext, keine neuen Rechte.
+Siehe [ADR 0012](adr/0012-timed-runtime-diagnostics.md).
