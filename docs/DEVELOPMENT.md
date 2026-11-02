@@ -1816,3 +1816,59 @@ JavaScript-Tests, Struktur- und zentrale Kodierungsprüfung, Artefaktvergleich,
 offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien und PHP CS Fixer 3.95.27
 im Prüfmodus. Nur drei Dokumentationsdateien geändert, UTF-8 ohne BOM mit LF;
 git diff --check ohne Befund.
+
+## Gemeinsame Folgen: Parallelbetrieb und Neustartprüfung am 02.11.2026
+
+Praktischer Laufzeitnachweis über die öffentlichen MCP-/Modulfunktionen von
+Test-Symcon am bereits freigegebenen realen Z2M-System. Vorhandene lokale Entwürfe
+mit temporären Testmodulen erhalten; gespeicherten Originalstand gesichert.
+Keine erneute native Formularbedienprüfung. Zwei deaktivierte Zeitregeln
+verwenden dieselbe Definition: 30 Sekunden vor dem Einschalten warten, dann
+fünf Sekunden bis zum Ausschalten. Definition und Verwender gemeinsam geprüft,
+gespeichert und geladen; ursprünglichen aktiven Betrieb wiederhergestellt.
+
+Beide Regeln mit zeitlicher Überlappung einmalig gestartet. Status bestätigte
+zwei unterschiedliche laufende Laufkennungen bei identischer Definition. Lauf A
+während der ersten Wartezeit gezielt gestoppt; Lauf B blieb laufend. Danach
+meldete das Testlicht Ein und fünf Sekunden später Aus. Endstatus: A gestoppt,
+B abgeschlossen, beide ohne Fehler. Bereinigte Debugauswertung: keine native
+Befehlsübergabe für A, genau zwei für B. Beide enthalten korrekte Folgen- und
+Schrittpositionen. Der allgemeine Automatikbetrieb blieb dabei aktiv.
+
+Nach gesonderter ausdrücklicher Neustartfreigabe eine deaktivierte Regel erneut
+einmalig gestartet und den wartenden ersten Schritt bestätigt. Neustart über die
+vorhandene Zigbee2MQTT-Bridge und deren öffentlichen Restart-Aufruf; Ziel anhand
+MQTT-Gateway und Basistopic geprüft. Dieser verwendet die
+[offizielle Z2M-Neustartanforderung](https://www.zigbee2mqtt.io/guide/usage/mqtt_topics_and_messages.html#zigbee2mqtt-bridge-request-restart).
+Annahme bestätigt, Offline-Übergang erfasst, anschließend neue Erweiterungssitzung
+und automatischer Wiederanlauf gemeldet. Gespeicherte Revision und Prüfsumme,
+ursprüngliche Anzahl aktiver Regeln und Mesh-Freigaben erhalten. Der frische
+Status bestätigte den wiederaufgenommenen Automatikbetrieb ohne erneute Aktivierung.
+
+Die neue Sitzung enthielt keine alten Einzelabläufe. Kernel-Traces der
+Lichtvariable deckten das Neustartfenster einschließlich beider ursprünglicher
+Schaltzeitpunkte vollständig ab und meldeten durchgehend Aus. Weitere Beobachtung
+über die Wartezeit eines neu begonnenen Schritts hinaus ebenfalls ohne Änderung.
+Die unterbrochene Folge wurde nicht fortgesetzt. Beim Sitzungswechsel endete die
+alte MQTT-Aufzeichnung erwartungsgemäß; eine neue Aufzeichnung wurde anschließend
+bestätigt und lief zeitlich begrenzt aus. Der Zeitraum dazwischen ist durch
+Kernel-Traces und Statusnachweise, nicht durch durchgehende MQTT-Debugrecords belegt.
+
+Abschließend ursprünglichen Zielinhalt ohne Testregeln und Definition mit
+fortlaufender Revision gespeichert, aktiviert und frisch geladen. Inhaltsvergleich
+bis auf die Revision erfolgreich; gespeicherter Partnerstand blieb unverändert.
+Lokale Test-/Produktiventwürfe bytegleich, vorhandenes Originalereignis weiterhin
+deaktiviert. Ursprünglicher Automationsbetrieb, Mesh und Wiederanlauf bestätigt;
+Licht wieder im gesicherten Aus-Zustand. Native Debugdateien gestoppt, temporäre
+Testmodule mit eigenen Statusvariablen entfernt. Rohdaten und Sicherungen liegen
+außerhalb des Repositorys. Kein Funktionscode, Helper oder Artefakt geändert.
+
+Die gezielten synthetischen Parallel-/Neustarttests und php tests/run.php
+einschließlich 106 JavaScript-Tests bestanden erneut. Eine unabhängige Sichtkontrolle
+der Lichtwirkung, gleichzeitige Hardwareauslöser und ein Betriebssystem- oder
+Brokerneustart waren nicht Bestandteil dieses Nachweises.
+
+Struktur- und zentrale Kodierungsprüfung, aktuelles Erweiterungsartefakt,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
+sowie PHP CS Fixer 3.95.27 im Prüfmodus ebenfalls erfolgreich. Nur drei
+Dokumentationsdateien geändert, UTF-8 ohne BOM mit LF; git diff --check sauber.

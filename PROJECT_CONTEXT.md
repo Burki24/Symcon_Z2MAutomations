@@ -41,6 +41,11 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Ziel, gleiche Lauf-, Folgen-, Schritt- und Quellrevisionsbezüge auf beiden Seiten.
   Testdaten entfernt; ursprüngliche Quellregel mit neuer Revision wiederhergestellt,
   gespeicherter Zielstand und lokale Entwürfe unverändert.
+  Parallel- und Neustartprüfung anschließend ebenfalls praktisch bestätigt:
+  zwei überlappende Verwender, Stopp eines Laufs ohne Einfluss auf den anderen;
+  nach Z2M-Neustart automatischer Betrieb wieder bereit und wartender Einzelablauf
+  verworfen. Testdaten entfernt, ursprünglicher Inhalt mit neuer Revision
+  wiederhergestellt; lokale Entwürfe und Ereigniszustände erhalten.
 
 - Reale systemübergreifende MQTT-Debugprüfung am 02.11.2026 abgeschlossen:
   zwei vom Benutzer ausgelöste Tasterbetätigungen mit jeweils eigenem Lauf,
@@ -377,9 +382,7 @@ sie persistent und führt sie unabhängig von Symcon aus.
 ## Nächste Schritte
 
 1. Weitere offene Funktionsbausteine mit dem Anwender priorisieren.
-2. Parallele Verwender und Neustart während einer wiederverwendbaren Folge
-   sind synthetisch geprüft; reale Ergänzungsprüfungen nur nach Praxisauftrag.
-3. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
+2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
 ## Dokumentation
