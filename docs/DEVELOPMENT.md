@@ -1474,3 +1474,26 @@ Erweiterungsdateien. Ausführung, Mesh und Wiederanlauf blieben freigegeben,
 Laufzeitfehler leer; anderes Z2M-System unverändert aktiv. Ursprünglicher lokaler
 Formularentwurf bytegleich, bestehende MQTT-Verbindung aktiv und unverändert.
 Keine Änderung am Produktiv-Symcon-Modul oder am Funktionscode für diese Prüfung.
+
+## Einzelstart und gezielter Stopp
+
+Lokal implementiert gemäß ADR 0014. Neue Offline-Prüfungen verwenden denselben
+gebauten Empfänger und synthetische Geräte: deaktivierte gespeicherte Regel
+bei gestoppter Automatik, bekannte/unbekannte/geänderte Bedingungen, parallele
+Läufe, gezielter Stopp, unveränderte Auslöser und Wiederanlaufabsicht, falsche
+Sitzung/Revision/Prüfsumme, abgelaufene Einmalfreigabe, Fehler ohne Wiederholung
+und manipulierte Datei. Zwei unabhängige Empfänger prüfen einen manuellen
+Mesh-Aufruf ohne eingehende Freigabe am Ursprung und Stopp vor verspäteter
+Challenge. Die PHP-/JS-Integration führt echte native Formularskripte aus;
+Statusparser und Sequenzbindung verwerfen alte, retained und freie Fehlertexte.
+Keine Installation oder reale Schaltprüfung im aktuellen Auftrag.
+
+Nachweise am 02.11.2026: php tests/run.php erfolgreich, einschließlich 97
+JavaScript-Tests und echter PHP-/JS-Integration. Nach der abschließenden
+Absicherung der Kontrollantworten die betroffene Integration erneut geprüft.
+Zusätzlich Struktur- und Kodierungsprüfung, npm run check:extension, offizieller
+StylePHP-JSON-Check der 15 eigenen JSON-Dateien in einer temporären Kopie und
+PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich. Geänderte Textdateien sind UTF-8
+ohne BOM mit LF. Keine fremden Helper oder Abhängigkeiten verändert. Sichtprüfung
+in der nativen Konsole sowie reale Schalt- und Partnerprüfungen bleiben offen;
+Test- und Live-Installationen wurden in diesem Auftrag nicht verändert.

@@ -9,6 +9,8 @@ require_once __DIR__ . '/../libs/helper/ConfigurationFormHelper.php';
 require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
+require_once __DIR__ . '/../libs/RuleExecution.php';
+require_once __DIR__ . '/../libs/ExecutionContract.php';
 require_once __DIR__ . '/../libs/AutomaticStatusRefresh.php';
 require_once __DIR__ . '/../libs/EditorGroupTargets.php';
 require_once __DIR__ . '/../libs/EditorScenes.php';
@@ -42,6 +44,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\DebugFlowHelper;
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\RuntimeDebug;
+    use Z2MAutomations\RuleExecution;
     use Z2MAutomations\AutomaticStatusRefresh;
     use Z2MAutomations\EditorGroupTargets;
     use Z2MAutomations\EditorScenes;
@@ -78,11 +81,13 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('EditorSource', '');
             $this->RegisterAttributeString('EditorTarget', '');
             $this->RegisterAttributeString('EditorSelection', '');
+            $this->RegisterAttributeString('ExecutionRule', '');
             $this->RegisterAttributeString('EditorCondition', '');
             $this->RegisterAttributeString('EditorConditionProperty', '');
             $this->RegisterAttributeString('EditorModes', '');
             $this->RegisterAttributeBoolean('ShowYaml', false);
             $this->RegisterTimer('RuntimeDebugExpiry', 0, 'Z2MA_ExpireRuntimeDebug($_IPS[\'TARGET\']);');
+            $this->RegisterTimer('ExecutionRefresh', 0, 'Z2MA_RefreshExecutionStatus($_IPS[\'TARGET\']);');
             $this->RegisterTimer('StatusRefresh', 0, 'Z2MA_RefreshStatus($_IPS[\'TARGET\']);');
             $this->RegisterTimer('RequestTimeout', 0, 'Z2MA_ExpireRequest($_IPS[\'TARGET\']);');
             $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -171,6 +176,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->FillEventImportForm($form);
             $this->FillGatewayTopics($form);
             $this->FillRuntimeDebugForm($form);
+            $this->FillRuleExecutionForm($form, $state);
             $this->QueueAutomaticStatusRefresh('Formular geöffnet');
             return $this->EncodeConfigurationForm($form);
         });
@@ -480,6 +486,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->SetValue('ExtensionInstalled', $state['extensionInstalled']);
         $this->SetValue('HealthStatus', $this->Translate(ucfirst($state['health'])));
         $this->SaveExtensionState($state);
+        $this->UpdateRuleExecutionForm($state);
         $deadlines = [];
         foreach ([$state['pending'], $state['workflow']] as $request) {
             if ($request !== null) {

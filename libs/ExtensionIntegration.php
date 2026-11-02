@@ -56,16 +56,23 @@ trait ExtensionIntegration
     private function NewExtensionState(): array
     {
         return ['extension' => null, 'extensionConfirmed' => false, 'runtimeConfirmed' => false, 'workflow' => null, 'validation' => null,
-            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => '', 'validationDetails' => null];
+            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => '', 'validationDetails' => null, 'execution' => null];
     }
 
-    private function StartExtensionWorkflow(string $kind, string $yaml = '', string $code = '', bool $notify = false, bool $automatic = false, ?int $importEvent = null, bool $preserveDraft = false): string
+    private function StartExtensionWorkflow(string $kind, string $yaml = '', string $code = '', bool $notify = false, bool $automatic = false, ?int $importEvent = null, bool $preserveDraft = false, string $executionRule = ''): string
     {
         $this->DebugEvent('AKTION', 'Erweiterungsauftrag prüfen.', ['Auftrag' => $kind, 'YAMLBytes' => strlen($yaml), 'Artefaktbytes' => strlen($code)]);
-        $frame = $this->WithTransportLock(function () use ($kind, $yaml, $code, $notify, $automatic, $importEvent, $preserveDraft): array
+        $frame = $this->WithTransportLock(function () use ($kind, $yaml, $code, $notify, $automatic, $importEvent, $preserveDraft, $executionRule): array
         {
             $state = $this->RefreshState();
-            if ($kind === 'deactivate' && $state['workflow'] !== null && $state['workflow']['kind'] !== 'deactivate') {
+            if (in_array($kind, ['run_once', 'stop_rule'], true) && preg_match('/\A[a-z][a-z0-9_-]{0,63}\z/D', $executionRule) !== 1) {
+                $state['lastError'] = 'rule_missing';
+                $this->DebugEvent('FEHLER', 'Einzelauftrag ohne gültige Regelauswahl abgewiesen; laufender Auftrag bleibt unverändert.');
+                $this->SaveState($state);
+                return [];
+            }
+            if (($kind === 'deactivate' || ($kind === 'stop_rule' && ($state['workflow']['kind'] ?? '') !== 'deactivate'))
+                && $state['workflow'] !== null && $state['workflow']['kind'] !== $kind) {
                 $this->FinishExtensionWorkflow($state, 'cancelled', 'cancelled');
                 $this->DebugEvent('AKTION', 'Stopp hat Vorrang; vorherigen Auftrag nicht erneut senden.');
             }
@@ -80,7 +87,7 @@ trait ExtensionIntegration
             }
             if ($state['workflow'] !== null) {
                 if ($state['workflow']['kind'] === $kind && $state['workflow']['checksum'] === $checksum
-                    && ($state['workflow']['preserveDraft'] ?? false) === $preserveDraft) {
+                    && ($state['workflow']['preserveDraft'] ?? false) === $preserveDraft && ($state['workflow']['executionRule'] ?? '') === $executionRule) {
                     if ($notify) {
                         $state['workflow']['notify'] = true;
                         $this->SaveState($state);
@@ -138,6 +145,10 @@ trait ExtensionIntegration
             $state['lastError'] = '';
             $state['workflow'] = ['id' => $id, 'kind' => $kind, 'checksum' => $checksum, 'yaml' => $yaml,
                 'notify'               => $notify, 'previousSession'      => $state['extension']['session'] ?? null, 'target' => null, 'verifyRuntime' => false];
+            if (in_array($kind, ['run_once', 'stop_rule'], true)) {
+                $state['workflow']['executionRule'] = $executionRule;
+                $state['workflow']['executionRun'] = $state['execution']['runs'][$executionRule]['run'] ?? '';
+            }
             if ($kind === 'editor' && $importEvent !== null) {
                 $state['workflow']['importEvent'] = $importEvent;
                 $state['workflow']['preserveDraft'] = $preserveDraft;
@@ -266,6 +277,9 @@ trait ExtensionIntegration
     {
         $prior = $state['extension'];
         $changedSession = $prior !== null && $prior['session'] !== $metadata['session'];
+        if ($changedSession || ($prior['checksum'] ?? null) !== $metadata['checksum']) {
+            $state['execution'] = null;
+        }
         if ($prior !== $metadata) {
             $state['validation'] = null;
             $state['extensionConfirmed'] = false;
@@ -281,6 +295,12 @@ trait ExtensionIntegration
 
     private function ReceiveExtensionMessage(array &$state, string $suffix, mixed $payload, bool $retained): ?array
     {
+        if ($suffix === ExtensionContract::PREFIX . 'runs') {
+            if (!$retained) {
+                $this->AcceptExecutionSnapshot($state, $payload);
+            }
+            return null;
+        }
         if ($suffix === ExtensionContract::PREFIX . 'status') {
             $metadata = ExtensionContract::Status($payload);
             if ($metadata !== null) {
@@ -366,6 +386,7 @@ trait ExtensionIntegration
                 $state['extension'] = $metadata;
                 $state['extensionConfirmed'] = true;
                 $state['runtimeConfirmed'] = true;
+                $this->AcceptExecutionSnapshot($state, $payload->data->execution ?? null);
                 $this->DebugEvent('AKTION', 'Gespeicherter Stand und Laufzeitstatus durch frische Z2M-Antwort bestätigt; Aktivierungsbutton wird freigegeben. Keine Automation wurde aktiviert.', ['Revision' => $metadata['storedRevision'], 'Ausführung' => $metadata['executing']]);
                 $this->FinishExtensionWorkflow($state, 'stored');
                 return null;
@@ -375,6 +396,18 @@ trait ExtensionIntegration
             $state['extension'] = $metadata;
             $state['extensionConfirmed'] = true;
             $state['runtimeConfirmed'] = $metadata['runtimeVersion'] === 1;
+            if (($state['execution']['session'] ?? null) !== $metadata['session'] || ($state['execution']['checksum'] ?? null) !== $metadata['checksum']) {
+                $state['execution'] = null;
+            }
+            $this->AcceptExecutionSnapshot($state, $payload->data->execution ?? null);
+            if (in_array($workflow['kind'], ['run_once', 'stop_rule'], true)) {
+                $state['workflow']['target'] = $metadata;
+                return $this->ExecutionCommand($state, $workflow, $payload->data);
+            }
+            if ($workflow['kind'] === 'runs') {
+                $this->FinishExtensionWorkflow($state, 'runs_ready');
+                return null;
+            }
             if (in_array($workflow['kind'], ['activate', 'deactivate'], true)) {
                 $state['bridgeState'] = 'online';
             }
@@ -443,6 +476,20 @@ trait ExtensionIntegration
                 return null;
             }
             return $this->ExtensionFrame($state, 'store', ['yaml' => $workflow['yaml'], 'session' => $metadata['session'], 'expected_revision' => $metadata['storedRevision']]);
+        }
+        if (in_array($workflow['wire'], ['run_once', 'stop_rule'], true)) {
+            $receipt = ExecutionContract::Snapshot($payload->data);
+            $run = $receipt['runs'][$workflow['executionRule']] ?? null;
+            if ($receipt === null || $receipt['session'] !== $workflow['target']['session'] || $receipt['revision'] !== $workflow['target']['storedRevision']
+                || $receipt['checksum'] !== $workflow['target']['checksum'] || $run === null
+                || ($workflow['wire'] === 'stop_rule' && ($run['run'] !== $workflow['executionRun'] || $run['state'] !== 'stopped'))) {
+                $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
+                return null;
+            }
+            // A newer asynchronous state may already have arrived; never roll it back to this receipt.
+            $this->AcceptExecutionSnapshot($state, $payload->data);
+            $this->FinishExtensionWorkflow($state, $workflow['wire'] === 'run_once' ? 'run_started' : 'run_stopped');
+            return null;
         }
         if (in_array($workflow['wire'], ['activate', 'deactivate'], true)) {
             $metadata = ExtensionContract::Status($payload->data);
@@ -632,6 +679,9 @@ trait ExtensionIntegration
             'status_received'    => 'Receiver status confirmed.',
             'activated'          => 'Stored revision activated and confirmed by Z2M.',
             'stopped'            => 'Execution stopped and confirmed by Z2M.',
+            'run_started'        => 'Single run accepted by Z2M. See the selected automation for its result.',
+            'run_stopped'        => 'The selected run was stopped. Other automations are unchanged.',
+            'runs_ready'         => 'Individual run status refreshed.',
             'editor_loaded'      => 'Devices and stored automations loaded. Choose source and target.',
             'draft_created'      => 'Automation added to the draft. Validate, store and activate it next.',
             'rule_selected'      => 'Automation selected. Changes affect the local draft only.',

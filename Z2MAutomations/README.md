@@ -1,5 +1,35 @@
 # Z2MAutomations
 
+## Eine gespeicherte Automation einmal ausführen
+
+Im Bereich **Gespeicherte Automation einmal ausführen** wählen Sie eine Regel
+und klicken auf **Jetzt einmal ausführen**. Nach der Bestätigung führt Z2M
+nur diese gespeicherte Regel einmal aus. Das funktioniert auch bei deaktivierten
+Regeln und bei gestopptem Automatikbetrieb. Änderungen im Entwurf müssen zuvor
+geprüft und gespeichert werden. Alternativ laden Sie den gespeicherten Stand neu.
+
+Die Bedingungen gelten auch beim einmaligen Start und werden vor jeder Aktion
+erneut geprüft. Unbekannte Sensorwerte erlauben keine Ausführung. Für die erste
+Prüfung verwendet Z2M seine zuletzt bekannten Sensorwerte; deshalb muss ein
+Sensor nicht erst erneut auslösen. Uhrzeitbedingungen gelten zum Ausführungszeitpunkt.
+Die Statusanzeige erklärt, ob der Ablauf läuft, abgeschlossen, wegen einer
+Bedingung ausgelassen, fehlgeschlagen oder gestoppt ist. Während der ausgewählte
+Ablauf läuft, wird sein Status automatisch abgefragt. Mit **Status des einzelnen
+Ablaufs aktualisieren** können Sie ihn auch selbst abfragen.
+
+**Diesen Ablauf stoppen** beendet ausschließlich den aktuell angezeigten Lauf.
+Noch ausstehende Schritte und Wartezeiten werden verworfen. Bereits gesendete
+Befehle lassen sich nicht zurücknehmen. Normale Auslöser, andere Automationen,
+die Option **Regel aktiviert** und der automatische Wiederanlauf bleiben unverändert.
+Ein späterer regulärer Auslöser darf die Regel erneut starten. Ein einmaliger
+Testlauf selbst wird nach einem Z2M-Neustart nicht fortgesetzt.
+
+Vorhandene Szenen und Aktionen im zweiten Z2M-System funktionieren ebenfalls.
+Dessen Empfangsfreigabe muss wie bisher aktiv sein. Ein abgeschlossener Ablauf
+bestätigt die Befehlsübergabe; die tatsächliche Gerätewirkung müssen Sie prüfen.
+Für detaillierte Ablaufmeldungen öffnen Sie das Instanzdebug und starten die
+zeitlich begrenzte Z2M-Aufzeichnung. Modul und Erweiterung gemeinsam aktualisieren.
+
 ## Vorhandene Szenen aufrufen
 
 Mit **Geräte und gespeicherte Automationen laden** werden auch die in Z2M

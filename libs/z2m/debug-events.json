@@ -194,5 +194,17 @@
     "astro_due": {
         "event": "AKTION",
         "message": "Astro-Zeitpunkt einschließlich Zeitversatz erreicht."
+    },
+    "once_request": {
+        "event": "AKTION",
+        "message": "Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert."
+    },
+    "once_start": {
+        "event": "START",
+        "message": "Einmaliger Regellauf mit erfüllten Bedingungen begonnen."
+    },
+    "run_stop": {
+        "event": "AKTION",
+        "message": "Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."
     }
 }

@@ -55,6 +55,13 @@ export class MeshTransport {
         this.waiters.clear();
     }
 
+    cancelRun(run) {
+        for (const [transaction, waiter] of this.waiters) if (waiter.run === run) {
+            this.clock.clearTimeout(waiter.timer); this.waiters.delete(transaction);
+            waiter.reject(new RuntimeError('mesh_stopped'));
+        }
+    }
+
     async stop() {
         this.closed = true;
         this.cancel();
@@ -72,7 +79,7 @@ export class MeshTransport {
             {baseTopic: 'z2ma', skipReceive: false, skipLog: true, clientOptions: {qos: 0, retain: false}});
     }
 
-    exchange(destination, phase, message, responsePhase) {
+    exchange(destination, phase, message, responsePhase, context = {}) {
         if (this.waiters.size >= 16) return Promise.reject(new RuntimeError('mesh_busy'));
         return new Promise((resolve, reject) => {
             const timer = this.clock.setTimeout(() => {
@@ -80,7 +87,7 @@ export class MeshTransport {
                 reject(new RuntimeError('mesh_timeout'));
             }, MESH_TIMEOUT);
             timer?.unref?.();
-            this.waiters.set(message.transaction, {destination, phase: responsePhase, resolve, reject, timer});
+            this.waiters.set(message.transaction, {destination, phase: responsePhase, resolve, reject, timer, run: context.run});
             this.publish(destination, phase, message).catch(() => {
                 const waiter = this.waiters.get(message.transaction);
                 if (!waiter) return;
@@ -93,7 +100,8 @@ export class MeshTransport {
 
     async dispatch(action, context = {}) {
         const destination = action.target.system;
-        if (!this.allowed(destination)) throw new RuntimeError('mesh_not_allowed');
+        const allowed = () => this.subscribed && this.runtime.permittedPeer(destination, context);
+        if (!allowed()) throw new RuntimeError('mesh_not_allowed');
         const generation = this.runtime.generation;
         const local = {...action, target: {...action.target}};
         delete local.target.system;
@@ -102,10 +110,10 @@ export class MeshTransport {
         const transaction = this.uuid();
         this.runtime.log('SENDEN', 'Freigabe für eine Aktion im zweiten Z2M-System angefordert.', {}, context);
         const trace = debugTrace(context);
-        const challenge = await this.exchange(destination, 'prepare', {transaction, digest, ...(trace ? {trace} : {})}, 'challenge');
-        if (generation !== this.runtime.generation || !this.allowed(destination)) throw new RuntimeError('mesh_stopped');
+        const challenge = await this.exchange(destination, 'prepare', {transaction, digest, ...(trace ? {trace} : {})}, 'challenge', context);
+        if (generation !== this.runtime.generation || !allowed()) throw new RuntimeError('mesh_stopped');
         if (challenge.status !== 'ok' || typeof challenge.token !== 'string' || !/^[a-f0-9-]{36}$/.test(challenge.token)) throw new RuntimeError('mesh_rejected');
-        const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result');
+        const result = await this.exchange(destination, 'execute', {transaction, token: challenge.token, action: local}, 'result', context);
         if (result.status !== 'ok') throw new RuntimeError(result.error === 'scene_unavailable' ? 'scene_unavailable' : 'mesh_rejected');
         this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.', {}, context);
     }
@@ -119,7 +127,7 @@ export class MeshTransport {
             const phase = event.topic.slice(prefix.length);
             if (!meshObject(message) || message.mesh_version !== 1 || !meshSystemValid(message.source)
                 || typeof message.transaction !== 'string' || !/^[a-f0-9-]{36}$/.test(message.transaction)
-                || !this.allowed(message.source)) throw new RuntimeError('mesh_not_allowed');
+                || message.source === this.system) throw new RuntimeError('mesh_not_allowed');
             if (['challenge', 'result'].includes(phase)) {
                 const waiter = this.waiters.get(message.transaction);
                 if (!waiter || waiter.destination !== message.source || waiter.phase !== phase) return true;
@@ -128,6 +136,7 @@ export class MeshTransport {
                 waiter.resolve(message);
                 return true;
             }
+            if (!this.allowed(message.source)) throw new RuntimeError('mesh_not_allowed');
             const key = message.source + ':' + message.transaction;
             if (phase === 'prepare') {
                 if (Object.keys(message).filter(key => key !== 'trace').sort().join(',') !== 'digest,mesh_version,source,transaction'

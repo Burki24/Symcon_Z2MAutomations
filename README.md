@@ -14,6 +14,11 @@ Zeitgesteuerte Regeln unterstützen auch Sonnenauf- oder Sonnenuntergang mit
 Standort und Zeitversatz. Die eigene tägliche Berechnung findet in Z2M statt;
 siehe [Bedienung](Z2MAutomations/README.md#automationen-bei-sonnenauf--oder-sonnenuntergang).
 
+Gespeicherte Automationen lassen sich zusätzlich gezielt einmal ausführen und
+laufende Abläufe einzeln stoppen. Bedingungen gelten weiterhin; andere Regeln
+und der automatische Wiederanlauf bleiben unverändert. Siehe
+[Einzelsteuerung](Z2MAutomations/README.md#eine-gespeicherte-automation-einmal-ausführen).
+
 Die MQTT-Anbindung empfängt den Z2M-Status, Versionsinformationen und die Liste
 externer Erweiterungen. Eine Verbindungsprüfung sendet eine Gesundheitsanfrage
 und zeigt das Ergebnis nach der passenden Antwort an.

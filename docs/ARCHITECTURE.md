@@ -181,3 +181,12 @@ Die reine eigene solar.mjs-Berechnung wird in das Einzeldatei-Artefakt eingebett
 Bei Fälligkeit verwendet der begrenzte Tagesplan den bestehenden Start-,
 Bedingungs- und Aktionspfad. Kein zusätzlicher Standortdienst und keine
 Koordinaten im Debug. Siehe [ADR 0013](adr/0013-local-solar-triggers.md).
+
+## Einzelne gespeicherte Automationen ausführen
+
+RuleExecution und ExecutionContract ergänzen die bestehenden korrelierten
+Workflows um einmaligen Start, gezielten Stopp und begrenzte Laufzustände.
+Die bestehende Z2M-Engine besitzt manuelle und automatische Läufe gemeinsam;
+Bedingungen, Aktionspfade und Limits bleiben an dieser Stelle. Keine
+YAML-Änderung und kein zweiter Runtime-Besitzer. Einzellaufsteuerung ändert
+weder Automatikbetrieb noch Wiederanlaufwunsch. Siehe ADR 0014.

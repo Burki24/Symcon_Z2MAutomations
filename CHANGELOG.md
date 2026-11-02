@@ -205,6 +205,13 @@
 
 ## Neu
 
+- Gespeicherte Automationen einmalig ausführen und einzelne laufende Abläufe
+  stoppen. Bedingungen gelten vor dem Start und vor jeder Aktion; Status und
+  deutsche Debugmeldungen erklären Ergebnis und Abbruch. Auch deaktivierte
+  Regeln, Szenen und freigegebene Partneraktionen sind möglich. Automatikbetrieb,
+  andere Regeln und Wiederanlauf bleiben unverändert. Modul und Erweiterung
+  gemeinsam aktualisieren; noch nicht auf einer Symcon-Installation geprüft.
+
 - Gerätebereich um eine Auslöserliste mit ein bis acht Geräteereignissen ergänzt.
   Jeder Auslöser startet dieselbe Aktionsfolge (ODER), mit gemeinsamer Bedingung
   und optionaler Mindestdauer je Eintrag. Bearbeiten/Löschen und Wiederladen

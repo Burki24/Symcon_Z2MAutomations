@@ -11,6 +11,55 @@ const remoteRule = (type = 'toggle') => ({id: 'synthetic_cross_system', name: 'S
     triggers: [{type: 'device', device: source, property: 'action', operator: 'eq', value: 'single'}], conditions: [],
     actions: [{type, target: {type: 'group', id: 7, system: 'synthetic/b'}, ...(type === 'toggle' ? {property: 'state'} : {values: {state: 'ON'}})}]});
 
+async function meshRequest(node, operation, fields = {}) {
+    const transaction = 'single-control-' + node.messages.length;
+    await node.extension.receive({topic: node.system + '/symcon/automations/request/' + operation,
+        message: JSON.stringify({protocol_version: 1, transaction, ...fields})});
+    return node.messages.findLast(message => message.data.transaction === transaction).data;
+}
+
+test('a one-shot remote action works with its source stopped without granting incoming mesh permission', async () => {
+    const h = await pair();
+    try {
+        const r = remoteRule(); r.enabled = false;
+        await h.a.load([r]); await h.b.load([]);
+        await meshRequest(h.a, 'deactivate', {session: h.a.extension.session});
+        const status = (await meshRequest(h.a, 'status')).data;
+        const result = await meshRequest(h.a, 'run_once', {session: status.session, rule_id: r.id,
+            expected_revision: status.stored_revision, checksum: status.checksum, activation_token: status.activation_token});
+        assert.equal(result.status, 'ok'); await flush();
+        assert.equal(h.b.commands.length, 1);
+        assert.equal(h.a.commands.length, 0);
+        assert.equal(h.a.extension.status().executing, false);
+        assert.equal(h.a.extension.status().mesh_ready, false);
+        assert.equal(h.a.extension.mesh.allowed('synthetic/b'), false);
+        assert.equal(h.a.extension.status().execution.runs[0].state, 'completed');
+        assert.equal(h.a.extension.status().resume_status, 'stopped');
+    } finally { await h.close(); }
+});
+
+test('stopping one run cancels its mesh preparation before a delayed grant can issue execute', async () => {
+    const h = await pair();
+    try {
+        await h.a.load([remoteRule()]); await h.b.load([]);
+        h.b.connected = false;
+        await h.a.trigger();
+        const status = h.a.extension.status();
+        const run = status.execution.runs[0];
+        assert.equal(run.state, 'running');
+        assert.equal((await meshRequest(h.a, 'stop_rule', {session: status.session, rule_id: run.rule_id,
+            expected_revision: status.stored_revision, checksum: status.checksum, run: run.run})).status, 'ok');
+        await flush();
+        h.b.connected = true;
+        await h.b.extension.receive(h.wire.find(item => item.event.topic.endsWith('/prepare')).event);
+        await flush();
+        assert.equal(h.b.commands.length, 0);
+        assert.equal(h.wire.filter(item => item.event.topic.endsWith('/execute')).length, 0);
+        assert.equal(h.a.extension.status().execution.runs[0].state, 'stopped');
+        assert.equal(h.a.extension.status().executing, true);
+    } finally { await h.close(); }
+});
+
 async function pair() {
     const nodes = [], wire = [];
     let now = 0;

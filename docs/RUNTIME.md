@@ -227,3 +227,30 @@ Ereignistag bezeichnet den lokalen Tag vor Anwendung des Versatzes.
 Uhr-Rückstellung wiederholt keinen bereits bearbeiteten Tag derselben Aktivierung.
 Neustart stellt nur den gespeicherten Betriebswunsch her und wartet auf neue
 Zeitpunkte. Bedingungen und Aktionspfad einschließlich Mesh sind unverändert.
+
+## Einmalige Läufe und gezielter Stopp
+
+Die ausgewählte gespeicherte Regel darf unabhängig von enabled und dem globalen
+Automatikbetrieb einmal laufen. Bedingungen gelten vor dem Start und erneut
+vor jedem Aktionsschritt. Anfangswerte manueller Läufe stammen aus Z2Ms bekanntem
+Gerätezustand; unbekannte oder nicht skalare Werte sperren die Aktion. Frische
+Berichte aktualisieren die eigenen Bedingungswerte, ohne die Frischeanforderung
+der automatischen Regeln zu verändern. Zeitbedingungen gelten zum jeweiligen
+Ausführungszeitpunkt. Die normalen Trigger werden durch den Einzelstart nicht
+aktiviert oder simuliert. Szenen, Verzögerungen und Partneraktionen laufen über
+denselben Aktionspfad und dieselben Limits.
+
+stop_rule verlangt die genaue Lauf-UUID und verwirft nur dessen Wartezeiten
+und Mesh-Wartevorgänge. Bei bereits gesendeten Befehlen ist keine Rücknahme
+möglich. Spätere normale Auslöser dürfen die Regel erneut starten. Geänderte
+Speicherung, globaler Stopp oder Neustart beenden auch manuelle Läufe. Ein
+identisches Speichern erhält den vorhandenen Betrieb wie bisher. Ein manueller
+Lauf selbst wird nie persistent fortgesetzt und ändert keinen Betriebswunsch.
+
+Pro gespeicherter Regel bleibt nur der letzte Zustand mit Schrittposition:
+running, completed, skipped, failed oder stopped. completed bestätigt die
+Übergaben, keine physische Gerätewirkung. skipped kann nach bereits ausgeführten
+Schritten entstehen, wenn eine Bedingung vor dem nächsten Schritt nicht mehr
+erfüllt ist. Ein vor dem Start unbekannter Bedingungswert erzeugt keine Aktion.
+Die globale ExecutionActive-Variable bezeichnet weiterhin den Automatikbetrieb.
+Details: ADR 0014 und Bedienung in der Modul-README.

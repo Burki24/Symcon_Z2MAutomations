@@ -3027,6 +3027,64 @@
         },
         {
             "type": "ExpansionPanel",
+            "name": "SingleRunPanel",
+            "caption": "Run a saved automation once",
+            "expanded": false,
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "This runs only the saved version, including disabled rules. Conditions are checked before starting and before each action. Normal triggers and automatic restart remain unchanged.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Select",
+                    "name": "ExecutionRule",
+                    "caption": "Saved automation",
+                    "value": "",
+                    "options": [
+                        {
+                            "caption": "Choose a saved automation",
+                            "value": ""
+                        }
+                    ],
+                    "width": "100%",
+                    "onChange": "Z2MA_SelectExecutionRule($id, $ExecutionRule);"
+                },
+                {
+                    "type": "Button",
+                    "name": "RunOnceButton",
+                    "caption": "Run once now",
+                    "enabled": false,
+                    "confirm": "Run the selected saved automation once now? Its actions may switch devices. Conditions still apply.",
+                    "onClick": "Z2MA_RunAutomationOnce($id, $ExecutionRule, $YamlInput, true);"
+                },
+                {
+                    "type": "Button",
+                    "name": "StopRuleButton",
+                    "caption": "Stop this run",
+                    "enabled": false,
+                    "onClick": "Z2MA_StopAutomationRun($id, $ExecutionRule);"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Refresh individual run status",
+                    "onClick": "Z2MA_RefreshExecutionStatus($id);"
+                },
+                {
+                    "type": "Label",
+                    "name": "SingleRunInfo",
+                    "caption": "No run reported for this automation in the current Z2M session.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Stopping cancels pending steps of this run. Commands already handed over cannot be undone. Other automations and their triggers remain active.",
+                    "width": "100%"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "name": "EditorExpert",
             "caption": "Advanced YAML editor",
             "expanded": false,

@@ -142,3 +142,30 @@ fehlende Ereignisse und Neustartverhalten stehen in RUNTIME.md.
 Der Klick-Editor unterstützt einen Sonnenauslöser je zeitgesteuerter Regel;
 weitere Mischungen bleiben über YAML möglich und gegen versehentliche
 Vereinfachung im Formular geschützt.
+
+## Einzelsteuerung ohne Änderung des YAML-Schemas
+
+Das Fähigkeitsmerkmal execution_version: 1 und die folgenden Befehle gehören
+zum vorhandenen MQTT-Steuerprotokoll, nicht zum Automationsdokument. Pfadpräfix:
+<Basistopic>/symcon/automations/. Alle Aufträge enthalten protocol_version: 1
+und eine frische transaction; Antworten liegen unter response/<Befehl>.
+
+- request/run_once: session, rule_id, expected_revision, checksum und der nur
+  über eine frische korrelierte Statusantwort vergebene activation_token.
+  Token wird einmalig verbraucht; Datei und ausgewählte Regel werden geprüft.
+- request/stop_rule: session, rule_id, expected_revision, checksum und run
+  (UUID des konkreten noch laufenden Ablaufs). Veraltete UUIDs stoppen keinen
+  inzwischen neu gestarteten Lauf. Keine persistente Deaktivierung der Regel.
+- Frische status-Antworten enthalten zusätzlich execution. Dasselbe begrenzte
+  Objekt wird bei Änderungen ohne Retain unter runs und als Kontrollantwort
+  geliefert: protocol_version, execution_version, session, revision, checksum,
+  sequence und runs. sequence steigt innerhalb derselben Sitzung.
+- runs enthält höchstens 100 Einträge mit rule_id, run, revision, checksum,
+  state, error und step (0 bis 16). Zustände: running/completed/skipped/failed/
+  stopped. error enthält ausschließlich feste bekannte Ursachen, einschließlich
+  conditions_not_met. Keine Namen, Werte, Tokens oder frei formulierten Fehler.
+
+run_once funktioniert auch für deaktivierte gespeicherte Regeln. enabled und
+resume_after_restart ändern sich dadurch nicht. Ungültige oder retained
+Kontrollaufträge, fremde Sitzungen und abweichende Speicherstände werden
+abgewiesen. Empfangende Partner benötigen weiterhin aktive Mesh-Freigaben.

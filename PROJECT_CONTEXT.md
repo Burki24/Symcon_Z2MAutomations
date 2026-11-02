@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Einzelne gespeicherte Regeln einmal ausführen und konkrete Läufe stoppen:
+  eigener gemeinsamer Formularbereich, Bedingungen vor Start und Aktionen,
+  native deutsche Debugmeldungen, Status mit Schrittposition, begrenzte
+  MQTT-Laufzustände und unveränderte globale Aktivierung/Wiederanlaufabsicht.
+  Auch deaktivierte Regeln und erlaubte Partneraktionen möglich. Keine
+  Schemaänderung; lokale Umsetzung gemäß ADR 0014. Neue Offline-Nachweise
+  für Laufzeit, Mesh, Statusvertrag und native PHP-/JS-Formularskripte.
+  Noch nicht auf Test- oder Live-System installiert oder praktisch geprüft.
+
 - Rücksetzung der Ablaufaufzeichnung beim Speichern lokal korrigiert:
   vorhandene Aufzeichnung bleibt an MQTT-Kontext und Z2M-Sitzung gebunden,
   unabhängig von ausstehender Bestätigung des gespeicherten Regelstands.

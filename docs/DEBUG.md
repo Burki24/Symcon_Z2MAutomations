@@ -316,3 +316,16 @@ Meldungskatalog und eigener MQTT-Debugkanal verwenden dieselben festen Texte.
 Keine Breiten-/Längengrade oder vollständigen Auslöserobjekte im Debug.
 Fehlende Ereignisse erzeugen keinen Fehler pro Sekunde. Ein Debugausfall
 verändert weder Berechnung noch Schaltpfad.
+
+## Einzelne Regelläufe
+
+SelectExecutionRule, RunAutomationOnce, StopAutomationRun und
+RefreshExecutionStatus verwenden den kanonischen DebugFlowHelper. Deutsche
+Entscheidungen nennen Startablehnung bei abweichendem Entwurf, einmalige
+Übergabe, konkrete Stoppanforderung und den bestätigten Laufzustand mit
+Schrittposition und fester Ursache. Regel-IDs erscheinen nur als Hashbezug;
+Namen, YAML und Aktivierungsfreigaben werden nicht protokolliert. Der feste
+Z2M-Katalog ergänzt Anfrage, einmaligen Start und gezielten Stopp. Die bestehende
+zeitlich begrenzte Aufzeichnung liefert Bedingungen, Wartezeiten und Schritte
+mit denselben Laufbezügen auch über Mesh. Laufstatus allein enthält keine
+vollständige Ablaufhistorie und bestätigt keine physische Gerätewirkung.

@@ -13,6 +13,167 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+async function runOnce(h, id = 'synthetic_rule', overrides = {}, event = {}) {
+    const status = (await h.request('status')).data;
+    return h.request('run_once', {session: status.session, activation_token: status.activation_token,
+        expected_revision: status.stored_revision, checksum: status.checksum, rule_id: id, ...overrides}, event);
+}
+
+test('one-shot toggle and scene actions share native dispatch and current time conditions', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.enabled = false;
+        r.actions = [{type: 'toggle', target: {type: 'device', id: targetID}, property: 'state'}];
+        r.conditions = [{type: 'time_window', after: '12:00:00', before: '13:00:00', timezone: 'UTC'}];
+        h.clock.wall = Date.parse('2026-01-01T11:59:59Z');
+        await h.store(yaml([r])); await runOnce(h);
+        assert.equal(h.commands.length, 0);
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped');
+        await h.clock.advance(1000); await runOnce(h); await flush();
+        assert.deepEqual(h.commands[0].data, {state: 'ON'});
+        h.devices.get(targetID).zh = {endpoints: [{ID: 2, meta: {scenes: {'0_0': {name: 'Synthetic scene'}}}}]};
+        r.actions = [{type: 'scene', target: {type: 'device', id: targetID}, scene_id: 0, endpoint: 2}];
+        await h.store(yaml([r], 2)); await runOnce(h); await flush();
+        assert.equal(h.commands[1].topic, 'synthetic/target/2/set');
+        assert.deepEqual(h.commands[1].data, {scene_recall: 0});
+        assert.equal(h.extension.status().executing, false);
+    } finally { await h.close(); }
+});
+
+test('global stop and changed storage cancel one-shot waits while identical storage preserves them', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.actions[0].delay_seconds = 5;
+        const text = yaml([r]);
+        await h.store(text); await runOnce(h); await flush();
+        await h.store(text);
+        assert.equal(h.extension.status().execution.runs[0].state, 'running');
+        await h.clock.advance(5000); assert.equal(h.commands.length, 1);
+        await h.clock.advance(1000); await runOnce(h); await flush();
+        await h.deactivate(); await h.clock.advance(5000);
+        assert.equal(h.commands.length, 1);
+        assert.equal(h.extension.status().execution.runs[0].state, 'stopped');
+        await runOnce(h); await flush(); await h.store(yaml([r], 2));
+        await h.clock.advance(5000); assert.equal(h.commands.length, 1);
+        assert.deepEqual(h.extension.status().execution.runs, [], 'Old snapshot results are not assigned to the newly saved revision');
+    } finally { await h.close(); }
+});
+
+test('one-shot requests cannot reuse a consumed approval or wait for recording/status delivery', async () => {
+    const h = await harness();
+    try {
+        await h.store(yaml());
+        const status = (await h.request('status')).data;
+        const command = {session: status.session, rule_id: 'synthetic_rule', expected_revision: 1,
+            checksum: status.checksum, activation_token: status.activation_token};
+        const publish = h.extension.mqtt.publish;
+        let pendingReports = 0;
+        h.extension.mqtt.publish = (topic, ...args) => {
+            if (topic === 'symcon/automations/runs') { pendingReports++; return new Promise(() => {}); }
+            return publish(topic, ...args);
+        };
+        await h.request('run_once', command); await flush();
+        assert.equal(h.commands.length, 1, 'A stalled run-status Publish cannot stall the device action');
+        assert.equal(pendingReports, 1, 'Only one report is in flight; further changes are coalesced');
+        assert.equal(h.extension.status().execution.runs[0].state, 'completed');
+        assert.equal((await h.request('run_once', command)).error.code, 'activation_expired');
+    } finally { await h.close(); }
+});
+
+test('a disabled saved rule runs once while automatic execution remains stopped and restart intent is unchanged', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.enabled = false;
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r]));
+        const before = h.extension.executionIntent;
+        const response = await runOnce(h);
+        assert.equal(response.status, 'ok'); await flush();
+        assert.equal(h.commands.length, 1);
+        assert.equal(h.extension.status().executing, false);
+        assert.equal(h.extension.status().execution.runs[0].state, 'running');
+        await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1, 'Manual execution never arms a disabled trigger');
+        await h.clock.advance(5000);
+        assert.deepEqual(h.commands.map(item => item.data.state), ['ON', 'OFF']);
+        assert.equal(h.extension.status().execution.runs[0].state, 'completed');
+        assert.equal(h.extension.status().execution.runs[0].step, 2);
+        assert.deepEqual(h.extension.executionIntent, before);
+        assert.ok(h.logs.some(line => line.includes('Einmaliger Regellauf')));
+        await h.clock.advance(1000); await runOnce(h); await flush();
+        await h.close(false);
+        const restarted = await harness(h.directory);
+        try { await restarted.clock.advance(6000); assert.equal(restarted.commands.length, 0); }
+        finally { await restarted.close(); }
+    } finally { await h.close(); }
+});
+
+test('one-shot conditions use known Z2M state and are rechecked before delayed actions', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.conditions = [{type: 'device_value', device: sourceID, property: 'occupancy', operator: 'eq', value: true}];
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r]));
+        assert.equal((await runOnce(h)).status, 'ok');
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped');
+        assert.equal(h.commands.length, 0, 'Unknown condition values never authorize commands');
+        h.targetStates.set(sourceID, {occupancy: true});
+        await runOnce(h); await flush(); assert.equal(h.commands.length, 1);
+        await h.event({occupancy: false}); await h.clock.advance(5000);
+        assert.equal(h.commands.length, 1);
+        assert.equal(h.extension.status().execution.runs[0].error, 'conditions_not_met');
+    } finally { await h.close(); }
+});
+
+test('targeted stop cancels only one pending sequence and rejects stale run IDs without disabling triggers', async () => {
+    const h = await harness();
+    try {
+        const a = rule(); a.actions[0].delay_seconds = 5;
+        const b = {...rule(), id: 'other_rule', actions: [{...rule().actions[0], delay_seconds: 5}]};
+        await h.store(yaml([a, b])); await h.activate();
+        await h.event({occupancy: true});
+        const snapshot = h.extension.status().execution;
+        const selected = snapshot.runs.find(item => item.rule_id === a.id);
+        assert.equal((await runOnce(h)).error.code, 'rule_busy');
+        const envelope = {session: h.session, expected_revision: snapshot.revision, checksum: snapshot.checksum, rule_id: a.id};
+        assert.equal((await h.request('stop_rule', {...envelope, run: snapshot.runs.find(item => item.rule_id === b.id).run})).error.code, 'run_conflict');
+        assert.equal((await h.request('stop_rule', {...envelope, run: selected.run})).status, 'ok');
+        await h.clock.advance(5000);
+        assert.equal(h.commands.length, 1, 'The other rule still executes');
+        assert.equal(h.extension.status().executing, true);
+        assert.equal(h.extension.status().execution.runs.find(item => item.rule_id === a.id).state, 'stopped');
+        await h.event({occupancy: true}); await h.clock.advance(5000);
+        assert.equal(h.commands.length, 3, 'Stopped rule remains armed for later ordinary triggers');
+        assert.equal((await h.request('stop_rule', {...envelope, run: selected.run})).error.code, 'run_conflict');
+    } finally { await h.close(); }
+});
+
+test('one-shot control verifies session, revision, checksum, one-use token and disk state without retrying failures', async () => {
+    const h = await harness();
+    try {
+        await h.store(yaml());
+        for (const [override, expected] of [[{session: '00000000-0000-0000-0000-000000000000'}, 'session_mismatch'],
+            [{expected_revision: 2}, 'revision_conflict'], [{checksum: '0'.repeat(64)}, 'checksum_mismatch'],
+            [{rule_id: 'missing'}, 'rule_missing']]) {
+            assert.equal((await runOnce(h, 'synthetic_rule', override)).error.code, expected);
+        }
+        assert.equal((await runOnce(h, 'synthetic_rule', {}, {retain: true})).status, 'error');
+        const token = (await h.request('status')).data.activation_token;
+        await h.clock.advance(31000);
+        assert.equal((await h.request('run_once', {session: h.session, expected_revision: 1,
+            checksum: h.extension.status().checksum, rule_id: 'synthetic_rule', activation_token: token})).error.code, 'activation_expired');
+        h.sendFault = true; await runOnce(h); await flush();
+        assert.equal(h.extension.status().execution.runs[0].state, 'failed');
+        assert.equal(h.extension.status().execution.runs[0].error, 'action_failed');
+        assert.equal(h.commands.length, 1);
+        await h.clock.advance(6000); assert.equal(h.commands.length, 1);
+        assert.ok(!JSON.stringify(h.extension.status().execution).includes('synthetic-private-body'));
+        await writeFile(join(h.directory, 'automations.yaml'), yaml([], 2));
+        assert.equal((await runOnce(h)).status, 'error');
+        assert.equal(h.commands.length, 1);
+    } finally { await h.close(); }
+});
+
 test('solar triggers run once at the offset time and skip missed times, polar events and failed conditions', async () => {
     const {solarForLocalDay} = await import('../libs/z2m/src/solar.mjs');
     const h = await harness();

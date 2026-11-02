@@ -22,12 +22,13 @@ function compare(actual, clause) {
 }
 
 export class AutomationRuntime {
-    constructor({zigbee, dispatch, logger, clock = nativeClock, available = true, readState, remoteDispatch, onDeactivate}) {
+    constructor({zigbee, dispatch, logger, clock = nativeClock, available = true, readState, remoteDispatch, onDeactivate, onCancelRun}) {
         this.zigbee = zigbee;
         this.dispatch = dispatch;
         this.readState = readState;
         this.remoteDispatch = remoteDispatch;
         this.onDeactivate = onDeactivate;
+        this.onCancelRun = onCancelRun;
         this.logger = logger;
         this.clock = clock;
         this.available = available;
@@ -48,6 +49,67 @@ export class AutomationRuntime {
         this.sentAt = [];
         this.timer = null;
         this.lastError = '';
+        this.executions = new Map();
+        this.results = new Map();
+        this.executionSequence = 0;
+    }
+
+    executionSnapshot() { return {sequence: this.executionSequence, runs: [...this.results.values()]}; }
+
+    executionState(rule, context, state, error = '', step = 0) {
+        const execution = this.executions.get(context.run);
+        if (step === 0 && this.results.get(rule.id)?.run === context.run) step = this.results.get(rule.id).step;
+        this.results.delete(rule.id);
+        this.results.set(rule.id, {rule_id: rule.id, run: context.run, revision: context.revision,
+            checksum: execution?.candidate.checksum ?? this.active?.checksum,
+            state, error, step});
+        while (this.results.size > 100) this.results.delete(this.results.keys().next().value);
+        this.executionSequence++;
+        try { this.onExecutionChange?.(); } catch { /* Reporting cannot alter execution. */ }
+    }
+
+    canContinue(generation, context = {}) {
+        const execution = this.executions.get(context.run);
+        return generation === this.generation && !execution?.cancelled && Boolean(this.active || execution?.once);
+    }
+
+    permittedPeer(system, context = {}) {
+        const execution = this.executions.get(context.run);
+        return this.canContinue(execution?.generation ?? this.generation, context)
+            && (execution?.candidate ?? this.active)?.document.mesh_peers?.includes(system);
+    }
+
+    startOnce(candidate, ruleID) {
+        if (!this.available || typeof this.dispatch !== 'function') throw new RuntimeError('runtime_unavailable');
+        const rule = candidate.document.automations.find(item => item.id === ruleID);
+        if (!rule) throw new RuntimeError('rule_missing');
+        for (const clause of rule.conditions) if (clause.device && !this.device(clause.device)) throw new RuntimeError('unknown_entity');
+        for (const action of rule.actions) {
+            if (action.target.system !== undefined) {
+                if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
+            } else {
+                const entity = this.target(action.target);
+                if (action.type === 'scene' && !hasScene(entity, action.target.type, action)) throw new RuntimeError('scene_unavailable');
+                if (action.type === 'toggle' && typeof this.readState !== 'function') throw new RuntimeError('runtime_unavailable');
+            }
+        }
+        const context = {run: randomUUID(), rule: candidate.document.automations.indexOf(rule) + 1,
+            revision: candidate.document.revision, origin: this.system};
+        this.log('AKTION', 'Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert.', {}, context);
+        return this.launch(rule, context, candidate);
+    }
+
+    stopRule(ruleID, run) {
+        const execution = this.executions.get(run);
+        if (!execution || execution.rule.id !== ruleID || execution.cancelled) throw new RuntimeError('run_conflict');
+        execution.cancelled = true;
+        for (const [timer, wait] of this.waits) if (wait.run === run) {
+            this.clock.clearTimeout(timer); this.waits.delete(timer); wait.resolve(false);
+        }
+        this.onCancelRun?.(run);
+        this.executionState(execution.rule, execution.context, 'stopped');
+        this.log('AKTION', 'Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam.', {}, execution.context);
+        return this.results.get(ruleID);
     }
 
     metadata() {
@@ -127,13 +189,14 @@ export class AutomationRuntime {
     }
 
     deactivate() {
+        for (const [run, execution] of this.executions) if (!execution.cancelled) this.stopRule(execution.rule.id, run);
         this.generation++;
         this.onDeactivate?.();
         this.active = null;
         this.rules = [];
         if (this.timer !== null) this.clock.clearInterval(this.timer);
         this.timer = null;
-        for (const [timer, resolve] of this.waits) { this.clock.clearTimeout(timer); resolve(false); }
+        for (const [timer, wait] of this.waits) { this.clock.clearTimeout(timer); wait.resolve(false); }
         this.waits.clear();
         for (const hold of this.holds.values()) {
             if (hold.timer !== null) this.clock.clearTimeout(hold.timer);
@@ -161,7 +224,8 @@ export class AutomationRuntime {
     conditions(rule, context = {}) {
         return rule.conditions.every((clause, index) => {
             let passed;
-            if (clause.type === 'device_value') passed = Boolean(this.device(clause.device) && compare(this.values.get(clause.device)?.[clause.property], clause));
+            if (clause.type === 'device_value') passed = Boolean(this.device(clause.device)
+                && compare((this.executions.get(context.run)?.values ?? this.values).get(clause.device)?.[clause.property], clause));
             else {
                 const local = this.local(clause.timezone);
                 const overnight = clause.after > clause.before;
@@ -176,9 +240,17 @@ export class AutomationRuntime {
     }
 
     receive(event) {
-        if (!this.active || !event?.entity?.isDevice?.() || !object(event.payload)
+        if ((!this.active && this.executions.size === 0) || !event?.entity?.isDevice?.() || !object(event.payload)
             || ['publishCached', 'lastSeenChanged'].includes(event.stateChangeReason)) return;
         const id = event.entity.ieeeAddr;
+        for (const execution of this.executions.values()) if (execution.once && !execution.cancelled) {
+            for (const clause of execution.rule.conditions) if (clause.device === id && Object.hasOwn(event.payload, clause.property)) {
+                const values = execution.values.get(id) ?? Object.create(null);
+                values[clause.property] = scalar(event.payload[clause.property]) ? event.payload[clause.property] : undefined;
+                execution.values.set(id, values);
+            }
+        }
+        if (!this.active) return;
         const properties = this.references.get(id);
         if (!properties || !this.device(id)) return;
         const values = this.values.get(id) ?? Object.create(null);
@@ -263,50 +335,83 @@ export class AutomationRuntime {
         }
     }
 
-    wait(milliseconds, generation) {
-        if (!this.active || generation !== this.generation) return Promise.resolve(false);
+    wait(milliseconds, generation, context = {}) {
+        if (!this.canContinue(generation, context)) return Promise.resolve(false);
         if (!milliseconds) return Promise.resolve(true);
         return new Promise(resolve => {
-            const timer = this.clock.setTimeout(() => { this.waits.delete(timer); resolve(generation === this.generation && this.active !== null); }, milliseconds);
+            const timer = this.clock.setTimeout(() => { this.waits.delete(timer); resolve(this.canContinue(generation, context)); }, milliseconds);
             timer?.unref?.();
-            this.waits.set(timer, resolve);
+            this.waits.set(timer, {resolve, run: context.run});
         });
     }
 
-    launch(rule, context = this.trace(rule)) {
+    launch(rule, context = this.trace(rule), once = null) {
         const now = this.clock.now();
-        const reason = !this.active ? 'inactive' : this.running.has(rule.id) ? 'already_running'
+        const reason = !this.active && !once ? 'inactive' : this.running.has(rule.id) ? 'already_running'
             : this.tasks.size >= RUNTIME_LIMITS.concurrentRules ? 'concurrency_limit'
-                : now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown'
-                    : !this.conditions(rule, context) ? 'conditions_not_met' : '';
-        if (reason) { this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}, context); return; }
+                : now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown' : '';
+        if (reason) {
+            this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}, context);
+            if (once) throw new RuntimeError(reason === 'already_running' ? 'rule_busy' : 'busy');
+            return;
+        }
         const generation = this.generation;
+        const execution = {rule, context, generation, candidate: once ?? this.active, once: Boolean(once), cancelled: false};
+        if (once) {
+            execution.values = new Map();
+            for (const clause of rule.conditions) if (clause.device) {
+                let cached;
+                try { cached = this.readState?.(this.device(clause.device)); } catch { /* Unknown conditions cannot authorize a command. */ }
+                const values = execution.values.get(clause.device) ?? Object.create(null);
+                if (object(cached) && Object.hasOwn(cached, clause.property) && scalar(cached[clause.property])) values[clause.property] = cached[clause.property];
+                execution.values.set(clause.device, values);
+            }
+        }
+        this.executions.set(context.run, execution);
+        if (!this.conditions(rule, context)) {
+            this.executionState(rule, context, 'skipped', 'conditions_not_met');
+            this.executions.delete(context.run);
+            this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'conditions_not_met'}, context);
+            return this.results.get(rule.id);
+        }
         this.cooldowns.set(rule.id, now);
-        this.log('START', 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
+        this.executionState(rule, context, 'running');
+        this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
         const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
-            this.lastError = error instanceof RuntimeError ? error.code : 'action_failed';
-            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: this.lastError}, context);
+            if (execution.cancelled) return;
+            const code = error instanceof RuntimeError ? error.code : 'action_failed';
+            if (!once) this.lastError = code;
+            this.executionState(rule, context, 'failed', code);
+            this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: code}, context);
         }).finally(() => {
+            if (this.results.get(rule.id)?.run === context.run && this.results.get(rule.id)?.state === 'running') this.executionState(rule, context, 'completed');
+            this.executions.delete(context.run);
             if (this.running.get(rule.id) === task) this.running.delete(rule.id);
             this.tasks.delete(task);
             this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
         });
         this.running.set(rule.id, task);
         this.tasks.add(task);
+        return this.results.get(rule.id);
     }
 
     async run(rule, generation, context) {
         for (const [index, action] of rule.actions.entries()) {
+            if (!this.canContinue(generation, context)) return;
             const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0};
+            this.executionState(rule, context, 'running', '', index + 1);
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
-            if (!await this.wait(step.delay * 1000, generation)) {
+            if (!await this.wait(step.delay * 1000, generation, context)) {
                 this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
                 return;
             }
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
-            if (!this.active || this.generation !== generation) return;
-            if (!this.conditions(rule, step)) { this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return; }
+            if (!this.canContinue(generation, context)) return;
+            if (!this.conditions(rule, step)) {
+                this.executionState(rule, context, 'skipped', 'conditions_not_met', index + 1);
+                this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;
+            }
             try {
                 if (action.target.system !== undefined) {
                     await this.remoteDispatch(action, step);
@@ -321,7 +426,7 @@ export class AutomationRuntime {
     }
 
     async executeLocal(action, generation = this.generation, context = {}) {
-        if (!this.active || generation !== this.generation) throw new RuntimeError('mesh_stopped');
+        if (!this.canContinue(generation, context)) throw new RuntimeError('mesh_stopped');
         const entity = this.target(action.target);
         let values = action.values;
         if (action.type === 'scene') {
@@ -345,7 +450,7 @@ export class AutomationRuntime {
         try {
             await Promise.race([
                 Promise.resolve().then(() => {
-                    if (!this.active || this.generation !== generation) throw new RuntimeError('mesh_stopped');
+                    if (!this.canContinue(generation, context)) throw new RuntimeError('mesh_stopped');
                     return this.dispatch(entity.name + (action.type === 'scene' && action.endpoint !== undefined ? '/' + action.endpoint : '') + '/set', JSON.stringify(values));
                 }),
                 new Promise((_, reject) => { timeout = this.clock.setTimeout(() => reject(new RuntimeError('action_timeout')), RUNTIME_LIMITS.publishTimeoutMs); })

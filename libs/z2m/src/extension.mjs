@@ -32,7 +32,10 @@ const ERRORS = Object.freeze({
     checksum_mismatch: 'Activation checksum does not match the stored configuration.',
     activation_expired: 'Request a fresh activation token before activating the stored revision.',
     mesh_unavailable: 'The bridge transport is unavailable.',
-    mesh_not_allowed: 'The second Z2M system is not permitted.'
+    mesh_not_allowed: 'The second Z2M system is not permitted.',
+    rule_missing: 'The selected automation is not stored.',
+    rule_busy: 'This automation is already running.',
+    run_conflict: 'The selected run has ended or changed.'
 });
 
 class ConfigurationError extends Error {
@@ -361,10 +364,14 @@ export default class Z2MAutomationsExtension {
         this.runtime = new AutomationRuntime({zigbee: _zigbee, logger, clock: options.clock,
             remoteDispatch: (action, context) => this.mesh.dispatch(action, context),
             onDeactivate: () => this.mesh?.cancel(),
+            onCancelRun: run => this.mesh?.cancelRun(run),
             readState: typeof _state?.get === 'function' ? entity => _state.get(entity) : undefined,
             dispatch: (topic, message) => this.eventBus.emitMQTTMessage({topic: this.baseTopic + '/' + topic, message}),
             available: typeof eventBus.onPublishEntityState === 'function' && typeof eventBus.emitMQTTMessage === 'function'});
         this.runtime.diagnostics = this.diagnostics;
+        this.runStatusDirty = false;
+        this.runStatusTask = null;
+        this.runtime.onExecutionChange = () => this.queueExecutionStatus();
         // A real deployed file is in data/external_extensions, including Z2M temporary import copies.
         const directory = options.directory ?? fileURLToPath(new URL('../z2m-automations/', import.meta.url));
         this.store = new ConfigurationStore(directory, options.io ?? fs);
@@ -385,7 +392,31 @@ export default class Z2MAutomationsExtension {
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
             mesh_peer_count: this.runtime.active?.document.mesh_peers?.length ?? 0,
+            execution_version: 1, execution: this.executionStatus(),
             session: this.session, state: this.accepting ? 'ready' : 'stopped', ...this.store.metadata(), ...this.runtime.metadata()};
+    }
+
+    queueExecutionStatus() {
+        this.runStatusDirty = true;
+        if (this.runStatusTask) return;
+        // Keep at most one publish in flight and coalesce intervening changes.
+        // Reporting never blocks device actions and never queues old snapshots.
+        this.runStatusTask = Promise.resolve().then(async () => {
+            while (this.runStatusDirty && this.accepting) {
+                this.runStatusDirty = false;
+                await this.publish('runs', this.executionStatus());
+            }
+        }).catch(() => {}).finally(() => {
+            this.runStatusTask = null;
+            if (this.runStatusDirty && this.accepting) this.queueExecutionStatus();
+        });
+    }
+
+    executionStatus() {
+        const snapshot = this.runtime.executionSnapshot(), current = this.store.current;
+        return {protocol_version: 1, execution_version: 1, session: this.session,
+            revision: current?.document.revision ?? 0, checksum: current?.checksum ?? null,
+            sequence: snapshot.sequence, runs: snapshot.runs.filter(run => run.checksum === current?.checksum && run.revision === current?.document.revision)};
     }
 
     async publish(topic, data, retain = false) {
@@ -408,6 +439,8 @@ export default class Z2MAutomationsExtension {
             this.runtime.system = this.baseTopic;
             this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
             this.session = randomUUID();
+            this.runtime.results.clear();
+            this.runtime.executionSequence = 0;
             this.diagnostics.session = this.session;
             this.activationToken = null;
             await this.store.load();
@@ -550,7 +583,7 @@ export default class Z2MAutomationsExtension {
             }
             return;
         }
-        if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor'].includes(operation)) return;
+        if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor', 'run_once', 'stop_rule'].includes(operation)) return;
         this.runtime.log('START', 'Erweiterungsauftrag empfangen.', {Auftrag: operation});
         try { await this.handleRequest(operation, event); }
         finally { this.runtime.log('ENDE', 'Erweiterungsauftrag beendet; Ergebnis siehe Antwort.', {Auftrag: operation}); }
@@ -567,6 +600,9 @@ export default class Z2MAutomationsExtension {
                 ...(operation === 'store' ? ['session', 'expected_revision'] : []),
                 ...(operation === 'activate' ? ['session', 'expected_revision', 'checksum', 'activation_token'] : []),
                 ...(operation === 'deactivate' ? ['session'] : [])];
+            if (['run_once', 'stop_rule'].includes(operation)) keys.push('session', 'rule_id', 'expected_revision', 'checksum');
+            if (operation === 'run_once') keys.push('activation_token');
+            if (operation === 'stop_rule') keys.push('run');
             if (operation === 'activate' && Object.hasOwn(request, 'resume_after_restart')) {
                 if (typeof request.resume_after_restart !== 'boolean') fail('invalid_request');
                 keys.push('resume_after_restart');
@@ -594,6 +630,30 @@ export default class Z2MAutomationsExtension {
                     data = {...this.status(), activation_token: this.activationToken.value};
                 }
                 if (operation === 'get') data = {...this.store.metadata(), executing: this.runtime.metadata().executing, yaml: this.store.current?.yaml ?? null};
+                if (['run_once', 'stop_rule'].includes(operation)) {
+                    if (request.session !== this.session || event.retain === true) fail('session_mismatch');
+                    if (!isRevision(request.expected_revision) || typeof request.checksum !== 'string'
+                        || !/^[a-f0-9]{64}$/.test(request.checksum) || typeof request.rule_id !== 'string'
+                        || !/^[a-z][a-z0-9_-]{0,63}$/.test(request.rule_id)) fail('invalid_request');
+                    if (this.store.state !== 'ok' || !this.store.current) fail('storage_unavailable');
+                    if (request.expected_revision !== this.store.current.document.revision) fail('revision_conflict');
+                    if (request.checksum !== this.store.current.checksum) fail('checksum_mismatch');
+                    if (operation === 'run_once') {
+                        const token = this.activationToken; this.activationToken = null;
+                        if (!token || request.activation_token !== token.value || token.expires <= this.monotonicNow()) fail('activation_expired');
+                        const generation = this.runtime.generation;
+                        await this.store.verifyDisk();
+                        if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
+                        const selected = this.store.current.document.automations.find(rule => rule.id === request.rule_id);
+                        if (selected?.actions.some(action => action.target.system !== undefined)) await this.prepareMesh();
+                        if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
+                        this.runtime.startOnce(this.store.current, request.rule_id);
+                    } else {
+                        if (typeof request.run !== 'string' || !/^[a-f0-9-]{36}$/.test(request.run)) fail('invalid_request');
+                        this.runtime.stopRule(request.rule_id, request.run);
+                    }
+                    data = this.executionStatus();
+                }
                 if (operation === 'editor') {
                     const devices = buildEditorCatalog(this.zigbee), groups = buildEditorGroups(this.zigbee);
                     const scenes = buildEditorScenes(this.zigbee, devices, groups);
