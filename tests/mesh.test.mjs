@@ -44,7 +44,7 @@ async function pair() {
                     });
                 }
             }};
-        const clock = {now: () => now, wallNow: () => Date.now(), setTimeout, clearTimeout, setInterval, clearInterval};
+        const clock = {now: () => now, wallNow: () => network.wall ?? Date.now(), setTimeout, clearTimeout, setInterval, clearInterval};
         node.extension = new Extension({resolveEntity: id => id === source ? device : null, groupsIterator: () => [group]}, mqtt,
             {get: () => ({state: 'OFF'})}, null, bus, null, null, null, {get: () => ({mqtt: {base_topic: system}})},
             {debug: message => node.logs.push(message)}, {directory, clock});
@@ -110,6 +110,22 @@ test('recordings on both systems retain one run and step across the mesh without
         assert.ok(!JSON.stringify([...source, ...destination]).includes('synthetic/') && !JSON.stringify(destination).includes('0x0000000000000001'));
         const prepare = h.wire.find(m => m.event.topic.endsWith('/prepare'));
         assert.equal(JSON.parse(prepare.event.message).trace.run, run);
+    } finally { await h.close(); }
+});
+
+test('a solar event invokes the permitted remote action through the existing mesh path', async () => {
+    const h = await pair();
+    try {
+        const {solarForLocalDay} = await import('../libs/z2m/src/solar.mjs');
+        const trigger = {type: 'sun', event: 'sunset', latitude: 0, longitude: 0, offset_minutes: 15, timezone: 'UTC'};
+        const r = remoteRule(); r.triggers = [trigger];
+        h.network.wall = solarForLocalDay('2026-03-20', trigger);
+        await h.a.load([r]); await h.b.load([]);
+        h.a.extension.runtime.tick(); await flush();
+        assert.equal(h.b.commands.length, 1);
+        assert.equal(h.a.commands.length, 0);
+        h.a.extension.runtime.tick(); await flush(); assert.equal(h.b.commands.length, 1);
+        assert.equal(h.a.extension.status().runtime_error, '');
     } finally { await h.close(); }
 });
 

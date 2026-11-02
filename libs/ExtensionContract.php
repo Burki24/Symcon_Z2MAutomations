@@ -138,6 +138,7 @@ final class ExtensionContract
             'rate_limited'         => 'The action rate limit was reached. Excess actions were cancelled.',
             'editor_unavailable'   => 'Load the devices and stored configuration into the editor first.',
             'editor_schedule'      => 'Check the trigger, time, timezone, weekdays, condition and action selections.',
+            'editor_solar'         => 'Choose sunrise or sunset, enter valid latitude and longitude and an offset from -720 to 720 minutes.',
             'editor_time'          => 'Enter a valid time in HH:MM or HH:MM:SS format.',
             'editor_timezone'      => 'Choose a valid time zone.',
             'editor_window'        => 'Enter valid and different start and end times for the time window.',

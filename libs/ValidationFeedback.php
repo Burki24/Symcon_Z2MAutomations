@@ -13,6 +13,7 @@ final class ValidationFeedback
         'type'                               => 'Type', 'device' => 'Device', 'property' => 'Property or channel', 'operator' => 'Comparison', 'value' => 'Value', 'for_seconds' => 'Minimum duration (s)',
         'on_change'                          => 'Only on value change', 'at' => 'Time', 'timezone' => 'Timezone', 'after' => 'Start of time window', 'before' => 'End of time window',
         'weekdays'                           => 'Weekdays', 'target' => 'Target device', 'system' => 'Partner system', 'values' => 'Action values', 'delay_seconds' => 'Wait before step (s)',
+        'event'                              => 'Solar event', 'latitude' => 'Latitude', 'longitude' => 'Longitude', 'offset_minutes' => 'Offset (minutes)',
         'scene_id'                           => 'Scene', 'endpoint' => 'Device channel'];
     private const REASONS = ['required' => 'This entry is missing.', 'type' => 'The value has the wrong type (for example text instead of a number).',
         'number'                        => 'Enter a number here.', 'integer' => 'Enter a whole number here.', 'boolean' => 'Choose enabled or disabled here.',

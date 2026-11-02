@@ -1,3 +1,4 @@
+import {solarForLocalDay} from './solar.mjs';
 import {hasScene} from './scenes.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 
@@ -43,6 +44,7 @@ export class AutomationRuntime {
         this.cooldowns = new Map();
         this.formats = new Map();
         this.days = new Map();
+        this.solar = new Map();
         this.sentAt = [];
         this.timer = null;
         this.lastError = '';
@@ -117,7 +119,7 @@ export class AutomationRuntime {
         this.references = references;
         this.changes = changes;
         this.lastError = '';
-        if (rules.some(rule => rule.triggers.some(trigger => trigger.type === 'time'))) {
+        if (rules.some(rule => rule.triggers.some(trigger => ['time', 'sun'].includes(trigger.type)))) {
             this.timer = this.clock.setInterval(() => this.tick(), 1000);
             this.timer?.unref?.();
         }
@@ -140,7 +142,7 @@ export class AutomationRuntime {
         this.holds.clear();
         this.values.clear();
         this.changes.clear();
-        this.references.clear(); this.cooldowns.clear(); this.days.clear(); this.formats.clear();
+        this.references.clear(); this.cooldowns.clear(); this.days.clear(); this.formats.clear(); this.solar.clear();
         this.running.clear();
         this.log('AKTION', 'Ausführung gestoppt; ausstehende Verzögerungen verworfen.');
     }
@@ -224,6 +226,7 @@ export class AutomationRuntime {
     tick() {
         if (!this.active) return;
         for (const rule of this.rules) rule.triggers.forEach((trigger, index) => {
+            if (trigger.type === 'sun') { this.tickSolar(rule, trigger, index); return; }
             if (trigger.type !== 'time') return;
             const local = this.local(trigger.timezone);
             const key = rule.id + ':' + index;
@@ -234,6 +237,30 @@ export class AutomationRuntime {
                 this.launch(rule, context);
             }
         });
+    }
+
+    tickSolar(rule, trigger, index) {
+        const now = this.clock.wallNow(), day = this.local(trigger.timezone).day, key = rule.id + ':' + index;
+        if (this.solar.get(key)?.day !== day) {
+            const anchor = Date.parse(day + 'T00:00:00Z'), targets = [];
+            for (const offset of [-1, 0, 1]) {
+                const date = new Date(anchor + offset * 86400000).toISOString().slice(0, 10);
+                targets.push({day: date, at: solarForLocalDay(date, trigger)});
+            }
+            this.solar.set(key, {day, targets});
+            const context = {rule: this.active.document.automations.indexOf(rule) + 1, trigger: index + 1,
+                revision: this.active.document.revision, origin: this.system};
+            this.log('AKTION', 'Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt.', {}, context);
+            if (targets[1].at === null) this.log('AKTION', 'Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen.', {}, context);
+        }
+        for (const target of this.solar.get(key).targets) {
+            if (target.at === null || Math.floor(now / 1000) !== Math.floor(target.at / 1000)
+                || (this.days.has(key) && target.day <= this.days.get(key))) continue;
+            this.days.set(key, target.day);
+            const context = this.trace(rule, {trigger: index + 1});
+            this.log('AKTION', 'Astro-Zeitpunkt einschließlich Zeitversatz erreicht.', {}, context);
+            this.launch(rule, context);
+        }
     }
 
     wait(milliseconds, generation) {

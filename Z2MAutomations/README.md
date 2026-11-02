@@ -718,3 +718,29 @@ Ablaufmeldungen werden nicht nachträglich wiederholt.
 Programmierbare Aufrufe: `Z2MA_StartRuntimeDebug(InstanceID, Seconds)` mit
 1–900 Sekunden, `Z2MA_StopRuntimeDebug(InstanceID)`; der Timer-Einstieg
 `Z2MA_ExpireRuntimeDebug(InstanceID)` wird normalerweise automatisch verwendet.
+
+## Automationen bei Sonnenauf- oder Sonnenuntergang
+
+Im Bereich „Zeitgesteuerte Automationen“ unter „Startzeitpunkt“ Sonnenaufgang
+oder Sonnenuntergang auswählen. Breitengrad und Längengrad des gewünschten
+Standorts eintragen; Dezimalpunkt und Dezimalkomma werden akzeptiert. Ein leerer
+Standort wird nicht stillschweigend durch 0/0 ersetzt. Die Zeitzone bestimmt den
+örtlichen Kalendertag des Sonnenereignisses.
+
+Der Zeitversatz wird in ganzen Minuten eingegeben: −30 startet eine halbe Stunde
+vor dem Ereignis, +15 eine Viertelstunde danach. Möglich sind −720 bis +720
+Minuten. Der Start darf dadurch auf den vorherigen oder folgenden Tag fallen.
+Bedingungen gelten zum tatsächlichen Start und vor den weiteren Aktionsschritten.
+
+Die Regel wie gewohnt in den Entwurf übernehmen, prüfen, speichern und aktivieren.
+Z2M berechnet die Zeiten täglich selbst, auch wenn Symcon ausgeschaltet ist.
+Die Näherungszeiten werden auf Minuten gerundet; Gelände, Höhe und aktuelle
+Wetterbedingungen fließen nicht ein. An Tagen ohne das gewählte Sonnenereignis
+(zum Beispiel Polartag) startet die Regel nicht. Verpasste Zeiten werden nach
+einem Neustart nicht nachgeholt.
+
+Beim Bearbeiten bleiben Ereignis, Standort, Versatz, Zeitzone und Aktionsfolge
+vorbelegt. Zurückwechseln auf „Feste Uhrzeit“ ersetzt den Sonnenauslöser vollständig.
+Modul und mitgelieferte Z2M-Erweiterung müssen für diese Funktion aktualisiert
+werden. Standortdaten werden mit der YAML im eigenen Z2M gespeichert, aber nicht
+im Debug ausgegeben.

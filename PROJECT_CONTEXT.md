@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Sonnenauf-/untergang mit Zeitversatz lokal ergänzt: native Auswahl im
+  Zeitbereich, expliziter Standort, Vorbelegung, Bearbeitung, Prüfung und
+  Speicherung. Eigene tägliche Berechnung in Z2M ohne Symcon oder Internetdienst.
+  Polartage, Mitternacht, Rücksprung, verpasste Zeiten und Wiederanlauf geprüft;
+  vorhandener Aktions-/Mesh-Pfad und bereinigte Debugmeldungen. Noch nicht
+  installiert oder nativ praktisch geprüft. Siehe ADR 0013 und DEVELOPMENT.md.
+
 - Eigener zeitlich begrenzter MQTT-Debugkanal lokal implementiert: flüchtige
   unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,
   Regel-/Schritt-/Laufzuordnung über Mesh und unveränderter DebugFlowHelper.
@@ -293,12 +300,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Zeitregeln bei Bedarf nach weiterem Praxisauftrag auch live auslösen und
-   weitere Geräte-/Bedingungskombinationen in der Konsole prüfen.
-2. Weitere Aktionsfolgen und Geräte nach Praxisauftrag prüfen; Gruppen bei Bedarf
-   im Klick-Editor ergänzen.
-2. Weitere Z2M-Versionen, Geräte-/Gruppen- und Zeitregeln nach Praxisauftrag prüfen;
-   der einzelne erfolgreiche Geräteablauf ist keine vollständige Kompatibilitätsabnahme.
+1. Gemeinsamen Laufbezug einer realen systemübergreifenden Geräteaktion im
+   MQTT-Debug nach ausdrücklichem Startsignal prüfen.
+2. Astro-Auswahl und Vorbelegung nach Praxisauftrag in der nativen Testkonsole
+   prüfen; reale Sonnenausführung nur mit ausdrücklich freigegebenem Ziel.
+3. Eigene wiederverwendbare Szenen/Aktionsfolgen und gezieltes manuelles Starten
+   einzelner Automationen sind weitere noch offene Ausbauschritte.
+4. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
+   einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
 ## Dokumentation
 

@@ -1,0 +1,58 @@
+[
+    {
+        "day": "2026-03-20",
+        "latitude": 0,
+        "longitude": 0,
+        "sunrise": 1773986643000,
+        "sunset": 1774030251000
+    },
+    {
+        "day": "2026-06-21",
+        "latitude": 45,
+        "longitude": 0,
+        "sunrise": 1782015195000,
+        "sunset": 1782071424000
+    },
+    {
+        "day": "2026-12-21",
+        "latitude": 45,
+        "longitude": 0,
+        "sunrise": 1797838500000,
+        "sunset": 1797870067000
+    },
+    {
+        "day": "2024-02-29",
+        "latitude": -45,
+        "longitude": 0,
+        "sunrise": 1709184992000,
+        "sunset": 1709232496000
+    },
+    {
+        "day": "2026-06-21",
+        "latitude": 60,
+        "longitude": 0,
+        "sunrise": 1782009341000,
+        "sunset": 1782077277000
+    },
+    {
+        "day": "2026-03-20",
+        "latitude": 0,
+        "longitude": 120,
+        "sunrise": 1773957848000,
+        "sunset": 1774001457000
+    },
+    {
+        "day": "2026-03-20",
+        "latitude": 0,
+        "longitude": -120,
+        "sunrise": 1774015437000,
+        "sunset": 1774059045000
+    },
+    {
+        "day": "2026-10-25",
+        "latitude": 45,
+        "longitude": 0,
+        "sunrise": 1792909738000,
+        "sunset": 1792947550000
+    }
+]

@@ -502,6 +502,9 @@
                             },
                             {
                                 "$ref": "#/definitions/timeTrigger"
+                            },
+                            {
+                                "$ref": "#/definitions/sunTrigger"
                             }
                         ]
                     }
@@ -543,6 +546,49 @@
             "minLength": 1,
             "maxLength": 128,
             "pattern": "^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"
+        },
+        "sunTrigger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "sun"
+                },
+                "event": {
+                    "enum": [
+                        "sunrise",
+                        "sunset"
+                    ]
+                },
+                "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                },
+                "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                },
+                "offset_minutes": {
+                    "type": "integer",
+                    "minimum": -720,
+                    "maximum": 720
+                },
+                "timezone": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                }
+            },
+            "required": [
+                "type",
+                "event",
+                "latitude",
+                "longitude",
+                "offset_minutes",
+                "timezone"
+            ]
         }
     }
 }

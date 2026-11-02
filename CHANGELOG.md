@@ -12,6 +12,14 @@
 
 ## Features
 
+- Sonnenauf- und Sonnenuntergang im Klick-Editor mit Standort, Zeitzone und
+  Zeitversatz von −720 bis +720 Minuten. Vollständige Vorbelegung, Prüfung und
+  Speicherung; eigene tägliche Berechnung direkt in Z2M ohne laufendes Symcon
+  oder Internetdienst. Fehlende Ereignisse werden übersprungen, verpasste Zeiten
+  nicht nachgeholt. Deutsche Debugmeldungen enthalten keine Koordinaten.
+  Modul und Erweiterung gemeinsam aktualisieren; noch keine Installation
+  oder native Praxisprüfung dieses Astro-Stands.
+
 - Zeitlich begrenzte Z2M-Ablaufaufzeichnung im nativen Symcon-Debug: Start für
   5, 10 oder 15 Minuten, eigene Bestätigung und Stopp. Meldungen erklären
   Auslöser, Bedingungen, Wartezeiten, Schritte und Fehler; gemeinsame

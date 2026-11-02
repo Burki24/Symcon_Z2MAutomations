@@ -383,6 +383,9 @@ trait AutomationEditor
             $sourceLabel = ($rule['triggers'][0]['type'] ?? '') === 'time'
                 ? sprintf($this->Translate('Daily at %s (%s)'), $rule['triggers'][0]['at'], $rule['triggers'][0]['timezone'])
                 : ($snapshot['devices'][$source]['name'] ?? $this->Translate('Advanced rule'));
+            if (($rule['triggers'][0]['type'] ?? '') === 'sun') {
+                $sourceLabel = $this->SolarEditorLabel($rule['triggers'][0]);
+            }
             if (count($rule['triggers'] ?? []) > 1 && $this->EditorRuleType($rule) === 'device') {
                 $sourceLabel = sprintf($this->Translate('%d device triggers (OR)'), count($rule['triggers']));
             }

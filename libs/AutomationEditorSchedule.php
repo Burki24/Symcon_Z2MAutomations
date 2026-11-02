@@ -23,6 +23,7 @@ trait AutomationEditorSchedule
             $modes = ['EditorTriggerType' => $TriggerType, 'EditorWindow' => $Window, 'EditorConditionType' => $ConditionType];
             $previous = $this->ReadAttributeString('EditorModes');
             $previous = $previous === '' ? [] : json_decode($previous, true, 8, JSON_THROW_ON_ERROR);
+            $modes['EditorTimeMode'] = $previous['EditorTimeMode'] ?? 'clock';
             $this->WriteAttributeString('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
             $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($ConditionType), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             if ($ConditionType === 'state' && ($previous['EditorConditionType'] ?? '') !== 'state') {
@@ -136,7 +137,7 @@ trait AutomationEditorSchedule
 
     private function ScheduleDefaults(): array
     {
-        return ['EditorTriggerType' => 'device', 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
+        return ['EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
             'EditorWindow'          => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
             'EditorMonday'          => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
             'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0];
@@ -171,6 +172,7 @@ trait AutomationEditorSchedule
             }
         }
         if (!in_array($v['EditorTriggerType'], ['device', 'time'], true) || !in_array($v['EditorConditionType'], ['none', 'state', 'numeric'], true)
+            || !in_array($v['EditorTimeMode'], ['clock', 'sunrise', 'sunset'], true)
             || !in_array($v['EditorCompare'], ['eq', 'ne', 'gt', 'gte', 'lt', 'lte'], true)) {
             return null;
         }
@@ -209,7 +211,7 @@ trait AutomationEditorSchedule
             $trigger = $triggers[0];
         } elseif ($v['EditorTriggerType'] === 'time') {
             $at = $this->EditorClockTime($v['EditorAt']);
-            if ($at === null) {
+            if ($v['EditorTimeMode'] === 'clock' && $at === null) {
                 $reason = 'editor_time';
                 return null;
             }
@@ -217,7 +219,15 @@ trait AutomationEditorSchedule
                 $reason = 'editor_timezone';
                 return null;
             }
-            $trigger = ['type' => 'time', 'at' => $at, 'timezone' => $v['EditorTimezone']];
+            if ($v['EditorTimeMode'] === 'clock') {
+                $trigger = ['type' => 'time', 'at' => $at, 'timezone' => $v['EditorTimezone']];
+            } else {
+                $trigger = $this->BuildSolarEditorTrigger($v);
+                if ($trigger === null) {
+                    $reason = 'editor_solar';
+                    return null;
+                }
+            }
         } else {
             $source = $this->FindEditorChoice($snapshot, $sourceID, $triggerKey, 'Source');
             if ($source === null) {
@@ -301,7 +311,14 @@ trait AutomationEditorSchedule
             }
             return '';
         };
-        if ($t['type'] === 'time') {
+        if ($t['type'] === 'sun') {
+            $solar = $this->SolarEditorFields($t);
+            if ($solar === null) {
+                return null;
+            }
+            $v = array_replace($v, $solar);
+            $source = $sourceChoice = '';
+        } elseif ($t['type'] === 'time') {
             $v['EditorAt'] = $t['at'];
             $v['EditorTimezone'] = $t['timezone'];
             $source = $sourceChoice = '';
@@ -356,9 +373,10 @@ trait AutomationEditorSchedule
     private function ScheduleVisibility(array $v): array
     {
         $device = $v['EditorTriggerType'] === 'device';
+        $solar = !$device && ($v['EditorTimeMode'] ?? 'clock') !== 'clock';
         $window = $v['EditorWindow'];
         $condition = $v['EditorConditionType'];
-        $fields = ['EditorDeviceTrigger' => $device, 'EditorTimeTrigger' => !$device, 'EditorTriggers' => $device, 'EditorSource' => false, 'EditorSourceChoice' => false, 'EditorHold' => false, 'EditorAt' => !$device, 'EditorTimezone' => !$device,
+        $fields = ['EditorDeviceTrigger' => $device, 'EditorTimeTrigger' => !$device, 'EditorTriggers' => $device, 'EditorSource' => false, 'EditorSourceChoice' => false, 'EditorHold' => false, 'EditorTimeMode' => !$device, 'EditorLatitude' => $solar, 'EditorLongitude' => $solar, 'EditorSolarOffset' => $solar, 'EditorAt' => !$device && !$solar, 'EditorTimezone' => !$device,
             'EditorAfter'                => $window, 'EditorBefore' => $window, 'EditorWindowTimezone' => $window,
             'EditorCondition'            => $condition !== 'none', 'EditorConditionChoice' => $condition === 'state', 'EditorConditionProperty' => $condition === 'state',
             'EditorNumericProperty'      => $condition === 'numeric', 'EditorNumber' => $condition === 'numeric', 'EditorCompare' => $condition !== 'none',
@@ -396,7 +414,7 @@ trait AutomationEditorSchedule
     private function ApplyScheduleFields(array $fields): void
     {
         $this->WriteAttributeString('EditorCondition', $fields['EditorCondition']);
-        $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType'])), JSON_THROW_ON_ERROR));
+        $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode'])), JSON_THROW_ON_ERROR));
         $snapshot = $this->EditorSnapshot();
         $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($fields['EditorConditionType']), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $meta = $this->ConditionMeta($snapshot, $fields);

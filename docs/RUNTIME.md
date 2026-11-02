@@ -208,3 +208,22 @@ Neustart und Neuladen der Erweiterung sind gleich behandelt. Es gibt keine
 Fortsetzung unterbrochener Folgen, kein Nachholen verpasster Schaltzeiten und keine
 Initialauslösung durch alte Cachewerte. Bedingungen warten weiterhin auf frische
 Beobachtungen; Tages-/Timerhistorien werden nicht über Neustarts hinweg gespeichert.
+
+## Sonnenereignisse
+
+Die eigene Berechnung läuft im Z2M-Prozess ohne HTTP, Fremdbibliothek oder
+Symcon-Nachlieferung. Grundlage sind die veröffentlichten
+[NOAA-Gleichungen](https://gml.noaa.gov/grad/solcalc/solareqns.PDF).
+Sie ergeben Näherungen bei einem Apparenthorizont von 90,833 Grad, ohne
+Höhen-/Gelände-/Wetterkorrektur. Die Ausgabe wird auf volle Minuten gerundet;
+keine Zusage sekundengenauer physischer Beobachtung, besonders an polaren Übergängen.
+
+Je Auslöser bleibt nur das begrenzte Berechnungsfenster für den aktuellen
+Ereignistag und Nachbartage im Speicher. Das deckt Versätze über Mitternacht ab.
+Ein fehlender Auf-/Untergang wird ohne Ersatzzeit übersprungen. Keine Nachholung
+nach Aktivierung oder Uhrsprung. Auslösung erfolgt an der berechneten absoluten
+Sekunde, höchstens einmal pro zugeordnetem Ereignistag und Auslöser. Der
+Ereignistag bezeichnet den lokalen Tag vor Anwendung des Versatzes.
+Uhr-Rückstellung wiederholt keinen bereits bearbeiteten Tag derselben Aktivierung.
+Neustart stellt nur den gespeicherten Betriebswunsch her und wartet auf neue
+Zeitpunkte. Bedingungen und Aktionspfad einschließlich Mesh sind unverändert.

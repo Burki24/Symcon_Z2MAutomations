@@ -425,7 +425,21 @@
             "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.": "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.",
             "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.": "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.",
             "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.": "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.",
-            "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.": "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten."
+            "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.": "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.",
+            "Start time": "Startzeitpunkt",
+            "Fixed time": "Feste Uhrzeit",
+            "Sunrise": "Sonnenaufgang",
+            "Sunset": "Sonnenuntergang",
+            "Solar event": "Sonnenereignis",
+            "Latitude": "Breitengrad",
+            "Longitude": "Längengrad",
+            "Offset (minutes)": "Zeitversatz (Minuten)",
+            "Latitude (-90 to 90)": "Breitengrad (-90 bis 90)",
+            "Longitude (-180 to 180)": "Längengrad (-180 bis 180)",
+            "Offset in minutes (negative: earlier, positive: later)": "Zeitversatz in Minuten (negativ: früher, positiv: später)",
+            "For solar events, enter the location coordinates once. Dot or comma is accepted. Z2M calculates daily times without Symcon or an internet service. No event means no execution.": "Für Sonnenereignisse die Standortkoordinaten eintragen. Punkt oder Komma sind möglich. Z2M berechnet die täglichen Zeiten ohne Symcon oder Internetdienst. Ohne Sonnenereignis an diesem Tag erfolgt kein Start.",
+            "Daily: %s, offset %+d min (%s)": "Täglich: %s, Versatz %+d Min. (%s)",
+            "Choose sunrise or sunset, enter valid latitude and longitude and an offset from -720 to 720 minutes.": "Sonnenauf- oder -untergang wählen, gültige Standortkoordinaten und einen Zeitversatz von -720 bis 720 Minuten eingeben."
         }
     }
 }

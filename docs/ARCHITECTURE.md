@@ -172,3 +172,12 @@ Aufzeichnungssteuerung liegt außerhalb von Speicher-/Aktivierungsworkflows;
 begrenzte Warteschlange und Publish-Timeout entkoppeln sie von der Runtime.
 Mesh erhält lediglich geprüften zusätzlichen Ablaufkontext, keine neuen Rechte.
 Siehe [ADR 0012](adr/0012-timed-runtime-diagnostics.md).
+
+## Standortbezogene Sonnenzeiten
+
+AutomationEditorSolar ergänzt die Zeitfelder um Ereignis, Standort und Versatz.
+Schema 1 erhält einen separaten sun-Auslöser; keine Umdeutung fester Uhrzeiten.
+Die reine eigene solar.mjs-Berechnung wird in das Einzeldatei-Artefakt eingebettet.
+Bei Fälligkeit verwendet der begrenzte Tagesplan den bestehenden Start-,
+Bedingungs- und Aktionspfad. Kein zusätzlicher Standortdienst und keine
+Koordinaten im Debug. Siehe [ADR 0013](adr/0013-local-solar-triggers.md).

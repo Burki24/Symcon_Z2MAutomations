@@ -263,7 +263,7 @@ trait AutomationEditorManagement
         if (($rule['triggers'] ?? []) !== [] && count(array_filter($rule['triggers'], static fn (array $t): bool => ($t['type'] ?? '') === 'device')) === count($rule['triggers'])) {
             return 'device';
         }
-        return count($rule['triggers'] ?? []) === 1 && $type === 'time' ? 'time' : 'advanced';
+        return count($rule['triggers'] ?? []) === 1 && in_array($type, ['time', 'sun'], true) ? 'time' : 'advanced';
     }
 
     private function EditorTypeLabel(string $type): string

@@ -63,7 +63,7 @@ function selectDiagnosticBranches(node) {
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
 const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
-    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
+    'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
 function schemaDetails(document) {

@@ -182,5 +182,17 @@
     "step_failed": {
         "event": "FEHLER",
         "message": "Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."
+    },
+    "astro_plan": {
+        "event": "AKTION",
+        "message": "Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt."
+    },
+    "astro_missing": {
+        "event": "AKTION",
+        "message": "Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen."
+    },
+    "astro_due": {
+        "event": "AKTION",
+        "message": "Astro-Zeitpunkt einschließlich Zeitversatz erreicht."
     }
 }

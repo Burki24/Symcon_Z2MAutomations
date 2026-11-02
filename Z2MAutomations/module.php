@@ -21,6 +21,7 @@ require_once __DIR__ . '/../libs/ExtensionIntegration.php';
 require_once __DIR__ . '/../libs/AutomationEditor.php';
 require_once __DIR__ . '/../libs/AutomationEditorManagement.php';
 require_once __DIR__ . '/../libs/AutomationEditorSchedule.php';
+require_once __DIR__ . '/../libs/AutomationEditorSolar.php';
 require_once __DIR__ . '/../libs/AutomationEditorActions.php';
 require_once __DIR__ . '/../libs/AutomationEditorAreas.php';
 require_once __DIR__ . '/../libs/AutomationEditorTriggers.php';
@@ -50,6 +51,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\AutomationEditor;
     use Z2MAutomations\AutomationEditorManagement;
     use Z2MAutomations\AutomationEditorSchedule;
+    use Z2MAutomations\AutomationEditorSolar;
     use Z2MAutomations\AutomationEditorActions;
     use Z2MAutomations\AutomationEditorAreas;
     use Z2MAutomations\AutomationEditorTriggers;

@@ -13,6 +13,52 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+test('solar triggers run once at the offset time and skip missed times, polar events and failed conditions', async () => {
+    const {solarForLocalDay} = await import('../libs/z2m/src/solar.mjs');
+    const h = await harness();
+    try {
+        const t = {type: 'sun', event: 'sunrise', latitude: 0, longitude: 0, offset_minutes: -30, timezone: 'UTC'};
+        const r = rule(); r.triggers = [t];
+        const at = solarForLocalDay('2026-03-20', t);
+        h.clock.wall = at - 1000;
+        assert.equal((await h.store(yaml([r]))).status, 'ok'); await h.activate();
+        await h.clock.advance(999); assert.equal(h.commands.length, 0);
+        await h.clock.advance(1); assert.equal(h.commands.length, 1);
+        h.clock.wall -= 1000; await h.clock.advance(1000); assert.equal(h.commands.length, 1, 'Clock rollback cannot replay an already observed solar day');
+        await h.deactivate(); h.clock.wall = at + 60000; await h.activate(); await h.clock.advance(1000);
+        assert.equal(h.commands.length, 1, 'Restart/activation cannot catch up a missed event');
+        r.conditions = [{type: 'device_value', device: sourceID, property: 'temperature', operator: 'lt', value: 20}];
+        await h.store(yaml([r], 2)); h.clock.wall = at - 1000; await h.activate(); await h.event({temperature: 25}); await h.clock.advance(1000);
+        assert.equal(h.commands.length, 1, 'Solar triggers use the same AND conditions');
+        r.triggers[0] = {...t, latitude: 90}; r.conditions = [];
+        await h.store(yaml([r], 3)); h.clock.wall = Date.parse('2026-06-21T00:00:00Z'); await h.activate(); await h.clock.advance(86400000);
+        assert.equal(h.commands.length, 1);
+        assert.ok(h.logs.some(s => s.includes('keinen Zeitpunkt')));
+        for (const patch of [{latitude: 91}, {longitude: -181}, {offset_minutes: 721}, {event: 'noon'}, {timezone: 'Unknown/Zone'}]) {
+            const invalid = rule(); invalid.triggers = [{...t, ...patch}];
+            assert.throws(() => validateYaml(yaml([invalid])), undefined, JSON.stringify(patch));
+        }
+    } finally { await h.close(); }
+});
+
+test('solar offsets cross local midnight and persisted permission resumes without Symcon', async () => {
+    const {solarForLocalDay} = await import('../libs/z2m/src/solar.mjs');
+    for (const offset of [-720, 720]) {
+        let h = await harness();
+        try {
+            const t = {type: 'sun', event: 'sunrise', latitude: 0, longitude: 180, offset_minutes: offset, timezone: 'Pacific/Kiritimati'};
+            const at = solarForLocalDay('2026-03-20', t), r = rule(); r.triggers = [t];
+            await h.store(yaml([r])); await h.activate({resume_after_restart: true});
+            const directory = h.directory; await h.close(false);
+            h = await harness(directory, true, h => { h.clock.wall = at - 1000; });
+            assert.equal(h.extension.status().resume_status, 'resumed');
+            await h.clock.advance(1000);
+            assert.equal(h.commands.length, 1, 'The base-event day is found even when the offset changes the local date');
+            await h.clock.advance(1000); assert.equal(h.commands.length, 1);
+        } finally { await h.close(); }
+    }
+});
+
 test('live MQTT recording is leased independently and follows an ordered automation without raw values', async () => {
     const h = await harness();
     try {

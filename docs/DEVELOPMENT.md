@@ -1228,3 +1228,52 @@ Keine Originalereignisse, Gerätezuordnungen oder MQTT-Brokerrechte geändert.
 Keine Änderungen am Produktiv-Symcon-Modul; die gemeinsam genutzten realen
 Z2M-Erweiterungen wurden wie beauftragt aktualisiert. Keine Änderung am
 Funktionscode dieses Repositorys im Rahmen dieses Praxisauftrags.
+
+## Sonnenauf- und Sonnenuntergang: lokale Implementierung
+
+Der Zeitbereich bietet feste Uhrzeit, Sonnenaufgang und Sonnenuntergang mit
+Standort und Versatz. AutomationEditorSolar verwendet die bestehenden Formular-
+und Debug-Helper unverändert. Vorhandene Helper wurden geprüft: GeofenceHelper
+behandelt Geofencing, nicht astronomische Zeitplanung; kein neuer zentraler
+Helper ist erforderlich. Die fachliche Umsetzung bleibt librarylokal.
+
+Die neue Auswahl blendet Standort und Zeitversatz statt Uhrzeit ein. Die
+Optionsübergabe bleibt im bestehenden SaveScheduledAutomation-Vertrag.
+Punkt/Komma sowie kleine gültige YAML-Zahlen bleiben nach Vorbelegung bearbeitbar.
+Fehlende/ungültige Angaben ergeben eine verständliche Ablehnung ohne Änderung
+des Entwurfs. Debug nennt Ereignis, Versatz und Ergebnis, keine Koordinaten.
+
+Schema 1 erhält die additive sun-Variante. Die eigene reine Berechnung in
+src/solar.mjs verwendet veröffentlichte NOAA-Gleichungen, keinen Code oder
+interne Strukturen des fremden Automationsprojekts. Kein Internetdienst,
+kein zusätzliches Paket und keine Symcon-Nachlieferung. Apparenthorizont
+90,833 Grad, keine Höhen-/Gelände-/Wetterkorrektur, Rundung auf volle Minuten.
+Es ist eine Näherung, insbesondere an polaren Übergängen.
+
+Die Runtime hält pro Auslöser ein begrenztes Fenster einschließlich Nachbartagen
+für Versätze über Mitternacht. Tagesbezug ist der lokale Tag des Sonnenereignisses
+vor Anwendung des Versatzes. Auslösung an absoluter UTC-Sekunde und höchstens
+einmal je Ereignistag. Kein Nachholen und keine Wiederholung durch Rücksprung
+innerhalb der Aktivierung. Neustart lädt die gespeicherte Betriebsfreigabe und
+berechnet neu. Ohne Ereignis wird ohne Ersatzzeit übersprungen. Bedingungen,
+Verzögerungen und Geräte-/Szenen-/Mesh-Aktionen bleiben derselbe Ausführungspfad.
+
+Nachweise: unabhängige PHP-date_sun_info-Referenzen für synthetische Koordinaten,
+Jahreszeiten, Schaltjahr und beide Längengradvorzeichen (geprüfte normale Fälle
+unter fünf Minuten Abweichung). Polartage, Zeitzone, Rundung, Versätze ±12 Stunden,
+Mitternacht, verpasste Zeiten, Rücksprung, Bedingungen, Wiederanlauf und eine
+Remote-Aktion mit zwei echten Erweiterungsobjekten sind synthetisch geprüft.
+Die PHP-/Node-Integration führt die echten Formularskripte für Erstellung und
+Bearbeitung aus: Prüfung, Speicherung, Wiederladen, Vorbelegung, Fehlerschutz
+und Rückwechsel zur Uhrzeit. Diagnosepfade enthalten nur Feldpositionen/Grenzen.
+
+Keine Installation auf Test- oder Produktivsystemen für diesen Astro-Schritt;
+native Konsolenbedienung und reale Sonnenausführung bleiben offen. Der separat
+vereinbarte reale Debugtest wird dadurch nicht vorweggenommen.
+
+Nachweise bestanden: `php tests/run.php` mit 88 JavaScript-Tests und echter
+PHP-/JS-Integration, anschließend erneuter Integrationslauf mit dem tatsächlichen
+Astro-Auswahl-Callback. Struktur- und Kodierungsprüfung, offizieller StylePHP-
+JSON-Check eigener Projektdateien ohne Fremdquellen, PHP CS Fixer 3.95.27 im
+Prüfmodus sowie `npm run check:extension` bestanden. Alle geänderten Textdateien
+als UTF-8 mit LF geprüft. Keine neuen Abhängigkeiten oder Änderungen an Helpern.

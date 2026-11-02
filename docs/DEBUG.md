@@ -296,3 +296,13 @@ die gesamte Bedingungsanzahl und die UND-Verknüpfung. SelectAutomation meldet d
 Anzahl vorbelegter Bedingungen. Keine Gerätenamen, IEEE-Adressen oder Werte
 werden dafür protokolliert. Neue öffentliche Listenaktionen folgen denselben
 zentralen Start-/Ende-Abläufen wie die bestehenden Editoraktionen.
+
+## Astro-Auslöser
+
+Der Klick-Editor nennt Auswahl, Versatz, Annahme oder ungültige Angaben.
+Die Runtime meldet pro neuem Tagesplan Prüfung, gegebenenfalls fehlendes
+Sonnenereignis und bei Fälligkeit den Start mit Regel-/Auslöser-/Laufbezug.
+Meldungskatalog und eigener MQTT-Debugkanal verwenden dieselben festen Texte.
+Keine Breiten-/Längengrade oder vollständigen Auslöserobjekte im Debug.
+Fehlende Ereignisse erzeugen keinen Fehler pro Sekunde. Ein Debugausfall
+verändert weder Berechnung noch Schaltpfad.

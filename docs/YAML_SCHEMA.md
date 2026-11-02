@@ -118,3 +118,27 @@ Syntax-, Schema- und ergänzende Semantikprüfungen sind getrennte Fehlerklassen
 Fehlerantworten enthalten feste Codes und Meldungen, keine Roh-YAML oder
 Dateisystempfade. Eine neue inkompatible Datenstruktur benötigt eine neue
 schema_version und eine ausdrücklich geplante Migration.
+
+## Sonnenereignis als Auslöser
+
+Additive Schema-1-Variante, alle sechs Felder erforderlich. Beispiel mit
+bewusst synthetischem Standort:
+
+```yaml
+triggers:
+  - type: sun
+    event: sunset
+    latitude: 0.125
+    longitude: -0.25
+    timezone: UTC
+    offset_minutes: -30
+```
+
+event ist sunrise oder sunset, latitude −90 bis +90 und longitude −180 bis
++180 (endliche Zahlen), offset_minutes eine Ganzzahl von −720 bis +720.
+Die IANA-Zeitzone ordnet das Sonnenereignis einem lokalen Kalendertag zu.
+Danach wird der Versatz auf die berechnete UTC-Zeit addiert. Rundung,
+fehlende Ereignisse und Neustartverhalten stehen in RUNTIME.md.
+Der Klick-Editor unterstützt einen Sonnenauslöser je zeitgesteuerter Regel;
+weitere Mischungen bleiben über YAML möglich und gegen versehentliche
+Vereinfachung im Formular geschützt.

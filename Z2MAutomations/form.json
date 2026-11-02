@@ -606,6 +606,27 @@
                             "expanded": true,
                             "items": [
                                 {
+                                    "type": "Select",
+                                    "name": "DeviceEditorTimeMode",
+                                    "caption": "Start time",
+                                    "value": "clock",
+                                    "options": [
+                                        {
+                                            "caption": "Fixed time",
+                                            "value": "clock"
+                                        },
+                                        {
+                                            "caption": "Sunrise",
+                                            "value": "sunrise"
+                                        },
+                                        {
+                                            "caption": "Sunset",
+                                            "value": "sunset"
+                                        }
+                                    ],
+                                    "onChange": "Z2MA_ConfigureEditorSolar($id, $DeviceEditorTimeMode, 'device');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "DeviceEditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -629,6 +650,34 @@
                                     "type": "Label",
                                     "name": "DeviceScheduleHelp",
                                     "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "DeviceEditorLatitude",
+                                    "caption": "Latitude (-90 to 90)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "DeviceEditorLongitude",
+                                    "caption": "Longitude (-180 to 180)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "NumberSpinner",
+                                    "name": "DeviceEditorSolarOffset",
+                                    "caption": "Offset in minutes (negative: earlier, positive: later)",
+                                    "value": 0,
+                                    "minimum": -720,
+                                    "maximum": 720,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "caption": "For solar events, enter the location coordinates once. Dot or comma is accepted. Z2M calculates daily times without Symcon or an internet service. No event means no execution.",
                                     "width": "100%"
                                 }
                             ],
@@ -1116,7 +1165,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "DeviceCreateRuleButton"
                                 },
                                 {
@@ -1124,7 +1173,7 @@
                                     "name": "DeviceUpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",
@@ -1269,6 +1318,27 @@
                             "expanded": true,
                             "items": [
                                 {
+                                    "type": "Select",
+                                    "name": "TimeEditorTimeMode",
+                                    "caption": "Start time",
+                                    "value": "clock",
+                                    "options": [
+                                        {
+                                            "caption": "Fixed time",
+                                            "value": "clock"
+                                        },
+                                        {
+                                            "caption": "Sunrise",
+                                            "value": "sunrise"
+                                        },
+                                        {
+                                            "caption": "Sunset",
+                                            "value": "sunset"
+                                        }
+                                    ],
+                                    "onChange": "Z2MA_ConfigureEditorSolar($id, $TimeEditorTimeMode, 'time');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "TimeEditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -1292,6 +1362,34 @@
                                     "type": "Label",
                                     "name": "TimeScheduleHelp",
                                     "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "TimeEditorLatitude",
+                                    "caption": "Latitude (-90 to 90)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "TimeEditorLongitude",
+                                    "caption": "Longitude (-180 to 180)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "NumberSpinner",
+                                    "name": "TimeEditorSolarOffset",
+                                    "caption": "Offset in minutes (negative: earlier, positive: later)",
+                                    "value": 0,
+                                    "minimum": -720,
+                                    "maximum": 720,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "caption": "For solar events, enter the location coordinates once. Dot or comma is accepted. Z2M calculates daily times without Symcon or an internet service. No event means no execution.",
                                     "width": "100%"
                                 }
                             ],
@@ -1959,7 +2057,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "TimeCreateRuleButton"
                                 },
                                 {
@@ -1967,7 +2065,7 @@
                                     "name": "TimeUpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",
@@ -2291,6 +2389,27 @@
                             "expanded": true,
                             "items": [
                                 {
+                                    "type": "Select",
+                                    "name": "EditorTimeMode",
+                                    "caption": "Start time",
+                                    "value": "clock",
+                                    "options": [
+                                        {
+                                            "caption": "Fixed time",
+                                            "value": "clock"
+                                        },
+                                        {
+                                            "caption": "Sunrise",
+                                            "value": "sunrise"
+                                        },
+                                        {
+                                            "caption": "Sunset",
+                                            "value": "sunset"
+                                        }
+                                    ],
+                                    "onChange": "Z2MA_ConfigureEditorSolar($id, $EditorTimeMode, '');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "EditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -2314,6 +2433,34 @@
                                     "type": "Label",
                                     "name": "ScheduleHelp",
                                     "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "EditorLatitude",
+                                    "caption": "Latitude (-90 to 90)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "EditorLongitude",
+                                    "caption": "Longitude (-180 to 180)",
+                                    "value": "",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "NumberSpinner",
+                                    "name": "EditorSolarOffset",
+                                    "caption": "Offset in minutes (negative: earlier, positive: later)",
+                                    "value": 0,
+                                    "minimum": -720,
+                                    "maximum": 720,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "caption": "For solar events, enter the location coordinates once. Dot or comma is accepted. Z2M calculates daily times without Symcon or an internet service. No event means no execution.",
                                     "width": "100%"
                                 }
                             ],
@@ -2801,7 +2948,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "CreateRuleButton"
                                 },
                                 {
@@ -2809,7 +2956,7 @@
                                     "name": "UpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",
