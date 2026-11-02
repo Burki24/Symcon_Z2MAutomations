@@ -1,6 +1,6 @@
 # ADR 0013: Unabhängig berechnete Sonnenereignisse
 
-Status: angenommen, lokal implementiert; noch nicht installiert.
+Status: angenommen, implementiert und native Editor-/Speicherprüfung bestanden.
 
 ## Anlass
 
@@ -42,3 +42,13 @@ Vorbelegung, Prüfung, Speicherung und Rückwechsel auf Uhrzeit. Runtime-Tests
 decken Zeitzonen, Mitternacht, Versatz, Rücksprung, Bedingungen, verpasste
 Ereignisse, Wiederanlauf und Mesh ab. Debug enthält keine Koordinaten.
 Installation und reale Geräteaktionen benötigen weiterhin einen Praxisauftrag.
+
+Auf Praxisauftrag wurde der Astro-Stand in Test-Symcon und der gemeinsam
+genutzten Z2M-Erweiterung dateigenau bestätigt. Native Erstellung und Änderung
+zwischen Sonnenuntergang mit negativem und Sonnenaufgang mit positivem Versatz,
+Vorbelegung, Ablehnung ungültiger Koordinaten ohne Entwurfsänderung sowie
+Z2M-Prüfung, Speicherung und Wiederladen wurden mit ausgeschalteter Testregel
+geprüft. Native Debugmeldungen nennen Ergebnis und Versatz ohne Koordinaten.
+Die Testregel wurde entfernt; ursprüngliche Regeln und Betriebsfreigaben
+wiederhergestellt. Keine Testaktivierung oder Schaltbefehle. Der reale Start
+bei einem Sonnenereignis ist weiterhin nicht praktisch geprüft.

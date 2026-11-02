@@ -17,8 +17,10 @@
   Speicherung; eigene tägliche Berechnung direkt in Z2M ohne laufendes Symcon
   oder Internetdienst. Fehlende Ereignisse werden übersprungen, verpasste Zeiten
   nicht nachgeholt. Deutsche Debugmeldungen enthalten keine Koordinaten.
-  Modul und Erweiterung gemeinsam aktualisieren; noch keine Installation
-  oder native Praxisprüfung dieses Astro-Stands.
+  Modul und Erweiterung gemeinsam aktualisieren. Auswahl, Bearbeitung,
+  Vorbelegung, Prüfung und Speicherung im nativen Formular mit ausgeschalteter
+  Testregel bestätigt; die tatsächliche Sonnenausführung ist noch nicht
+  praktisch geprüft.
 
 - Zeitlich begrenzte Z2M-Ablaufaufzeichnung im nativen Symcon-Debug: Start für
   5, 10 oder 15 Minuten, eigene Bestätigung und Stopp. Meldungen erklären

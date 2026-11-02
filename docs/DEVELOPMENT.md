@@ -1267,9 +1267,9 @@ Die PHP-/Node-Integration führt die echten Formularskripte für Erstellung und
 Bearbeitung aus: Prüfung, Speicherung, Wiederladen, Vorbelegung, Fehlerschutz
 und Rückwechsel zur Uhrzeit. Diagnosepfade enthalten nur Feldpositionen/Grenzen.
 
-Keine Installation auf Test- oder Produktivsystemen für diesen Astro-Schritt;
-native Konsolenbedienung und reale Sonnenausführung bleiben offen. Der separat
-vereinbarte reale Debugtest wird dadurch nicht vorweggenommen.
+Die lokale Implementierung allein enthält keinen Praxisnachweis. Die folgende
+native Prüfung ergänzt den Editor-/Speichernachweis; reale Sonnenausführung
+und der separat vereinbarte reale Debugtest werden dadurch nicht vorweggenommen.
 
 Nachweise bestanden: `php tests/run.php` mit 88 JavaScript-Tests und echter
 PHP-/JS-Integration, anschließend erneuter Integrationslauf mit dem tatsächlichen
@@ -1277,3 +1277,51 @@ Astro-Auswahl-Callback. Struktur- und Kodierungsprüfung, offizieller StylePHP-
 JSON-Check eigener Projektdateien ohne Fremdquellen, PHP CS Fixer 3.95.27 im
 Prüfmodus sowie `npm run check:extension` bestanden. Alle geänderten Textdateien
 als UTF-8 mit LF geprüft. Keine neuen Abhängigkeiten oder Änderungen an Helpern.
+
+## Astro-Klick-Editor: native Praxisprüfung
+
+Auf ausdrücklichen Auftrag über Test-Symcon und dessen native Windows-Konsole
+geprüft. Das angebundene Z2M wird gemeinsam mit der Produktivinstallation genutzt.
+Modulquellen, Formular, Übersetzung, öffentliche Astro-Funktion und hochladbare
+Erweiterung waren bereits dateigenau aktuell; kein unnötiges Überschreiben oder
+Neuladen. Zwei temporäre Modulinstanzen erhielten den vorhandenen Partnerkontext,
+damit der ursprüngliche lokale Formularentwurf unangetastet bleiben konnte.
+
+Eine ausgeschaltete Testregel wurde per Klick-Editor mit Sonnenuntergang,
+negativem Minutenversatz, synthetischen Koordinaten und einem nicht ausgeführten
+Geräteaktionsschritt angelegt. Die Auswahl blendete die Uhrzeit aus und Standort
+sowie Zeitversatz ein. Dezimalkomma wurde korrekt normalisiert. Ein Breitengrad
+außerhalb des erlaubten Bereichs wurde verständlich abgewiesen; der Entwurf blieb
+bytegleich. Nach gültiger Erstellung zeigte die Liste ausdrücklich „Nein“.
+
+Die Regelauswahl belegte Name, ausgeschalteten Zustand, Sonnenereignis, Standort,
+Zeitzone, Versatz und Aktionsliste korrekt vor. Änderung auf Sonnenaufgang und
+positiven Versatz wurde über den nativen Übernahmebutton bestätigt. Anschließend
+Z2M-Prüfung und Speicherung über die nativen Buttons erfolgreich. Z2M bestätigte
+den gespeicherten Stand durch frischen Status; die Laufzeit blieb während der
+Testspeicherung gestoppt. Ein zusätzlicher direkter lesender Abruf aus Z2M
+bestätigte die gespeicherten Werte und den ausgeschalteten Regelzustand.
+Wiederladen in den Editor und erneute native Regelauswahl belegten alle Werte
+erneut korrekt vor.
+
+Native Debug-Datei geprüft: Astro-Auswahl, ungültige Koordinaten, Vorbereitung
+beider Sonnenereignisse mit Versatz, erfolgreiche Vorbelegung, Z2M-Prüfung und
+Speicher-/Statusbestätigung sind nachvollziehbar. Die Testkoordinaten erschienen
+nicht in den aufgezeichneten Debugmeldungen. Keine Testregel wurde aktiviert,
+keine Geräteaktion oder Szene aufgerufen und kein Z2M-Neustart durchgeführt.
+
+Aufräumen: ursprüngliches Dokument einschließlich Partnerfreigaben bis auf die
+fortgeschriebene Revision identisch wiederhergestellt; ausschließlich dessen
+vorherige Betriebsfreigabe erneut aktiviert. Ausführung, Mesh und Wiederanlauf
+bestätigt, Laufzeitfehler leer. Das andere System blieb im bisherigen Stand
+aktiv. Alle temporären Modulinstanzen entfernt, Debug-Dateiaufzeichnung beendet,
+zusätzliche Leseverbindungen geschlossen. Der ursprüngliche lokale Formularentwurf
+blieb bytegleich. Produktiv-Symcon-Modul, Originalereignisse, Gerätezuordnungen
+und Brokerkonfiguration wurden nicht geändert. Keine Änderung am Funktionscode
+für diesen Praxisauftrag; tatsächliche zeitliche Auslösung bleibt ungeprüft.
+
+Abschließende Projektprüfungen erfolgreich: `php tests/run.php` einschließlich
+88 JavaScript-Tests, PHP-/JS-Integration, Kodierungs- und Artefaktprüfung;
+separate Strukturprüfung, offizieller StylePHP-JSON-Check einer temporären Kopie
+der eigenen JSON-Dateien ohne Fremdquellen und PHP CS Fixer 3.95.27 im Prüfmodus
+(keine Änderungen erforderlich). Geänderte Dokumentation als UTF-8/LF geprüft.

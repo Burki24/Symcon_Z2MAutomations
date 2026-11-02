@@ -12,8 +12,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Zeitbereich, expliziter Standort, Vorbelegung, Bearbeitung, Prüfung und
   Speicherung. Eigene tägliche Berechnung in Z2M ohne Symcon oder Internetdienst.
   Polartage, Mitternacht, Rücksprung, verpasste Zeiten und Wiederanlauf geprüft;
-  vorhandener Aktions-/Mesh-Pfad und bereinigte Debugmeldungen. Noch nicht
-  installiert oder nativ praktisch geprüft. Siehe ADR 0013 und DEVELOPMENT.md.
+  vorhandener Aktions-/Mesh-Pfad und bereinigte Debugmeldungen. Astro-Stand in
+  Test-Symcon und gemeinsam genutztem Z2M dateigenau bestätigt; native Erstellung,
+  Bearbeitung, Vorbelegung, Ablehnung ungültiger Koordinaten, Z2M-Prüfung,
+  Speicherung und Wiederladen mit ausgeschalteter Testregel praktisch geprüft.
+  Ursprüngliche Regeln und Betrieb wiederhergestellt, Formularentwurf erhalten;
+  keine Schaltbefehle. Reale Sonnenausführung bleibt offen. Siehe ADR 0013 und
+  DEVELOPMENT.md.
 
 - Eigener zeitlich begrenzter MQTT-Debugkanal lokal implementiert: flüchtige
   unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,
