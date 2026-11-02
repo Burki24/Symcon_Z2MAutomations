@@ -1053,6 +1053,37 @@
                                     "form": [
                                         {
                                             "type": "Select",
+                                            "name": "RowActionKind",
+                                            "caption": "Action type",
+                                            "value": "device",
+                                            "options": [
+                                                {
+                                                    "caption": "Device action or existing scene",
+                                                    "value": "device"
+                                                },
+                                                {
+                                                    "caption": "Reusable action sequence",
+                                                    "value": "sequence"
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'DeviceEditorActions', $RowActionKind, $RowSequence);"
+                                        },
+                                        {
+                                            "type": "Select",
+                                            "name": "RowSequence",
+                                            "caption": "Action sequence",
+                                            "value": "",
+                                            "visible": false,
+                                            "options": [
+                                                {
+                                                    "caption": "Choose a reusable action sequence",
+                                                    "value": ""
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'DeviceEditorActions', $RowActionKind, $RowSequence);"
+                                        },
+                                        {
+                                            "type": "Select",
                                             "name": "RowDevice",
                                             "caption": "Device",
                                             "value": "",
@@ -1943,6 +1974,37 @@
                                     "onDelete": "Z2MA_InspectEditorActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'delete', 'time');",
                                     "onChangeOrder": "Z2MA_InspectEditorActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'order', 'time');",
                                     "form": [
+                                        {
+                                            "type": "Select",
+                                            "name": "RowActionKind",
+                                            "caption": "Action type",
+                                            "value": "device",
+                                            "options": [
+                                                {
+                                                    "caption": "Device action or existing scene",
+                                                    "value": "device"
+                                                },
+                                                {
+                                                    "caption": "Reusable action sequence",
+                                                    "value": "sequence"
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'TimeEditorActions', $RowActionKind, $RowSequence);"
+                                        },
+                                        {
+                                            "type": "Select",
+                                            "name": "RowSequence",
+                                            "caption": "Action sequence",
+                                            "value": "",
+                                            "visible": false,
+                                            "options": [
+                                                {
+                                                    "caption": "Choose a reusable action sequence",
+                                                    "value": ""
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'TimeEditorActions', $RowActionKind, $RowSequence);"
+                                        },
                                         {
                                             "type": "Select",
                                             "name": "RowDevice",
@@ -2836,6 +2898,37 @@
                                     "form": [
                                         {
                                             "type": "Select",
+                                            "name": "RowActionKind",
+                                            "caption": "Action type",
+                                            "value": "device",
+                                            "options": [
+                                                {
+                                                    "caption": "Device action or existing scene",
+                                                    "value": "device"
+                                                },
+                                                {
+                                                    "caption": "Reusable action sequence",
+                                                    "value": "sequence"
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'EditorActions', $RowActionKind, $RowSequence);"
+                                        },
+                                        {
+                                            "type": "Select",
+                                            "name": "RowSequence",
+                                            "caption": "Action sequence",
+                                            "value": "",
+                                            "visible": false,
+                                            "options": [
+                                                {
+                                                    "caption": "Choose a reusable action sequence",
+                                                    "value": ""
+                                                }
+                                            ],
+                                            "onChange": "Z2MA_ConfigureSequenceCall($id, 'EditorActions', $RowActionKind, $RowSequence);"
+                                        },
+                                        {
+                                            "type": "Select",
                                             "name": "RowDevice",
                                             "caption": "Device",
                                             "value": "",
@@ -3022,6 +3115,202 @@
                     "confirm": "Activate the currently stored revision in Z2M? Enabled automations may switch devices and continue without Symcon.",
                     "onClick": "Z2MA_ActivateAutomations($id);",
                     "enabled": false
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "name": "ReusableSequencePanel",
+            "caption": "Reusable action sequences",
+            "expanded": false,
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Create an action sequence once and use it in several automations. Conditions and stop apply to the complete rule run. Changes take effect only after validation and storage in Z2M.",
+                    "width": "100%"
+                },
+                {
+                    "type": "List",
+                    "name": "SequenceEditorList",
+                    "caption": "Action sequences in the draft",
+                    "rowCount": 8,
+                    "width": "100%",
+                    "columns": [
+                        {
+                            "name": "Name",
+                            "caption": "Name",
+                            "width": "auto"
+                        },
+                        {
+                            "name": "Steps",
+                            "caption": "Steps",
+                            "width": "100px"
+                        },
+                        {
+                            "name": "Usage",
+                            "caption": "Used by automations",
+                            "width": "160px"
+                        }
+                    ],
+                    "values": []
+                },
+                {
+                    "type": "Select",
+                    "name": "SequenceEditorID",
+                    "caption": "Edit action sequence",
+                    "value": "",
+                    "options": [
+                        {
+                            "caption": "Create a new action sequence",
+                            "value": ""
+                        }
+                    ],
+                    "width": "100%",
+                    "onChange": "Z2MA_SelectReusableSequence($id, $SequenceEditorID, $YamlInput, true);"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "SequenceEditorToken",
+                    "caption": "Selection reference",
+                    "value": "",
+                    "visible": false
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "SequenceEditorName",
+                    "caption": "Action sequence name",
+                    "value": "",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "SequenceEditorInfo",
+                    "caption": "Create a new action sequence",
+                    "width": "100%"
+                },
+                {
+                    "type": "List",
+                    "name": "SequenceEditorActions",
+                    "caption": "Steps in this sequence (maximum 16)",
+                    "rowCount": 6,
+                    "add": true,
+                    "delete": true,
+                    "changeOrder": true,
+                    "columns": [
+                        {
+                            "name": "Choice",
+                            "caption": "Device and action",
+                            "width": "auto",
+                            "add": "",
+                            "edit": {
+                                "type": "Select",
+                                "options": [
+                                    {
+                                        "caption": "Choose device and action",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "Delay",
+                            "caption": "Delay (s)",
+                            "width": "140px",
+                            "add": 0,
+                            "edit": {
+                                "type": "NumberSpinner",
+                                "minimum": 0,
+                                "maximum": 86400
+                            }
+                        }
+                    ],
+                    "values": [],
+                    "onAdd": "Z2MA_InspectReusableSequenceActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($SequenceEditorActions), JSON_THROW_ON_ERROR), 'add');",
+                    "onEdit": "Z2MA_InspectReusableSequenceActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($SequenceEditorActions), JSON_THROW_ON_ERROR), 'edit');",
+                    "onDelete": "Z2MA_InspectReusableSequenceActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($SequenceEditorActions), JSON_THROW_ON_ERROR), 'delete');",
+                    "onChangeOrder": "Z2MA_InspectReusableSequenceActions($id, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($SequenceEditorActions), JSON_THROW_ON_ERROR), 'order');",
+                    "form": [
+                        {
+                            "type": "Select",
+                            "name": "RowDevice",
+                            "caption": "Device",
+                            "value": "",
+                            "options": [
+                                {
+                                    "caption": "Choose device",
+                                    "value": ""
+                                }
+                            ],
+                            "onChange": "Z2MA_ConfigureEditorItem($id, 'device', 'SequenceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
+                        },
+                        {
+                            "type": "Select",
+                            "name": "RowProperty",
+                            "caption": "Property or channel",
+                            "value": "",
+                            "options": [
+                                {
+                                    "caption": "Choose property or channel",
+                                    "value": ""
+                                }
+                            ],
+                            "onChange": "Z2MA_ConfigureEditorItem($id, 'property', 'SequenceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
+                        },
+                        {
+                            "type": "Select",
+                            "name": "RowValue",
+                            "caption": "Value",
+                            "value": "",
+                            "options": [
+                                {
+                                    "caption": "Choose value",
+                                    "value": ""
+                                }
+                            ],
+                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'SequenceEditorActions', $RowDevice, $RowProperty, json_encode($RowValue, JSON_THROW_ON_ERROR), 'eq');"
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "RowNumber",
+                            "caption": "Value",
+                            "value": 0,
+                            "digits": 6,
+                            "moreDigits": true,
+                            "visible": false,
+                            "onChange": "Z2MA_ConfigureEditorItem($id, 'value', 'SequenceEditorActions', $RowDevice, $RowProperty, json_encode($RowNumber, JSON_THROW_ON_ERROR), 'eq');"
+                        },
+                        {
+                            "type": "ValidationTextBox",
+                            "name": "Choice",
+                            "caption": "Selection reference",
+                            "value": "",
+                            "visible": false
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "Delay",
+                            "caption": "Wait before this step (seconds)",
+                            "value": 0,
+                            "minimum": 0,
+                            "maximum": 86400
+                        }
+                    ],
+                    "width": "100%"
+                },
+                {
+                    "type": "Button",
+                    "name": "SequenceSaveButton",
+                    "caption": "Apply action sequence to draft",
+                    "enabled": false,
+                    "onClick": "Z2MA_SaveReusableSequence($id, $SequenceEditorID, $SequenceEditorToken, $SequenceEditorName, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($SequenceEditorActions), JSON_THROW_ON_ERROR), $YamlInput, true);"
+                },
+                {
+                    "type": "Button",
+                    "name": "SequenceDeleteButton",
+                    "caption": "Delete action sequence",
+                    "enabled": false,
+                    "confirm": "Delete this unused action sequence from the draft? Z2M remains unchanged until storing.",
+                    "onClick": "Z2MA_DeleteReusableSequence($id, $SequenceEditorID, $SequenceEditorToken, $YamlInput, true);"
                 }
             ]
         },

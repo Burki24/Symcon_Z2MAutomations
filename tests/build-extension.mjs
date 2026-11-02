@@ -6,11 +6,15 @@ const target = new URL('../libs/z2m/z2m-automations.mjs', import.meta.url);
 const marker = "import AUTOMATIONS_SCHEMA from '../automations.schema.json' with {type: 'json'};";
 const code = await readFile(source, 'utf8');
 if (code.split(marker).length !== 2) throw new Error('Expected exactly one schema import.');
+const sequenceMarker = "import {expandActionPlan, SequenceError} from './sequences.mjs';";
+if (code.split(sequenceMarker).length !== 2) throw new Error('Expected exactly one sequence import.');
+const sequences = await readFile(new URL('../libs/z2m/src/sequences.mjs', import.meta.url), 'utf8');
 const runtimeMarker = "import {AutomationRuntime, RuntimeError} from './runtime.mjs';";
 if (code.split(runtimeMarker).length !== 2) throw new Error('Expected exactly one runtime import.');
 const runtime = (await readFile(new URL('../libs/z2m/src/runtime.mjs', import.meta.url), 'utf8'))
     .replace("import {solarForLocalDay} from './solar.mjs';\n", '')
     .replace("import {hasScene} from './scenes.mjs';\n", '')
+    .replace("import {expandActionPlan} from './sequences.mjs';\n", '')
     .replace("import {createHash, randomUUID} from 'node:crypto';\n", '');
 const debugMarker = "import {RuntimeDiagnostics} from './debug.mjs';";
 if (code.split(debugMarker).length !== 2) throw new Error('Expected exactly one diagnostics import.');
@@ -28,9 +32,9 @@ const mesh = (await readFile(new URL('../libs/z2m/src/mesh.mjs', import.meta.url
     .replace("import {debugTrace} from './debug.mjs';\n", '')
     .replace("import {RuntimeError} from './runtime.mjs';\n", '');
 const solar = await readFile(new URL('../libs/z2m/src/solar.mjs', import.meta.url), 'utf8');
-const generated = '// Generated from own extension, runtime, mesh, scenes, diagnostics, event catalog and schema sources. Do not edit.\n'
+const generated = '// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.\n'
     + code.replace(marker, 'const AUTOMATIONS_SCHEMA = ' + JSON.stringify(JSON.parse(await readFile(schema, 'utf8'))) + ';')
-        .replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
+        .replace(sequenceMarker, sequences).replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
 if (process.argv.includes('--check')) {
     if (await readFile(target, 'utf8') !== generated) throw new Error('Extension artifact is stale. Run npm run build:extension.');
     console.log('Extension artifact matches source and schema.');

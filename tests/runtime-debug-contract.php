@@ -20,11 +20,15 @@ $check = static function (bool $ok, string $message): void
     }
 };
 $check(RuntimeDebugContract::Record($decode($valid), $lease, 1800000000) !== null, 'Valid bounded diagnostic record is accepted');
+$sequenceRecord = $valid;
+$sequenceRecord['record']['sequence'] = 32;
+$sequenceRecord['record']['sequence_step'] = 16;
+$check(RuntimeDebugContract::Record($decode($sequenceRecord), $lease, 1800000000) !== null, 'Reusable sequence positions survive the strict PHP diagnostic contract');
 foreach (['session' => $client, 'clients' => [], 'dropped' => '0', 'protocol_version' => 2, 'debug_version' => false, 'record' => null, 'message' => 'unsafe'] as $key => $value) {
     $check(RuntimeDebugContract::Record($decode(array_replace($valid, [$key => $value])), $lease, 1800000000) === null, 'Invalid envelope field: ' . $key);
 }
 foreach (['id'  => 'unsafe', 'at' => 1800000121000, 'event' => 'unsafe', 'run' => null, 'origin' => '../unsafe', 'rule' => 0, 'trigger' => 9,
-    'condition' => 17, 'step' => 17, 'revision' => 0, 'delay' => -1, 'passed' => 1, 'reason' => 'unsafe', 'message' => 'unsafe'] as $key => $value) {
+    'condition' => 17, 'step' => 17, 'sequence' => 33, 'sequence_step' => 17, 'revision' => 0, 'delay' => -1, 'passed' => 1, 'reason' => 'unsafe', 'message' => 'unsafe'] as $key => $value) {
     $record = $valid;
     $record['record'][$key] = $value;
     $check(RuntimeDebugContract::Record($decode($record), $lease, 1800000000) === null, 'Invalid record field: ' . $key);

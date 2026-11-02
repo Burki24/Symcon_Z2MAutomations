@@ -1,5 +1,6 @@
 import {solarForLocalDay} from './solar.mjs';
 import {hasScene} from './scenes.mjs';
+import {expandActionPlan} from './sequences.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 
 // Library-local execution policy. No foreign automation implementation is bundled.
@@ -84,7 +85,7 @@ export class AutomationRuntime {
         const rule = candidate.document.automations.find(item => item.id === ruleID);
         if (!rule) throw new RuntimeError('rule_missing');
         for (const clause of rule.conditions) if (clause.device && !this.device(clause.device)) throw new RuntimeError('unknown_entity');
-        for (const action of rule.actions) {
+        for (const {action} of expandActionPlan(candidate.document, rule.actions)) {
             if (action.target.system !== undefined) {
                 if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
             } else {
@@ -164,7 +165,7 @@ export class AutomationRuntime {
                     }
                 }
             }
-            for (const action of rule.actions) {
+            for (const {action} of expandActionPlan(candidate.document, rule.actions)) {
                 if (action.target.system !== undefined) {
                     if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
                     continue;
@@ -397,9 +398,13 @@ export class AutomationRuntime {
     }
 
     async run(rule, generation, context) {
-        for (const [index, action] of rule.actions.entries()) {
+        const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
+        for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
+            const {action} = entry;
             if (!this.canContinue(generation, context)) return;
-            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0};
+            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0,
+                ...(entry.sequence ? {sequence: entry.sequence, sequence_step: entry.sequence_step} : {})};
+            if (entry.sequence_step === 1) this.log('AKTION', 'Wiederverwendbare Aktionsfolge im Regellauf begonnen.', {}, step);
             this.executionState(rule, context, 'running', '', index + 1);
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
             if (!await this.wait(step.delay * 1000, generation, context)) {

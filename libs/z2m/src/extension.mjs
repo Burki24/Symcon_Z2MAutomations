@@ -10,6 +10,7 @@ import {AutomationRuntime, RuntimeError} from './runtime.mjs';
 import {MeshTransport, meshSystemValid} from './mesh.mjs';
 import {buildEditorScenes, hasScene} from './scenes.mjs';
 import {RuntimeDiagnostics} from './debug.mjs';
+import {expandActionPlan, SequenceError} from './sequences.mjs';
 
 export const LIMITS = Object.freeze({yamlBytes: 131072, requestBytes: 1048576, queuedRequests: 16});
 const PREFIX = 'symcon/automations';
@@ -65,7 +66,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -91,7 +92,7 @@ function schemaDetails(document) {
     }
     return {issues: issues.slice(0, 20), truncated: issues.length > 20};
 }
-const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/action');
+const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/leafAction');
 const yamlSchema = JSON_SCHEMA.withTags({
     ...mapTag,
     create: () => Object.create(null),
@@ -127,13 +128,28 @@ export function validateYaml(yaml) {
     if (!validateSchema(document)) fail('invalid_schema', schemaDetails(document));
     const ids = new Set();
     const issues = [];
+    const sequenceIDs = new Set();
+    for (const [index, sequence] of (document.sequences ?? []).entries()) {
+        if (sequenceIDs.has(sequence.id)) issues.push({path: '/sequences/' + index + '/id', reason: 'sequence_duplicate'});
+        sequenceIDs.add(sequence.id);
+    }
     for (const [index, automation] of document.automations.entries()) {
         const path = '/automations/' + index;
         if (ids.has(automation.id)) issues.push({path: path + '/id', reason: 'duplicate_id'});
         ids.add(automation.id);
-        for (const [step, action] of automation.actions.entries()) {
+        let plan = [];
+        try { plan = expandActionPlan(document, automation.actions); }
+        catch (error) {
+            if (!(error instanceof SequenceError)) throw error;
+            issues.push({path: path + '/actions/' + error.step + (error.reason === 'sequence_delay' ? '/delay_seconds' : '/sequence_id'), reason: error.reason});
+        }
+        for (const entry of plan) {
+            const {action, source_index: step} = entry;
             if (automation.enabled && action.target.system !== undefined && !document.mesh_peers?.includes(action.target.system)) {
-                issues.push({path: path + '/actions/' + step + '/target/system', reason: 'remote_permission'});
+                const location = entry.sequence ? `/sequences/${entry.sequence - 1}/actions/${entry.sequence_step - 1}` : path + '/actions/' + step;
+                if (!issues.some(issue => issue.path === location + '/target/system' && issue.reason === 'remote_permission')) {
+                    issues.push({path: location + '/target/system', reason: 'remote_permission'});
+                }
             }
         }
         for (const section of ['triggers', 'conditions']) for (const [step, clause] of automation[section].entries()) {
@@ -392,7 +408,7 @@ export default class Z2MAutomationsExtension {
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
             mesh_peer_count: this.runtime.active?.document.mesh_peers?.length ?? 0,
-            execution_version: 1, execution: this.executionStatus(),
+            execution_version: 1, sequence_version: 1, execution: this.executionStatus(),
             session: this.session, state: this.accepting ? 'ready' : 'stopped', ...this.store.metadata(), ...this.runtime.metadata()};
     }
 
@@ -474,13 +490,16 @@ export default class Z2MAutomationsExtension {
 
     validateScenes(candidate) {
         const issues = [];
-        for (const [rule, automation] of candidate.document.automations.entries()) {
+        for (const [rule, automation] of [...candidate.document.automations, ...(candidate.document.sequences ?? [])].entries()) {
             for (const [step, action] of automation.actions.entries()) {
                 if (action.type !== 'scene' || action.target.system !== undefined) continue;
                 let available = false;
                 try { available = hasScene(this.runtime.target(action.target), action.target.type, action); }
                 catch { /* A missing entity is reported at the same actionable scene position. */ }
-                if (!available) issues.push({path: `/automations/${rule}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+                if (!available) {
+                    const location = rule < candidate.document.automations.length ? `/automations/${rule}` : `/sequences/${rule - candidate.document.automations.length}`;
+                    issues.push({path: `${location}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+                }
             }
         }
         if (issues.length) fail('invalid_semantics', {issues: issues.slice(0, 20), truncated: issues.length > 20});
@@ -645,7 +664,7 @@ export default class Z2MAutomationsExtension {
                         await this.store.verifyDisk();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         const selected = this.store.current.document.automations.find(rule => rule.id === request.rule_id);
-                        if (selected?.actions.some(action => action.target.system !== undefined)) await this.prepareMesh();
+                        if (selected && expandActionPlan(this.store.current.document, selected.actions).some(step => step.action.target.system !== undefined)) await this.prepareMesh();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         this.runtime.startOnce(this.store.current, request.rule_id);
                     } else {

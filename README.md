@@ -10,6 +10,10 @@ Z2MAutomations soll die Einrichtung von Zigbee2MQTT-Automationen in Symcon
 vereinfachen. Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
+Wiederverwendbare Aktionsfolgen lassen sich einmal anlegen und in mehreren
+Automationen auswählen. Änderungen an der Folge gelten nach Übertragung für
+alle verwendenden Regeln. Siehe [Bedienung](Z2MAutomations/README.md#eine-aktionsfolge-mehrfach-verwenden).
+
 Zeitgesteuerte Regeln unterstützen auch Sonnenauf- oder Sonnenuntergang mit
 Standort und Zeitversatz. Die eigene tägliche Berechnung findet in Z2M statt;
 siehe [Bedienung](Z2MAutomations/README.md#automationen-bei-sonnenauf--oder-sonnenuntergang).

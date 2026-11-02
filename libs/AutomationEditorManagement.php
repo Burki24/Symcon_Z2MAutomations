@@ -327,6 +327,10 @@ trait AutomationEditorManagement
 
     private function CommitEditorChange(array $state, array $draft, string $status, string $selection): bool
     {
+        $sequenceError = SequencePlan::Error($draft['configuration']);
+        if ($sequenceError !== '') {
+            return $this->RejectEditorChange($state, $sequenceError);
+        }
         $draft['configuration']['revision'] = $draft['baseRevision'] + 1;
         $yaml = json_encode($draft['configuration'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
         if (!ExtensionContract::ValidYamlText($yaml)) {

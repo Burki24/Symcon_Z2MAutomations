@@ -87,6 +87,41 @@ Symcon- oder Z2M-Rechners verwendet.
 
 ## Aktionen
 
+### Wiederverwendbare Aktionsfolgen
+
+Das optionale Dokumentfeld `sequences` ist eine Liste mit höchstens 32 Einträgen.
+Jeder Eintrag enthält genau `id`, `name` und `actions`. ID und Name verwenden
+dieselben Grenzen wie Automationen; IDs müssen innerhalb der Definitionen
+eindeutig sein. `actions` enthält 1–16 konkrete Set-, Toggle- oder Szenenaktionen.
+Aufrufe anderer Folgen sind in einer Definition unzulässig.
+
+Eine Regel ruft eine Definition mit `type: sequence`, `sequence_id` und optional
+`delay_seconds` auf. Fehlende Referenzen werden auch in deaktivierten Regeln
+abgewiesen. Nach Auflösung aller Aufrufe sind höchstens 16 konkrete Schritte
+pro Automation zulässig. Die Wartezeit am Aufruf addiert sich zur ersten
+enthaltenen Wartezeit; die Summe darf 86400 Sekunden nicht überschreiten.
+Definitionen und Verweise gehören zum selben gespeicherten Dokument.
+
+```yaml
+sequences:
+  - id: synthetic_lighting
+    name: Beispiel-Lichtfolge
+    actions:
+      - type: set
+        target: {type: group, id: 7}
+        values: {state: ON}
+      - type: set
+        target: {type: group, id: 7}
+        values: {state: OFF}
+        delay_seconds: 5
+```
+
+Der entsprechende Eintrag in `automations[].actions` lautet beispielsweise
+`{type: sequence, sequence_id: synthetic_lighting, delay_seconds: 2}`.
+Die Erweiterung ergänzt ihren Status um `sequence_version: 1`.
+
+### Konkrete Aktionen
+
 `type: scene` ruft eine vorhandene Z2M-Szene auf. Erforderlich sind `target`
 wie bei Set-Aktionen und `scene_id` als Ganzzahl von 0 bis 255. Geräteziele
 benötigen zusätzlich `endpoint` als Ganzzahl von 1 bis 240; bei Gruppen ist

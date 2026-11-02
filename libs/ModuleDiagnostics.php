@@ -12,8 +12,8 @@ trait ModuleDiagnostics
         $this->editorGroupBindings = [];
         $this->gatewayZ2MInstances = null;
         $this->peerActionCatalog = null;
-        $void = in_array($function, ['SelectExecutionRule', 'RefreshExecutionStatus', 'ConfigureEditorSolar', 'ExpireRuntimeDebug', 'RefreshStatus', 'Create', 'ApplyChanges', 'MessageSink', 'ExpireRequest', 'SelectEditorDevice', 'ShowYamlEditor', 'ConfigureEditorSchedule', 'ConfigureEditorItem', 'SelectEditorConditionProperty'], true);
-        $results = in_array($function, ['ScanEventImports', 'PreviewEventImport', 'ImportSymconEvent', 'InspectEditorConditions', 'InspectEditorTriggers', 'OpenAutomationEditor', 'CreateSimpleAutomation', 'SelectAutomation', 'UpdateAutomation', 'DeleteAutomation', 'SaveScheduledAutomation', 'InspectEditorActions'], true)
+        $void = in_array($function, ['ConfigureSequenceCall', 'SelectExecutionRule', 'RefreshExecutionStatus', 'ConfigureEditorSolar', 'ExpireRuntimeDebug', 'RefreshStatus', 'Create', 'ApplyChanges', 'MessageSink', 'ExpireRequest', 'SelectEditorDevice', 'ShowYamlEditor', 'ConfigureEditorSchedule', 'ConfigureEditorItem', 'SelectEditorConditionProperty'], true);
+        $results = in_array($function, ['SelectReusableSequence', 'SaveReusableSequence', 'DeleteReusableSequence', 'InspectReusableSequenceActions', 'ScanEventImports', 'PreviewEventImport', 'ImportSymconEvent', 'InspectEditorConditions', 'InspectEditorTriggers', 'OpenAutomationEditor', 'CreateSimpleAutomation', 'SelectAutomation', 'UpdateAutomation', 'DeleteAutomation', 'SaveScheduledAutomation', 'InspectEditorActions'], true)
             ? ['Editoraktion abgelehnt; Grund siehe Ablauf.', 'Editoraktion abgeschlossen; Z2M noch unverändert.'] : null;
         return $this->DebugFlowCall($function, $line, \Closure::fromCallable($callback), $void, [], $results);
     }

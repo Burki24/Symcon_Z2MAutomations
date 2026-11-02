@@ -185,7 +185,7 @@ trait RuntimeDebug
             $this->SetBuffer('RuntimeDebug', json_encode($lease, JSON_THROW_ON_ERROR));
             $entry = RuntimeDebugContract::Catalog()[$record['event']];
             $details = ['Systembezug' => substr(hash('sha256', $this->ReadPropertyString('BaseTopic')), 0, 16), 'ZeitpunktUTC' => gmdate('Y-m-d H:i:s', intdiv($record['at'], 1000))];
-            foreach (['run' => 'Regellauf', 'rule' => 'Regelnummer', 'trigger' => 'Auslösernummer', 'condition' => 'Bedingungsnummer', 'step' => 'Aktionsschritt', 'revision' => 'Revision', 'delay' => 'WartezeitSekunden', 'passed' => 'Erfüllt'] as $key => $label) {
+            foreach (['sequence' => 'Aktionsfolge', 'sequence_step' => 'SchrittInAktionsfolge', 'run' => 'Regellauf', 'rule' => 'Regelnummer', 'trigger' => 'Auslösernummer', 'condition' => 'Bedingungsnummer', 'step' => 'Aktionsschritt', 'revision' => 'Revision', 'delay' => 'WartezeitSekunden', 'passed' => 'Erfüllt'] as $key => $label) {
                 if (array_key_exists($key, $record)) {
                     $details[$label] = $record[$key];
                 }

@@ -1,5 +1,20 @@
 # Automationen ausführen
 
+## Wiederverwendbare Aktionsfolgen
+
+Ein `sequence`-Schritt löst eine Definition aus demselben gespeicherten Stand
+innerhalb des aufrufenden Regellaufs auf. Maximal 16 konkrete Schritte je Regel,
+keine Verschachtelung. Die Wartezeit am Aufruf wird zur ersten enthaltenen
+Wartezeit addiert. Bedingungen gelten vor jedem konkreten Schritt, einschließlich
+entfernter Aktionen und Szenen. Laufzeit-, Parallelitäts- und Befehlslimits
+bleiben unverändert. Einzelstart verwendet ebenfalls diese Auflösung.
+
+Ein gezielter Stopp beendet nur den adressierten Lauf einschließlich seiner
+noch ausstehenden enthaltenen Schritte. Andere Regeln dürfen dieselbe Definition
+weiter verwenden. Neustart setzt keine unterbrochenen Schritte fort. Der
+Laufstatus zählt konkrete Schritte nach Auflösung; Debug ergänzt Definitions-
+und enthaltene Schrittposition. Details: [ADR 0015](adr/0015-reusable-action-sequences.md).
+
 ## Vorhandene Szenen
 
 Eine `scene`-Aktion wird über dieselbe native Befehlsübergabe wie Set-Aktionen

@@ -119,6 +119,7 @@ trait AutomationEditor
         if ($metadata === null || $metadata !== $target || ($data->editor_version ?? null) !== 1 || !is_array($data->devices ?? null)
             || count($data->devices) > 256 || !$configuration instanceof stdClass || ($configuration->schema_version ?? null) !== 1
             || ($configuration->revision ?? null) !== $metadata['storedRevision'] || !is_array($configuration->automations ?? null)
+            || SequencePlan::Error(json_decode(json_encode($configuration, JSON_THROW_ON_ERROR), true, 32, JSON_THROW_ON_ERROR)) !== ''
             || count($configuration->automations) !== $metadata['automationCount'] || !in_array($metadata['storage'], ['ok', 'empty'], true)) {
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
@@ -248,6 +249,7 @@ trait AutomationEditor
         $this->UpdateEditorField('EditorRules', 'values', json_encode($this->EditorRuleRows($draft), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $this->UpdateEditorField('EditorRule', 'options', json_encode($this->EditorRuleOptions($draft), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $this->RefreshAutomationSections($draft);
+        $this->UpdateReusableSequenceForm();
     }
 
     private function EditorSnapshot(): array
@@ -393,7 +395,7 @@ trait AutomationEditor
                 $sourceLabel = sprintf($this->Translate('%d device triggers (OR)'), count($rule['triggers']));
             }
             $rows[] = ['Name' => $rule['name'], 'Source' => $sourceLabel,
-                'Target'      => $snapshot['devices'][$target]['name'] ?? $this->Translate('Advanced rule'),
+                'Target'      => ($rule['actions'][0]['type'] ?? '') === 'sequence' ? $this->Translate('Action sequence') . ': ' . ($this->ReusableSequence($rule['actions'][0]['sequence_id'])['name'] ?? '') : ($snapshot['devices'][$target]['name'] ?? $this->Translate('Advanced rule')),
                 'Enabled'     => $this->Translate(($rule['enabled'] ?? false) === true ? 'Yes' : 'No')];
         }
         return $rows;

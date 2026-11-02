@@ -1,5 +1,16 @@
 # Architektur
 
+## Wiederverwendbare Aktionsfolgen
+
+Der gemeinsame native Editor verwaltet benannte Definitionen und stabile
+Verweise in Regelaktionen. ReusableSequences verwendet die bestehenden
+Aktionsdialoge, Schaltrechte und die gebundene Entwurfsbearbeitung. SequencePlan
+prüft die Schrittgrenzen aller verwendenden Regeln vor einer lokalen Änderung.
+Die Z2M-Erweiterung prüft das vollständige Dokument und bildet mit sequences.mjs
+einen begrenzten Ausführungsplan im vorhandenen Regellauf. Speicherung,
+Wiederanlauf, Bedingungen und Stopp behalten denselben Besitzer. Über Mesh werden
+nur konkrete Aktionen übergeben. Siehe [ADR 0015](adr/0015-reusable-action-sequences.md).
+
 ## Vorhandene Szenen als Aktionen
 
 Die eigene Z2M-Erweiterung liest Szenen ausschließlich aus den vorhandenen

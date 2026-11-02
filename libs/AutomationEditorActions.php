@@ -33,7 +33,7 @@ trait AutomationEditorActions
         });
     }
 
-    private function BuildEditorActions(string $steps, string &$reason): ?array
+    private function BuildEditorActions(string $steps, string &$reason, bool $allowSequences = true): ?array
     {
         if (strlen($steps) > 8192) {
             return null;
@@ -55,6 +55,15 @@ trait AutomationEditorActions
             if ($row['Delay'] < 0 || $row['Delay'] > 86400) {
                 $reason = 'editor_duration';
                 return null;
+            }
+            if (str_starts_with($row['Choice'], 'sequence:')) {
+                $id = substr($row['Choice'], 9);
+                if (!$allowSequences || !$this->ReusableSequenceAllowed($id)) {
+                    $reason = $allowSequences ? 'sequence_missing' : 'sequence_nested';
+                    return null;
+                }
+                $actions[] = ['type' => 'sequence', 'sequence_id' => $id, 'delay_seconds' => $row['Delay']];
+                continue;
             }
             $parts = explode(':', $row['Choice']);
             if (count($parts) !== 2) {
@@ -92,7 +101,7 @@ trait AutomationEditorActions
         return ($action['type'] ?? '') === 'toggle' ? [$action['property'] => 'TOGGLE'] : ($action['values'] ?? []);
     }
 
-    private function EditorActionRows(array $rule): ?array
+    private function EditorActionRows(array $rule, bool $allowSequences = true): ?array
     {
         $actions = $rule['actions'] ?? [];
         if (count($actions) < 1 || count($actions) > 16) {
@@ -101,6 +110,14 @@ trait AutomationEditorActions
         $snapshot = $this->EditorSnapshot();
         $rows = [];
         foreach ($actions as $action) {
+            if (($action['type'] ?? '') === 'sequence') {
+                if (!$allowSequences || !is_int($action['delay_seconds'] ?? 0) || ($action['delay_seconds'] ?? 0) < 0 || ($action['delay_seconds'] ?? 0) > 86400
+                    || !$this->ReusableSequenceAllowed($action['sequence_id'] ?? '')) {
+                    return null;
+                }
+                $rows[] = ['Choice' => 'sequence:' . $action['sequence_id'], 'Delay' => $action['delay_seconds'] ?? 0];
+                continue;
+            }
             $values = $this->EditorActionValues($action);
             if (!in_array($action['type'] ?? '', ['set', 'toggle', 'scene'], true) || !in_array($action['target']['type'] ?? '', ['device', 'group'], true)
                 || count($values) !== 1 || !is_int($action['delay_seconds'] ?? 0)
@@ -135,10 +152,17 @@ trait AutomationEditorActions
         return $rows;
     }
 
-    private function EditorActionColumns(array $snapshot, array $rows = []): array
+    private function EditorActionColumns(array $snapshot, array $rows = [], bool $allowSequences = true): array
     {
         $options = [['caption' => $this->Translate('Choose device and action'), 'value' => '']];
         $options = $this->ExtraEditorChoiceOptions($snapshot, 'Target', $options, $rows);
+        if ($allowSequences) {
+            foreach ($this->ReusableOptions(true) as $option) {
+                if ($option['value'] !== '') {
+                    $options[] = ['caption' => $this->Translate('Action sequence') . ': ' . $option['caption'], 'value' => 'sequence:' . $option['value']];
+                }
+            }
+        }
         return [['name' => 'Choice', 'caption' => $this->Translate('Device and action'), 'width' => 'auto', 'add' => '',
             'edit'      => ['type' => 'Select', 'options' => $options]],
             ['name'    => 'Delay', 'caption' => $this->Translate('Delay (s)'), 'width' => '140px', 'add' => 0,
@@ -162,7 +186,7 @@ trait AutomationEditorActions
         foreach ($actions as $index => $action) {
             $this->DebugEvent(
                 'AKTION',
-                $action['type'] === 'scene' ? 'Aufruf einer vorhandenen Szene mit Wartezeit vorbereitet.' : 'Aktionsschritt mit Wartezeit vor der Ausführung vorbereitet.',
+                $action['type'] === 'sequence' ? 'Aufruf einer wiederverwendbaren Aktionsfolge vorbereitet; Bedingungen und Stopp gelten für den gesamten Lauf.' : ($action['type'] === 'scene' ? 'Aufruf einer vorhandenen Szene mit Wartezeit vorbereitet.' : 'Aktionsschritt mit Wartezeit vor der Ausführung vorbereitet.'),
                 ['Schritt' => $index + 1, 'VerzögerungSekunden' => $action['delay_seconds'] ?? 0, 'ZweitesSystem' => isset($action['target']['system'])]
             );
         }

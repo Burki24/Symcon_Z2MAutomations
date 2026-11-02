@@ -6,7 +6,10 @@ const debugCodes = new Map(Object.entries(DEBUG_EVENTS).map(([code, entry]) => [
 const debugUUID = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
 export const debugTrace = value => value && debugUUID(value.run) && Number.isInteger(value.rule) && value.rule >= 1 && value.rule <= 100
     && Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 && Number.isSafeInteger(value.revision) && value.revision >= 1
-    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision} : undefined;
+    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision,
+        ...(Number.isInteger(value.sequence) && value.sequence >= 1 && value.sequence <= 32
+            && Number.isInteger(value.sequence_step) && value.sequence_step >= 1 && value.sequence_step <= 16
+            ? {sequence: value.sequence, sequence_step: value.sequence_step} : {})} : undefined;
 
 // Live diagnostics only: no disk, retries, MQTT retain or awaited device-side work.
 export class RuntimeDiagnostics {
@@ -46,7 +49,7 @@ export class RuntimeDiagnostics {
             if (this.queue.length >= 128 || this.sentAt.length >= 80) { this.dropped = Math.min(1000000, this.dropped + 1); return; }
             const record = {id: randomUUID(), at: Math.trunc(this.wall()), event: code};
             if (debugUUID(context.run)) record.run = context.run;
-            for (const [key, max] of Object.entries({rule: 100, trigger: 8, condition: 16, step: 16, revision: Number.MAX_SAFE_INTEGER, delay: 86400})) {
+            for (const [key, max] of Object.entries({sequence: 32, sequence_step: 16, rule: 100, trigger: 8, condition: 16, step: 16, revision: Number.MAX_SAFE_INTEGER, delay: 86400})) {
                 if (Number.isSafeInteger(context[key]) && context[key] >= (key === 'delay' ? 0 : 1) && context[key] <= max) record[key] = context[key];
             }
             if (typeof context.origin === 'string' && context.origin.length <= 1024) record.origin = createHash('sha256').update(context.origin).digest('hex');

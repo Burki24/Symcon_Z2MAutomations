@@ -296,7 +296,7 @@ trait AutomationEditorSchedule
             return null;
         }
         $t = $rule['triggers'][0];
-        $a = $rule['actions'][0];
+        $a = SequencePlan::Expand($this->ReadEditorDraft()['configuration'], $rule['actions'])[0]['action'];
         $v = $this->ScheduleDefaults();
         $v['EditorTriggerType'] = $t['type'];
         $v['EditorHold'] = $t['for_seconds'] ?? 0;

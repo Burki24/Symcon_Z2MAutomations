@@ -30,9 +30,17 @@ trait EditorItemForms
             $property = $choice === null ? '' : $this->EditorPropertyToken($snapshot, $device, $choice['property'], $context['side']);
             $meta = $this->EditorItemProperty($snapshot, $device, $property, $context['side']);
             $numeric = ($meta['type'] ?? '') === 'numeric';
+            $sequenceID = str_starts_with($Choice, 'sequence:') ? substr($Choice, 9) : '';
+            $sequence = $context['side'] === 'Target' && $List !== 'SequenceEditorActions' && $this->ReusableSequenceAllowed($sequenceID);
             foreach ($template as &$field) {
                 $name = $field['name'] ?? '';
-                if ($name === 'RowDevice') {
+                if ($name === 'RowActionKind') {
+                    $field['value'] = $sequence ? 'sequence' : 'device';
+                } elseif ($name === 'RowSequence') {
+                    $field['options'] = $this->ReusableOptions(true);
+                    $field['value'] = $sequence ? $sequenceID : '';
+                    $field['visible'] = $sequence;
+                } elseif ($name === 'RowDevice') {
                     $field['options'] = $this->EditorDevices($snapshot, $context['side']);
                     $field['value'] = $device;
                 } elseif ($name === 'RowProperty') {
@@ -55,13 +63,16 @@ trait EditorItemForms
                         $field += array_intersect_key($meta ?? [], array_flip(['minimum', 'maximum']));
                     }
                 } elseif ($name === 'Choice') {
-                    $field['value'] = $choice === null ? '' : $Choice;
+                    $field['value'] = $sequence || $choice !== null ? $Choice : '';
                 } elseif ($name === $context['duration']) {
                     $field['value'] = $Duration;
                 }
+                if ($sequence && in_array($name, ['RowDevice', 'RowProperty', 'RowValue', 'RowNumber'], true)) {
+                    $field['visible'] = false;
+                }
             }
             unset($field);
-            $this->DebugEvent('AKTION', 'Zeilenbearbeitung mit getrennter Geräte-, Eigenschafts- und Wertauswahl geöffnet.', ['Auswahlart' => $context['side'], 'Vorbelegt' => $choice !== null]);
+            $this->DebugEvent('AKTION', 'Zeilenbearbeitung geöffnet; Geräteaktion oder wiederverwendbare Folge vorbelegt.', ['Auswahlart' => $context['side'], 'Vorbelegt' => $sequence || $choice !== null, 'WiederverwendbareFolge' => $sequence]);
             return json_encode($template, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         });
     }
@@ -123,7 +134,7 @@ trait EditorItemForms
             if ($choice !== null) {
                 $bucket = $context['duration'] === '' ? 'Condition' : $context['side'];
                 $this->RememberEditorListChoices($bucket, [['Choice' => $choice]], 'pending');
-                $columns = str_ends_with($List, 'ConditionList') ? $this->EditorConditionColumns($snapshot) : ($context['side'] === 'Target' ? $this->EditorActionColumns($snapshot) : $this->EditorTriggerColumns($snapshot));
+                $columns = str_ends_with($List, 'ConditionList') ? $this->EditorConditionColumns($snapshot) : ($context['side'] === 'Target' ? $this->EditorActionColumns($snapshot, [], $List !== 'SequenceEditorActions') : $this->EditorTriggerColumns($snapshot));
                 $this->UpdateEditorField($List, 'columns', json_encode($columns, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             }
             $this->DebugEvent('AKTION', 'Abhängige Eigenschafts- und Wertauswahl aktualisiert; alte Auswahl verworfen.', ['Änderung' => $Change, 'Auswahlart' => $context['side'], 'EigenschaftVerfügbar' => $meta !== null, 'WertGültig' => $choice !== null]);
@@ -131,7 +142,7 @@ trait EditorItemForms
     }
     private function EditorItemContext(string $list): ?array
     {
-        if (!in_array($list, ['EditorActions', 'EditorTriggers', 'DeviceEditorActions', 'DeviceEditorTriggers', 'TimeEditorActions', 'TimeEditorTriggers', 'EditorConditionList', 'DeviceEditorConditionList', 'TimeEditorConditionList'], true)) {
+        if (!in_array($list, ['EditorActions', 'EditorTriggers', 'DeviceEditorActions', 'DeviceEditorTriggers', 'TimeEditorActions', 'TimeEditorTriggers', 'EditorConditionList', 'DeviceEditorConditionList', 'TimeEditorConditionList', 'SequenceEditorActions'], true)) {
             return null;
         }
         return ['side' => str_ends_with($list, 'Actions') ? 'Target' : 'Source',

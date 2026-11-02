@@ -1,5 +1,21 @@
 # Erweiterungsprotokoll Version 1
 
+## Wiederverwendbare Aktionsfolgen
+
+Der Status ergänzt additiv `sequence_version: 1`. Das optionale Schema-1-Feld
+`sequences` wird zusammen mit `automations` über bestehende validate/store/editor-
+Operationen verarbeitet. Keine neue Datei oder separate Aktivierung. Eindeutige
+Definitions-IDs, vorhandene Referenzen, maximal 16 aufgelöste Schritte und die
+addierte erste Wartezeit werden semantisch geprüft. Feste Diagnoseursachen sind
+`sequence_duplicate`, `sequence_missing`, `sequence_nested`, `sequence_limit`
+und `sequence_delay`; die Position bezeichnet Definition oder aufrufenden Schritt.
+
+Debug-Records und Mesh-`prepare.trace` ergänzen optional `sequence` (1–32) und
+`sequence_step` (1–16). `step` bleibt die Position im konkreten Ausführungsplan.
+Die Gegenstelle prüft weiterhin ausschließlich einzelne konkrete Aktionen.
+Für vollständige Folgebezüge auch die ausführenden Partner-Erweiterungen
+aktualisieren. Siehe [YAML-Schema](YAML_SCHEMA.md#wiederverwendbare-aktionsfolgen) und ADR 0015.
+
 ## Zeitlich begrenzte Ablaufdiagnose (debug_version 1)
 
 Der Status ergänzt additiv `debug_version: 1`. Ohne diese Fähigkeit bietet

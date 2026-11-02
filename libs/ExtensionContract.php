@@ -90,13 +90,19 @@ final class ExtensionContract
             }
             $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
         }
-        return $storage + $runtime + $mesh + $resume + ['executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
+        return $storage + $runtime + $mesh + $resume + ['sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
             'session'                                                      => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
     }
 
     public static function ErrorText(string $code): string
     {
         return match ($code) {
+            'sequence_invalid'      => 'Check the action sequence name and its 1 to 16 steps. At most 32 sequences are allowed.',
+            'sequence_missing'      => 'The selected action sequence is missing or contains actions without switching permission.',
+            'sequence_nested'       => 'An action sequence can contain device actions and scenes, but no other action sequence.',
+            'sequence_limit'        => 'This automation would execute more than 16 steps. Shorten the sequence or remove steps from the automation.',
+            'sequence_delay'        => 'The wait before the sequence plus its first step must not exceed 86400 seconds.',
+            'sequence_in_use'       => 'This action sequence is still used by automations. Remove those references before deleting it.',
             ''                      => '',
             'not_connected'         => 'No active MQTT connection.',
             'bridge_offline'        => 'Zigbee2MQTT must report online first.',

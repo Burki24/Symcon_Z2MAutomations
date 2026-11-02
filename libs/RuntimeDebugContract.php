@@ -33,7 +33,7 @@ final class RuntimeDebugContract
         $record = get_object_vars($payload->record);
         if (!self::UUID($record['id'] ?? null) || !is_int($record['at'] ?? null) || abs($record['at'] / 1000 - $now) > 120
             || !is_string($record['event'] ?? null) || !isset(self::Catalog()[$record['event']])
-            || array_diff(array_keys($record), ['id', 'at', 'event', 'run', 'origin', 'rule', 'trigger', 'condition', 'step', 'revision', 'delay', 'passed', 'reason']) !== []) {
+            || array_diff(array_keys($record), ['id', 'at', 'event', 'run', 'origin', 'rule', 'trigger', 'condition', 'step', 'revision', 'sequence', 'sequence_step', 'delay', 'passed', 'reason']) !== []) {
             return null;
         }
         foreach (['run' => '/\A[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}\z/D', 'origin' => '/\A[a-f0-9]{64}\z/D'] as $key => $pattern) {
@@ -41,7 +41,7 @@ final class RuntimeDebugContract
                 return null;
             }
         }
-        foreach (['rule' => 100, 'trigger' => 8, 'condition' => 16, 'step' => 16, 'revision' => 9007199254740991, 'delay' => 86400] as $key => $maximum) {
+        foreach (['sequence' => 32, 'sequence_step' => 16, 'rule' => 100, 'trigger' => 8, 'condition' => 16, 'step' => 16, 'revision' => 9007199254740991, 'delay' => 86400] as $key => $maximum) {
             if (array_key_exists($key, $record) && (!is_int($record[$key]) || $record[$key] < ($key === 'delay' ? 0 : 1) || $record[$key] > $maximum)) {
                 return null;
             }

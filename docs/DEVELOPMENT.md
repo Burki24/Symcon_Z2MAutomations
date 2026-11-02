@@ -1567,3 +1567,59 @@ JavaScript-Tests und PHP-/JS-Integration. Struktur-, Kodierungs- und
 Artefaktprüfung, offizieller StylePHP-JSON-Check der eigenen JSON-Dateien
 in einer temporären Kopie sowie PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich.
 Fremdquellen und zentrale Helper unverändert; geänderte Texte UTF-8 ohne BOM/LF.
+
+
+## Reale gemeinsame MQTT-Debugzuordnung am 02.11.2026
+
+Nach ausdrücklicher Bereitschaftsbestätigung des Benutzers Aufzeichnungen auf
+beiden Systemen gestartet und bestätigt. Der Benutzer betätigte den vorgesehenen
+Wandtaster zweimal. Zwei eigenständige Läufe wurden auf Quelle und Ziel mit
+jeweils identischem Laufbezug, Schritt 1 und Quellrevision erfasst. Jede
+Zielausführung bestätigte genau eine native Befehlsübergabe; kein Laufzeitfehler.
+Der Benutzer bestätigte die tatsächliche Lichtwirkung. Leere beziehungsweise
+zurückgesetzte Aktionsmeldungen lösten keinen zusätzlichen Lauf aus.
+
+Danach beide eigenen MQTT-Aufzeichnungen und die nativen Debugdateiaufzeichnungen
+beendet. Dauerhaft aktive Regel, deaktiviertes Originalereignis, gespeicherte
+Prüfsummen, Revisionen und Wiederanlauf unverändert. Kein Erweiterungsupdate,
+Speichern, Neustart oder zusätzlicher Testbefehl in diesem Aufzeichnungslauf.
+Der frühere offene praktische Nachweis der systemübergreifenden Zuordnung ist
+hiermit abgeschlossen. Private Nachweise verbleiben außerhalb des Repositorys.
+
+## Wiederverwendbare Aktionsfolgen: lokaler Stand am 02.11.2026
+
+ReusableSequences verwaltet Definitionen im gemeinsamen nativen Formular und
+verwendet bestehende Aktionsdialoge, Rechteprüfung und gebundene Bearbeitung.
+SequencePlan und src/sequences.mjs lösen stabile Verweise im selben Dokument
+auf. Grenzen und Laufzeitbesitz sind in ADR 0015 festgehalten. Keine neuen
+Abhängigkeiten; vorhandene zentrale Helper bleiben unverändert.
+
+Neue Offline-Nachweise verwenden ausschließlich synthetische Daten:
+
+- Reale native Formularskripte mit erzeugtem JavaScript-Empfänger: Definition
+  erstellen, Name/Schritte/Wartezeit vorbelegen, bearbeiten und umordnen; zwei
+  Regeln verwenden dieselbe Definition. Regel mit erstem Folgeschritt bleibt
+  vollständig bearbeitbar. Prüfung, Speicherung und Wiederladen erhalten Verweise.
+- Verwendete Definition auch beim direkten Löschaufruf gesperrt; Änderung mit
+  zu vielen aufgelösten Schritten hinterlässt den Entwurf bytegleich. Entzogene
+  native Schaltrechte verhindern Verwendung. Unbenutzte Definition löschbar.
+- Echte Erweiterung mit virtueller Uhr: additive erste Wartezeit, unveränderte
+  gespeicherte Definition, erneute Bedingungsprüfung, Einzelstart, gezielter Stopp,
+  unabhängige gleichzeitige Verwender, Szenenverfügbarkeit und Wiederanlauf ohne
+  Fortsetzung unterbrochener Schritte. Fehlende, doppelte, verschachtelte oder
+  zu große Definitionen und überlange summierte Wartezeit werden abgewiesen.
+- Zwei synthetische Z2M-Erweiterungen: konkrete entfernte Schritte derselben Folge
+  mit gemeinsamem Lauf und korrekter Folge-/Schrittzuordnung auf beiden Seiten.
+  Der Empfänger akzeptiert weiterhin ausschließlich konkrete Aktionen. Keine
+  Namen, Werte oder Definitionen im Debug. Bestehende präzise Fehlerpositionen
+  und Datenschutzregressionen bleiben grün.
+
+php tests/run.php vollständig erfolgreich, einschließlich 104 JavaScript-Tests
+und PHP-/JS-Formularintegration. Struktur- und zentrale Kodierungsprüfung,
+aktuelle Erweiterungsdatei, offizielle StylePHP-JSON-Prüfung der 15 eigenen
+JSON-Dateien sowie PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich. Fremdquellen
+bleiben unverändert; geänderte Texte UTF-8 ohne BOM mit LF. Die Prüfung ersetzt
+keine Bedienprüfung in der nativen Konsole oder reale Geräteausführung. In diesem Arbeitspaket wurden weder
+Test- noch Produktivinstallationen verändert. Vor Praxisprüfung Modul und
+Erweiterung aktualisieren; bei Mesh auch die ausführenden Partner für vollständige
+zusätzliche Diagnosebezüge.

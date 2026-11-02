@@ -1,5 +1,39 @@
 # Z2MAutomations
 
+## Eine Aktionsfolge mehrfach verwenden
+
+Im Bereich **Wiederverwendbare Aktionsfolgen** wählen Sie **Neue Aktionsfolge
+erstellen**, vergeben einen Namen und fügen die gewünschten Schritte hinzu.
+Gerät, Eigenschaft beziehungsweise Kanal und Wert wählen Sie wie bei einer
+Automation. Vorhandene Szenen und Ziele des zweiten Z2M-Systems sind ebenfalls
+möglich. Ordnen Sie die Schritte und stellen Sie die Wartezeit vor jedem Schritt
+ein. Mit **Aktionsfolge in den Entwurf übernehmen** speichern Sie die Bearbeitung
+zunächst in Symcon.
+
+Fügen Sie anschließend in einer geräteausgelösten oder zeitgesteuerten Automation
+einen Aktionsschritt hinzu. Wählen Sie als Aktionsart **Wiederverwendbare
+Aktionsfolge** und anschließend die gewünschte Folge. So können beispielsweise
+ein Taster und eine Zeitregel denselben Ablauf verwenden. Auch das Bearbeiten
+einer vorhandenen Automation füllt diese Auswahl und die Wartezeit wieder aus.
+
+Die Wartezeit am Aufruf gilt zusätzlich zur Wartezeit vor dem ersten Schritt
+der Folge. Beispiel: fünf Sekunden am Aufruf und zwei Sekunden am ersten Schritt
+ergeben sieben Sekunden bis zur ersten Aktion. Pro Automation sind insgesamt
+höchstens 16 tatsächlich ausgeführte Schritte erlaubt, einschließlich aller
+aufgerufenen Folgen. Eine Folge kann selbst keine weitere Folge aufrufen.
+
+Wählen Sie eine vorhandene Folge zum Bearbeiten aus, werden Name und Schritte
+vorbelegt. Änderungen gelten für alle Automationen, die sie verwenden. Die
+Übersicht zeigt die Anzahl dieser Automationen. Solange eine Folge verwendet
+wird, ist ihr Löschen gesperrt. Entfernen Sie zuvor die entsprechenden Aufrufe.
+
+Danach den gemeinsamen Entwurf **prüfen**, **in Z2M speichern** und **aktivieren**.
+Die Bedingungen der jeweiligen Automation gelten auch innerhalb der Folge.
+**Diesen Ablauf stoppen** beendet deren laufenden Aufruf einschließlich der
+verbleibenden Wartezeiten und Schritte. Andere Automationen bleiben unabhängig.
+Z2M führt die gespeicherten Folgen anschließend ohne laufendes Symcon aus.
+Für diese Funktion Modul und Erweiterung aktualisieren.
+
 ## Eine gespeicherte Automation einmal ausführen
 
 Im Bereich **Gespeicherte Automation einmal ausführen** wählen Sie eine Regel

@@ -13,6 +13,111 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+test('reusable sequences execute in rule order with call delay, step delays and conditions without changing definitions', async () => {
+    const h = await harness();
+    try {
+        const r = rule();
+        r.actions = [{type: 'sequence', sequence_id: 'synthetic_sequence', delay_seconds: 2}, {...rule().actions[0], values: {state: 'OFF'}}];
+        const document = {schema_version: 1, revision: 1, automations: [r], sequences: [{id: 'synthetic_sequence', name: 'Synthetic reusable name',
+            actions: [{...rule().actions[0], delay_seconds: 1}, {...rule().actions[0], values: {state: 'OFF'}, delay_seconds: 3}]}]};
+        const text = JSON.stringify(document);
+        assert.equal((await h.store(text)).status, 'ok'); await h.activate(); await h.event({occupancy: true});
+        await h.clock.advance(2999); assert.equal(h.commands.length, 0);
+        await h.clock.advance(1); assert.deepEqual(h.commands.map(item => item.data.state), ['ON']);
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(item => item.data.state), ['ON', 'OFF', 'OFF']);
+        assert.equal(h.extension.status().execution.runs[0].step, 3);
+        assert.equal(h.extension.store.current.yaml, text, 'Expansion never edits the persisted definitions');
+        await h.clock.advance(1000); await runOnce(h); await flush();
+        const run = h.extension.status().execution.runs[0];
+        await h.request('stop_rule', {session: h.session, rule_id: r.id, expected_revision: 1, checksum: h.extension.status().checksum, run: run.run});
+        await h.clock.advance(10000); assert.equal(h.commands.length, 3, 'Targeted stop cancels the whole reusable sequence');
+    } finally { await h.close(); }
+});
+
+test('sequence references reject missing definitions, duplicate IDs, nesting, excess expansion and combined delay overflow', () => {
+    const leaf = rule().actions[0];
+    const doc = {schema_version: 1, revision: 1, automations: [{...rule(), actions: [{type: 'sequence', sequence_id: 'synthetic_sequence'}]}],
+        sequences: [{id: 'synthetic_sequence', name: 'Synthetic', actions: [leaf]}]};
+    assert.doesNotThrow(() => validateYaml(JSON.stringify(doc)));
+    for (const change of [d => { d.sequences = []; }, d => { d.sequences.push(d.sequences[0]); },
+        d => { d.sequences[0].actions = [{type: 'sequence', sequence_id: 'synthetic_sequence'}]; },
+        d => { d.sequences[0].actions = Array(16).fill(leaf); d.automations[0].actions.push(leaf); },
+        d => { d.automations[0].actions[0].delay_seconds = 86400; d.sequences[0].actions[0].delay_seconds = 1; },
+        d => { d.sequences = Array.from({length: 33}, (_, i) => ({id: 'sequence_' + i, name: 'Synthetic', actions: [leaf]})); }]) {
+        const invalid = structuredClone(doc); change(invalid);
+        assert.throws(() => validateYaml(JSON.stringify(invalid)), error => ['invalid_schema', 'invalid_semantics'].includes(error.code));
+    }
+});
+
+test('two rules sharing one sequence remain independent when exactly one run is stopped', async () => {
+    const h = await harness();
+    try {
+        const a = {...rule(), id: 'first_rule', actions: [{type: 'sequence', sequence_id: 'shared_sequence'}]};
+        const b = {...a, id: 'second_rule'};
+        await h.store(JSON.stringify({schema_version: 1, revision: 1, automations: [a, b], sequences: [{id: 'shared_sequence', name: 'Synthetic shared plan',
+            actions: [{...rule().actions[0], delay_seconds: 2}, {...rule().actions[0], values: {state: 'OFF'}}]}]}));
+        await h.activate(); await h.event({occupancy: true});
+        const status = h.extension.status();
+        const selected = status.execution.runs.find(item => item.rule_id === a.id);
+        await h.request('stop_rule', {session: h.session, rule_id: a.id, run: selected.run, expected_revision: 1, checksum: status.checksum});
+        await h.clock.advance(2000);
+        assert.deepEqual(h.commands.map(item => item.data.state), ['ON', 'OFF']);
+        assert.equal(h.extension.status().execution.runs.find(item => item.rule_id === a.id).state, 'stopped');
+        assert.equal(h.extension.status().execution.runs.find(item => item.rule_id === b.id).state, 'completed');
+    } finally { await h.close(); }
+});
+
+test('conditions are rechecked inside a reusable sequence and prevent its remaining actions', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.conditions = [{type: 'device_value', device: sourceID, property: 'occupancy', operator: 'eq', value: true}];
+        r.actions = [{type: 'sequence', sequence_id: 'synthetic_sequence'}];
+        const doc = {schema_version: 1, revision: 1, automations: [r], sequences: [{id: 'synthetic_sequence', name: 'Synthetic condition plan',
+            actions: [rule().actions[0], {...rule().actions[0], values: {state: 'OFF'}, delay_seconds: 2}]}]};
+        await h.store(JSON.stringify(doc)); await h.activate(); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1);
+        await h.event({occupancy: false}); await h.clock.advance(2000);
+        assert.equal(h.commands.length, 1);
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped');
+        assert.equal(h.extension.status().execution.runs[0].step, 2);
+    } finally { await h.close(); }
+});
+
+test('reusable scene actions validate their definition location and are rechecked before each invocation', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.actions = [{type: 'sequence', sequence_id: 'synthetic_scene_sequence'}];
+        const doc = {schema_version: 1, revision: 1, automations: [r], sequences: [{id: 'synthetic_scene_sequence', name: 'Synthetic scene plan',
+            actions: [{type: 'scene', target: {type: 'device', id: targetID}, scene_id: 0, endpoint: 2}]}]};
+        const invalid = await h.request('validate', {yaml: JSON.stringify(doc)});
+        assert.deepEqual(invalid.error.details.issues[0], {path: '/sequences/0/actions/0/scene_id', reason: 'scene_unavailable'});
+        h.devices.get(targetID).zh = {endpoints: [{ID: 2, meta: {scenes: {'0_0': {name: 'Synthetic scene'}}}}]};
+        await h.store(JSON.stringify(doc)); await h.activate(); await h.event({occupancy: true});
+        assert.deepEqual(h.commands[0].data, {scene_recall: 0});
+        delete h.devices.get(targetID).zh;
+        await h.clock.advance(1000);
+        assert.equal((await runOnce(h)).error.code, 'scene_unavailable');
+        assert.equal(h.commands.length, 1);
+    } finally { await h.close(); }
+});
+
+test('stored definitions resume after restart without replaying interrupted sequence steps', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.actions = [{type: 'sequence', sequence_id: 'synthetic_sequence'}];
+        await h.store(JSON.stringify({schema_version: 1, revision: 1, automations: [r], sequences: [{id: 'synthetic_sequence', name: 'Synthetic persisted plan',
+            actions: [{...rule().actions[0], delay_seconds: 5}, {...rule().actions[0], values: {state: 'OFF'}}]}]}));
+        await h.activate(); await h.event({occupancy: true}); await h.close(false);
+        const next = await harness(h.directory);
+        try {
+            assert.equal(next.extension.status().executing, true);
+            await next.clock.advance(10000); assert.equal(next.commands.length, 0);
+            await next.event({occupancy: true}); await next.clock.advance(5000);
+            assert.deepEqual(next.commands.map(command => command.data.state), ['ON', 'OFF']);
+        } finally { await next.close(); }
+    } finally { await h.close(); }
+});
+
 async function runOnce(h, id = 'synthetic_rule', overrides = {}, event = {}) {
     const status = (await h.request('status')).data;
     return h.request('run_once', {session: status.session, activation_token: status.activation_token,

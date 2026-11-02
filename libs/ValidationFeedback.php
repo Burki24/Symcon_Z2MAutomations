@@ -8,14 +8,19 @@ use stdClass;
 
 final class ValidationFeedback
 {
-    private const FIELDS = ['schema_version' => 'File version', 'revision' => 'Revision', 'automations' => 'Automations', 'mesh_peers' => 'Permitted partner systems',
+    private const FIELDS = ['sequences'      => 'Reusable action sequences', 'sequence_id' => 'Action sequence', 'schema_version' => 'File version', 'revision' => 'Revision', 'automations' => 'Automations', 'mesh_peers' => 'Permitted partner systems',
         'id'                                 => 'Identifier', 'name' => 'Automation name', 'enabled' => 'Rule enabled', 'triggers' => 'Trigger', 'conditions' => 'Condition', 'actions' => 'Action',
         'type'                               => 'Type', 'device' => 'Device', 'property' => 'Property or channel', 'operator' => 'Comparison', 'value' => 'Value', 'for_seconds' => 'Minimum duration (s)',
         'on_change'                          => 'Only on value change', 'at' => 'Time', 'timezone' => 'Timezone', 'after' => 'Start of time window', 'before' => 'End of time window',
         'weekdays'                           => 'Weekdays', 'target' => 'Target device', 'system' => 'Partner system', 'values' => 'Action values', 'delay_seconds' => 'Wait before step (s)',
         'event'                              => 'Solar event', 'latitude' => 'Latitude', 'longitude' => 'Longitude', 'offset_minutes' => 'Offset (minutes)',
         'scene_id'                           => 'Scene', 'endpoint' => 'Device channel'];
-    private const REASONS = ['required' => 'This entry is missing.', 'type' => 'The value has the wrong type (for example text instead of a number).',
+    private const REASONS = [
+        'sequence_missing'              => 'This action sequence does not exist. Choose an existing sequence.',
+        'sequence_nested'               => 'An action sequence cannot call another action sequence.',
+        'sequence_limit'                => 'Including reusable sequences, an automation may execute at most 16 steps.',
+        'sequence_delay'                => 'The wait before the sequence plus its first step must not exceed 86400 seconds.',
+        'sequence_duplicate'            => 'This action sequence identifier is already used.', 'required' => 'This entry is missing.', 'type' => 'The value has the wrong type (for example text instead of a number).',
         'number'                        => 'Enter a number here.', 'integer' => 'Enter a whole number here.', 'boolean' => 'Choose enabled or disabled here.',
         'string'                        => 'Enter text here.', 'array' => 'A list of entries is required here.', 'object' => 'A group of settings is required here.',
         'enum'                          => 'This selection is not supported.', 'const' => 'This selection is not supported.', 'pattern' => 'The format is invalid.',
@@ -82,6 +87,12 @@ final class ValidationFeedback
                 $names[$index] = $name;
             }
         }
+        foreach (is_array($document['sequences'] ?? null) ? array_slice($document['sequences'], 0, 32) : [] as $index => $sequence) {
+            $name = $sequence['name'] ?? null;
+            if (is_string($name) && strlen($name) <= 480 && preg_match('/\A[^\x00-\x1f\x7f]{1,120}\z/uD', $name) === 1) {
+                $names['sequences'][$index] = $name;
+            }
+        }
         return $names;
     }
 
@@ -93,10 +104,13 @@ final class ValidationFeedback
             $location = [];
             for ($i = 0; $i < count($parts); $i++) {
                 $part = $parts[$i];
-                $label = $translate(self::FIELDS[$part] ?? 'Entry');
+                $label = $translate($part === 'name' && ($parts[0] ?? '') === 'sequences' ? 'Action sequence name' : (self::FIELDS[$part] ?? 'Entry'));
                 if (isset($parts[$i + 1]) && ctype_digit($parts[$i + 1])) {
                     $index = (int) $parts[++$i];
                     $label = ($part === 'automations' ? $translate('Automation') : $label) . ' ' . ($index + 1);
+                    if ($part === 'sequences' && isset($details['names']['sequences'][$index])) {
+                        $label .= ' „' . $details['names']['sequences'][$index] . '“';
+                    }
                     if ($part === 'automations' && isset($details['names'][$index])) {
                         $label .= ' „' . $details['names'][$index] . '“';
                     }

@@ -206,5 +206,9 @@
     "run_stop": {
         "event": "AKTION",
         "message": "Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."
+    },
+    "sequence_start": {
+        "event": "AKTION",
+        "message": "Wiederverwendbare Aktionsfolge im Regellauf begonnen."
     }
 }

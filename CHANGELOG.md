@@ -1,5 +1,16 @@
 # Unveröffentlicht
 
+## Neu
+
+- Wiederverwendbare Aktionsfolgen im Klick-Editor: einmal anlegen, bearbeiten
+  und in mehreren Geräte- oder Zeitautomationen auswählen. Name, Schritte und
+  Wartezeiten werden vorbelegt; die Übersicht zeigt die Verwendung. Verwendete
+  Folgen sind vor dem Löschen geschützt. Bedingungen, Einzelstart, gezielter
+  Stopp, Wiederanlauf und Aktionen im zweiten Z2M-System bleiben nutzbar.
+  Insgesamt höchstens 16 ausgeführte Schritte je Automation. Deutsche Debug-
+  und Fehlermeldungen ordnen enthaltene Schritte zu. Modul und Erweiterung
+  gemeinsam aktualisieren. Lokal geprüft; native Praxisprüfung steht aus.
+
 ## Fehlerkorrekturen
 
 - Geräte, Eigenschaften und Werte lassen sich im Aktionsdialog wieder auswählen,
@@ -31,8 +42,8 @@
   ohne Warten der Automationen auf die Diagnose. Modul und Erweiterung müssen
   gemeinsam aktualisiert werden. Über Test-Symcon installiert und Start,
   Zeitablauf, Stopp sowie unabhängige Aufzeichnungen praktisch geprüft. Der
-  gemeinsame Laufbezug einer realen systemübergreifenden Geräteaktion ist
-  noch praktisch zu prüfen.
+  gemeinsame Laufbezug einer realen systemübergreifenden Geräteaktion wurde
+  inzwischen auf beiden Seiten bestätigt; bestehender Betrieb blieb erhalten.
 
 - Vorhandene Z2M-Szenen als Aktionen im Klick-Editor: Auswahl mit Szenennamen,
   Gerätekanal und Wartezeit, vollständige Vorbelegung sowie Aufruf im ausgewählten

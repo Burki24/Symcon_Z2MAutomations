@@ -18,6 +18,35 @@ async function meshRequest(node, operation, fields = {}) {
     return node.messages.findLast(message => message.data.transaction === transaction).data;
 }
 
+test('reusable sequences keep their run, flattened step and internal sequence positions across both systems', async () => {
+    const h = await pair();
+    try {
+        const r = remoteRule('set');
+        const on = r.actions[0], off = {...on, values: {state: 'OFF'}};
+        r.actions = [{type: 'sequence', sequence_id: 'synthetic_sequence'}];
+        await h.a.load([r], ['synthetic/b'], [{id: 'synthetic_sequence', name: 'Synthetic shared sequence', actions: [on, off]}]);
+        await h.b.load([]);
+        for (const node of [h.a, h.b]) {
+            assert.equal((await meshRequest(node, 'debug', {session: node.extension.session,
+                client: '11111111-1111-4111-8111-111111111111', seconds: 60})).status, 'ok');
+        }
+        await h.a.trigger(); await flush();
+        assert.deepEqual(h.b.commands.map(command => JSON.parse(command.message).state), ['ON', 'OFF']);
+        assert.equal(h.a.commands.length, 0);
+        const a = h.a.messages.filter(m => m.topic.endsWith('/symcon/automations/debug')).map(m => m.data.record);
+        const b = h.b.messages.filter(m => m.topic.endsWith('/symcon/automations/debug')).map(m => m.data.record);
+        const remote = b.filter(record => record.step);
+        assert.ok(remote.length > 0);
+        assert.deepEqual([...new Set(remote.map(record => record.step))], [1, 2]);
+        for (const record of remote) {
+            assert.equal(record.sequence, 1);
+            assert.equal(record.sequence_step, record.step);
+            assert.ok(a.some(source => source.run === record.run && source.step === record.step && source.sequence_step === record.sequence_step));
+        }
+        assert.ok(!JSON.stringify([...a, ...b]).includes('Synthetic shared sequence'));
+    } finally { await h.close(); }
+});
+
 test('a one-shot remote action works with its source stopped without granting incoming mesh permission', async () => {
     const h = await pair();
     try {
@@ -99,7 +128,7 @@ async function pair() {
             {debug: message => node.logs.push(message)}, {directory, clock});
         nodes.push(node);
         await node.extension.start();
-        node.load = async (rules, peers = [system === 'synthetic/a' ? 'synthetic/b' : 'synthetic/a']) => {
+        node.load = async (rules, peers = [system === 'synthetic/a' ? 'synthetic/b' : 'synthetic/a'], sequences = []) => {
             const request = async (operation, fields = {}) => {
                 const transaction = 'synthetic-control-' + node.messages.length;
                 await node.extension.receive({topic: system + '/symcon/automations/request/' + operation,
@@ -108,7 +137,7 @@ async function pair() {
             };
             const current = node.extension.status();
             const saved = await request('store', {session: current.session, expected_revision: current.stored_revision,
-                yaml: JSON.stringify({schema_version: 1, revision: current.stored_revision + 1, automations: rules, mesh_peers: peers})});
+                yaml: JSON.stringify({schema_version: 1, revision: current.stored_revision + 1, automations: rules, mesh_peers: peers, ...(sequences.length ? {sequences} : {})})});
             assert.equal(saved.status, 'ok');
             const status = (await request('status')).data;
             const activated = await request('activate', {session: status.session, expected_revision: status.stored_revision,

@@ -8,6 +8,22 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Wiederverwendbare Aktionsfolgen lokal implementiert (ADR 0015): eigener
+  nativer Verwaltungsbereich, Auswahl in Geräte-/Zeitregeln, stabile Verweise,
+  Wartezeiten, Vorbelegung und Schutz verwendeter Folgen vor dem Löschen.
+  Definitionen und Regeln teilen YAML, Prüfung, Speicherung und Ausführung.
+  Nach Auflösung höchstens 16 Schritte pro Regel; keine Verschachtelung.
+  Bedingungen, Einzelstart, gezielter Stopp, Szenen, Wiederanlauf und Mesh
+  offline geprüft. Debug ergänzt numerische Folge-/Schrittbezüge. Keine Änderung
+  an Test- oder Live-Systemen in diesem Arbeitspaket; Praxisprüfung steht aus.
+
+- Reale systemübergreifende MQTT-Debugprüfung am 02.11.2026 abgeschlossen:
+  zwei vom Benutzer ausgelöste Tasterbetätigungen mit jeweils eigenem Lauf,
+  passendem Schritt und Quellrevision auf beiden Systemen erfasst. Ziel meldete
+  je eine native Befehlsübergabe; Benutzer bestätigte die Lichtwirkung. Danach
+  ausschließlich eigene Aufzeichnungen beendet. Dauerhaft aktive Regel und
+  deaktiviertes Originalereignis sowie gespeicherte Stände unverändert.
+
 - Einzelne gespeicherte Regeln einmal ausführen und konkrete Läufe stoppen:
   eigener gemeinsamer Formularbereich, Bedingungen vor Start und Aktionen,
   native deutsche Debugmeldungen, Status mit Schrittposition, begrenzte
@@ -59,7 +75,7 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Starts, nativer Timerablauf, Remote-Frist, Stopp, unabhängige Clients und
   native deutsche Debugmeldungen praktisch bestätigt; Entwürfe und bestehender
   Betrieb erhalten, Testmonitor entfernt. Gemeinsamer Laufbezug einer realen
-  systemübergreifenden Geräteaktion mangels Tasterbetätigung noch offen.
+  systemübergreifenden Geräteaktion inzwischen separat bestätigt, siehe oben.
   Details und Testgrenzen in DEVELOPMENT.md; ADR 0012.
 
 - Vorhandene Z2M-Szenen lokal als eigene `scene`-Aktionen integriert: lesender
@@ -335,13 +351,11 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Gemeinsamen Laufbezug einer realen systemübergreifenden Geräteaktion im
-   MQTT-Debug nach ausdrücklichem Startsignal prüfen.
-2. Astro-Auswahl und Vorbelegung nach Praxisauftrag in der nativen Testkonsole
-   prüfen; reale Sonnenausführung nur mit ausdrücklich freigegebenem Ziel.
-3. Eigene wiederverwendbare Szenen/Aktionsfolgen und gezieltes manuelles Starten
-   einzelner Automationen sind weitere noch offene Ausbauschritte.
-4. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
+1. Wiederverwendbare Aktionsfolgen nach Praxisauftrag in Test-Symcon und der
+   zugehörigen Z2M-Erweiterung installieren; native Erstellung, Vorbelegung,
+   Bearbeitung, Verwendung, Löschsperre, Prüfung und Speicherung kontrollieren.
+2. Reale Ausführung einer Folge nur mit ausdrücklich freigegebenem Ziel prüfen.
+3. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
 ## Dokumentation

@@ -10,6 +10,8 @@ require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/RuleExecution.php';
+require_once __DIR__ . '/../libs/ReusableSequences.php';
+require_once __DIR__ . '/../libs/SequencePlan.php';
 require_once __DIR__ . '/../libs/ExecutionContract.php';
 require_once __DIR__ . '/../libs/AutomaticStatusRefresh.php';
 require_once __DIR__ . '/../libs/EditorGroupTargets.php';
@@ -45,6 +47,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\RuntimeDebug;
     use Z2MAutomations\RuleExecution;
+    use Z2MAutomations\ReusableSequences;
     use Z2MAutomations\AutomaticStatusRefresh;
     use Z2MAutomations\EditorGroupTargets;
     use Z2MAutomations\EditorScenes;
@@ -82,6 +85,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('EditorTarget', '');
             $this->RegisterAttributeString('EditorSelection', '');
             $this->RegisterAttributeString('ExecutionRule', '');
+            $this->RegisterAttributeString('SequenceSelection', '');
             $this->RegisterAttributeString('EditorCondition', '');
             $this->RegisterAttributeString('EditorConditionProperty', '');
             $this->RegisterAttributeString('EditorModes', '');
@@ -177,6 +181,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->FillGatewayTopics($form);
             $this->FillRuntimeDebugForm($form);
             $this->FillRuleExecutionForm($form, $state);
+            $this->FillReusableSequenceForm($form);
             $this->QueueAutomaticStatusRefresh('Formular geöffnet');
             return $this->EncodeConfigurationForm($form);
         });

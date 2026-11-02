@@ -1,4 +1,4 @@
-// Generated from own extension, runtime, mesh, scenes, diagnostics, event catalog and schema sources. Do not edit.
+// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {TextDecoder} from 'node:util';
 import Ajv from 'ajv';
 import {parseEvents, constructFromEvents, JSON_SCHEMA, mapTag, EVENT_ID} from 'js-yaml';
-const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"sceneAction":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"scene"},"target":{"$ref":"#/definitions/target"},"scene_id":{"type":"integer","minimum":0,"maximum":255},"endpoint":{"type":"integer","minimum":1,"maximum":240},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","scene_id"],"allOf":[{"if":{"properties":{"target":{"type":"object","properties":{"type":{"const":"group"}}}}},"then":{"properties":{"endpoint":false}},"else":{"properties":{"endpoint":{"type":"integer","minimum":1,"maximum":240}},"required":["endpoint"]}}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"},{"$ref":"#/definitions/sunTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"},"sunTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sun"},"event":{"enum":["sunrise","sunset"]},"latitude":{"type":"number","minimum":-90,"maximum":90},"longitude":{"type":"number","minimum":-180,"maximum":180},"offset_minutes":{"type":"integer","minimum":-720,"maximum":720},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","event","latitude","longitude","offset_minutes","timezone"]}}};
+const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}},"sequences":{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/sequence"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]},{"$ref":"#/definitions/sequenceCall"}]},"sceneAction":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"scene"},"target":{"$ref":"#/definitions/target"},"scene_id":{"type":"integer","minimum":0,"maximum":255},"endpoint":{"type":"integer","minimum":1,"maximum":240},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","scene_id"],"allOf":[{"if":{"properties":{"target":{"type":"object","properties":{"type":{"const":"group"}}}}},"then":{"properties":{"endpoint":false}},"else":{"properties":{"endpoint":{"type":"integer","minimum":1,"maximum":240}},"required":["endpoint"]}}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"},{"$ref":"#/definitions/sunTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"},"sunTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sun"},"event":{"enum":["sunrise","sunset"]},"latitude":{"type":"number","minimum":-90,"maximum":90},"longitude":{"type":"number","minimum":-180,"maximum":180},"offset_minutes":{"type":"integer","minimum":-720,"maximum":720},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","event","latitude","longitude","offset_minutes","timezone"]},"leafAction":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"sequenceCall":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sequence"},"sequence_id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","sequence_id"]},"sequence":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/leafAction"}}},"required":["id","name","actions"]}}};
 // Own implementation of the published NOAA general solar equations (solareqns.PDF).
 // Apparent horizon 90.833 degrees; a calculated time, not a weather observation.
 const SOLAR_DAY = 86400000;
@@ -134,7 +134,7 @@ export class AutomationRuntime {
         const rule = candidate.document.automations.find(item => item.id === ruleID);
         if (!rule) throw new RuntimeError('rule_missing');
         for (const clause of rule.conditions) if (clause.device && !this.device(clause.device)) throw new RuntimeError('unknown_entity');
-        for (const action of rule.actions) {
+        for (const {action} of expandActionPlan(candidate.document, rule.actions)) {
             if (action.target.system !== undefined) {
                 if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
             } else {
@@ -214,7 +214,7 @@ export class AutomationRuntime {
                     }
                 }
             }
-            for (const action of rule.actions) {
+            for (const {action} of expandActionPlan(candidate.document, rule.actions)) {
                 if (action.target.system !== undefined) {
                     if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
                     continue;
@@ -447,9 +447,13 @@ export class AutomationRuntime {
     }
 
     async run(rule, generation, context) {
-        for (const [index, action] of rule.actions.entries()) {
+        const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
+        for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
+            const {action} = entry;
             if (!this.canContinue(generation, context)) return;
-            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0};
+            const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0,
+                ...(entry.sequence ? {sequence: entry.sequence, sequence_step: entry.sequence_step} : {})};
+            if (entry.sequence_step === 1) this.log('AKTION', 'Wiederverwendbare Aktionsfolge im Regellauf begonnen.', {}, step);
             this.executionState(rule, context, 'running', '', index + 1);
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
             if (!await this.wait(step.delay * 1000, generation, context)) {
@@ -740,14 +744,17 @@ export function buildEditorScenes(zigbee, devices, groups) {
     return result;
 }
 
-const DEBUG_EVENTS = {"event_01":{"event":"AKTION","message":"Gespeicherte Revision für neue Auslöser aktiviert."},"event_02":{"event":"AKTION","message":"Ausführung gestoppt; ausstehende Verzögerungen verworfen."},"event_03":{"event":"EMPFANG","message":"Neue Eigenschaften einer konfigurierten Quelle ausgewertet."},"event_04":{"event":"AKTION","message":"Wert unverändert; Auslöser verlangt eine Wertänderung."},"event_05":{"event":"AKTION","message":"Regellauf nicht gestartet."},"event_06":{"event":"START","message":"Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."},"event_07":{"event":"FEHLER","message":"Aktionsfolge abgebrochen; keine automatische Wiederholung."},"event_08":{"event":"ENDE","message":"Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."},"event_09":{"event":"AKTION","message":"Bedingung vor Aktion nicht mehr erfüllt."},"event_10":{"event":"AKTION","message":"Vorhandene Szene für den Aufruf erneut geprüft."},"event_11":{"event":"AKTION","message":"Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."},"event_12":{"event":"FEHLER","message":"Bridge-Abonnement konnte beim Stopp nicht entfernt werden."},"event_13":{"event":"SENDEN","message":"Freigabe für eine Aktion im zweiten Z2M-System angefordert."},"event_14":{"event":"EMPFANG","message":"Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."},"event_15":{"event":"EMPFANG","message":"Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."},"event_16":{"event":"FEHLER","message":"Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."},"event_17":{"event":"FEHLER","message":"Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."},"event_18":{"event":"FEHLER","message":"MQTT-Antwort konnte nicht veröffentlicht werden."},"event_19":{"event":"START","message":"Erweiterung starten."},"event_20":{"event":"FEHLER","message":"Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."},"event_21":{"event":"ENDE","message":"Startaufruf beendet."},"event_22":{"event":"START","message":"Erweiterung stoppen."},"event_23":{"event":"ENDE","message":"Stoppaufruf beendet."},"event_24":{"event":"AKTION","message":"Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."},"event_25":{"event":"AKTION","message":"Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."},"event_26":{"event":"AKTION","message":"Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."},"event_27":{"event":"FEHLER","message":"Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."},"event_28":{"event":"START","message":"Erweiterungsauftrag empfangen."},"event_29":{"event":"ENDE","message":"Erweiterungsauftrag beendet; Ergebnis siehe Antwort."},"event_30":{"event":"FEHLER","message":"Ungültigen Erweiterungsauftrag abgewiesen."},"event_31":{"event":"AKTION","message":"Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."},"event_32":{"event":"FEHLER","message":"Erweiterungsauftrag abgewiesen."},"event_33":{"event":"FEHLER","message":"Entwurf an dieser Stelle korrigieren."},"event_34":{"event":"AKTION","message":"Bedingung geprüft."},"event_35":{"event":"AKTION","message":"Auslöser geprüft."},"event_36":{"event":"AKTION","message":"Mindestdauer begonnen."},"event_37":{"event":"AKTION","message":"Mindestdauer abgebrochen."},"event_38":{"event":"AKTION","message":"Mindestdauer erreicht."},"event_39":{"event":"AKTION","message":"Zeitpunkt erreicht."},"event_40":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt begonnen."},"event_41":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt beendet."},"event_42":{"event":"AKTION","message":"Aktionsschritt wegen Stopp abgebrochen."},"event_43":{"event":"EMPFANG","message":"Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."},"event_44":{"event":"SENDEN","message":"Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"scene_send":{"event":"SENDEN","message":"Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"step_failed":{"event":"FEHLER","message":"Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."},"astro_plan":{"event":"AKTION","message":"Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt."},"astro_missing":{"event":"AKTION","message":"Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen."},"astro_due":{"event":"AKTION","message":"Astro-Zeitpunkt einschließlich Zeitversatz erreicht."},"once_request":{"event":"AKTION","message":"Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert."},"once_start":{"event":"START","message":"Einmaliger Regellauf mit erfüllten Bedingungen begonnen."},"run_stop":{"event":"AKTION","message":"Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."}};
+const DEBUG_EVENTS = {"event_01":{"event":"AKTION","message":"Gespeicherte Revision für neue Auslöser aktiviert."},"event_02":{"event":"AKTION","message":"Ausführung gestoppt; ausstehende Verzögerungen verworfen."},"event_03":{"event":"EMPFANG","message":"Neue Eigenschaften einer konfigurierten Quelle ausgewertet."},"event_04":{"event":"AKTION","message":"Wert unverändert; Auslöser verlangt eine Wertänderung."},"event_05":{"event":"AKTION","message":"Regellauf nicht gestartet."},"event_06":{"event":"START","message":"Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."},"event_07":{"event":"FEHLER","message":"Aktionsfolge abgebrochen; keine automatische Wiederholung."},"event_08":{"event":"ENDE","message":"Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."},"event_09":{"event":"AKTION","message":"Bedingung vor Aktion nicht mehr erfüllt."},"event_10":{"event":"AKTION","message":"Vorhandene Szene für den Aufruf erneut geprüft."},"event_11":{"event":"AKTION","message":"Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."},"event_12":{"event":"FEHLER","message":"Bridge-Abonnement konnte beim Stopp nicht entfernt werden."},"event_13":{"event":"SENDEN","message":"Freigabe für eine Aktion im zweiten Z2M-System angefordert."},"event_14":{"event":"EMPFANG","message":"Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."},"event_15":{"event":"EMPFANG","message":"Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."},"event_16":{"event":"FEHLER","message":"Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."},"event_17":{"event":"FEHLER","message":"Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."},"event_18":{"event":"FEHLER","message":"MQTT-Antwort konnte nicht veröffentlicht werden."},"event_19":{"event":"START","message":"Erweiterung starten."},"event_20":{"event":"FEHLER","message":"Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."},"event_21":{"event":"ENDE","message":"Startaufruf beendet."},"event_22":{"event":"START","message":"Erweiterung stoppen."},"event_23":{"event":"ENDE","message":"Stoppaufruf beendet."},"event_24":{"event":"AKTION","message":"Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."},"event_25":{"event":"AKTION","message":"Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."},"event_26":{"event":"AKTION","message":"Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."},"event_27":{"event":"FEHLER","message":"Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."},"event_28":{"event":"START","message":"Erweiterungsauftrag empfangen."},"event_29":{"event":"ENDE","message":"Erweiterungsauftrag beendet; Ergebnis siehe Antwort."},"event_30":{"event":"FEHLER","message":"Ungültigen Erweiterungsauftrag abgewiesen."},"event_31":{"event":"AKTION","message":"Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."},"event_32":{"event":"FEHLER","message":"Erweiterungsauftrag abgewiesen."},"event_33":{"event":"FEHLER","message":"Entwurf an dieser Stelle korrigieren."},"event_34":{"event":"AKTION","message":"Bedingung geprüft."},"event_35":{"event":"AKTION","message":"Auslöser geprüft."},"event_36":{"event":"AKTION","message":"Mindestdauer begonnen."},"event_37":{"event":"AKTION","message":"Mindestdauer abgebrochen."},"event_38":{"event":"AKTION","message":"Mindestdauer erreicht."},"event_39":{"event":"AKTION","message":"Zeitpunkt erreicht."},"event_40":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt begonnen."},"event_41":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt beendet."},"event_42":{"event":"AKTION","message":"Aktionsschritt wegen Stopp abgebrochen."},"event_43":{"event":"EMPFANG","message":"Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."},"event_44":{"event":"SENDEN","message":"Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"scene_send":{"event":"SENDEN","message":"Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"step_failed":{"event":"FEHLER","message":"Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."},"astro_plan":{"event":"AKTION","message":"Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt."},"astro_missing":{"event":"AKTION","message":"Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen."},"astro_due":{"event":"AKTION","message":"Astro-Zeitpunkt einschließlich Zeitversatz erreicht."},"once_request":{"event":"AKTION","message":"Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert."},"once_start":{"event":"START","message":"Einmaliger Regellauf mit erfüllten Bedingungen begonnen."},"run_stop":{"event":"AKTION","message":"Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."},"sequence_start":{"event":"AKTION","message":"Wiederverwendbare Aktionsfolge im Regellauf begonnen."}};
 
 export {DEBUG_EVENTS};
 const debugCodes = new Map(Object.entries(DEBUG_EVENTS).map(([code, entry]) => [entry.message, code]));
 const debugUUID = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
 export const debugTrace = value => value && debugUUID(value.run) && Number.isInteger(value.rule) && value.rule >= 1 && value.rule <= 100
     && Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 && Number.isSafeInteger(value.revision) && value.revision >= 1
-    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision} : undefined;
+    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision,
+        ...(Number.isInteger(value.sequence) && value.sequence >= 1 && value.sequence <= 32
+            && Number.isInteger(value.sequence_step) && value.sequence_step >= 1 && value.sequence_step <= 16
+            ? {sequence: value.sequence, sequence_step: value.sequence_step} : {})} : undefined;
 
 // Live diagnostics only: no disk, retries, MQTT retain or awaited device-side work.
 export class RuntimeDiagnostics {
@@ -787,7 +794,7 @@ export class RuntimeDiagnostics {
             if (this.queue.length >= 128 || this.sentAt.length >= 80) { this.dropped = Math.min(1000000, this.dropped + 1); return; }
             const record = {id: randomUUID(), at: Math.trunc(this.wall()), event: code};
             if (debugUUID(context.run)) record.run = context.run;
-            for (const [key, max] of Object.entries({rule: 100, trigger: 8, condition: 16, step: 16, revision: Number.MAX_SAFE_INTEGER, delay: 86400})) {
+            for (const [key, max] of Object.entries({sequence: 32, sequence_step: 16, rule: 100, trigger: 8, condition: 16, step: 16, revision: Number.MAX_SAFE_INTEGER, delay: 86400})) {
                 if (Number.isSafeInteger(context[key]) && context[key] >= (key === 'delay' ? 0 : 1) && context[key] <= max) record[key] = context[key];
             }
             if (typeof context.origin === 'string' && context.origin.length <= 1024) record.origin = createHash('sha256').update(context.origin).digest('hex');
@@ -833,6 +840,30 @@ export class RuntimeDiagnostics {
     }
 
     stop() { this.closed = true; this.clients.clear(); this.queue.length = 0; }
+}
+
+// Own bounded execution plan. Definitions contain leaf actions only, never calls.
+export class SequenceError extends Error {
+    constructor(reason, step) { super(reason); this.reason = reason; this.step = step; }
+}
+
+export function expandActionPlan(document, actions) {
+    const plan = [];
+    for (const [source_index, action] of actions.entries()) {
+        if (action.type !== 'sequence') plan.push({action, source_index});
+        else {
+            const index = (document.sequences ?? []).findIndex(item => item.id === action.sequence_id);
+            if (index < 0) throw new SequenceError('sequence_missing', source_index);
+            for (const [inner, leaf] of document.sequences[index].actions.entries()) {
+                if (leaf.type === 'sequence') throw new SequenceError('sequence_nested', source_index);
+                const delay = (leaf.delay_seconds ?? 0) + (inner === 0 ? (action.delay_seconds ?? 0) : 0);
+                if (delay > 86400) throw new SequenceError('sequence_delay', source_index);
+                plan.push({action: {...leaf, delay_seconds: delay}, source_index, sequence: index + 1, sequence_step: inner + 1});
+            }
+        }
+        if (plan.length > 16) throw new SequenceError('sequence_limit', source_index);
+    }
+    return plan;
 }
 
 
@@ -890,7 +921,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -916,7 +947,7 @@ function schemaDetails(document) {
     }
     return {issues: issues.slice(0, 20), truncated: issues.length > 20};
 }
-const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/action');
+const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/leafAction');
 const yamlSchema = JSON_SCHEMA.withTags({
     ...mapTag,
     create: () => Object.create(null),
@@ -952,13 +983,28 @@ export function validateYaml(yaml) {
     if (!validateSchema(document)) fail('invalid_schema', schemaDetails(document));
     const ids = new Set();
     const issues = [];
+    const sequenceIDs = new Set();
+    for (const [index, sequence] of (document.sequences ?? []).entries()) {
+        if (sequenceIDs.has(sequence.id)) issues.push({path: '/sequences/' + index + '/id', reason: 'sequence_duplicate'});
+        sequenceIDs.add(sequence.id);
+    }
     for (const [index, automation] of document.automations.entries()) {
         const path = '/automations/' + index;
         if (ids.has(automation.id)) issues.push({path: path + '/id', reason: 'duplicate_id'});
         ids.add(automation.id);
-        for (const [step, action] of automation.actions.entries()) {
+        let plan = [];
+        try { plan = expandActionPlan(document, automation.actions); }
+        catch (error) {
+            if (!(error instanceof SequenceError)) throw error;
+            issues.push({path: path + '/actions/' + error.step + (error.reason === 'sequence_delay' ? '/delay_seconds' : '/sequence_id'), reason: error.reason});
+        }
+        for (const entry of plan) {
+            const {action, source_index: step} = entry;
             if (automation.enabled && action.target.system !== undefined && !document.mesh_peers?.includes(action.target.system)) {
-                issues.push({path: path + '/actions/' + step + '/target/system', reason: 'remote_permission'});
+                const location = entry.sequence ? `/sequences/${entry.sequence - 1}/actions/${entry.sequence_step - 1}` : path + '/actions/' + step;
+                if (!issues.some(issue => issue.path === location + '/target/system' && issue.reason === 'remote_permission')) {
+                    issues.push({path: location + '/target/system', reason: 'remote_permission'});
+                }
             }
         }
         for (const section of ['triggers', 'conditions']) for (const [step, clause] of automation[section].entries()) {
@@ -1217,7 +1263,7 @@ export default class Z2MAutomationsExtension {
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
             mesh_peer_count: this.runtime.active?.document.mesh_peers?.length ?? 0,
-            execution_version: 1, execution: this.executionStatus(),
+            execution_version: 1, sequence_version: 1, execution: this.executionStatus(),
             session: this.session, state: this.accepting ? 'ready' : 'stopped', ...this.store.metadata(), ...this.runtime.metadata()};
     }
 
@@ -1299,13 +1345,16 @@ export default class Z2MAutomationsExtension {
 
     validateScenes(candidate) {
         const issues = [];
-        for (const [rule, automation] of candidate.document.automations.entries()) {
+        for (const [rule, automation] of [...candidate.document.automations, ...(candidate.document.sequences ?? [])].entries()) {
             for (const [step, action] of automation.actions.entries()) {
                 if (action.type !== 'scene' || action.target.system !== undefined) continue;
                 let available = false;
                 try { available = hasScene(this.runtime.target(action.target), action.target.type, action); }
                 catch { /* A missing entity is reported at the same actionable scene position. */ }
-                if (!available) issues.push({path: `/automations/${rule}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+                if (!available) {
+                    const location = rule < candidate.document.automations.length ? `/automations/${rule}` : `/sequences/${rule - candidate.document.automations.length}`;
+                    issues.push({path: `${location}/actions/${step}/scene_id`, reason: 'scene_unavailable'});
+                }
             }
         }
         if (issues.length) fail('invalid_semantics', {issues: issues.slice(0, 20), truncated: issues.length > 20});
@@ -1470,7 +1519,7 @@ export default class Z2MAutomationsExtension {
                         await this.store.verifyDisk();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         const selected = this.store.current.document.automations.find(rule => rule.id === request.rule_id);
-                        if (selected?.actions.some(action => action.target.system !== undefined)) await this.prepareMesh();
+                        if (selected && expandActionPlan(this.store.current.document, selected.actions).some(step => step.action.target.system !== undefined)) await this.prepareMesh();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         this.runtime.startOnce(this.store.current, request.rule_id);
                     } else {

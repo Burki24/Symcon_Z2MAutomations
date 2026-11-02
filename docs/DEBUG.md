@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Wiederverwendbare Aktionsfolgen
+
+Auswahl, Übernahme, Schrittbearbeitung und Löschsperre verwenden die zentralen
+Start-/Ende-Abläufe und feste deutsche Fachmeldungen. Protokolliert werden
+Schritt- und Verwendungsanzahl sowie das Ergebnis der Berechtigungsprüfung.
+Die Runtime meldet den Beginn einer enthaltenen Folge; deren Schritte behalten
+denselben Regellauf. Optional ergänzen `Aktionsfolge` und `SchrittInAktionsfolge`
+die aufgelöste Schrittposition. Diese numerischen Bezüge werden auch auf dem
+Mesh-Ziel angezeigt. Namen, Definitionen, Auswahlbindungen und Aktionswerte
+bleiben geschützt. Bestehende Zeitbegrenzung und Versandgrenzen gelten weiter.
+
 ## Eigener zeitlich begrenzter MQTT-Debugkanal
 
 `request/debug` startet eine eigene flüchtige Aufzeichnungsfreigabe; ausschließlich
