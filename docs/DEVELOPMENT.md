@@ -1723,3 +1723,52 @@ Kodierungsprüfung, unverändertes aktuelles Erweiterungsartefakt, offizielle
 StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie sowie PHP CS
 Fixer 3.95.27 im Prüfmodus erfolgreich. Fremdquellen und zentrale Helper
 unverändert; geänderte Texte UTF-8 ohne BOM mit LF.
+
+## Wiederverwendbare Aktionsfolgen: Praxisprüfung am 02.11.2026
+
+Auf ausdrücklichen Auftrag über Test-Symcon an dem gemeinsam genutzten realen
+Z2M-System geprüft. Module und Erweiterung waren bereits aktualisiert. Zwei
+vorübergehende Testmodule bewahrten die vorhandenen lokalen Entwürfe; die
+Partnerzuordnung erhielt die vorhandenen Mesh-Freigaben. Sicherungen und rohe
+Nachweise blieben außerhalb des Repositorys.
+
+- In der nativen Konsole eine Folge angelegt und einen vorhandenen Schritt
+  mit korrekt vorbelegtem Gerät, Kanal, Wert und Wartezeit bearbeitet. Weitere
+  Schritte und je ein deaktivierter Geräte- und Zeitverwender wurden über die
+  tatsächlichen Formular-Callbacks angelegt. Nicht alle Bedienhandlungen
+  erfolgten per Maus. Beide Verwender behielten dieselbe stabile Folgen-ID.
+- Verwendung zweimal angezeigt; Löschen der verwendeten Folge sowohl im
+  Formular gesperrt als auch beim direkten Aufruf abgelehnt, Entwurf bytegleich.
+  Prüfung, Speicherung und frisches Laden erhielten Definition, Verweise und
+  beide deaktivierten Regeln. Vorhandene Regeln blieben inhaltlich unverändert.
+- Nach eigener Freigabe des Testlichts die Geräte-Regel einmalig gestartet:
+  Statusmeldung Ein und exakt fünf Sekunden später Aus. Debug meldete beide
+  nativen Befehlsübergaben mit demselben Regellauf sowie korrekter Folgen- und
+  Schrittposition; Laufstatus anschließend abgeschlossen und ohne Fehler.
+  Geräte-Rückmeldungen bestätigen den gemeldeten Schaltzustand; eine zusätzliche
+  Sichtkontrolle durch den Anwender war nicht Teil dieses Nachweises.
+- Für den gezielten Stopp erhielt nur der deaktivierte Zeitverwender eine
+  Wartezeit von 60 Sekunden vor dem ersten Schritt. Einmalig gestartet und
+  während dieser Wartezeit gestoppt: passender Laufstatus gestoppt, Debug meldet
+  den abgebrochenen Schritt und keine Befehlsübergabe dieses Laufs. Der allgemeine
+  Automationsbetrieb blieb aktiv. Ein zusätzlicher gemeldeter Wechsel des
+  Lichtzustands wurde keinem Testbefehl zugeschrieben; abschließend wurde der
+  gesicherte ursprüngliche Aus-Zustand wiederhergestellt und bestätigt.
+- Danach ursprünglichen Regelinhalt ohne Testregeln oder Folgendefinition mit
+  fortlaufender Revision gespeichert, Betrieb wieder aktiviert und frisch
+  geladen. Vollständiger Inhaltsvergleich bis auf die Revision erfolgreich.
+  Ursprüngliche Anzahl aktiver Regeln, Mesh und automatischer Wiederanlauf
+  bestätigt; lokale Entwürfe bytegleich, vorhandene Ereigniszustände unverändert.
+  Eigene MQTT-Aufzeichnung beendet, native Debugdatei gestoppt und beide
+  vorübergehenden Testmodule samt eigenen Statusvariablen entfernt.
+
+Der reale Aufruf einer wiederverwendbaren Folge über Mesh, parallele Verwender
+und ein Neustart während einer Folge wurden hier nicht praktisch geprüft;
+hierfür gelten weiterhin die synthetischen Laufzeitnachweise. Keine Änderung
+an Funktionscode, zentralen Helpern oder Erweiterungsartefakt.
+
+Erneute lokale Prüfungen erfolgreich: php tests/run.php einschließlich 106
+JavaScript-Tests, Struktur- und zentrale Kodierungsprüfung, Artefaktvergleich,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
+sowie PHP CS Fixer 3.95.27 im Prüfmodus. Nur drei Dokumentationsdateien geändert;
+UTF-8 ohne BOM, LF und git diff --check bestätigt.

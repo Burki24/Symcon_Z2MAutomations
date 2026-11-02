@@ -2,8 +2,10 @@
 
 ## Status
 
-Angenommen und lokal implementiert. Offline mit synthetischen Daten geprüft;
-Installation und Bedienprüfung in einer nativen Symcon-Konsole stehen aus.
+Angenommen und implementiert. Offline mit synthetischen Daten sowie am
+02.11.2026 über Test-Symcon an einem ausdrücklich freigegebenen Z2M-System
+praktisch geprüft: native Bedienung, Speicherung, reale Gerätefolge und
+gezielter Stopp. Umfang und Grenzen stehen in docs/DEVELOPMENT.md.
 
 ## Entscheidung
 

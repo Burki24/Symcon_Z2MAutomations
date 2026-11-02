@@ -31,8 +31,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Definitionen und Regeln teilen YAML, Prüfung, Speicherung und Ausführung.
   Nach Auflösung höchstens 16 Schritte pro Regel; keine Verschachtelung.
   Bedingungen, Einzelstart, gezielter Stopp, Szenen, Wiederanlauf und Mesh
-  offline geprüft. Debug ergänzt numerische Folge-/Schrittbezüge. Keine Änderung
-  an Test- oder Live-Systemen in diesem Arbeitspaket; Praxisprüfung steht aus.
+  offline geprüft. Debug ergänzt numerische Folge-/Schrittbezüge. Am 02.11.2026
+  über Test-Symcon praktisch geprüft: Erstellung, Bearbeitung, Vorbelegung,
+  zwei deaktivierte Verwender, Löschsperre, Prüfung, Speicherung und Wiederladen.
+  Freigegebene Gerätefolge Ein, fünf Sekunden warten, Aus erfolgreich;
+  gezielter Stopp vor der ersten Befehlsübergabe bestätigt. Testdaten entfernt,
+  ursprünglicher Regelinhalt und Betrieb wiederhergestellt. Ein realer
+  systemübergreifender Aufruf einer wiederverwendbaren Folge bleibt offen.
 
 - Reale systemübergreifende MQTT-Debugprüfung am 02.11.2026 abgeschlossen:
   zwei vom Benutzer ausgelöste Tasterbetätigungen mit jeweils eigenem Lauf,
@@ -368,10 +373,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Wiederverwendbare Aktionsfolgen nach Praxisauftrag in Test-Symcon und der
-   zugehörigen Z2M-Erweiterung installieren; native Erstellung, Vorbelegung,
-   Bearbeitung, Verwendung, Löschsperre, Prüfung und Speicherung kontrollieren.
-2. Reale Ausführung einer Folge nur mit ausdrücklich freigegebenem Ziel prüfen.
+1. Wiederverwendbare Aktionsfolgen bei Bedarf nach gesondertem Praxisauftrag
+   auch systemübergreifend prüfen; der bisherige reale Ablauf war lokal.
+2. Weitere offene Funktionsbausteine mit dem Anwender priorisieren.
 3. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
