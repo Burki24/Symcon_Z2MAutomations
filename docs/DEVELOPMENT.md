@@ -1497,3 +1497,73 @@ PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich. Geänderte Textdateien sind UTF-
 ohne BOM mit LF. Keine fremden Helper oder Abhängigkeiten verändert. Sichtprüfung
 in der nativen Konsole sowie reale Schalt- und Partnerprüfungen bleiben offen;
 Test- und Live-Installationen wurden in diesem Auftrag nicht verändert.
+
+## Einzelstart und gezielter Stopp: Praxisprüfung am 02.11.2026
+
+Auf ausdrücklichen Auftrag die Testinstallation geprüft. Ihr Modulstand samt
+Formular, Übersetzung, neuen öffentlichen Funktionen und Uploadartefakt war
+bereits dateigenau aktuell. Nach ausdrücklicher Bestätigung das gemeinsam mit
+der Produktion genutzte Z2M verwendet. Die Erweiterung wurde über den echten
+Installationsauftrag aktualisiert; offizielle Antwort, neue Sitzung und
+execution_version 1 bestätigt. Veröffentlichter Erweiterungscode entspricht
+exakt dem Uploadartefakt. Andere Erweiterungen blieben bytegleich. Die bisherige
+Betriebsfreigabe wurde nach dem Neuladen automatisch wieder aufgenommen.
+
+Erweiterungen, gespeicherte YAML und Metadaten außerhalb des Repositorys
+gesichert. Temporäre Automationsinstanzen hielten den ursprünglichen lokalen
+Editorentwurf unangetastet. Dabei einen Formularfehler gefunden: SaveEditorDraft
+formatierte YAML bei bereits identischen Partnerfreigaben erneut. Trotz
+unverändertem Inhalt wich die Prüfsumme vom gespeicherten Text ab; die
+Einzelstartfreigabe blieb deshalb gesperrt. Nach gesonderter Korrekturfreigabe
+werden Text und Prüfsumme bei unveränderten Freigaben erhalten. Nur tatsächlich
+geänderte Partnerfreigaben erzeugen weiterhin einen neuen Entwurf. Neue deutsche
+Debugentscheidungen erklären beide Fälle. Kompaktes gespeichertes JSON mit
+unveränderten Freigaben reproduzierte den Fehler im PHP-/JS-Regressionstest
+vor der Korrektur und bestand danach. Korrigierte PHP-Datei auf Test-Symcon
+übertragen, Syntax und Dateihash bestätigt. Anschließend stimmten geladener
+Originaltext und gespeicherte Prüfsumme auch praktisch überein.
+
+Zwei zusätzliche Testregeln blieben dauerhaft deaktiviert. Jede ihrer möglichen
+Aktionen hatte 86400 Sekunden Wartezeit; keine normale Testauslösung wurde
+freigegeben. Die vorhandenen Aktivierungskennzeichen blieben unverändert. Nach
+dem zum Speichern nötigen Stopp ausschließlich den vorherigen Automatikbetrieb
+wieder aktiviert. Start und Stopp wurden durch Ausführung der tatsächlichen
+nativen Formularskripte per MCP geprüft, ohne Zeigerklick in der Konsole.
+
+- Einmaliger Start mit widersprüchlichen Zeitbedingungen: Zustand skipped,
+  feste Ursache conditions_not_met, verständlicher Formulartext, Stopp gesperrt.
+  Der MQTT-Debug belegte die nicht erfüllte Bedingung; keine Wartezeit oder Aktion.
+- Einmaliger Start mit erfüllter Zeitbedingung: Zustand running in Schritt 1,
+  Startbutton gesperrt und gezielter Stopp freigegeben. Stopp bestätigte dieselbe
+  Lauf-UUID als stopped, verwarf den wartenden Schritt und meldete das Ende.
+  Der vorherige Automatikbetrieb blieb während des Einzeltests aktiv.
+- Wiederholter Versuch mit längerem Warten: native automatische Statusabfragen
+  im Fünfsekundentakt samt bestätigtem runs_ready, identischem laufendem Ablauf
+  und anschließend erfolgreichem gezieltem Stopp.
+
+Die eigene zeitlich begrenzte Z2M-Aufzeichnung und Symcons native Debugdatei
+belegen Startanfrage, erfüllte und nicht erfüllte Bedingungen, Wartezeit,
+konkreten Stopp und Ende mit zugehörigen Lauf-/Schrittbezügen. Für keinen der
+Testläufe gab es eine native Geräte- oder Szenenübergabe. Die native Datei
+enthielt weder rohe YAML noch Aktivierungsfreigaben. Die physische Wirkung
+einer Aktion und die erneute Bedingungsprüfung nach einer abgelaufenen Wartezeit
+waren ausdrücklich nicht Gegenstand dieses schaltfreien Praxislaufs.
+
+Aufräumen: Testregeln entfernt und ursprüngliches Dokument bis auf die
+fortgeschriebene Revision inhaltlich identisch zurückgeschrieben. Der erneute
+Z2M-Abruf bestätigte Regeln, Aktivierungskennzeichen und Partnerfreigaben sowie
+den exakten Wiederherstellungstext. Ausschließlich die bisherige Betriebsfreigabe
+wieder aktiviert; Ausführung, Mesh und Wiederanlauf entsprechen dem Ausgangsstand,
+Laufzeitfehler leer. Ursprünglicher lokaler Formularentwurf bytegleich. Temporäre
+Instanzen samt Statusvariablen entfernt, eigene Aufzeichnung und native
+Debugdateiaufzeichnung beendet und die zusätzliche lesende WebSocket-Verbindung
+geschlossen. Keine Originalereignisse, Gerätezuordnungen, Brokerrechte oder
+Produktiv-Symcon-Moduldateien verändert. Das Neuladen der Erweiterung und die
+Speicherwechsel unterbrachen die betroffene Laufzeit kurzzeitig wie vorab
+besprochen; eine unterbrechungsfreie Aktualisierung wurde nicht behauptet.
+
+Nachweise: php tests/run.php vollständig erfolgreich, einschließlich 97
+JavaScript-Tests und PHP-/JS-Integration. Struktur-, Kodierungs- und
+Artefaktprüfung, offizieller StylePHP-JSON-Check der eigenen JSON-Dateien
+in einer temporären Kopie sowie PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich.
+Fremdquellen und zentrale Helper unverändert; geänderte Texte UTF-8 ohne BOM/LF.

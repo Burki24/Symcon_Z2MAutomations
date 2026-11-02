@@ -8,13 +8,14 @@ $singleOriginal = json_decode($singleForm['YamlInput']['value'], true, 32, JSON_
 $singleRule = ['id' => 'synthetic_once', 'name' => 'Synthetic private once name', 'enabled' => false,
     'triggers'      => [['type' => 'device', 'device' => '0x0000000000000001', 'property' => 'action', 'operator' => 'eq', 'value' => 'single']],
     'conditions'    => [], 'actions' => [['type' => 'set', 'target' => ['type' => 'device', 'id' => '0x0000000000000002'], 'values' => ['state' => 'ON'], 'delay_seconds' => 30]]];
-$singleDocument = ['schema_version' => 1, 'revision' => $state()['extension']['storedRevision'] + 1, 'automations' => [$singleRule]];
+$singleDocument = ['schema_version' => 1, 'revision' => $state()['extension']['storedRevision'] + 1, 'automations' => [$singleRule], 'mesh_peers' => []];
 $singleYaml = json_encode($singleDocument, JSON_THROW_ON_ERROR);
 $module->ValidateYaml($singleYaml);
 $check($state()['operation']['status'] === 'validated', 'Synthetic one-shot document validates');
 $module->StoreYaml($singleYaml);
 $module->LoadAutomationEditor();
 $singleForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+$check($singleForm['YamlInput']['value'] === $singleYaml, 'Loading stored YAML with unchanged partner permissions preserves its exact bytes and one-shot eligibility');
 $runEditorScript($singleForm['ExecutionRule']['onChange'], $singleForm, ['ExecutionRule' => $singleRule['id']]);
 $singleForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
 $check($singleForm['RunOnceButton']['enabled'] && !$singleForm['StopRuleButton']['enabled'], 'Saved disabled rule is selectable for one-shot execution');

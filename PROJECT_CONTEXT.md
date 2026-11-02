@@ -15,7 +15,12 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Auch deaktivierte Regeln und erlaubte Partneraktionen möglich. Keine
   Schemaänderung; lokale Umsetzung gemäß ADR 0014. Neue Offline-Nachweise
   für Laufzeit, Mesh, Statusvertrag und native PHP-/JS-Formularskripte.
-  Noch nicht auf Test- oder Live-System installiert oder praktisch geprüft.
+  Anschließend über Test-Symcon am ausdrücklich freigegebenen gemeinsamen
+  Z2M geprüft: Bedingung verhindert Start, erfüllte Bedingung startet Wartezeit,
+  gezielter Stopp und automatische Statusabfragen bestätigt. Keine Testaktion
+  an Geräte übergeben; Testregeln entfernt, ursprüngliche Regeln und Betrieb
+  wiederhergestellt, lokaler Entwurf bytegleich. Beim Laden aufgedeckte reine
+  YAML-Neuformatierung nach gesonderter Freigabe korrigiert und regressionsgeprüft.
 
 - Rücksetzung der Ablaufaufzeichnung beim Speichern lokal korrigiert:
   vorhandene Aufzeichnung bleibt an MQTT-Kontext und Z2M-Sitzung gebunden,

@@ -58,6 +58,10 @@
 
 ## Fixes
 
+- Gespeicherte Automationen bleiben nach dem Laden unverändert und lassen sich
+  ohne erneutes Speichern einmalig ausführen. Bei unveränderten Partnerfreigaben
+  behält das Modul den ursprünglichen YAML-Text samt Prüfsumme bei.
+
 - Eine laufende Z2M-Ablaufaufzeichnung bleibt beim Speichern von Automationen
   erhalten und endet weiterhin zur ursprünglich gewählten Zeit. Während der
   anschließenden Statusbestätigung lässt sie sich beenden. Verbindungs- und

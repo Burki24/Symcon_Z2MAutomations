@@ -233,9 +233,12 @@ trait AutomationEditor
             $peers = $peer === null ? [] : [$peer['system']];
             if (($draft['configuration']['mesh_peers'] ?? []) !== $peers) {
                 $draft['configuration']['revision'] = $draft['baseRevision'] + 1;
+                $draft['configuration']['mesh_peers'] = $peers;
+                $yaml = json_encode($draft['configuration'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
+                $this->DebugEvent('AKTION', 'Partnerfreigaben im Entwurf geändert; neue Revision vorbereitet. Z2M bleibt bis zum Speichern unverändert.', ['Freigaben' => count($peers)]);
+            } else {
+                $this->DebugEvent('AKTION', 'Partnerfreigaben unverändert; YAML-Text ohne zusätzliche Neuformatierung übernommen.', ['Revision' => $draft['configuration']['revision'], 'YAMLBytes' => strlen($yaml)]);
             }
-            $draft['configuration']['mesh_peers'] = $peers;
-            $yaml = json_encode($draft['configuration'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
         }
         $draft['draftChecksum'] = hash('sha256', $yaml);
         $this->WriteAttributeString('EditorDraft', json_encode($draft, JSON_THROW_ON_ERROR));

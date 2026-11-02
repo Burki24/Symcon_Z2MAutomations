@@ -2,8 +2,9 @@
 
 ## Status
 
-Angenommen, lokal implementiert. Keine Installation oder reale Geräteprüfung
-im Rahmen dieses Auftrags.
+Angenommen und implementiert. Anschließend über Test-Symcon am ausdrücklich
+freigegebenen realen Z2M schaltfrei geprüft; Nachweise und Grenzen stehen in
+DEVELOPMENT.md. Keine tatsächliche Gerätewirkung im Einzelstart-Praxistest.
 
 ## Entscheidung
 
