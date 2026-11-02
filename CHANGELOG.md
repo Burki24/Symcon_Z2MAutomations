@@ -19,8 +19,9 @@
   nicht nachgeholt. Deutsche Debugmeldungen enthalten keine Koordinaten.
   Modul und Erweiterung gemeinsam aktualisieren. Auswahl, Bearbeitung,
   Vorbelegung, Prüfung und Speicherung im nativen Formular mit ausgeschalteter
-  Testregel bestätigt; die tatsächliche Sonnenausführung ist noch nicht
-  praktisch geprüft.
+  Testregel bestätigt. Tatsächlicher Astro-Start mit negativem Zeitversatz und
+  kurzer Ein-/Aus-Folge an einem Gerät einschließlich Debug und Rückmeldungen
+  praktisch geprüft; Testregel anschließend entfernt.
 
 - Zeitlich begrenzte Z2M-Ablaufaufzeichnung im nativen Symcon-Debug: Start für
   5, 10 oder 15 Minuten, eigene Bestätigung und Stopp. Meldungen erklären

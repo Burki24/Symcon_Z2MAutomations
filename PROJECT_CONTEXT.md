@@ -17,8 +17,12 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Bearbeitung, Vorbelegung, Ablehnung ungültiger Koordinaten, Z2M-Prüfung,
   Speicherung und Wiederladen mit ausgeschalteter Testregel praktisch geprüft.
   Ursprüngliche Regeln und Betrieb wiederhergestellt, Formularentwurf erhalten;
-  keine Schaltbefehle. Reale Sonnenausführung bleibt offen. Siehe ADR 0013 und
-  DEVELOPMENT.md.
+  keine Schaltbefehle bei der Editorprüfung. Anschließend auf eigenen Auftrag
+  reale Astro-Ausführung mit negativem Versatz und kurzer Geräteaktionsfolge
+  bestätigt: ein Lauf, native Ablaufmeldungen, Symcon-Zustandswechsel und
+  Leistungsrückmeldung. Testregel entfernt, Regeln und Lichtzustand wiederhergestellt.
+  Rücksetzung der lokalen Debugaufzeichnung beim Speichern als Nebenbefund
+  dokumentiert. Siehe ADR 0013 und DEVELOPMENT.md.
 
 - Eigener zeitlich begrenzter MQTT-Debugkanal lokal implementiert: flüchtige
   unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,

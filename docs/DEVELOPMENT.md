@@ -1325,3 +1325,56 @@ Abschließende Projektprüfungen erfolgreich: `php tests/run.php` einschließlic
 separate Strukturprüfung, offizieller StylePHP-JSON-Check einer temporären Kopie
 der eigenen JSON-Dateien ohne Fremdquellen und PHP CS Fixer 3.95.27 im Prüfmodus
 (keine Änderungen erforderlich). Geänderte Dokumentation als UTF-8/LF geprüft.
+
+## Astro-Ausführung: realer Gerätetest
+
+Gesonderter Praxisauftrag für tatsächliches Schalten über Test-Symcon an dem
+gemeinsam genutzten Z2M. Vorher gespeicherte Regeln, Betriebsfreigaben,
+Erweiterungsdateien, vorhandenen Formularentwurf und Geräteausgangszustand
+gesichert. Keine Änderungen am Produktiv-Symcon-Modul, an Originalereignissen,
+Brokerrechten oder Gerätezuordnungen. Der Funktionscode blieb unverändert.
+
+Für den aktuellen lokalen Tag wurde mit dem hinterlegten Standort der
+Sonnenaufgang berechnet. Ein negativer Versatz von 17 Minuten legte den Test
+wenige Minuten in die Zukunft. Eine unabhängige PHP-date_sun_info-Abfrage wich
+weniger als zwei Minuten ab und lag damit innerhalb der dokumentierten
+Näherungsgrenze. Keine Änderung der Systemzeit, keine Zeitinjektion und kein
+zusätzlicher fester Uhrzeit- oder Geräteauslöser. Die temporäre aktivierte Regel
+enthielt ausschließlich einen sun-Auslöser und die Folge Einschalten mit
+mittlerer Helligkeit, fünf Sekunden warten, ursprünglichen Aus-Zustand und
+Helligkeit wiederherstellen. Vorhandene Regeln und Partnerfreigaben blieben
+inhaltlich erhalten.
+
+Nach erfolgreicher Z2M-Prüfung, Speicherung und Aktivierung meldete die Runtime
+genau einen Astro-Start in der berechneten Zielsekunde. Native Symcon-Debugausgaben
+enthielten Sonnenzeit einschließlich Versatz, gemeinsamen Regellauf, Regel- und
+Schrittnummer, native Befehlsübergaben, Beginn und Ende der fünf Sekunden Wartezeit
+sowie das Ende der Folge. Kein Laufzeitfehler und keine gemeldeten Debugverluste.
+Ein lesender Beobachter bestätigte den Astro-Datensatz innerhalb einer Sekunde
+nach dem Minutenbeginn und beide Befehlsübergaben im Abstand von fünf Sekunden.
+
+Die Geräte-MQTT-Rückmeldungen zeigten Ein mit Testhelligkeit und anschließend
+wieder Aus mit ursprünglicher Helligkeit. Eine zeitversetzte Leistungsrückmeldung
+stieg deutlich über den Ruheverbrauch und kehrte anschließend auf diesen zurück.
+Das Symcon-Archiv bestätigte den Ein-/Aus-Wechsel mit fünf Sekunden Abstand.
+Damit liegt neben der Befehlsannahme eine tatsächliche Geräterückmeldung vor;
+eine Sichtprüfung durch den Anwender wurde nicht angefordert.
+
+Nebenbefund ohne Quellcodeänderung: Beim geänderten Speichern wurde die lokale
+Debugfreigabe zurückgesetzt. Der Empfangsstatus war vorübergehend nicht mehr
+bestätigt; SyncRuntimeDebug beendet dafür die lokale Zuordnung mit der Meldung
+über geänderte Verbindung/Sitzung. Ein tatsächlicher Z2M-Neustart fand nicht statt.
+Die Aufzeichnung wurde nach Aktivierung frisch gestartet und umfasste den
+vollständigen Schaltversuch. Die zuvor auf Z2M begrenzt weiterlaufende und die
+neu gestartete eigene Aufzeichnungsfreigabe wurden anhand ihrer nachgewiesenen
+Clientidentitäten ausdrücklich beendet und beide Stopps bestätigt. Dieses
+Speicher-/Debugverhalten ist nicht mit diesem Prüfauftrag korrigiert worden.
+
+Aufräumen anschließend bestätigt: gespeichertes Ausgangsdokument bis auf die
+fortgeschriebene Revision identisch, keine Testregel mehr vorhanden. Ursprüngliche
+Ausführung, Mesh und Wiederanlauf wieder freigegeben, Laufzeitfehler leer.
+Erweiterungsdateien unverändert; anderes Z2M-System unverändert aktiv. Lichtzustand
+und Helligkeit entsprechen dem Ausgangszustand. Formularentwurf bytegleich,
+temporäre Modulinstanzen entfernt, native Debug-Dateiaufzeichnungen beendet und
+lesenden Beobachter samt Zusatzverbindungen geschlossen. Weitere Sonnenereignisse
+oder saisonale Hardwaretests wurden nicht ausgeführt.

@@ -1,6 +1,6 @@
 # ADR 0013: Unabhängig berechnete Sonnenereignisse
 
-Status: angenommen, implementiert und native Editor-/Speicherprüfung bestanden.
+Status: angenommen, implementiert; native Editorprüfung und reale Astro-Ausführung bestanden.
 
 ## Anlass
 
@@ -51,4 +51,13 @@ Z2M-Prüfung, Speicherung und Wiederladen wurden mit ausgeschalteter Testregel
 geprüft. Native Debugmeldungen nennen Ergebnis und Versatz ohne Koordinaten.
 Die Testregel wurde entfernt; ursprüngliche Regeln und Betriebsfreigaben
 wiederhergestellt. Keine Testaktivierung oder Schaltbefehle. Der reale Start
-bei einem Sonnenereignis ist weiterhin nicht praktisch geprüft.
+bei einem Sonnenereignis war nicht Teil dieser Editorprüfung.
+
+Auf gesonderten Auftrag wurde danach ein tatsächlicher Sonnenaufgangsauslöser
+mit negativem Minutenversatz und zwei Geräteaktionen geprüft. Z2M startete im
+berechneten Zeitfenster einen einzelnen Regellauf; Aktionsschritte, fünf Sekunden
+Wartezeit und Ende waren im nativen Symcon-Debug nachvollziehbar. Geräte- und
+Symcon-Rückmeldungen einschließlich Leistungsmessung bestätigten die Ausführung.
+Die ursprünglichen Regeln, Freigaben und der Lichtzustand wurden wiederhergestellt.
+Dies ist kein eigener Hardware-Nachweis für alle Sonnenereignisse, Jahreszeiten,
+polaren Standorte oder Zeitzonen; deren bisherige Nachweise bleiben synthetisch.
