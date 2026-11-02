@@ -7,9 +7,11 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
 1. **Bearbeitungsstand verständlich machen.** Formulareingaben, lokaler Entwurf,
    gespeicherter Z2M-Stand und tatsächlicher Betrieb getrennt anzeigen. Noch
    nicht übernommene Änderungen beim Wechsel von Regel oder Bearbeitungsbereich
-   schützen. Lokal umgesetzt und synthetisch geprüft. Die native Prüfung deckte
-   einen Klassenkontextfehler auf; lokal korrigiert, erneute Praxisprüfung nach
-   Modulupdate offen.
+   schützen. Umgesetzt und am 02.11.2026 in der nativen Testkonsole geprüft:
+   Vorbelegung, Weiterbearbeiten, Verwerfen, Bereichswechsel, Statusabfrage,
+   Schutz vor Prüfung offener Eingaben und Übernahme in einen lokalen Prüfentwurf.
+   Aufgedeckte Klassenkontext- und Popup-Einbindungsfehler sind korrigiert.
+   Umfang und weitere Prüflimits stehen in DEVELOPMENT.md.
 2. **Viele Automationen übersichtlich verwalten.** Größere Listen, Suche/Filter
    und Kopieren vorhandener Automationen. Geplant.
 3. **Zeitsteuerung vervollständigen.** Wochentage unabhängig von Zeitfenstern

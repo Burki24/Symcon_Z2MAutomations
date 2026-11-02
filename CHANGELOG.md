@@ -34,6 +34,14 @@
 
 ## Fehlerkorrekturen
 
+- „Änderungen verwerfen und wechseln“ funktioniert auch im nativen Popup.
+  Dessen Felder werden jetzt beim Formularaufbau berücksichtigt, der Button
+  erhält die vollständige Erfassung und der Bestätigungswert bleibt beim
+  Neuaufbau erhalten. Veraltete Bestätigungen nennen im Debug einen verständlichen
+  Grund ohne Eingaben oder Tokenwerte. Native Prüfung einschließlich
+  Weiterbearbeiten, Bereichswechsel, Prüfungsschutz und lokaler Übernahme
+  erfolgreich. Ein Modulupdate genügt; geöffnete Formulare erneut öffnen.
+
 - Regelauswahl und Änderungsverfolgung im nativen Formular funktionieren ohne
   direkten Zugriff auf PHP-Hilfsklassen des Moduls. Damit entfällt der Fehler
   „EditorWorkInput not found“, der vor dem Moduleinstieg und dessen Debug-Ausgaben

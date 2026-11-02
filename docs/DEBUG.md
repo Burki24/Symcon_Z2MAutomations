@@ -2,6 +2,14 @@
 
 ## Formulareingaben und Entwurf unterscheiden
 
+Abgelehnte Wechselbestätigungen nennen nun einen festen deutschen Grund:
+fehlender oder überholter Bestätigungswert, andere Auswahl, geänderter Entwurf
+oder geänderte Formulareingaben. Bei einer abweichenden Auswahlbindung werden
+nur Vorhandensein und Übereinstimmung als Ja/Nein-Werte protokolliert.
+Keine Auswahl- oder Bestätigungstokenwerte und keine Formularnamen oder -werte.
+Die native Praxisprüfung bestätigt Meldungen für den angehaltenen Wechsel,
+ausdrückliches Verwerfen, Prüfungsschutz und die rein lokale Entwurfsübernahme.
+
 TrackEditorInput, NavigateEditor, ResolveEditorNavigation und EditorWorkReady
 verwenden den kanonischen DebugFlowHelper. Feste deutsche Meldungen erklären
 neue offene Eingaben, die Rückkehr zum Entwurfsstand, den angehaltenen Wechsel,

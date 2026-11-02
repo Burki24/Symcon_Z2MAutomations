@@ -1,3 +1,60 @@
+## Native Abnahme des Bearbeitungsstands am 02.11.2026
+
+Auf Test-Symcon wurde der aktualisierte Modulstand dateigenau bestätigt. Eine
+vorübergehende Modulkopie las die gespeicherten Regeln vom gemeinsam genutzten
+Z2M. Der vorhandene lokale Entwurf der ursprünglichen Instanz blieb unberührt.
+Die native Konsole zeigte getrennte Angaben zu Eingaben, Entwurf und Betrieb.
+
+Regelauswahl und Vorbelegung funktionierten nach dem vorangegangenen
+Klassenkontext-Fix. Ein geänderter Name wurde als offene Bearbeitung angezeigt.
+Der Wechsel zu einer anderen Geräteregel fragte nach. Weiterbearbeiten erhielt
+Name und Auswahl. Auch Statusabfrage, Einklappen und Schließen/Neuöffnen des
+Formulars erhielten die Eingabe. Der Wechsel in den Zeitbereich fragte ebenfalls
+nach; nach ausdrücklichem Verwerfen erschienen Name, Uhrzeit, Bedingungen und
+Aktionen der Zeitregel. Bis dahin blieb der Prüfentwurf bytegleich.
+
+Dabei aufgedeckter Popup-Fehler: EditorFormFields berücksichtigte nur items,
+jedoch nicht popup.items. Die dynamische Erfassung des Verwerf-Buttons wurde
+somit übersprungen; dessen statischer Platzhalter lieferte einen leeren Input.
+Der Debug-Einstieg lehnte die Bestätigung deshalb ab. Neue feste deutsche
+Ablehnungsgründe halfen bei der Eingrenzung. Die Traversierung umfasst nun auch
+Popup-Felder; beim Formularaufbau wird der bestehende Bestätigungswert ergänzt.
+Der Regressionstest führt jetzt das tatsächlich erzeugte Popup-Skript aus,
+statt die Resolve-Methode direkt aufzurufen: zunächst fehlgeschlagen, nach der
+Korrektur erfolgreich. Veraltete Bestätigungen und wiederholte Verwendung
+bleiben gesperrt; keine vereinfachte oder ausgelassene Zustandsprüfung.
+
+Die drei betroffenen PHP-Dateien wurden auf Test-Symcon aktualisiert und das
+Formular frisch geöffnet. Der native Verwerf-Button schloss das Popup und
+wechselte korrekt. Bei einer weiteren offenen Zeitregeländerung zeigte der
+Prüfbutton einen Übernahmehinweis; die abgegrenzte Debug-Aufzeichnung enthielt
+keinen Versand einer Validierungsanfrage. Die anschließende lokale Übernahme
+in den Entwurf ausschließlich der Prüfkopie übernahm den Namen und setzte die
+Änderungsanzeige zurück. Übrige Angaben und Zahl der Regeln blieben gleich.
+Es wurde nichts in Z2M gespeichert, aktiviert, gestoppt oder geschaltet.
+
+Debug-Nachweise erklären Wechselabbruch, ausdrückliches Verwerfen,
+Prüfungsschutz und lokale Übernahme. Die Suchprüfung auf die eingegebenen
+Testnamen lieferte keinen Treffer. Bei hoher Meldungsrate wurde die eigene
+Aufzeichnung auf eine Datei begrenzt; sie wurde anschließend ausdrücklich
+beendet. Prüfkopie einschließlich Statusvariablen entfernt. Der ursprüngliche
+lokale Entwurf blieb bytegleich. Gespeicherte und aktive Revision/Prüfsumme,
+Zahl eingeschalteter Regeln, Betrieb und Wiederanlauf wurden unverändert
+bestätigt. Kein Zugriff über den Produktiv-MCP und kein Erweiterungsupdate.
+
+Abschlussprüfungen: php tests/run.php einschließlich PHP-/JavaScript-Integration
+und 106 JavaScript-Tests erfolgreich; Strukturprüfung, Kodierungsprüfung,
+Artefaktprüfung, offizielle StylePHP-Prüfung der eigenen JSON-Dateien,
+PHP CS Fixer im Prüfmodus und git diff --check erfolgreich. Das Großkatalog-
+Formular umfasst 430.178 Bytes. Nach reiner Ausrichtung der PHP-Zuweisungen
+wurden fokussierter Callback-Test und Formatierungsprüfung erneut ausgeführt.
+
+Prüfgrenzen: Listendialoge mit Löschen/Umsortieren und die gleichzeitige native
+Bearbeitung wiederverwendbarer Folgen wurden hier nicht erneut durchgespielt;
+deren gezielte Offline-Nachweise bleiben maßgeblich. Laufzeit und Gerätewirkung
+sind nicht Gegenstand dieser Formularprüfung. Andere Konsolen als die native
+Windows-Testkonsole wurden nicht bedient.
+
 ## Bearbeitungsstand und geschützter Formularwechsel
 
 Agenda Punkt 1: EditorWorkInput erfasst ausschließlich ausdrücklich freigegebene

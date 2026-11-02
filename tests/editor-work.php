@@ -135,7 +135,7 @@ $check(($module->updates['EditorTimeRule']['value'] ?? null) === 'first', 'Block
 $retained = $form();
 $check($retained['TimeEditorName']['value'] === 'private-unsaved-name' && $retained['YamlInput']['value'] === $yaml, 'Reopening preserves pending input without changing the draft');
 $token = $module->updates['EditorNavigationToken']['value'];
-$check($module->ResolveEditorNavigation($token, Z2MAutomations\EditorWorkInput::Capture(array_map(static fn (array $f): mixed => $f['value'] ?? ($f['values'] ?? ''), $retained))), 'Explicit discard changes selection');
+$run($retained['DiscardEditorNavigation']['onClick'], $retained, ['EditorNavigationToken' => $token]);
 $after = $form();
 $check($after['TimeEditorName']['value'] === 'Synthetic second' && $after['YamlInput']['value'] === $yaml, 'Discard affects only form input, not stored draft');
 $check(!$module->ResolveEditorNavigation($token, '{}'), 'Confirmation cannot be replayed');
@@ -165,7 +165,8 @@ $run($deviceDirty['EditorTimeRule']['onChange'], $deviceDirty, ['EditorTimeRule'
 $check(($module->updates['EditorNavigationPopup']['visible'] ?? false) && $form()['DeviceEditorName']['value'] === 'Synthetic device draft', 'Switching areas protects a new unsaved device automation');
 $switchToken = $module->updates['EditorNavigationToken']['value'];
 $deviceDirty = $form();
-$check($module->ResolveEditorNavigation($switchToken, Z2MAutomations\EditorWorkInput::Capture(array_map(static fn (array $f): mixed => $f['value'] ?? ($f['values'] ?? ''), $deviceDirty))), 'Explicit area change is allowed after discard');
+$run($deviceDirty['DiscardEditorNavigation']['onClick'], $deviceDirty, ['EditorNavigationToken' => $switchToken]);
+$check($form()['TimeEditorName']['value'] === 'Synthetic first', 'Actual popup callback switches area after explicit discard');
 $check($module->SelectReusableSequence('shared', '', false), 'Select the shared sequence');
 $sequence = $form();
 $run($sequence['SequenceEditorName']['onChange'], $sequence, ['SequenceEditorName' => 'Pending shared sequence']);

@@ -61,11 +61,19 @@ trait EditorWork
             {
                 $text = $this->GetBuffer('EditorNavigation');
                 $pending = $text === '' ? null : json_decode($text, true, 16, JSON_THROW_ON_ERROR);
-                if (!$this->RememberEditorInput($Input, false, false) || $pending === null || $Token === '' || $pending['token'] !== $Token
-                    || $pending['context'] !== $this->EditorWorkContext($pending['kind'])
-                    || $pending['draft'] !== hash('sha256', $this->ReadAttributeString('YamlDraft'))
-                    || $pending['work'] !== $this->GetBuffer('EditorWork.' . $pending['kind'])) {
-                    $this->DebugEvent('FEHLER', 'Veraltete Bestätigung verworfen; Eingaben bleiben erhalten. Gewünschte Automation erneut auswählen.');
+                $remembered = $this->RememberEditorInput($Input, false, false);
+                $reason = match (true) {
+                    !$remembered                                                                  => 'Formulareingaben sind nicht mehr aktuell.',
+                    $pending === null                                                             => 'Es wartet kein bestätigbarer Wechsel.',
+                    $Token === ''                                                                 => 'Der Bestätigungswert fehlt im Formular.',
+                    $pending['token'] !== $Token                                                  => 'Die Bestätigung gehört zu einem anderen Wechsel.',
+                    $pending['context'] !== $this->EditorWorkContext($pending['kind'])            => 'Die bearbeitete Auswahl hat sich geändert.',
+                    $pending['draft'] !== hash('sha256', $this->ReadAttributeString('YamlDraft')) => 'Der lokale Entwurf hat sich geändert.',
+                    $pending['work'] !== $this->GetBuffer('EditorWork.' . $pending['kind'])       => 'Die erfassten Formulareingaben haben sich geändert.',
+                    default                                                                       => ''
+                };
+                if ($reason !== '') {
+                    $this->DebugEvent('FEHLER', 'Veraltete Bestätigung verworfen; Eingaben bleiben erhalten. Gewünschte Automation erneut auswählen.', ['Grund' => $reason]);
                     return null;
                 }
                 $this->SetBuffer('EditorNavigation', '');
@@ -152,6 +160,10 @@ trait EditorWork
                     throw new InvalidArgumentException('editor_work_input');
                 }
                 if (($incoming['_id'] ?? '') !== $context['id'] || ($incoming['_token'] ?? '') !== $context['token']) {
+                    $this->DebugEvent('FEHLER', 'Formularbindung passt nicht zur geöffneten Bearbeitung; Eingaben werden nicht verworfen.', [
+                        'Bearbeitung'      => $kind === 'rule' ? 'Automation' : 'Aktionsfolge',
+                        'AuswahlVorhanden' => ($incoming['_id'] ?? '') !== '', 'AuswahlPassend' => ($incoming['_id'] ?? '') === $context['id'],
+                        'BindungVorhanden' => ($incoming['_token'] ?? '') !== '', 'BindungPassend' => ($incoming['_token'] ?? '') === $context['token']]);
                     throw new InvalidArgumentException('editor_work_stale');
                 }
                 $actual = EditorWorkInput::Normalize($incoming, $context['area']);

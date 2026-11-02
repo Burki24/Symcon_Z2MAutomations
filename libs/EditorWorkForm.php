@@ -81,6 +81,10 @@ trait EditorWorkForm
             if ($name === 'SequenceWorkID') {
                 $field['value'] = $this->EditorWorkContext('sequence')['id'];
             }
+            if ($name === 'EditorNavigationToken') {
+                $pending = $this->GetBuffer('EditorNavigation');
+                $field['value'] = $pending === '' ? '' : (json_decode($pending, true, 16, JSON_THROW_ON_ERROR)['token'] ?? '');
+            }
             if ($name === 'DiscardEditorNavigation') {
                 $field['onClick'] = 'Z2MA_ResolveEditorNavigation($id, $EditorNavigationToken, ' . $capture . ');';
             }

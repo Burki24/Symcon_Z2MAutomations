@@ -310,6 +310,13 @@ trait AutomationEditor
                 }
                 unset($child);
             }
+            if (isset($item['popup']['items'])) {
+                $children = $this->EditorFormFields($item['popup']['items']);
+                foreach ($children as &$child) {
+                    $fields[] = &$child;
+                }
+                unset($child);
+            }
         }
         unset($item);
         return $fields;

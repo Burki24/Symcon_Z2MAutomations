@@ -8,6 +8,23 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 1 am 02.11.2026 in der nativen Testkonsole erfolgreich geprüft.
+  Korrigierte Regelauswahl mit Vorbelegung; offene Änderungen bleiben nach
+  Statusabfrage, Einklappen und erneutem Formularöffnen erhalten. Weiterbearbeiten
+  erhält Eingabe und Auswahl. Ausdrückliches Verwerfen wechselt korrekt zur
+  Zeitregel und verändert keinen Entwurf. Prüfung mit offenen Eingaben zeigt
+  einen Hinweis und sendet keine Validierungsanfrage. Lokale Übernahme nur in
+  der Prüfkopie bestätigt; danach keine offene Bearbeitung und unveränderte
+  übrige Regelangaben. Popup-Felder wurden bisher beim dynamischen Aufbau
+  ausgelassen, weshalb der Verwerf-Button nur seinen Platzhalter verwendete.
+  Traversierung und Wiederherstellung des Bestätigungswerts korrigiert;
+  zusätzliche deutsche Ablehnungsgründe ohne Eingaben oder Tokenwerte.
+  Tatsächliches Popup-Skript regressionsgeprüft und korrigierter Modulstand
+  auf Test-Symcon bestätigt. Prüfkopie entfernt, eigene Aufzeichnungen beendet;
+  ursprünglicher lokaler Entwurf bytegleich und gespeicherter/aktiver Z2M-Stand
+  einschließlich Wiederanlauf unverändert. Keine Geräteaktion oder Speicherung
+  in Z2M. Alle Offline-Prüfungen einschließlich 106 JavaScript-Tests erfolgreich.
+
 - Native Praxisprüfung von Agenda Punkt 1 am 02.11.2026: aktualisierten Modulstand
   dateigenau auf Test-Symcon bestätigt. Alte offene Konsole zeigte noch den alten
   Aufbau; frische Prüfkopie zeigte die neuen Statusanzeigen. Regelauswahl scheiterte
@@ -403,8 +420,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Punkt 1 der [Entwicklungsagenda](docs/AGENDA.md) in der nativen Konsole
-   praktisch prüfen; danach die vereinbarte Reihenfolge fortsetzen.
+1. Punkt 1 der [Entwicklungsagenda](docs/AGENDA.md) ist im beschriebenen Umfang
+   praktisch bestätigt. Als Nächstes Punkt 2: Übersicht bei vielen Automationen.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
