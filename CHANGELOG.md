@@ -2,6 +2,11 @@
 
 ## Neu
 
+- Die manuelle Zigbee2MQTT-Verbindungsprüfung bestätigt das Ergebnis in einem
+  Popup. Erfolg erst nach passender Antwort; Fehler, Abbruch und fehlende Antwort
+  erhalten verständliche Hinweise. Automatische Prüfungen bleiben ohne Popup.
+  Ein Modulupdate genügt; die Z2M-Erweiterung bleibt unverändert.
+
 - Einrichtung und Diagnose zeigt installierten und mitgelieferten Erweiterungsstand
   mit automatisch erzeugter Buildkennung und Updatehinweis. Der Vergleich wird
   durch die vorhandenen Statusabfragen aktualisiert. Ältere Erweiterungen ohne

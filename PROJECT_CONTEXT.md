@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Manuelle Verbindungsprüfung lokal um ein natives Ergebnis-Popup ergänzt:
+  eigener öffentlicher CheckConnection-Einstieg, gemeinsame Health-Anfrage,
+  Bestätigung erst nach passender frischer Antwort, klare Fehler-/Timeout- und
+  Abbruchhinweise. Automatische Prüfungen und bestehende CheckHealth-Aufrufe
+  bleiben ohne Popup. Wiederholte Klicks teilen eine ausstehende Anfrage.
+  Synthetisch einschließlich synchroner Antworten, Abbruch und UI-Fehler geprüft.
+  Native Praxisprüfung steht aus; kein Test- oder Live-System verändert.
+
 - Erweiterungsstand lokal ergänzt (ADR 0016): installierte und mitgelieferte
   Version mit automatisch generierter Inhaltskennung unter Einrichtung und
   Diagnose. Vergleich über bestätigte Statusantworten, gleiche Kennung aktuell,

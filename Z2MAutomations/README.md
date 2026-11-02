@@ -1,5 +1,18 @@
 # Z2MAutomations
 
+## Verbindung prüfen und Rückmeldung erhalten
+
+Mit **Zigbee2MQTT-Verbindung prüfen** starten Sie eine Prüfung über das zugeordnete
+MQTT-Gateway. Sobald eine passende Antwort vorliegt, erscheint ein Popup mit dem
+Ergebnis. Bei Erfolg bestätigt es, dass Zigbee2MQTT erreichbar ist und einen
+fehlerfreien Zustand meldet. Meldet Z2M ein Problem, fehlt die Verbindung oder
+bleibt die Antwort aus, nennt das Popup den nächsten Prüfschritt.
+
+Der Versand allein wird noch nicht als Erfolg angezeigt. Mehrere Klicks während
+derselben Prüfung erzeugen keine weiteren Anfragen. Automatische Prüfungen beim
+Öffnen des Formulars, nach einem Modulupdate oder nach Wiederverbindung bleiben
+ohne Popup. Die Prüfung schaltet keine Geräte und verändert keine Automationen.
+
 ## Erweiterungsstand und Updatehinweis
 
 Unter **Einrichtung und Diagnose** stehen der **installierte Erweiterungsstand**
@@ -700,10 +713,14 @@ Ergebnis in OperationStatus.
 
 ## Öffentliche Funktionen
 
-- Z2MA_CheckHealth(InstanceID, false): Startet eine asynchrone Gesundheitsanfrage.
+- Z2MA_CheckConnection(InstanceID): Startet die Verbindungsprüfung mit Popup für
+  Erfolg, Fehler, Abbruch oder Zeitüberschreitung. Entspricht dem Formularbutton.
+  Liefert die Transaktions-ID oder bei fehlender Verbindung einen leeren String.
+- Z2MA_CheckHealth(InstanceID, false): Startet eine asynchrone Gesundheitsanfrage
+  ohne Popup, beispielsweise für eigene Skripte.
   Der native Symcon-Aufruf benötigt den zweiten Parameter ausdrücklich. Mit
   true folgt nach erfolgreicher Gesundheitsprüfung zusätzlich eine Statusabfrage
-  der Erweiterung; der Formularbutton verwendet false für die reine Verbindungsprüfung.
+  der Erweiterung. Die bestehenden Funktionsparameter bleiben unverändert.
   Liefert die Transaktions-ID oder einen leeren String, wenn kein Versand möglich
   ist. Bei bereits offener Anfrage wird deren ID zurückgegeben, ohne erneut zu
   senden. Ein nicht leerer Rückgabewert bestätigt noch keine erfolgreiche Prüfung.

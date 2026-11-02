@@ -130,7 +130,7 @@
                 {
                     "type": "Button",
                     "caption": "Check Zigbee2MQTT connection",
-                    "onClick": "Z2MA_CheckHealth($id, false);"
+                    "onClick": "Z2MA_CheckConnection($id);"
                 },
                 {
                     "caption": "Refresh extension status",
@@ -3449,6 +3449,23 @@
                         "type": "Label",
                         "name": "InstallResultMessage",
                         "caption": "Extension installation",
+                        "width": "100%"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "PopupAlert",
+            "name": "HealthResultPopup",
+            "visible": false,
+            "popup": {
+                "caption": "Zigbee2MQTT connection check",
+                "closeCaption": "OK",
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "HealthResultMessage",
+                        "caption": "Zigbee2MQTT connection check",
                         "width": "100%"
                     }
                 ]

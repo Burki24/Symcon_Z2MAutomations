@@ -1681,3 +1681,45 @@ ArgumentCountError, danach erfolgreicher asynchroner Health-Versand und passende
 Antwort einschließlich vorhandener Debugprüfung. Automatische Statusfolge
 separat erfolgreich. Kein neuer Laufzeitcode oder geändertes Z2M-Artefakt;
 für die Korrektur genügt ein Modulupdate. Keine Test- oder Live-Systemänderungen.
+
+
+## Ergebnis-Popup für die manuelle Verbindungsprüfung am 02.11.2026
+
+Der native Button verwendet CheckConnection ohne optionale Kernelparameter.
+CheckConnection und die bestehende CheckHealth-API teilen RequestHealthCheck;
+CheckHealth behält seine bisherige Signatur und arbeitet weiterhin ohne Popup.
+Der unveränderte automatische Statusworkflow verwendet weiterhin CheckHealth.
+Vorhandene ConfigurationFormHelper- und DebugFlowHelper-Verträge sowie das
+bestehende Installations-Popup wurden geprüft und unverändert weiterverwendet.
+
+Nur die ausdrücklich manuelle Anfrage erhält eine Rückmeldungsmarkierung im
+vorhandenen Transportzustand. Passende frische Antwort, Fehler, Timerablauf oder
+Abbruch entfernen die Markierung und zeigen das native HealthResultPopup.
+Eine manuelle Bedienung darf sich an eine bereits automatisch gestartete Prüfung
+anhängen. Ein wiederholter Klick sendet keine zweite Anfrage. Ein gescheitertes
+Popup verändert das Prüfergebnis nicht. Ein bereits vor dem Versand abgelaufener
+Auftrag wird ohne Versand verworfen und dessen Zustand gespeichert, damit die
+Rückmeldung bei späteren Zugriffen nicht wiederholt wird.
+
+Neue health-feedback.php-Prüfung führt das tatsächliche native Formularskript
+mit synthetischem MQTT-Elternmodul aus. Zunächst fehlendes Popup nachgewiesen,
+anschließend Erfolg, ungesunder Z2M-Zustand, expliziter Fehler, ungültige/fremde/
+retained/verspätete Antworten, Zeitüberschreitung, Sendefehler, Bridge-Offline,
+Kontextwechsel und fehlende Verbindung geprüft. Automatische vollständige
+Health-/Statusfolge und bisherige nichtinteraktive API bleiben ohne Popup.
+Sofortige synchrone Antworten, mehrfache Klicks, manuelles Anhängen an laufende
+Prüfung, UI-Ausfall und Ablauf vor Versand sind zusätzlich abgedeckt. Für den
+letzten Fall zunächst doppelte Rückmeldung reproduziert, dann durch korrektes
+Festschreiben des abgebrochenen Zustands behoben. Native deutsche Debugtexte
+enthalten nur feste Ergebnisse; fremde Fehlerwerte werden nicht weitergegeben.
+
+Keine Test- oder Live-Installation verändert. Das native Fenster wurde in diesem
+Arbeitspaket nicht praktisch geöffnet. Ein Modulupdate genügt; keine Änderung
+am Z2M-Artefakt oder seinen Buildkennungen.
+
+Nachweise: php tests/run.php vollständig erfolgreich einschließlich 106
+JavaScript-Tests und neuer Popup-/MQTT-Integration. Strukturprüfung, zentrale
+Kodierungsprüfung, unverändertes aktuelles Erweiterungsartefakt, offizielle
+StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie sowie PHP CS
+Fixer 3.95.27 im Prüfmodus erfolgreich. Fremdquellen und zentrale Helper
+unverändert; geänderte Texte UTF-8 ohne BOM mit LF.

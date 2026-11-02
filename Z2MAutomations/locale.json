@@ -509,7 +509,14 @@
             "Up to date. The installed and bundled extensions have the same build.": "Aktuell. Installierte und mitgelieferte Erweiterung haben denselben Stand.",
             "Update available: The installed build differs from the bundled build. Choose Install or update bundled extension to use the bundled version.": "Aktualisierung verfügbar: Der installierte Stand weicht vom mitgelieferten Stand ab. Mit „Mitgelieferte Erweiterung installieren oder aktualisieren“ übernehmen Sie den mitgelieferten Stand.",
             "The installed extension cannot be compared because it reports no build identifier. Update the bundled extension, then request its status again.": "Der installierte Stand lässt sich noch nicht vergleichen, weil diese Erweiterung keine Buildkennung meldet. Bitte die mitgelieferte Erweiterung installieren oder aktualisieren und anschließend den Erweiterungsstatus abfragen.",
-            "Build comparison unavailable. Update the module files and reopen this form.": "Der Stand lässt sich nicht vergleichen. Bitte die Moduldateien aktualisieren und das Formular erneut öffnen."
+            "Build comparison unavailable. Update the module files and reopen this form.": "Der Stand lässt sich nicht vergleichen. Bitte die Moduldateien aktualisieren und das Formular erneut öffnen.",
+            "Zigbee2MQTT connection check": "Zigbee2MQTT-Verbindung prüfen",
+            "Connection checked successfully. Zigbee2MQTT is reachable and reports no problems.": "Verbindung erfolgreich geprüft. Zigbee2MQTT ist erreichbar und meldet einen fehlerfreien Zustand.",
+            "Zigbee2MQTT responds but reports a problem. Please check its status and logs.": "Zigbee2MQTT antwortet, meldet aber ein Problem. Bitte den Status und das Protokoll in Zigbee2MQTT prüfen.",
+            "Zigbee2MQTT did not respond within the configured waiting time. Please check the MQTT connection and base topic.": "Zigbee2MQTT hat innerhalb der eingestellten Wartezeit nicht geantwortet. Bitte die MQTT-Verbindung und das Basistopic prüfen.",
+            "The connection check was cancelled because the connection or settings changed. Please check again.": "Die Verbindungsprüfung wurde abgebrochen, weil sich die Verbindung oder die Einstellungen geändert haben. Bitte erneut prüfen.",
+            "The connection check could not be started. Please enable the MQTT connection and check the gateway connection.": "Die Verbindungsprüfung konnte nicht gestartet werden. Bitte die MQTT-Anbindung aktivieren und die Verbindung zum Gateway prüfen.",
+            "The connection check failed. Please check the MQTT connection, base topic and Zigbee2MQTT status.": "Die Verbindungsprüfung ist fehlgeschlagen. Bitte die MQTT-Verbindung, das Basistopic und den Status von Zigbee2MQTT prüfen."
         }
     }
 }

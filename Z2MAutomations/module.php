@@ -257,8 +257,7 @@ class Z2MAutomations extends IPSModuleStrict
                         if (in_array($bridge, ['online', 'offline'], true)) {
                             $state['bridgeState'] = $bridge;
                             if ($bridge === 'offline' && $state['pending'] !== null) {
-                                $state['pending'] = null;
-                                $state['health'] = 'cancelled';
+                                $this->FinishHealthCheck($state, 'cancelled');
                             }
                             if ($bridge === 'offline') {
                                 $state['validation'] = null;
@@ -296,14 +295,13 @@ class Z2MAutomations extends IPSModuleStrict
                     } elseif ($suffix === 'bridge/response/health_check' && !$packet['Retain'] && $payload instanceof stdClass
                         && $state['pending'] !== null && ($payload->transaction ?? null) === $state['pending']['transaction']) {
                         if (($payload->status ?? null) === 'error') {
-                            $state['health'] = 'error';
-                            $state['pending'] = null;
+                            $this->FinishHealthCheck($state, 'error');
                         } elseif (($payload->status ?? null) === 'ok' && is_bool($payload->data->healthy ?? null)) {
                             $refreshExtension = ($state['pending']['refreshExtension'] ?? false) && $payload->data->healthy && $state['workflow'] === null;
-                            $state['health'] = $payload->data->healthy ? 'healthy' : 'unhealthy';
+                            $health = $payload->data->healthy ? 'healthy' : 'unhealthy';
                             $state['bridgeState'] = 'online';
                             $this->DebugEvent('AKTION', 'Frische passende Health-Antwort bestätigt die Erreichbarkeit von Zigbee2MQTT.', ['Gesund' => $payload->data->healthy]);
-                            $state['pending'] = null;
+                            $this->FinishHealthCheck($state, $health);
                         }
                     } else {
                         $next = $this->ReceiveExtensionMessage($state, $suffix, $payload, $packet['Retain']);
@@ -346,62 +344,12 @@ class Z2MAutomations extends IPSModuleStrict
 
     public function CheckHealth(bool $RefreshExtension = false): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($RefreshExtension)
-        {
-            $request = $this->WithTransportLock(function () use ($RefreshExtension): array
-            {
-                $state = $this->RefreshState();
-                if (!$state['mqttConnected'] || ($RefreshExtension && $state['workflow'] !== null)) {
-                    $this->SaveState($state);
-                    return [];
-                }
-                if ($state['pending'] !== null) {
-                    return ['transaction' => $state['pending']['transaction'], 'send' => false];
-                }
-                $transaction = bin2hex(random_bytes(16));
-                $state['pending'] = ['transaction' => $transaction, 'deadline' => $this->Now() + $this->ReadPropertyInteger('RequestTimeout')];
-                if ($RefreshExtension) {
-                    $state['pending']['refreshExtension'] = true;
-                }
-                $state['transaction'] = $transaction;
-                $state['health'] = 'pending';
-                $this->SaveState($state);
-                return ['transaction' => $transaction, 'send' => true, 'scope' => $state['scope'], 'base' => $this->ReadPropertyString('BaseTopic')];
-            });
-            if ($request === []) {
-                return '';
-            }
-            if (!$request['send']) {
-                return $request['transaction'];
-            }
-            try {
-                $current = $this->WithTransportLock(fn (): array => $this->RefreshState());
-                if ($current['scope'] !== $request['scope'] || !$current['mqttConnected']
-                    || ($current['pending']['transaction'] ?? null) !== $request['transaction']) {
-                    return '';
-                }
-                $this->DebugEvent('SENDEN', 'Health-Anfrage an MQTT-Gateway übergeben; Antwort steht aus.', ['Gateway' => $this->GetParentID(), 'Topic' => $request['base'] . '/bridge/request/health_check', 'Anfragebezug' => substr(hash('sha256', $request['transaction']), 0, 16)]);
-                // Publish outside the lock: a response can arrive during the parent call.
-                $this->SendDataToParent($this->EncodeDataFlowMessage(Z2MProtocol::MQTT_TX, [
-                    'PacketType' => 3, 'QualityOfService' => 0, 'Retain' => false,
-                    'Topic'      => $request['base'] . '/bridge/request/health_check',
-                    'Payload'    => bin2hex(json_encode(['transaction' => $request['transaction']], JSON_THROW_ON_ERROR))
-                ]));
-            } catch (Throwable $exception) {
-                $this->WithTransportLock(function () use ($request): void
-                {
-                    $state = $this->RefreshState();
-                    if (($state['pending']['transaction'] ?? null) === $request['transaction']) {
-                        $state['pending'] = null;
-                        $state['health'] = 'error';
-                    }
-                    $this->SaveState($state);
-                });
-                $this->DebugEvent('FEHLER', 'Health-Anfrage konnte nicht an das MQTT-Gateway übergeben werden.', ['Gateway' => $this->GetParentID()]);
-                return '';
-            }
-            return $request['transaction'];
-        });
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->RequestHealthCheck($RefreshExtension, false));
+    }
+
+    public function CheckConnection(): string
+    {
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->RequestHealthCheck(false, true));
     }
 
     public function ExpireRequest(): void
@@ -418,6 +366,105 @@ class Z2MAutomations extends IPSModuleStrict
     protected function Now(): int
     {
         return time();
+    }
+
+    private function RequestHealthCheck(bool $RefreshExtension, bool $Notify): string
+    {
+        $request = $this->WithTransportLock(function () use ($RefreshExtension, $Notify): array
+        {
+            $state = $this->RefreshState();
+            if (!$state['mqttConnected'] || ($RefreshExtension && $state['workflow'] !== null)) {
+                $this->SaveState($state);
+                if ($Notify) $this->NotifyHealthCheck('not_connected');
+                return [];
+            }
+            if ($state['pending'] !== null) {
+                if ($Notify) {
+                    $state['pending']['notify'] = true;
+                    $this->SaveState($state);
+                }
+                return ['transaction' => $state['pending']['transaction'], 'send' => false];
+            }
+            $transaction = bin2hex(random_bytes(16));
+            $state['pending'] = ['transaction' => $transaction, 'deadline' => $this->Now() + $this->ReadPropertyInteger('RequestTimeout'), 'notify' => $Notify];
+            if ($RefreshExtension) {
+                $state['pending']['refreshExtension'] = true;
+            }
+            $state['transaction'] = $transaction;
+            $state['health'] = 'pending';
+            $this->SaveState($state);
+            return ['transaction' => $transaction, 'send' => true, 'scope' => $state['scope'], 'base' => $this->ReadPropertyString('BaseTopic')];
+        });
+        if ($request === []) {
+            return '';
+        }
+        if (!$request['send']) {
+            return $request['transaction'];
+        }
+        try {
+            $send = $this->WithTransportLock(function () use ($request): bool
+            {
+                $current = $this->RefreshState();
+                $valid = $current['scope'] === $request['scope'] && $current['mqttConnected']
+                    && ($current['pending']['transaction'] ?? null) === $request['transaction'];
+                if (!$valid) {
+                    $this->SaveState($current);
+                }
+                return $valid;
+            });
+            if (!$send) {
+                return '';
+            }
+            $this->DebugEvent('SENDEN', 'Health-Anfrage an MQTT-Gateway übergeben; Antwort steht aus.', ['Gateway' => $this->GetParentID(), 'Topic' => $request['base'] . '/bridge/request/health_check', 'Anfragebezug' => substr(hash('sha256', $request['transaction']), 0, 16)]);
+            // Publish outside the lock: a response can arrive during the parent call.
+            $this->SendDataToParent($this->EncodeDataFlowMessage(Z2MProtocol::MQTT_TX, [
+                'PacketType' => 3, 'QualityOfService' => 0, 'Retain' => false,
+                'Topic'      => $request['base'] . '/bridge/request/health_check',
+                'Payload'    => bin2hex(json_encode(['transaction' => $request['transaction']], JSON_THROW_ON_ERROR))
+            ]));
+        } catch (Throwable $exception) {
+            $this->WithTransportLock(function () use ($request): void
+            {
+                $state = $this->RefreshState();
+                if (($state['pending']['transaction'] ?? null) === $request['transaction']) {
+                    $this->FinishHealthCheck($state, 'error');
+                }
+                $this->SaveState($state);
+            });
+            $this->DebugEvent('FEHLER', 'Health-Anfrage konnte nicht an das MQTT-Gateway übergeben werden.', ['Gateway' => $this->GetParentID()]);
+            return '';
+        }
+        return $request['transaction'];
+    }
+
+    private function FinishHealthCheck(array &$state, string $result): void
+    {
+        $notify = $state['pending']['notify'] ?? false;
+        $state['pending'] = null;
+        $state['health'] = $result;
+        if ($notify) {
+            $this->NotifyHealthCheck($result);
+        }
+    }
+
+    private function NotifyHealthCheck(string $result): void
+    {
+        $message = match ($result) {
+            'healthy'       => 'Connection checked successfully. Zigbee2MQTT is reachable and reports no problems.',
+            'unhealthy'     => 'Zigbee2MQTT responds but reports a problem. Please check its status and logs.',
+            'timeout'       => 'Zigbee2MQTT did not respond within the configured waiting time. Please check the MQTT connection and base topic.',
+            'cancelled'     => 'The connection check was cancelled because the connection or settings changed. Please check again.',
+            'not_connected' => 'The connection check could not be started. Please enable the MQTT connection and check the gateway connection.',
+            default         => 'The connection check failed. Please check the MQTT connection, base topic and Zigbee2MQTT status.'
+        };
+        try {
+            $this->UpdateFormField('HealthResultMessage', 'caption', $this->Translate($message));
+            $this->UpdateFormField('HealthResultPopup', 'visible', false);
+            $this->UpdateFormField('HealthResultPopup', 'visible', true);
+            $this->DebugEvent($result === 'healthy' ? 'AKTION' : 'FEHLER', 'Popup-Rückmeldung zur manuellen Verbindungsprüfung an die Konsole übergeben.', ['Erfolgreich' => $result === 'healthy', 'Ergebnis' => $result]);
+        } catch (Throwable) {
+            $this->DebugEvent('FEHLER', 'Popup-Rückmeldung zur Verbindungsprüfung konnte nicht angezeigt werden. Statusanzeige und Debug beachten.');
+        }
     }
 
     private function ObserveParent(): void
@@ -464,6 +511,7 @@ class Z2MAutomations extends IPSModuleStrict
         if (($state['scope'] ?? null) !== $scope || (($state['mqttConnected'] ?? false) && !$connected)) {
             $cancelled = ($state['pending'] ?? null) !== null;
             $extensionCancelled = ($state['workflow'] ?? null) !== null;
+            if ($cancelled) $this->FinishHealthCheck($state, 'cancelled');
             $state = ['scope' => $scope, 'mqttConnected' => false, 'bridgeState' => 'unknown', 'bridgeOnline' => false,
                 'version'     => '', 'externalJS' => null, 'extensionInstalled' => false, 'pending' => null,
                 'transaction' => '', 'health' => $cancelled ? 'cancelled' : 'idle'] + $this->NewExtensionState();
@@ -475,8 +523,7 @@ class Z2MAutomations extends IPSModuleStrict
         $state['mqttConnected'] = $connected;
         $state['bridgeOnline'] = $connected && $state['bridgeState'] === 'online';
         if ($state['pending'] !== null && $state['pending']['deadline'] <= $this->Now()) {
-            $state['pending'] = null;
-            $state['health'] = 'timeout';
+            $this->FinishHealthCheck($state, 'timeout');
             $this->DebugEvent('FEHLER', 'Zeitlimit der Health-Anfrage ohne passende Antwort erreicht.');
         }
         return $this->RefreshExtensionWorkflow($state);

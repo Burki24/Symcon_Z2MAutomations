@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Rückmeldung der manuellen Verbindungsprüfung
+
+CheckConnection verwendet den bestehenden DebugFlowHelper und denselben
+Health-Transport wie CheckHealth. Der Anfragezustand merkt sich ausschließlich
+für eine ausdrücklich angeforderte manuelle Rückmeldung ein notify-Kennzeichen.
+Die passende Antwort, Timeout, Transportfehler oder Kontextabbruch beendet
+diese Anfrage. Die Rückmeldung protokolliert Ergebnis und Erfolgskennzeichen
+mit festem deutschem Text. Keine fremden Fehlertexte oder Nutzdaten im Popup
+oder Debug. Ein Darstellungsfehler verändert das tatsächliche Prüfergebnis
+nicht. Automatische Prüfungen und die bisherige CheckHealth-API bleiben still.
+
 ## Erweiterungsstand vergleichen
 
 Eine geänderte Anzeige erklärt mit festem deutschem Text, ob die Erweiterung
