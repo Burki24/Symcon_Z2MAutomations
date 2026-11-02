@@ -19,6 +19,7 @@ $check(in_array($remoteKey, $sharedOptions, true), 'A peer on the same MQTT Clie
 $check(in_array('group.' . $groupNumber, $sharedOptions, true), 'Local and remote groups with the same ID remain separately selectable');
 $sharedDebug = array_map(static fn (array $entry): array => json_decode($entry[1], true, 512, JSON_THROW_ON_ERROR), $module->debugMessages);
 $check(count(array_filter($sharedDebug, static fn (array $entry): bool => ($entry['Bezug']['GemeinsamesMQTTGateway'] ?? false) === true)) > 0, 'German debug explicitly reports the shared MQTT parent without catalog contents');
+unset($sharedDebug);
 $module->importEvents[920010] = $makeRecord($sourceVariable, $targetVariable);
 $module->importEvents[920014] = $makeRecord($sourceVariable, $otherTarget);
 $module->importEvents[920015] = $makeRecord($otherSource, $targetVariable);

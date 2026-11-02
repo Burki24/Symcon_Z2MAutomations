@@ -20,7 +20,10 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    für Geräte- und Zeitregeln. Dabei Spaltenausrichtung korrigiert; vorhandene
    Entwürfe und Z2M-Betrieb unverändert. Prüflimits stehen in DEVELOPMENT.md.
 3. **Zeitsteuerung vervollständigen.** Wochentage unabhängig von Zeitfenstern
-   und mehrere Uhrzeiten im Klick-Editor. Geplant.
+   und mehrere Uhrzeiten im Klick-Editor. Lokal implementiert: eine bis acht
+   Uhrzeiten, eigene Kalendertagsbedingung, Vorbelegung, sichere Bearbeitung
+   und deutsche Debug-Ausgaben. Native Praxisprüfung nach Modul- und
+   Erweiterungsupdate offen; keine laufende Installation geändert.
 4. **Erneute Auslösung festlegen.** Wahlweise ignorieren, neu starten oder
    verlängern, wenn eine Automation bereits läuft. Geplant.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle

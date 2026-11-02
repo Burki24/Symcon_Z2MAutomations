@@ -55,7 +55,7 @@ $timedSceneRows = array_merge($sceneRows, [['Choice' => $channelScene, 'Delay' =
 $module->SelectAutomation('', '', false, 'time');
 $sceneFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
 $runEditorScript($sceneFields['TimeCreateRuleButton']['onClick'], $sceneFields, [
-    'TimeEditorName'   => 'Synthetic timed scene', 'TimeEditorEnabled' => false, 'TimeEditorAt' => '19:20:00', 'TimeEditorTimezone' => 'Europe/Berlin',
+    'TimeEditorName'   => 'Synthetic timed scene', 'TimeEditorEnabled' => false, 'TimeEditorTimes' => new ArrayIterator([['At' => '19:20:00']]), 'TimeEditorTimezone' => 'Europe/Berlin',
     'TimeEditorWindow' => false, 'TimeEditorConditionType' => 'none', 'TimeEditorActions' => new ArrayIterator($timedSceneRows)]);
 $check($state()['operation']['status'] === 'draft_created', 'Time editor creates scene actions with the same native controls');
 $sceneFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
@@ -119,3 +119,4 @@ $sceneFeedbackForm = formFields(json_decode($module->GetConfigurationForm(), tru
 $check(str_contains($sceneFeedbackForm['ErrorInfo']['caption'], 'scene') && str_contains($sceneFeedbackForm['ErrorInfo']['caption'], '1'), 'Missing scene feedback identifies the affected action for the user');
 $sceneDebug = json_encode($module->debugMessages, JSON_THROW_ON_ERROR);
 $check(!str_contains($sceneDebug, 'Synthetic group scene') && !str_contains($sceneDebug, 'Synthetic scene automation'), 'Scene debug protects names and user-authored rule text');
+unset($sceneDebug, $sceneFields, $sceneDialog, $sceneFeedbackForm);

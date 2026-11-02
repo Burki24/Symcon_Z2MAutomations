@@ -210,5 +210,9 @@
     "sequence_start": {
         "event": "AKTION",
         "message": "Wiederverwendbare Aktionsfolge im Regellauf begonnen."
+    },
+    "event_45": {
+        "event": "AKTION",
+        "message": "Kalendertag gegen erlaubte Wochentage geprüft."
     }
 }

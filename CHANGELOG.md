@@ -2,6 +2,18 @@
 
 ## Neu
 
+- Mehrere Startzeiten im Klick-Editor: eine bis acht unterschiedliche Uhrzeiten
+  mit gemeinsamer Zeitzone starten dieselbe Automation. Einträge lassen sich
+  hinzufügen, bearbeiten und löschen; vorhandene Regeln werden vorbelegt.
+  Wochentage können unabhängig vom Zeitfenster ausgewählt werden, auch für
+  Geräte- und Astro-Regeln. Die neue Wochentagsbedingung verwendet den aktuellen
+  Kalendertag; bisherige Zeitfenster behalten ihre Starttage über Mitternacht.
+  Prüfung weist leere, doppelte oder ungültige Angaben ohne Entwurfsänderung ab.
+  Offene Eingaben und erweiterte YAML-Regeln bleiben geschützt. Deutsche
+  Debugmeldungen erklären Bearbeitung und Wochentagsprüfung. Modul und
+  Z2M-Erweiterung müssen gemeinsam aktualisiert werden; lokale Tests mit
+  synthetischen Daten, noch keine Änderungen an laufenden Installationen.
+
 - Größere Automationsübersichten mit zehn sichtbaren Regeln und flexiblen
   Spalten. Suche nach Automations- und Gerätenamen sowie Filter für eingeschaltete
   oder ausgeschaltete Regeln je Bereich. Übersicht und Bearbeitungsauswahl

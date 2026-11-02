@@ -51,7 +51,7 @@ $solarForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, 
 $check($solarForm['YamlInput']['value'] === $beforeInvalidSolar, 'Rejected solar editing does not change the draft');
 $nativeSolarValues['TimeEditorLatitude'] = '';
 $nativeSolarValues['TimeEditorTimeMode'] = 'clock';
-$nativeSolarValues['TimeEditorAt'] = '17:45';
+$nativeSolarValues['TimeEditorTimes'] = new ArrayIterator([['At' => '17:45']]);
 $runEditorScript($solarForm['TimeUpdateRuleButton']['onClick'], $solarForm, $nativeSolarValues);
 $solarForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
 $clockRule = array_values(array_filter(json_decode($solarForm['YamlInput']['value'], true)['automations'], static fn (array $r): bool => $r['id'] === $solarRule['id']))[0];

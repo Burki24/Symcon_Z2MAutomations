@@ -36,7 +36,7 @@ foreach ([2, 1] as $calls) {
     $sequenceForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $references = array_fill(0, $calls, ['Choice' => 'sequence:' . $sequenceID, 'Delay' => 2]);
     $runEditorScript($sequenceForm['TimeCreateRuleButton']['onClick'], $sequenceForm, ['TimeEditorName' => 'Synthetic reusable caller ' . $calls,
-        'TimeEditorEnabled'                                                                             => false, 'TimeEditorTimeMode' => 'clock', 'TimeEditorAt' => '18:00:00', 'TimeEditorTimezone' => 'UTC',
+        'TimeEditorEnabled'                                                                             => false, 'TimeEditorTimeMode' => 'clock', 'TimeEditorTimes' => new ArrayIterator([['At' => '18:00:00']]), 'TimeEditorTimezone' => 'UTC',
         'TimeEditorWindow'                                                                              => false, 'TimeEditorConditionType' => 'none', 'TimeEditorConditionList' => new ArrayIterator([]),
         'TimeEditorActions'                                                                             => new ArrayIterator($references)]);
     $check($state()['operation']['status'] === 'draft_created', 'Rule creation accepts sequence references rather than copying the definition');

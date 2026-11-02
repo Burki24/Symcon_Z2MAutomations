@@ -114,6 +114,10 @@ $run = static function (string $script, array $fields, array $overrides = []) us
     extract(array_replace($values, $overrides), EXTR_SKIP);
     eval($script);
 };
+if (defined('Z2MA_CALENDAR_TEST')) {
+    require __DIR__ . '/editor-calendar.inc.php';
+    exit;
+}
 $standalone = 'function Z2MA_NavigateEditor($id, $kind, $area, $target, $draft, $input) { echo $input; } '
     . '$id = 1; $EditorTimeRule = "second"; $YamlInput = ""; $TimeEditorName = "Synthetic input"; '
     . '$TimeEditorRule = ""; $TimeEditorEditToken = ""; $UnrelatedSecret = "must-not-leave-script"; '
@@ -145,7 +149,7 @@ $input = Z2MAutomations\EditorWorkInput::Capture(array_map(static fn (array $f):
 $check(!$module->EditorWorkReady($input), 'Validation and transmission cannot ignore uncommitted edits');
 $run($dirty['TimeEditorDetails']['onClick'], $dirty);
 $stillDirty = $form();
-$check($stillDirty['TimeEditorName']['value'] === 'private-unsaved-name' && $stillDirty['TimeEditorAt']['visible'], 'Collapsing and reopening the active time editor preserves its fields and visibility');
+$check($stillDirty['TimeEditorName']['value'] === 'private-unsaved-name' && $stillDirty['TimeEditorTimes']['visible'], 'Collapsing and reopening the active time editor preserves its fields and visibility');
 $run($stillDirty['TimeEditorName']['onChange'], $stillDirty, ['TimeEditorName' => 'Synthetic second']);
 $reverted = $form();
 $check(str_contains($reverted['EditorWorkInfo']['caption'], 'No pending edits'), 'Reverting all inputs clears the change indicator');

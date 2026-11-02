@@ -550,7 +550,22 @@
             "copy": "Kopie",
             "Apply pending form changes to the draft before copying an automation.": "Bitte offene Formularänderungen zuerst in den Entwurf übernehmen. Danach können Sie die Automation kopieren.",
             "The draft already contains 100 automations. Remove an automation before creating a copy.": "Der Entwurf enthält bereits 100 Automationen. Bitte zuerst eine Automation entfernen, bevor Sie eine Kopie erstellen.",
-            "A disabled copy was added to the draft and opened for editing. Z2M is unchanged.": "Eine ausgeschaltete Kopie wurde im Entwurf angelegt und zum Bearbeiten geöffnet. Z2M bleibt unverändert."
+            "A disabled copy was added to the draft and opened for editing. Z2M is unchanged.": "Eine ausgeschaltete Kopie wurde im Entwurf angelegt und zum Bearbeiten geöffnet. Z2M bleibt unverändert.",
+            "Start times (1 to 8, OR)": "Startzeiten (1 bis 8; jede Uhrzeit kann die Regel starten)",
+            "Only on selected weekdays": "Nur an ausgewählten Wochentagen",
+            "Time zone for weekdays": "Zeitzone für die Wochentage",
+            "Weekdays refer to the current calendar day in the selected time zone, independently of a time window. With an overnight window, its selected start days also apply.": "Die Wochentage gelten für den aktuellen Kalendertag in der gewählten Zeitzone, auch ohne Zeitfenster. Bei einem Zeitfenster über Mitternacht müssen zusätzlich dessen Starttage passen.",
+            "Enter 1 to 8 different times in HH:MM or HH:MM:SS format. Empty or repeated entries are not allowed.": "Bitte eine bis acht unterschiedliche Uhrzeiten als HH:MM oder HH:MM:SS eintragen. Leere oder doppelte Einträge sind nicht erlaubt.",
+            "Choose at least one allowed weekday or turn off the weekday restriction.": "Bitte mindestens einen erlaubten Wochentag auswählen oder die Einschränkung auf Wochentage ausschalten.",
+            "Check every condition and comparison. At most 16 conditions including weekdays and the time window are allowed.": "Bitte alle Bedingungen und Vergleiche prüfen. Zusammen sind höchstens 16 Bedingungen einschließlich Wochentagen und Zeitfenster erlaubt.",
+            "Window starts on Monday": "Zeitfenster beginnt am Montag",
+            "Window starts on Tuesday": "Zeitfenster beginnt am Dienstag",
+            "Window starts on Wednesday": "Zeitfenster beginnt am Mittwoch",
+            "Window starts on Thursday": "Zeitfenster beginnt am Donnerstag",
+            "Window starts on Friday": "Zeitfenster beginnt am Freitag",
+            "Window starts on Saturday": "Zeitfenster beginnt am Samstag",
+            "Window starts on Sunday": "Zeitfenster beginnt am Sonntag",
+            "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.": "Die Automation startet zu jeder eingetragenen Uhrzeit oder zum gewählten Sonnenereignis. Es gilt die ausgewählte Zeitzone. Verpasste Zeiten werden nicht nachgeholt. Alle Bedingungen müssen erfüllt sein."
         }
     }
 }

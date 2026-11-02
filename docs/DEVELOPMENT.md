@@ -1,3 +1,66 @@
+## Agenda Punkt 3: Kalendertage und mehrere Uhrzeiten
+
+AutomationEditorCalendar ergänzt eine Liste von 1–8 normalisierten, verschiedenen
+Uhrzeiten und unabhängige Wochentagsfelder. Keine zweite Liste im YAML: jede
+Uhrzeit bleibt ein vorhandener time-Auslöser. Der neue Schema-1-Bedingungstyp
+weekday prüft den aktuellen Kalendertag seiner Zeitzone; bisherige Fenster-
+Starttage bleiben unverändert. Beide werden als UND-Bedingungen mitgezählt.
+Der bestehende Laufzeitpfad prüft die neue Klausel auch vor verzögerten Aktionen
+und beim Einzelstart. Debugereignis im bestehenden festen Meldungskatalog.
+
+Vorhandene Helper einschließlich DateHelper geprüft; ConfigurationFormHelper
+und DebugFlowHelper bleiben unverändert. DateHelper formatiert tolerante
+Datumswerte und ersetzt keinen strikten Uhrzeitvertrag. Schema-, Automations-
+und Zeitzonenlogik bleiben lokal. Quellen und kanonisches Schema werden regulär
+mit npm run build:extension erzeugt; neue Buildkennung ohne Versionsanhebung.
+Entscheidung und Updategrenzen in ADR 0017.
+
+EditorTimes verwendet ausschließlich List.values, nie ein paralleles value.
+Die erste Callback-Prüfung deckte eine solche falsche Befüllung auf: Eine frische
+Liste wurde sichtbar erhalten, beim Übernehmen aber durch den alten value-Wert
+ersetzt. Befüllung und Live-Updates korrigiert; echte generierte Skripte prüfen
+das Erfassen, Wiederöffnen und vollständige Übernehmen. Einzelzeit-Aufrufe
+ohne Liste bleiben unterstützt; eine gespeicherte Mehrfachzeit kann nicht
+durch einen alten Einzelzeit-Aufruf unbeabsichtigt gekürzt werden.
+
+tests/editor-calendar.php nutzt die vorhandene synthetische Editorgrenze in
+einem eigenen Prozess, damit große Formular-Snapshots nicht zusammen mit den
+50/100-Regel-Prüfungen dauerhaft gehalten werden. Native Skripte decken neue
+Regeln, Bearbeiten, Löschen bis zur ungültigen leeren Liste, Vorbelegung von
+Geräte-/Zeit-/Astro-Regeln, offene Eingaben, Auswahlbindungen und veraltete
+Aufrufe ab. Ungültige, doppelte und mehr als acht Zeiten, leere Tage, falsche
+Zeitzonen und die gemeinsame 16-Bedingungsgrenze bleiben ohne Entwurfsänderung.
+Unterschiedliche Zeitzonen je Zeit-Auslöser bleiben metadatenbearbeitbar und
+inhaltlich erhalten. Keine stillschweigende Vereinfachung.
+
+editor-calendar-integration.inc.php prüft den Weg vom tatsächlichen Formular-
+Callback durch den realen JavaScript-Empfänger: deaktivierte Mehrfachzeit mit
+unabhängigen Wochentagen erstellen, prüfen, speichern, wieder laden, bearbeiten,
+erneut prüfen/speichern/laden und schließlich nur diese synthetische Regel
+entfernen. Alle ursprünglichen synthetischen Regeln bleiben erhalten.
+
+Neue JavaScript-Prüfungen: Schemafehler bei Tagen und Zeitzonen, 8/9-Zeitgrenze,
+beide Uhrzeiten während der doppelten DST-Stunde, nicht erlaubter Tag,
+abweichender lokaler Kalendertag, UND mit einem Nachtfenster-Starttag, Einzelstart,
+erneute Prüfung nach Mitternachtsverzögerung und Wiederanlauf ohne Nachholen.
+In der langen PHP-Integration hielten ältere Prüffälle ausgewertete Formular-
+und Debugkopien unnötig fest. Diese werden nach ihrer letzten Prüfung freigegeben;
+die originale Debugaufzeichnung und ihre abschließenden Datenschutz-/Ablauf-
+Prüfungen bleiben erhalten. Keine Änderung der produktiven Speichergrenzen.
+
+Keine Installation, kein MCP- oder Bildschirmzugriff und keine Geräteaktion.
+Native Symcon-9.0-/9.1-Bedienung, schmale/breite Konsole und reale Ausführung
+stehen nach gemeinsamem Modul- und Erweiterungsupdate noch zur Praxisprüfung an.
+
+Abschlussprüfungen am 02.11.2026: php tests/run.php vollständig erfolgreich,
+einschließlich PHP-/JavaScript-Speicherintegration und 111 JavaScript-Tests.
+Fokussierte Editor- und Laufzeitprüfungen, Struktur- und zentrale Kodierungs-
+prüfung, Artefaktvergleich, offizielle StylePHP-Prüfung der 15 eigenen JSON-
+Dateien in isolierter Kopie sowie PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich.
+Großkatalog-Formular: 605.934 Bytes, unter der Grenze von 750 KiB. Geänderte
+Textdateien UTF-8 ohne BOM mit LF; git diff --check sauber. Kein Commit/Push
+und keine Änderung an Fremdquellen, zentralen Helpern oder Versionsmetadaten.
+
 ## Agenda Punkt 2: Übersicht und Kopien
 
 AutomationOverview verwaltet eine begrenzte, an den MQTT-Kontext gebundene

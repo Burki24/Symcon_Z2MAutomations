@@ -227,6 +227,12 @@ export class AutomationRuntime {
             let passed;
             if (clause.type === 'device_value') passed = Boolean(this.device(clause.device)
                 && compare((this.executions.get(context.run)?.values ?? this.values).get(clause.device)?.[clause.property], clause));
+            else if (clause.type === 'weekday') {
+                const local = this.local(clause.timezone);
+                passed = clause.weekdays.includes(new Date(local.day + 'T00:00:00Z').getUTCDay() || 7);
+                this.log('AKTION', 'Kalendertag gegen erlaubte Wochentage geprüft.', {Erfüllt: passed}, {...context, condition: index + 1});
+                return passed;
+            }
             else {
                 const local = this.local(clause.timezone);
                 const overnight = clause.after > clause.before;

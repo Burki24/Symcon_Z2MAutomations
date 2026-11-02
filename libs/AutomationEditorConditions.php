@@ -74,7 +74,7 @@ trait AutomationEditorConditions
         $snapshot = $this->EditorSnapshot();
         $rows = [];
         foreach ($rule['conditions'] ?? [] as $condition) {
-            if (($condition['type'] ?? '') === 'time_window') {
+            if (in_array($condition['type'] ?? '', ['time_window', 'weekday'], true)) {
                 continue;
             }
             if (($condition['type'] ?? '') !== 'device_value') {

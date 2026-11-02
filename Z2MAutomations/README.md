@@ -35,6 +35,42 @@ bearbeiten, den Regelschalter setzen und den Entwurf wie bisher prüfen und
 in Z2M speichern. Insgesamt sind weiterhin höchstens 100 Regeln erlaubt.
 Für diese Erweiterung genügt ein Modulupdate.
 
+## Mehrere Uhrzeiten und erlaubte Wochentage
+
+Im Zeitbereich wählen Sie **Feste Uhrzeit** und tragen in **Startzeiten** eine
+bis acht Uhrzeiten ein. Mit **Hinzufügen** kommt eine weitere Uhrzeit hinzu;
+vorhandene Einträge können Sie bearbeiten oder löschen. Zum Beispiel startet
+eine Regel um 07:00 und um 18:30 jeweils dieselbe Aktionsfolge. Die Uhrzeiten
+verwenden die gemeinsam ausgewählte Zeitzone. Leere, ungültige und doppelte
+Einträge lassen sich nicht in den Entwurf übernehmen.
+Läuft die Aktionsfolge noch, startet eine weitere Uhrzeit keinen zweiten
+gleichzeitigen Ablauf derselben Regel.
+
+Unter **Nur wenn …** können Sie **Nur an ausgewählten Wochentagen** einschalten.
+Wählen Sie mindestens einen Tag und die Zeitzone dafür. Das funktioniert auch
+ohne Zeitfenster und ebenso bei Geräte- und Sonnenauf-/untergangsregeln.
+Ohne diese Einschränkung sind alle Wochentage erlaubt. Beispiel: Montag bis
+Freitag um 07:00 und 18:30, ohne zusätzlich ein Zeitfenster einzurichten.
+
+Ein zusätzliches Zeitfenster schränkt die Ausführung weiter ein. Seine Felder
+**Zeitfenster beginnt am Montag** usw. bestimmen weiterhin die Starttage des
+Fensters. Montag 22:00 bis 06:00 gilt bis Dienstagmorgen. Die unabhängige
+Wochentagsauswahl prüft dagegen immer den aktuellen Kalendertag. Sollen auch
+die Stunden am Dienstagmorgen erlaubt sein, muss dort zusätzlich Dienstag
+ausgewählt sein. Beide Einschränkungen und alle Gerätebedingungen müssen passen.
+
+Die Angaben werden beim Auswählen und Laden vorhandener Regeln vorbelegt.
+Übernehmen Sie Änderungen zuerst in den lokalen Entwurf, prüfen und speichern
+Sie ihn anschließend in Z2M. Verpasste Uhrzeiten werden nicht nachgeholt. Bei
+der Zeitumstellung läuft jede eingetragene Uhrzeit in einer doppelt vorkommenden
+Stunde nur einmal. Bedingungen werden vor verzögerten Aktionen erneut geprüft.
+
+Für diese Funktion müssen **Modul und mitgelieferte Z2M-Erweiterung** aktualisiert
+werden. Ein älterer Empfänger lehnt die neue Wochentagsbedingung ab; es erfolgt
+keine automatische Umdeutung. Regeln mit unterschiedlichen Zeitzonen je
+Einzelauslöser bleiben erhalten und lassen sich im Klick-Editor nur umbenennen
+oder ein-/ausschalten, bis ihre Zeiten in YAML angepasst werden.
+
 ## Bearbeitungsstand erkennen und Änderungen übernehmen
 
 Der Bereich **Bearbeitungsstand und Z2M-Betrieb** erklärt den aktuellen Stand:

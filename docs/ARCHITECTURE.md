@@ -1,5 +1,16 @@
 # Architektur
 
+## Kalendertage und mehrere Uhrzeiten
+
+AutomationEditorCalendar ergänzt die vorhandene Schedule-Bearbeitung um eine
+begrenzte native Uhrzeitenliste und unabhängige Wochentagsfelder. Mehrfachzeiten
+verwenden die vorhandenen time-Auslöser mit gemeinsamem Editor-Zeitzonenfeld.
+EditorWorkInput schützt auch diese Listen und Felder. Die neue Schema-1-Klausel
+weekday prüft in Z2M den aktuellen Kalendertag ihrer Zeitzone; Zeitfenster behalten
+ihren bisherigen Starttag. Beide gelten als eigenständige UND-Bedingungen.
+Keine zusätzliche Symcon-Laufzeit und kein zweiter Zeitplaner. Details und
+Updategrenzen stehen in [ADR 0017](adr/0017-independent-weekdays-and-clock-list.md).
+
 ## Inhaltlicher Erweiterungsstand
 
 Der Generator bindet eine deterministische Inhaltskennung in das eigene Artefakt

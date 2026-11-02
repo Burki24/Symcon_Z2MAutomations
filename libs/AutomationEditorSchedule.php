@@ -24,6 +24,7 @@ trait AutomationEditorSchedule
             $previous = $this->ReadAttributeString('EditorModes');
             $previous = $previous === '' ? [] : json_decode($previous, true, 8, JSON_THROW_ON_ERROR);
             $modes['EditorTimeMode'] = $previous['EditorTimeMode'] ?? 'clock';
+            $modes['EditorWeekdays'] = $previous['EditorWeekdays'] ?? false;
             $this->WriteAttributeString('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
             $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($ConditionType), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             if ($ConditionType === 'state' && ($previous['EditorConditionType'] ?? '') !== 'state') {
@@ -32,7 +33,7 @@ trait AutomationEditorSchedule
             $selection = $this->EditorSelectionFields($this->ReadEditorDraft());
             foreach ($this->ScheduleVisibility($modes) as $name => $visible) {
                 $this->UpdateEditorField($name, 'visible', $visible);
-                if (!in_array($name, ['WindowHelp', 'ConditionHelp', 'EditorDeviceTrigger', 'EditorTimeTrigger'], true)) {
+                if (!in_array($name, ['WindowHelp', 'ConditionHelp', 'EditorCalendarHelp', 'EditorDeviceTrigger', 'EditorTimeTrigger'], true)) {
                     $this->UpdateEditorField($name, 'enabled', $selection['simple']);
                 }
             }
@@ -71,8 +72,14 @@ trait AutomationEditorSchedule
                 }
                 $parts = array_intersect_key($rule, array_flip(['triggers', 'conditions', 'actions']));
             } else {
-                if ($rule !== null && count($rule['triggers']) > 1 && $TriggerSteps === '') {
+                if ($rule !== null && count($rule['triggers']) > 1 && $rule['triggers'][0]['type'] === 'device' && $TriggerSteps === '') {
                     return $this->RejectEditorChange($state, 'editor_triggers');
+                }
+                if ($rule !== null && count($rule['triggers']) > 1 && $rule['triggers'][0]['type'] === 'time') {
+                    $clockOptions = strlen($Options) <= 8192 ? json_decode($Options, true) : null;
+                    if (!is_array($clockOptions) || !array_key_exists('EditorTimes', $clockOptions)) {
+                        return $this->RejectEditorChange($state, 'editor_times');
+                    }
                 }
                 if ($rule !== null && count($rule['actions']) > 1 && $ActionSteps === '') {
                     return $this->RejectEditorChange($state, 'editor_actions');
@@ -97,6 +104,10 @@ trait AutomationEditorSchedule
             }
             $this->DebugEvent('AKTION', 'Auslöser und Bedingungen für den lokalen Entwurf vorbereitet.', ['Bereich' => $this->EditorTypeLabel($this->EditorRuleType($rule)), 'Auslöser' => count($rule['triggers']), 'Verknüpfung' => 'ODER', 'Bedingungen' => count($rule['conditions']), 'Bedingungsverknüpfung' => 'UND']);
             $this->DebugEditorActionSteps($rule['actions']);
+            $this->DebugEvent('AKTION', 'Zeit- und Wochentagsangaben für den Entwurf geprüft; in Z2M wird noch nichts geändert.', [
+                'FesteUhrzeiten'   => count(array_filter($rule['triggers'], static fn (array $t): bool => $t['type'] === 'time')),
+                'Wochentagsfilter' => count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'weekday')) > 0,
+                'Zeitfenster'      => count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'time_window')) > 0]);
             return $this->CommitEditorChange($state, $draft, $index === null ? 'draft_created' : 'draft_updated', $index === null ? '' : $RuleID);
         }));
     }
@@ -140,7 +151,7 @@ trait AutomationEditorSchedule
         return ['EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
             'EditorWindow'          => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
             'EditorMonday'          => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
-            'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0];
+            'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
     }
 
     private function EditorClockTime(mixed $value): ?string
@@ -210,17 +221,18 @@ trait AutomationEditorSchedule
             }
             $trigger = $triggers[0];
         } elseif ($v['EditorTriggerType'] === 'time') {
-            $at = $this->EditorClockTime($v['EditorAt']);
-            if ($v['EditorTimeMode'] === 'clock' && $at === null) {
-                $reason = 'editor_time';
-                return null;
-            }
             if (!in_array($v['EditorTimezone'], DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC), true)) {
                 $reason = 'editor_timezone';
                 return null;
             }
             if ($v['EditorTimeMode'] === 'clock') {
-                $trigger = ['type' => 'time', 'at' => $at, 'timezone' => $v['EditorTimezone']];
+                $rows = $this->NormalizeClockEditorRows(array_key_exists('EditorTimes', $input) ? $v['EditorTimes'] : [['At' => $v['EditorAt']]]);
+                if ($rows === null) {
+                    $reason = 'editor_times';
+                    return null;
+                }
+                $triggers = array_map(static fn (array $row): array => ['type' => 'time', 'at' => $row['At'], 'timezone' => $v['EditorTimezone']], $rows);
+                $trigger = $triggers[0];
             } else {
                 $trigger = $this->BuildSolarEditorTrigger($v);
                 if ($trigger === null) {
@@ -236,6 +248,13 @@ trait AutomationEditorSchedule
             $trigger = ['type' => 'device', 'device' => $sourceID, 'property' => $source['property'], 'operator' => 'eq', 'value' => $source['value'], 'for_seconds' => $v['EditorHold']];
         }
         $conditions = [];
+        if ($v['EditorWeekdays']) {
+            $weekday = $this->BuildWeekdayCondition($v, $reason);
+            if ($weekday === null) {
+                return null;
+            }
+            $conditions[] = $weekday;
+        }
         if ($v['EditorWindow']) {
             $after = $this->EditorClockTime($v['EditorAfter']);
             $before = $this->EditorClockTime($v['EditorBefore']);
@@ -263,7 +282,7 @@ trait AutomationEditorSchedule
             $deviceConditions = $this->BuildEditorConditions($conditionSteps);
             if ($deviceConditions === null || count($deviceConditions) + count($conditions) > 16) {
                 $reason = 'editor_conditions';
-                $this->DebugEvent('FEHLER', 'Bedingungsliste ungültig; einschließlich Zeitfenster sind höchstens 16 Bedingungen zulässig.');
+                $this->DebugEvent('FEHLER', 'Bedingungsliste ungültig; einschließlich Wochentagen und Zeitfenster sind höchstens 16 Bedingungen zulässig.');
                 return null;
             }
             $conditions = array_merge($conditions, $deviceConditions);
@@ -287,12 +306,16 @@ trait AutomationEditorSchedule
             }
             $conditions[] = ['type' => 'device_value', 'device' => $device, 'property' => $property, 'operator' => $v['EditorCompare'], 'value' => $value];
         }
+        if (count($conditions) > 16) {
+            $reason = 'editor_conditions';
+            return null;
+        }
         return ['triggers' => $triggers ?? [$trigger], 'conditions' => $conditions, 'actions' => $actions];
     }
 
     private function ScheduledEditorFields(array $rule): ?array
     {
-        if ((count($rule['triggers'] ?? []) !== 1 && $this->EditorTriggerRows($rule) === null) || $this->EditorActionRows($rule) === null || count($rule['conditions'] ?? []) > 16 || $this->EditorConditionRows($rule) === null) {
+        if ((count($rule['triggers'] ?? []) !== 1 && $this->EditorTriggerRows($rule) === null && $this->ClockEditorRows($rule['triggers']) === null) || $this->EditorActionRows($rule) === null || count($rule['conditions'] ?? []) > 16 || $this->EditorConditionRows($rule) === null) {
             return null;
         }
         $t = $rule['triggers'][0];
@@ -319,6 +342,11 @@ trait AutomationEditorSchedule
             $v = array_replace($v, $solar);
             $source = $sourceChoice = '';
         } elseif ($t['type'] === 'time') {
+            $rows = $this->ClockEditorRows($rule['triggers']);
+            if ($rows === null) {
+                return null;
+            }
+            $v['EditorTimes'] = $rows;
             $v['EditorAt'] = $t['at'];
             $v['EditorTimezone'] = $t['timezone'];
             $source = $sourceChoice = '';
@@ -341,7 +369,19 @@ trait AutomationEditorSchedule
             return null;
         }
         foreach ($rule['conditions'] as $c) {
-            if ($c['type'] === 'time_window' && !$v['EditorWindow']) {
+            if ($c['type'] === 'weekday' && !$v['EditorWeekdays']) {
+                if (count($c) !== 3 || !is_array($c['weekdays'] ?? null) || !array_is_list($c['weekdays']) || $c['weekdays'] === []
+                    || count($c['weekdays']) > 7 || count(array_unique($c['weekdays'], SORT_REGULAR)) !== count($c['weekdays'])
+                    || array_filter($c['weekdays'], static fn (mixed $d): bool => !is_int($d) || $d < 1 || $d > 7) !== []
+                    || !in_array($c['timezone'] ?? '', DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC), true)) {
+                    return null;
+                }
+                $v['EditorWeekdays'] = true;
+                $v['EditorWeekdayTimezone'] = $c['timezone'];
+                foreach (self::CALENDAR_DAYS as $i => $day) {
+                    $v['EditorDay' . $day] = in_array($i + 1, $c['weekdays'], true);
+                }
+            } elseif ($c['type'] === 'time_window' && !$v['EditorWindow']) {
                 $v['EditorWindow'] = true;
                 $v['EditorAfter'] = $c['after'];
                 $v['EditorBefore'] = $c['before'];
@@ -376,7 +416,7 @@ trait AutomationEditorSchedule
         $solar = !$device && ($v['EditorTimeMode'] ?? 'clock') !== 'clock';
         $window = $v['EditorWindow'];
         $condition = $v['EditorConditionType'];
-        $fields = ['EditorDeviceTrigger' => $device, 'EditorTimeTrigger' => !$device, 'EditorTriggers' => $device, 'EditorSource' => false, 'EditorSourceChoice' => false, 'EditorHold' => false, 'EditorTimeMode' => !$device, 'EditorLatitude' => $solar, 'EditorLongitude' => $solar, 'EditorSolarOffset' => $solar, 'EditorAt' => !$device && !$solar, 'EditorTimezone' => !$device,
+        $fields = ['EditorDeviceTrigger' => $device, 'EditorTimeTrigger' => !$device, 'EditorTriggers' => $device, 'EditorSource' => false, 'EditorSourceChoice' => false, 'EditorHold' => false, 'EditorTimeMode' => !$device, 'EditorLatitude' => $solar, 'EditorLongitude' => $solar, 'EditorSolarOffset' => $solar, 'EditorAt' => false, 'EditorTimes' => !$device && !$solar, 'EditorTimezone' => !$device,
             'EditorAfter'                => $window, 'EditorBefore' => $window, 'EditorWindowTimezone' => $window,
             'EditorCondition'            => $condition !== 'none', 'EditorConditionChoice' => $condition === 'state', 'EditorConditionProperty' => $condition === 'state',
             'EditorNumericProperty'      => $condition === 'numeric', 'EditorNumber' => $condition === 'numeric', 'EditorCompare' => $condition !== 'none',
@@ -387,7 +427,7 @@ trait AutomationEditorSchedule
         foreach (['EditorConditionType', 'EditorCondition', 'EditorConditionProperty', 'EditorConditionChoice', 'EditorNumericProperty', 'EditorNumber', 'EditorCompare'] as $legacyField) {
             $fields[$legacyField] = false;
         }
-        return $fields;
+        return $fields + $this->CalendarVisibility($v);
     }
 
     private function EditorNumericOptions(array $snapshot, string $device): array
@@ -414,7 +454,7 @@ trait AutomationEditorSchedule
     private function ApplyScheduleFields(array $fields): void
     {
         $this->WriteAttributeString('EditorCondition', $fields['EditorCondition']);
-        $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode'])), JSON_THROW_ON_ERROR));
+        $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode', 'EditorWeekdays'])), JSON_THROW_ON_ERROR));
         $snapshot = $this->EditorSnapshot();
         $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($fields['EditorConditionType']), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $meta = $this->ConditionMeta($snapshot, $fields);
@@ -442,7 +482,7 @@ trait AutomationEditorSchedule
         foreach ($this->EditorFormFields($form['actions']) as &$field) {
             $name = $field['name'] ?? '';
             if (array_key_exists($name, $this->ScheduleDefaults())) {
-                $field['value'] = $v[$name];
+                $field[$name === 'EditorTimes' ? 'values' : 'value'] = $v[$name];
                 $field['enabled'] = $selection['simple'];
             }
             if (array_key_exists($name, $visibility)) {
@@ -460,7 +500,7 @@ trait AutomationEditorSchedule
                 $field['options'] = $this->EditorNumericOptions($snapshot, $v['EditorCondition']);
             } elseif ($name === 'EditorCompare') {
                 $field['options'] = $this->EditorComparisonOptions($v['EditorConditionType']);
-            } elseif (in_array($name, ['EditorTimezone', 'EditorWindowTimezone'], true)) {
+            } elseif (in_array($name, ['EditorTimezone', 'EditorWindowTimezone', 'EditorWeekdayTimezone'], true)) {
                 $field['options'] = array_map(static fn (string $zone): array => ['caption' => $zone, 'value' => $zone], DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC));
             }
         }

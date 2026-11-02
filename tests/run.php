@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-foreach (['check_encoding.php', 'validate_structure.php', 'module.php', 'mqtt.php', 'health-feedback.php', 'status-refresh.php', 'extension-build.php', 'gateway-topics.php', 'form-size.php', 'runtime-debug-contract.php', 'execution-contract.php', 'editor-work.php', 'module-extension.php'] as $test) {
+foreach (['check_encoding.php', 'validate_structure.php', 'module.php', 'mqtt.php', 'health-feedback.php', 'status-refresh.php', 'extension-build.php', 'gateway-topics.php', 'form-size.php', 'runtime-debug-contract.php', 'execution-contract.php', 'editor-work.php', 'editor-calendar.php', 'module-extension.php'] as $test) {
     $process = proc_open([PHP_BINARY, __DIR__ . '/' . $test], [STDIN, STDOUT, STDERR], $pipes, dirname(__DIR__));
     if (!is_resource($process) || proc_close($process) !== 0) {
         exit(1);

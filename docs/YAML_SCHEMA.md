@@ -68,6 +68,9 @@ sind in [RUNTIME.md](RUNTIME.md) festgelegt.
   null; bei Größenvergleichen ist eine Zahl erforderlich.
   Optional for_seconds: Ganzzahl 0–86400 für eine durchgehende Mindestdauer.
 - type: time mit at im Format HH:MM:SS und expliziter timezone.
+  Mehrere time-Einträge derselben Regel sind alternative Startzeiten (ODER).
+  Der Klick-Editor unterstützt bis zu acht verschiedene Uhrzeiten mit gemeinsamer
+  Zeitzone; es bleibt bei einzelnen time-Auslösern statt einer zweiten Zeitstruktur.
 
 IEEE-Adressen sollten in YAML in Anführungszeichen stehen, damit sie Strings
 bleiben. Namen werden nicht als technische Geräteidentität verwendet.
@@ -80,6 +83,30 @@ bleiben. Namen werden nicht als technische Geräteidentität verwendet.
   after und before müssen verschieden sein; Fenster über Mitternacht sind
   zulässig. Optional weekdays: eindeutige Liste mit ISO-Wochentagen 1–7,
   Montag ist 1. Ohne weekdays gilt kein Wochentagsfilter.
+- type: weekday mit verpflichtenden weekdays und timezone. weekdays enthält
+  1–7 eindeutige ganzzahlige ISO-Wochentage (Montag = 1, Sonntag = 7).
+  Die Bedingung prüft den aktuellen lokalen Kalendertag, unabhängig von einem
+  Zeitfenster. Sie zählt zur gemeinsamen Grenze von 16 Bedingungen. Auch
+  Geräte- und Astro-Auslöser sowie Einzelstarts verwenden diese Bedingung.
+
+Bei time_window beziehen sich dessen optionale weekdays weiterhin auf den
+Starttag des Fensters. Eine zusätzliche weekday-Klausel prüft dagegen den
+aktuellen Tag; beide müssen erfüllt sein. Bestehende Nachtfenster werden nicht
+umgedeutet. Beispiel für zwei Startzeiten nur Montag bis Freitag:
+
+```yaml
+triggers:
+  - type: time
+    at: "07:00:00"
+    timezone: Europe/Berlin
+  - type: time
+    at: "18:30:00"
+    timezone: Europe/Berlin
+conditions:
+  - type: weekday
+    weekdays: [1, 2, 3, 4, 5]
+    timezone: Europe/Berlin
+```
 
 Zeitzonen müssen von Intl.DateTimeFormat des Z2M-Node-Runtimes akzeptiert werden,
 beispielsweise Europe/Berlin oder UTC. Es wird nicht implizit die Zeitzone des

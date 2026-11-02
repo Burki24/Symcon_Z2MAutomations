@@ -8,6 +8,19 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 3 lokal implementiert (ADR 0017): Klick-Editor mit einer bis acht
+  verschiedenen Uhrzeiten in gemeinsamer Zeitzone. Bestehende einzelne und
+  mehrere time-Auslöser werden vollständig vorbelegt. Unabhängige Auswahl von
+  Wochentagen für Geräte-, Zeit- und Astro-Regeln; neue Schema-1-Bedingung weekday
+  prüft den aktuellen Tag einer expliziten Zeitzone, auch vor verzögerten Aktionen
+  und beim Einzelstart. Bisherige Nachtfenster behalten ihre Starttagssemantik.
+  Eingabeschutz, Aktionsrechte, 8-Auslöser-/16-Bedingungsgrenzen und Metadaten-
+  Bearbeitung nicht vollständig darstellbarer Regeln bleiben erhalten.
+  Deutsche bereinigte Debugmeldungen, Z2M-Diagnoseereignis über bestehenden Kanal.
+  Modul und generiertes Erweiterungsartefakt gemeinsam aktualisieren. Keine
+  Test-/Produktivinstallation und keine Geräte verändert; native Praxisprüfung
+  steht aus. Nachweise und Grenzen stehen in docs/DEVELOPMENT.md.
+
 - Agenda Punkt 2 implementiert: zehn sichtbare Einträge je Regelbereich,
   ausgerichtete Spalten mit genau einer flexiblen Auslöserspalte, Suche einschließlich referenzierter
   Geräte und kombinierter Filter des Regelschalters. Übersicht und Auswahlliste
@@ -444,8 +457,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
 ## Nächste Schritte
 
 1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
-   Umfang praktisch bestätigt. Als Nächstes: Punkt 3, Wochentage unabhängig
-   vom Zeitfenster und mehrere Uhrzeiten im Klick-Editor.
+   Umfang praktisch bestätigt. Punkt 3 ist lokal implementiert; als Nächstes
+   native Praxisprüfung nach gemeinsamem Modul- und Erweiterungsupdate.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

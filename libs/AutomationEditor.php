@@ -359,7 +359,7 @@ trait AutomationEditor
                 $field['options'] = $this->EditorRuleOptions($draft ?? ['configuration' => ['automations' => []]]);
             }
             if ($selection['selected'] && array_key_exists($name, $selection)) {
-                $field['value'] = $selection[$name];
+                $field[$name === 'EditorTimes' ? 'values' : 'value'] = $selection[$name];
             }
             if ($name === 'CreateRuleButton' || $name === 'UpdateRuleButton') {
                 $field['visible'] = $name === 'UpdateRuleButton' ? $selection['selected'] : !$selection['selected'];
@@ -401,6 +401,9 @@ trait AutomationEditor
             }
             if (count($rule['triggers'] ?? []) > 1 && $this->EditorRuleType($rule) === 'device') {
                 $sourceLabel = sprintf($this->Translate('%d device triggers (OR)'), count($rule['triggers']));
+            }
+            if ($this->EditorRuleType($rule) === 'time' && ($rule['triggers'][0]['type'] ?? '') === 'time') {
+                $sourceLabel = implode(', ', array_column($rule['triggers'], 'at')) . ' (' . $rule['triggers'][0]['timezone'] . ')';
             }
             $rows[] = ['Name' => $rule['name'], 'Source' => $sourceLabel,
                 'Target'      => ($rule['actions'][0]['type'] ?? '') === 'sequence' ? $this->Translate('Action sequence') . ': ' . ($this->ReusableSequence($rule['actions'][0]['sequence_id'])['name'] ?? '') : ($snapshot['devices'][$target]['name'] ?? $this->Translate('Advanced rule')),

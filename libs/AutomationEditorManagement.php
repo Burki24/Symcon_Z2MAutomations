@@ -225,7 +225,7 @@ trait AutomationEditorManagement
         $this->UpdateEditorField('EditorConditionList', 'enabled', $fields['simple']);
         foreach ($fields as $field => $value) {
             if (!in_array($field, ['selected', 'simple', 'EditorActionRows', 'EditorTriggerRows', 'EditorConditionRows'], true)) {
-                $this->UpdateEditorField($field, 'value', $value);
+                $this->UpdateEditorField($field, $field === 'EditorTimes' ? 'values' : 'value', is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value);
             }
         }
         $this->UpdateEditorField('CreateRuleButton', 'visible', !$fields['selected']);
@@ -237,7 +237,7 @@ trait AutomationEditorManagement
         }
         $this->UpdateEditorField('EditorEditInfo', 'caption', $this->EditorEditInfo($fields));
         $this->RefreshAutomationSections($draft);
-        $this->UpdateEditorField('EditorConditions', 'expanded', $fields['EditorWindow'] || $fields['EditorConditionType'] !== 'none');
+        $this->UpdateEditorField('EditorConditions', 'expanded', $fields['EditorWindow'] || $fields['EditorWeekdays'] || $fields['EditorConditionType'] !== 'none');
     }
 
     private function EditorEditInfo(array $fields): string
@@ -264,7 +264,8 @@ trait AutomationEditorManagement
         if (($rule['triggers'] ?? []) !== [] && count(array_filter($rule['triggers'], static fn (array $t): bool => ($t['type'] ?? '') === 'device')) === count($rule['triggers'])) {
             return 'device';
         }
-        return count($rule['triggers'] ?? []) === 1 && in_array($type, ['time', 'sun'], true) ? 'time' : 'advanced';
+        return (count($rule['triggers'] ?? []) === 1 && $type === 'sun')
+            || (($rule['triggers'] ?? []) !== [] && count(array_filter($rule['triggers'], static fn (array $t): bool => ($t['type'] ?? '') === 'time')) === count($rule['triggers'])) ? 'time' : 'advanced';
     }
 
     private function EditorTypeLabel(string $type): string

@@ -1,5 +1,21 @@
 # Debug und MQTT-Diagnose
 
+## Uhrzeiten und unabhängige Wochentage
+
+ConfigureEditorWeekdays und InspectEditorTimes verwenden den kanonischen
+DebugFlowHelper wie die vorhandene SaveScheduledAutomation. Deutsche Meldungen
+erklären sichtbare Wochentagsfelder, Anzahl der Uhrzeiten, noch nicht übernommene
+Listenänderungen, ungültige Angaben und die rein lokale Übernahme. Ein Löschen
+nennt ausdrücklich die Anzahl vor dem Löschen. Native Prüfungen und Übernahme
+ändern keine Z2M-Laufzeit. Zeiten, Zeitzonen, Namen und komplette Formularzeilen
+werden nicht ins Debug geschrieben.
+
+Die Erweiterung meldet „Kalendertag gegen erlaubte Wochentage geprüft.“ über
+den bestehenden begrenzten MQTT-Debugkanal. Die Meldung enthält Regel-, Lauf-
+und Bedingungsbezug sowie das boolesche Prüfergebnis. Sie gilt ebenso beim
+Einzelstart und bei der erneuten Prüfung vor einem verzögerten Schritt. Keine
+neue Aufzeichnung oder zusätzliche Statusabfrage allein für Diagnose.
+
 ## Automationsübersicht und Kopieren
 
 FilterAutomations und CopyAutomation verwenden die vorhandenen zentralen

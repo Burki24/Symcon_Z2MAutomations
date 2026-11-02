@@ -10,7 +10,8 @@ use Traversable;
 /** Only editable values enter the work snapshot, never the complete form or configuration. */
 final class EditorWorkInput
 {
-    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorTimeMode', 'EditorAt', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
+    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorTimeMode', 'EditorAt', 'EditorTimes', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
+        'EditorWeekdays', 'EditorWeekdayTimezone', 'EditorDayMonday', 'EditorDayTuesday', 'EditorDayWednesday', 'EditorDayThursday', 'EditorDayFriday', 'EditorDaySaturday', 'EditorDaySunday',
         'EditorWindow', 'EditorAfter', 'EditorBefore', 'EditorWindowTimezone', 'EditorMonday', 'EditorTuesday', 'EditorWednesday', 'EditorThursday',
         'EditorFriday', 'EditorSaturday', 'EditorSunday', 'EditorActions', 'EditorTriggers', 'EditorConditionList'];
 
@@ -62,10 +63,15 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
         }
         if ($area === 'time') {
             $keys = array_merge($keys, ['EditorTimeMode', 'EditorTimezone']);
-            $keys = array_merge($keys, ($values['EditorTimeMode'] ?? 'clock') === 'clock' ? ['EditorAt'] : ['EditorLatitude', 'EditorLongitude', 'EditorSolarOffset']);
+            $keys = array_merge($keys, ($values['EditorTimeMode'] ?? 'clock') === 'clock' ? ['EditorTimes'] : ['EditorLatitude', 'EditorLongitude', 'EditorSolarOffset']);
         }
         if (in_array($area, ['device', 'time'], true)) {
             $keys = array_merge($keys, ['EditorConditionList', 'EditorWindow']);
+            $keys[] = 'EditorWeekdays';
+            if ($values['EditorWeekdays'] ?? false) {
+                $keys = array_merge($keys, ['EditorWeekdayTimezone', 'EditorDayMonday', 'EditorDayTuesday', 'EditorDayWednesday', 'EditorDayThursday',
+                    'EditorDayFriday', 'EditorDaySaturday', 'EditorDaySunday']);
+            }
             if ($values['EditorWindow'] ?? false) {
                 $keys = array_merge($keys, ['EditorAfter', 'EditorBefore', 'EditorWindowTimezone', 'EditorMonday', 'EditorTuesday', 'EditorWednesday',
                     'EditorThursday', 'EditorFriday', 'EditorSaturday', 'EditorSunday']);
@@ -76,8 +82,8 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
         }
         $result = [];
         foreach ($keys as $key) {
-            $value = $values[$key] ?? (in_array($key, ['EditorActions', 'EditorTriggers', 'EditorConditionList'], true) ? [] : '');
-            if (in_array($key, ['EditorActions', 'EditorTriggers', 'EditorConditionList'], true)) {
+            $value = $values[$key] ?? (in_array($key, ['EditorActions', 'EditorTriggers', 'EditorConditionList', 'EditorTimes'], true) ? [] : '');
+            if (in_array($key, ['EditorActions', 'EditorTriggers', 'EditorConditionList', 'EditorTimes'], true)) {
                 if (!is_array($value) || count($value) > 16) {
                     throw new InvalidArgumentException('editor_work_input');
                 }
@@ -85,12 +91,15 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
                 foreach ($value as $row) {
                     $row = (array) $row;
                     $clean = [];
-                    foreach (['Choice', 'Delay', 'Compare', 'Hold', 'Changed'] as $cell) {
+                    foreach ($key === 'EditorTimes' ? ['At'] : ['Choice', 'Delay', 'Compare', 'Hold', 'Changed'] as $cell) {
                         if (array_key_exists($cell, $row)) {
                             if (!is_scalar($row[$cell]) || (is_string($row[$cell]) && strlen($row[$cell]) > 2048)) {
                                 throw new InvalidArgumentException('editor_work_input');
                             }
                             $clean[$cell] = $row[$cell];
+                            if ($cell === 'At' && is_string($clean[$cell]) && preg_match('/\A\d{2}:\d{2}\z/D', $clean[$cell])) {
+                                $clean[$cell] .= ':00';
+                            }
                         }
                     }
                     if ($key === 'EditorTriggers') {

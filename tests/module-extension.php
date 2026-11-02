@@ -422,7 +422,7 @@ try {
     $module->ConfigureEditorSchedule('time', true, 'numeric');
     $module->SelectEditorDevice('Condition', '0x0000000000000002');
     $modeFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
-    $check($modeFields['EditorAt']['visible'] && !$modeFields['EditorNumber']['visible'] && isset($modeFields['EditorConditionList']) && $modeFields['EditorNumericProperty']['options'][1]['value'] === 'temperature', 'Mode changes expose the correct time and numeric condition fields');
+    $check($modeFields['EditorTimes']['visible'] && !$modeFields['EditorNumber']['visible'] && isset($modeFields['EditorConditionList']) && $modeFields['EditorNumericProperty']['options'][1]['value'] === 'temperature', 'Mode changes expose the correct time and numeric condition fields');
     $module->ConfigureEditorSchedule('invalid', true, 'numeric');
     $check($module->SaveScheduledAutomation('', '', 'Synthetic timed rule', true, '', '', '0x0000000000000002', $action, json_encode($schedule)), 'A time rule with overnight weekdays and a numeric condition can be created without YAML');
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
@@ -435,7 +435,7 @@ try {
     $module->LoadAutomationEditor();
     $check($module->SelectAutomation($scheduled['id']), 'Stored time/condition rule can be reopened');
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
-    $check($fields['EditorAt']['value'] === '07:15:00' && $fields['EditorAt']['visible'] && !$fields['EditorSource']['visible']
+    $check($fields['EditorAt']['value'] === '07:15:00' && $fields['EditorTimes']['visible'] && !$fields['EditorSource']['visible']
         && $fields['EditorConditionType']['value'] === 'numeric' && $fields['EditorNumber']['value'] === 18.5
         && $fields['EditorMonday']['value'] && !$fields['EditorTuesday']['value'], 'Reopen restores time zone, weekdays and typed condition values');
     $check(
@@ -569,7 +569,7 @@ try {
     $steps[0]['Delay'] = 2;
     $steps[] = ['Choice' => '0x0000000000000002:' . $action, 'Delay' => 86400];
     $runEditorScript($fields['UpdateRuleButton']['onClick'], $fields, ['EditorName' => 'Reordered sequence', 'EditorEnabled' => false,
-        'EditorTriggerType'                                                         => 'time', 'EditorAt' => '12:34', 'EditorActions' => new ArrayIterator($steps)]);
+        'EditorTriggerType'                                                         => 'time', 'EditorTimes' => new ArrayIterator([['At' => '12:34']]), 'EditorActions' => new ArrayIterator($steps)]);
     $check($state()['operation']['status'] === 'draft_updated', 'The actual update button applies the complete reordered sequence');
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $editedSequenceDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
@@ -603,8 +603,8 @@ try {
         count(json_decode($module->formUpdates['TimeEditorNumericProperty']['options'], true, 512, JSON_THROW_ON_ERROR)) > 1,
         'Condition device callbacks populate measured values in the time editor'
     );
-    $runEditorScript($fields['TimeCreateRuleButton']['onClick'], $fields, ['TimeEditorName' => 'Local timed editor', 'TimeEditorEnabled' => false,
-        'TimeEditorAt'                                                                      => '13:45', 'TimeEditorWindow' => false, 'TimeEditorActions' => new ArrayIterator([$steps[0]])]);
+    $runEditorScript($fields['TimeCreateRuleButton']['onClick'], $fields, ['TimeEditorName'    => 'Local timed editor', 'TimeEditorEnabled' => false,
+        'TimeEditorTimes'                                                                      => new ArrayIterator([['At' => '13:45']]), 'TimeEditorWindow' => false, 'TimeEditorActions' => new ArrayIterator([$steps[0]])]);
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $localDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
     $localTimed = $localDocument['automations'][array_key_last($localDocument['automations'])];
@@ -616,7 +616,7 @@ try {
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $check($fields['TimeEditorName']['value'] === 'Local timed editor' && $fields['TimeEditorActions']['values'] === [$steps[0]]
         && $fields['TimeUpdateRuleButton']['visible'] && $fields['DeviceEditorDetails']['visible'] && !$fields['DeviceEditorDetails']['expanded'], 'Selecting a time rule restores its local fields, token and action list');
-    $runEditorScript($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorName' => 'Updated local time', 'TimeEditorAt' => '14:00',
+    $runEditorScript($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorName' => 'Updated local time', 'TimeEditorTimes' => new ArrayIterator([['At' => '14:00']]),
         'TimeEditorActions'                                                                 => new ArrayIterator([$steps[0]])]);
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $updatedLocal = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
@@ -770,6 +770,9 @@ try {
         count(array_filter($catalogDebug, static fn (array $entry): bool => ($entry['Bezug']['SchaltbareEigenschaften'] ?? 0) >= 3)) > 0,
         'Safe catalog debug counts explicit channel states without device identities'
     );
+    // Those historical form snapshots and decoded debug copies are no longer asserted.
+    // Release them before the next integration scenarios; keep the original debug capture.
+    unset($catalogDebug, $beforeForm, $feedbackFields, $invalidFields, $knownFields, $modeFields, $remainingForm, $sourceForm);
     $module->ValidateYaml($fields['YamlInput']['value'] . '# edited');
     $check(!$module->CreateSimpleAutomation('Refuse stale editor draft', '0x0000000000000001', $trigger, '0x0000000000000002', $action)
         && $state()['lastError'] === 'editor_changed', 'Manual edits are not silently overwritten by the builder');
@@ -786,6 +789,7 @@ try {
     require __DIR__ . '/runtime-debug-storage.inc.php';
     require __DIR__ . '/rule-execution.inc.php';
     require __DIR__ . '/reusable-sequences.inc.php';
+    require __DIR__ . '/editor-calendar-integration.inc.php';
     $stack = [];
     $observed = array_fill_keys(['ActivateAutomations', 'StopAutomations', 'CreateSimpleAutomation', 'FEHLER'], false);
     foreach ($module->debugMessages as [$category, $body]) {

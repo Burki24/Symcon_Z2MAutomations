@@ -711,6 +711,33 @@
                                     "onChange": "Z2MA_ConfigureEditorSolar($id, $DeviceEditorTimeMode, 'device');"
                                 },
                                 {
+                                    "type": "List",
+                                    "name": "DeviceEditorTimes",
+                                    "caption": "Start times (1 to 8, OR)",
+                                    "rowCount": 4,
+                                    "width": "100%",
+                                    "columns": [
+                                        {
+                                            "name": "At",
+                                            "caption": "Time (HH:MM or HH:MM:SS)",
+                                            "width": "auto",
+                                            "add": "18:00:00",
+                                            "edit": {
+                                                "type": "ValidationTextBox"
+                                            }
+                                        }
+                                    ],
+                                    "values": [
+                                        {
+                                            "At": "18:00:00"
+                                        }
+                                    ],
+                                    "visible": false,
+                                    "onAdd": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($DeviceEditorTimes), JSON_THROW_ON_ERROR), 'add', 'device');",
+                                    "onEdit": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($DeviceEditorTimes), JSON_THROW_ON_ERROR), 'edit', 'device');",
+                                    "onDelete": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($DeviceEditorTimes), JSON_THROW_ON_ERROR), 'delete', 'device');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "DeviceEditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -733,7 +760,7 @@
                                 {
                                     "type": "Label",
                                     "name": "DeviceScheduleHelp",
-                                    "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "caption": "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.",
                                     "width": "100%"
                                 },
                                 {
@@ -775,6 +802,81 @@
                             "items": [
                                 {
                                     "type": "CheckBox",
+                                    "name": "DeviceEditorWeekdays",
+                                    "caption": "Only on selected weekdays",
+                                    "value": false,
+                                    "onChange": "Z2MA_ConfigureEditorWeekdays($id, $DeviceEditorWeekdays, 'device');"
+                                },
+                                {
+                                    "type": "Select",
+                                    "name": "DeviceEditorWeekdayTimezone",
+                                    "caption": "Time zone for weekdays",
+                                    "options": [
+                                        {
+                                            "caption": "Europe/Berlin",
+                                            "value": "Europe/Berlin"
+                                        }
+                                    ],
+                                    "value": "Europe/Berlin",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDayMonday",
+                                    "caption": "Monday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDayTuesday",
+                                    "caption": "Tuesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDayWednesday",
+                                    "caption": "Wednesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDayThursday",
+                                    "caption": "Thursday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDayFriday",
+                                    "caption": "Friday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDaySaturday",
+                                    "caption": "Saturday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "DeviceEditorDaySunday",
+                                    "caption": "Sunday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "name": "DeviceEditorCalendarHelp",
+                                    "caption": "Weekdays refer to the current calendar day in the selected time zone, independently of a time window. With an overnight window, its selected start days also apply.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "CheckBox",
                                     "name": "DeviceEditorWindow",
                                     "caption": "Only within a time window",
                                     "value": false,
@@ -810,49 +912,49 @@
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorMonday",
-                                    "caption": "Monday",
+                                    "caption": "Window starts on Monday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorTuesday",
-                                    "caption": "Tuesday",
+                                    "caption": "Window starts on Tuesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorWednesday",
-                                    "caption": "Wednesday",
+                                    "caption": "Window starts on Wednesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorThursday",
-                                    "caption": "Thursday",
+                                    "caption": "Window starts on Thursday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorFriday",
-                                    "caption": "Friday",
+                                    "caption": "Window starts on Friday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorSaturday",
-                                    "caption": "Saturday",
+                                    "caption": "Window starts on Saturday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "DeviceEditorSunday",
-                                    "caption": "Sunday",
+                                    "caption": "Window starts on Sunday",
                                     "value": true,
                                     "visible": false
                                 },
@@ -1280,7 +1382,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($DeviceEditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $DeviceEditorWeekdays, 'EditorWeekdayTimezone' => $DeviceEditorWeekdayTimezone, 'EditorDayMonday' => $DeviceEditorDayMonday, 'EditorDayTuesday' => $DeviceEditorDayTuesday, 'EditorDayWednesday' => $DeviceEditorDayWednesday, 'EditorDayThursday' => $DeviceEditorDayThursday, 'EditorDayFriday' => $DeviceEditorDayFriday, 'EditorDaySaturday' => $DeviceEditorDaySaturday, 'EditorDaySunday' => $DeviceEditorDaySunday, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "DeviceCreateRuleButton"
                                 },
                                 {
@@ -1288,7 +1390,7 @@
                                     "name": "DeviceUpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $DeviceEditorName, $DeviceEditorEnabled, $DeviceEditorSource, $DeviceEditorSourceChoice, $DeviceEditorTarget, $DeviceEditorTargetChoice, json_encode(['EditorTriggerType' => $DeviceEditorTriggerType, 'EditorTimeMode' => $DeviceEditorTimeMode, 'EditorLatitude' => $DeviceEditorLatitude, 'EditorLongitude' => $DeviceEditorLongitude, 'EditorSolarOffset' => $DeviceEditorSolarOffset, 'EditorAt' => $DeviceEditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($DeviceEditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $DeviceEditorWeekdays, 'EditorWeekdayTimezone' => $DeviceEditorWeekdayTimezone, 'EditorDayMonday' => $DeviceEditorDayMonday, 'EditorDayTuesday' => $DeviceEditorDayTuesday, 'EditorDayWednesday' => $DeviceEditorDayWednesday, 'EditorDayThursday' => $DeviceEditorDayThursday, 'EditorDayFriday' => $DeviceEditorDayFriday, 'EditorDaySaturday' => $DeviceEditorDaySaturday, 'EditorDaySunday' => $DeviceEditorDaySunday, 'EditorTimezone' => $DeviceEditorTimezone, 'EditorHold' => $DeviceEditorHold, 'EditorDelay' => $DeviceEditorDelay, 'EditorWindow' => $DeviceEditorWindow, 'EditorAfter' => $DeviceEditorAfter, 'EditorBefore' => $DeviceEditorBefore, 'EditorWindowTimezone' => $DeviceEditorWindowTimezone, 'EditorMonday' => $DeviceEditorMonday, 'EditorTuesday' => $DeviceEditorTuesday, 'EditorWednesday' => $DeviceEditorWednesday, 'EditorThursday' => $DeviceEditorThursday, 'EditorFriday' => $DeviceEditorFriday, 'EditorSaturday' => $DeviceEditorSaturday, 'EditorSunday' => $DeviceEditorSunday, 'EditorConditionType' => $DeviceEditorConditionType, 'EditorCondition' => $DeviceEditorCondition, 'EditorConditionChoice' => $DeviceEditorConditionChoice, 'EditorNumericProperty' => $DeviceEditorNumericProperty, 'EditorCompare' => $DeviceEditorCompare, 'EditorNumber' => $DeviceEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($DeviceEditorActions), JSON_THROW_ON_ERROR), 'device', json_encode((function ($rows) { $triggers = []; foreach ($rows as $row) { $triggers[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true, 'Hold' => true, 'Changed' => true]); } return $triggers; })($DeviceEditorTriggers), JSON_THROW_ON_ERROR), json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($DeviceEditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",
@@ -1501,6 +1603,33 @@
                                     "onChange": "Z2MA_ConfigureEditorSolar($id, $TimeEditorTimeMode, 'time');"
                                 },
                                 {
+                                    "type": "List",
+                                    "name": "TimeEditorTimes",
+                                    "caption": "Start times (1 to 8, OR)",
+                                    "rowCount": 4,
+                                    "width": "100%",
+                                    "columns": [
+                                        {
+                                            "name": "At",
+                                            "caption": "Time (HH:MM or HH:MM:SS)",
+                                            "width": "auto",
+                                            "add": "18:00:00",
+                                            "edit": {
+                                                "type": "ValidationTextBox"
+                                            }
+                                        }
+                                    ],
+                                    "values": [
+                                        {
+                                            "At": "18:00:00"
+                                        }
+                                    ],
+                                    "visible": false,
+                                    "onAdd": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($TimeEditorTimes), JSON_THROW_ON_ERROR), 'add', 'time');",
+                                    "onEdit": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($TimeEditorTimes), JSON_THROW_ON_ERROR), 'edit', 'time');",
+                                    "onDelete": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($TimeEditorTimes), JSON_THROW_ON_ERROR), 'delete', 'time');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "TimeEditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -1523,7 +1652,7 @@
                                 {
                                     "type": "Label",
                                     "name": "TimeScheduleHelp",
-                                    "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "caption": "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.",
                                     "width": "100%"
                                 },
                                 {
@@ -1745,6 +1874,81 @@
                             "items": [
                                 {
                                     "type": "CheckBox",
+                                    "name": "TimeEditorWeekdays",
+                                    "caption": "Only on selected weekdays",
+                                    "value": false,
+                                    "onChange": "Z2MA_ConfigureEditorWeekdays($id, $TimeEditorWeekdays, 'time');"
+                                },
+                                {
+                                    "type": "Select",
+                                    "name": "TimeEditorWeekdayTimezone",
+                                    "caption": "Time zone for weekdays",
+                                    "options": [
+                                        {
+                                            "caption": "Europe/Berlin",
+                                            "value": "Europe/Berlin"
+                                        }
+                                    ],
+                                    "value": "Europe/Berlin",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDayMonday",
+                                    "caption": "Monday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDayTuesday",
+                                    "caption": "Tuesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDayWednesday",
+                                    "caption": "Wednesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDayThursday",
+                                    "caption": "Thursday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDayFriday",
+                                    "caption": "Friday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDaySaturday",
+                                    "caption": "Saturday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "TimeEditorDaySunday",
+                                    "caption": "Sunday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "name": "TimeEditorCalendarHelp",
+                                    "caption": "Weekdays refer to the current calendar day in the selected time zone, independently of a time window. With an overnight window, its selected start days also apply.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "CheckBox",
                                     "name": "TimeEditorWindow",
                                     "caption": "Only within a time window",
                                     "value": false,
@@ -1780,49 +1984,49 @@
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorMonday",
-                                    "caption": "Monday",
+                                    "caption": "Window starts on Monday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorTuesday",
-                                    "caption": "Tuesday",
+                                    "caption": "Window starts on Tuesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorWednesday",
-                                    "caption": "Wednesday",
+                                    "caption": "Window starts on Wednesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorThursday",
-                                    "caption": "Thursday",
+                                    "caption": "Window starts on Thursday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorFriday",
-                                    "caption": "Friday",
+                                    "caption": "Window starts on Friday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorSaturday",
-                                    "caption": "Saturday",
+                                    "caption": "Window starts on Saturday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "TimeEditorSunday",
-                                    "caption": "Sunday",
+                                    "caption": "Window starts on Sunday",
                                     "value": true,
                                     "visible": false
                                 },
@@ -2250,7 +2454,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($TimeEditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $TimeEditorWeekdays, 'EditorWeekdayTimezone' => $TimeEditorWeekdayTimezone, 'EditorDayMonday' => $TimeEditorDayMonday, 'EditorDayTuesday' => $TimeEditorDayTuesday, 'EditorDayWednesday' => $TimeEditorDayWednesday, 'EditorDayThursday' => $TimeEditorDayThursday, 'EditorDayFriday' => $TimeEditorDayFriday, 'EditorDaySaturday' => $TimeEditorDaySaturday, 'EditorDaySunday' => $TimeEditorDaySunday, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "TimeCreateRuleButton"
                                 },
                                 {
@@ -2258,7 +2462,7 @@
                                     "name": "TimeUpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $TimeEditorName, $TimeEditorEnabled, $TimeEditorSource, $TimeEditorSourceChoice, $TimeEditorTarget, $TimeEditorTargetChoice, json_encode(['EditorTriggerType' => $TimeEditorTriggerType, 'EditorTimeMode' => $TimeEditorTimeMode, 'EditorLatitude' => $TimeEditorLatitude, 'EditorLongitude' => $TimeEditorLongitude, 'EditorSolarOffset' => $TimeEditorSolarOffset, 'EditorAt' => $TimeEditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($TimeEditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $TimeEditorWeekdays, 'EditorWeekdayTimezone' => $TimeEditorWeekdayTimezone, 'EditorDayMonday' => $TimeEditorDayMonday, 'EditorDayTuesday' => $TimeEditorDayTuesday, 'EditorDayWednesday' => $TimeEditorDayWednesday, 'EditorDayThursday' => $TimeEditorDayThursday, 'EditorDayFriday' => $TimeEditorDayFriday, 'EditorDaySaturday' => $TimeEditorDaySaturday, 'EditorDaySunday' => $TimeEditorDaySunday, 'EditorTimezone' => $TimeEditorTimezone, 'EditorHold' => $TimeEditorHold, 'EditorDelay' => $TimeEditorDelay, 'EditorWindow' => $TimeEditorWindow, 'EditorAfter' => $TimeEditorAfter, 'EditorBefore' => $TimeEditorBefore, 'EditorWindowTimezone' => $TimeEditorWindowTimezone, 'EditorMonday' => $TimeEditorMonday, 'EditorTuesday' => $TimeEditorTuesday, 'EditorWednesday' => $TimeEditorWednesday, 'EditorThursday' => $TimeEditorThursday, 'EditorFriday' => $TimeEditorFriday, 'EditorSaturday' => $TimeEditorSaturday, 'EditorSunday' => $TimeEditorSunday, 'EditorConditionType' => $TimeEditorConditionType, 'EditorCondition' => $TimeEditorCondition, 'EditorConditionChoice' => $TimeEditorConditionChoice, 'EditorNumericProperty' => $TimeEditorNumericProperty, 'EditorCompare' => $TimeEditorCompare, 'EditorNumber' => $TimeEditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($TimeEditorActions), JSON_THROW_ON_ERROR), 'time', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($TimeEditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",
@@ -2650,6 +2854,33 @@
                                     "onChange": "Z2MA_ConfigureEditorSolar($id, $EditorTimeMode, '');"
                                 },
                                 {
+                                    "type": "List",
+                                    "name": "EditorTimes",
+                                    "caption": "Start times (1 to 8, OR)",
+                                    "rowCount": 4,
+                                    "width": "100%",
+                                    "columns": [
+                                        {
+                                            "name": "At",
+                                            "caption": "Time (HH:MM or HH:MM:SS)",
+                                            "width": "auto",
+                                            "add": "18:00:00",
+                                            "edit": {
+                                                "type": "ValidationTextBox"
+                                            }
+                                        }
+                                    ],
+                                    "values": [
+                                        {
+                                            "At": "18:00:00"
+                                        }
+                                    ],
+                                    "visible": false,
+                                    "onAdd": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($EditorTimes), JSON_THROW_ON_ERROR), 'add', '');",
+                                    "onEdit": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($EditorTimes), JSON_THROW_ON_ERROR), 'edit', '');",
+                                    "onDelete": "Z2MA_InspectEditorTimes($id, json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($EditorTimes), JSON_THROW_ON_ERROR), 'delete', '');"
+                                },
+                                {
                                     "type": "ValidationTextBox",
                                     "name": "EditorAt",
                                     "caption": "Time (HH:MM or HH:MM:SS)",
@@ -2672,7 +2903,7 @@
                                 {
                                     "type": "Label",
                                     "name": "ScheduleHelp",
-                                    "caption": "Times use the selected time zone. Missed times are not replayed. All enabled conditions must match.",
+                                    "caption": "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.",
                                     "width": "100%"
                                 },
                                 {
@@ -2714,6 +2945,81 @@
                             "items": [
                                 {
                                     "type": "CheckBox",
+                                    "name": "EditorWeekdays",
+                                    "caption": "Only on selected weekdays",
+                                    "value": false,
+                                    "onChange": "Z2MA_ConfigureEditorWeekdays($id, $EditorWeekdays, '');"
+                                },
+                                {
+                                    "type": "Select",
+                                    "name": "EditorWeekdayTimezone",
+                                    "caption": "Time zone for weekdays",
+                                    "options": [
+                                        {
+                                            "caption": "Europe/Berlin",
+                                            "value": "Europe/Berlin"
+                                        }
+                                    ],
+                                    "value": "Europe/Berlin",
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDayMonday",
+                                    "caption": "Monday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDayTuesday",
+                                    "caption": "Tuesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDayWednesday",
+                                    "caption": "Wednesday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDayThursday",
+                                    "caption": "Thursday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDayFriday",
+                                    "caption": "Friday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDaySaturday",
+                                    "caption": "Saturday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "CheckBox",
+                                    "name": "EditorDaySunday",
+                                    "caption": "Sunday",
+                                    "value": true,
+                                    "visible": false
+                                },
+                                {
+                                    "type": "Label",
+                                    "name": "EditorCalendarHelp",
+                                    "caption": "Weekdays refer to the current calendar day in the selected time zone, independently of a time window. With an overnight window, its selected start days also apply.",
+                                    "width": "100%"
+                                },
+                                {
+                                    "type": "CheckBox",
                                     "name": "EditorWindow",
                                     "caption": "Only within a time window",
                                     "value": false,
@@ -2749,49 +3055,49 @@
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorMonday",
-                                    "caption": "Monday",
+                                    "caption": "Window starts on Monday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorTuesday",
-                                    "caption": "Tuesday",
+                                    "caption": "Window starts on Tuesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorWednesday",
-                                    "caption": "Wednesday",
+                                    "caption": "Window starts on Wednesday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorThursday",
-                                    "caption": "Thursday",
+                                    "caption": "Window starts on Thursday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorFriday",
-                                    "caption": "Friday",
+                                    "caption": "Window starts on Friday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorSaturday",
-                                    "caption": "Saturday",
+                                    "caption": "Window starts on Saturday",
                                     "value": true,
                                     "visible": false
                                 },
                                 {
                                     "type": "CheckBox",
                                     "name": "EditorSunday",
-                                    "caption": "Sunday",
+                                    "caption": "Window starts on Sunday",
                                     "value": true,
                                     "visible": false
                                 },
@@ -3219,7 +3525,7 @@
                                 {
                                     "type": "Button",
                                     "caption": "Add automation to draft",
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));",
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($EditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $EditorWeekdays, 'EditorWeekdayTimezone' => $EditorWeekdayTimezone, 'EditorDayMonday' => $EditorDayMonday, 'EditorDayTuesday' => $EditorDayTuesday, 'EditorDayWednesday' => $EditorDayWednesday, 'EditorDayThursday' => $EditorDayThursday, 'EditorDayFriday' => $EditorDayFriday, 'EditorDaySaturday' => $EditorDaySaturday, 'EditorDaySunday' => $EditorDaySunday, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));",
                                     "name": "CreateRuleButton"
                                 },
                                 {
@@ -3227,7 +3533,7 @@
                                     "name": "UpdateRuleButton",
                                     "caption": "Apply changes to draft",
                                     "visible": false,
-                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));"
+                                    "onClick": "Z2MA_SaveScheduledAutomation($id, $EditorRule, $EditorEditToken, $EditorName, $EditorEnabled, $EditorSource, $EditorSourceChoice, $EditorTarget, $EditorTargetChoice, json_encode(['EditorTriggerType' => $EditorTriggerType, 'EditorTimeMode' => $EditorTimeMode, 'EditorLatitude' => $EditorLatitude, 'EditorLongitude' => $EditorLongitude, 'EditorSolarOffset' => $EditorSolarOffset, 'EditorAt' => $EditorAt, 'EditorTimes' => json_decode(json_encode((function ($rows) { $times = []; foreach ($rows as $row) { $times[] = array_intersect_key((array) $row, ['At' => true]); } return $times; })($EditorTimes), JSON_THROW_ON_ERROR), true, 4, JSON_THROW_ON_ERROR), 'EditorWeekdays' => $EditorWeekdays, 'EditorWeekdayTimezone' => $EditorWeekdayTimezone, 'EditorDayMonday' => $EditorDayMonday, 'EditorDayTuesday' => $EditorDayTuesday, 'EditorDayWednesday' => $EditorDayWednesday, 'EditorDayThursday' => $EditorDayThursday, 'EditorDayFriday' => $EditorDayFriday, 'EditorDaySaturday' => $EditorDaySaturday, 'EditorDaySunday' => $EditorDaySunday, 'EditorTimezone' => $EditorTimezone, 'EditorHold' => $EditorHold, 'EditorDelay' => $EditorDelay, 'EditorWindow' => $EditorWindow, 'EditorAfter' => $EditorAfter, 'EditorBefore' => $EditorBefore, 'EditorWindowTimezone' => $EditorWindowTimezone, 'EditorMonday' => $EditorMonday, 'EditorTuesday' => $EditorTuesday, 'EditorWednesday' => $EditorWednesday, 'EditorThursday' => $EditorThursday, 'EditorFriday' => $EditorFriday, 'EditorSaturday' => $EditorSaturday, 'EditorSunday' => $EditorSunday, 'EditorConditionType' => $EditorConditionType, 'EditorCondition' => $EditorCondition, 'EditorConditionChoice' => $EditorConditionChoice, 'EditorNumericProperty' => $EditorNumericProperty, 'EditorCompare' => $EditorCompare, 'EditorNumber' => $EditorNumber], JSON_THROW_ON_ERROR), $YamlInput, true, json_encode((function ($rows) { $steps = []; foreach ($rows as $row) { $steps[] = array_intersect_key((array) $row, ['Choice' => true, 'Delay' => true]); } return $steps; })($EditorActions), JSON_THROW_ON_ERROR), '', '', json_encode((function ($rows) { $conditions = []; foreach ($rows as $row) { $conditions[] = array_intersect_key((array) $row, ['Choice' => true, 'Compare' => true]); } return $conditions; })($EditorConditionList), JSON_THROW_ON_ERROR));"
                                 },
                                 {
                                     "type": "Button",

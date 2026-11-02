@@ -1,5 +1,22 @@
 # Automationen ausführen
 
+## Mehrere Uhrzeiten und unabhängige Wochentage
+
+Jeder `time`-Auslöser einer Regel besitzt wie bisher seine eigene Tagesmarke.
+Mehrere Uhrzeiten lösen unabhängig dieselbe Regel aus. Eine doppelte lokale
+Stunde bei der Zeitumstellung wird je Auslöser nicht wiederholt; verpasste
+Uhrzeiten werden nicht nachgeholt. Parallelitäts- und Sperrzeitregeln bleiben
+unverändert: Eine bereits laufende Regel startet durch eine weitere Uhrzeit
+keinen zweiten gleichzeitigen Lauf.
+
+Die `weekday`-Bedingung verwendet den aktuellen Kalendertag ihrer expliziten
+Zeitzone. Sie benötigt weder einen Zeit-Auslöser noch ein Zeitfenster. Sie wird
+beim Auslöser, Einzelstart und vor jedem konkreten Aktionsschritt erneut geprüft.
+Damit kann ein Tageswechsel während einer Verzögerung die restlichen Aktionen
+verhindern. `time_window.weekdays` verwendet weiterhin den Starttag eines
+Nachtfensters. Beides sind eigenständige UND-Bedingungen; keine automatische
+Umdeutung vorhandener Regeln. Details: [ADR 0017](adr/0017-independent-weekdays-and-clock-list.md).
+
 ## Wiederverwendbare Aktionsfolgen
 
 Ein `sequence`-Schritt löst eine Definition aus demselben gespeicherten Stand

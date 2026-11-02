@@ -13,6 +13,85 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+test('weekday clauses validate independently and reject malformed days, zones and oversized time lists', () => {
+    const r = rule(); r.conditions = [{type: 'weekday', weekdays: [1, 3, 7], timezone: 'Pacific/Auckland'}];
+    assert.deepEqual(JSON.parse(JSON.stringify(validateYaml(yaml([r])).document.automations[0].conditions)), r.conditions);
+    for (const weekdays of [[], [0], [8], [1, 1], ['1'], [true], [1.5], [1, 2, 3, 4, 5, 6, 7, 8]]) {
+        assert.throws(() => validateYaml(yaml([{...r, conditions: [{...r.conditions[0], weekdays}]}])));
+    }
+    assert.throws(() => validateYaml(yaml([{...r, conditions: [{...r.conditions[0], timezone: 'invalid-zone'}]}])));
+    assert.throws(() => validateYaml(yaml([{...r, conditions: [{...r.conditions[0], after: '00:00:00'}]}])));
+    const triggers = Array.from({length: 8}, (_, i) => ({type: 'time', at: `0${i}:00:00`, timezone: 'UTC'}));
+    assert.equal(validateYaml(yaml([{...r, triggers}])).document.automations[0].triggers.length, 8);
+    assert.throws(() => validateYaml(yaml([{...r, triggers: [...triggers, {type: 'time', at: '08:00:00', timezone: 'UTC'}]}])));
+});
+
+test('multiple clock slots independently run on allowed days and DST cannot replay either slot', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.triggers = ['02:30:00', '02:45:00'].map(at => ({type: 'time', at, timezone: 'Europe/Berlin'}));
+        r.conditions = [{type: 'weekday', weekdays: [7], timezone: 'Europe/Berlin'}];
+        await h.store(yaml([r])); await h.activate();
+        for (const [at, count] of [['2026-10-25T00:29:59Z', 1], ['2026-10-25T00:44:59Z', 2],
+            ['2026-10-25T01:29:59Z', 2], ['2026-10-25T01:44:59Z', 2], ['2026-10-26T01:29:59Z', 2], ['2026-11-01T01:29:59Z', 3]]) {
+            h.clock.wall = Date.parse(at); await h.clock.advance(1000);
+            assert.equal(h.commands.length, count, at);
+        }
+        assert.ok(h.logs.some(line => line.includes('Kalendertag gegen erlaubte Wochentage geprüft.') && line.includes('false')));
+    } finally { await h.close(); }
+});
+
+test('calendar weekdays use their own zone and remain distinct from overnight window start days', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.conditions = [{type: 'weekday', weekdays: [2], timezone: 'Pacific/Auckland'}];
+        await h.store(yaml([r])); await h.activate();
+        h.clock.wall = Date.parse('2026-11-02T10:59:00Z'); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 0, 'It is still Monday in Auckland');
+        await h.clock.advance(1000); h.clock.wall = Date.parse('2026-11-02T11:00:00Z'); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 1, 'Tuesday locally, Monday UTC; no time window is required');
+        r.conditions = [{type: 'weekday', weekdays: [2], timezone: 'UTC'},
+            {type: 'time_window', after: '22:00:00', before: '06:00:00', timezone: 'UTC', weekdays: [1]}];
+        await h.store(yaml([r], 2)); await h.activate();
+        h.clock.wall = Date.parse('2026-11-03T01:00:00Z'); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 2, 'Tuesday calendar day and Monday window start both match');
+        await h.clock.advance(1000); h.clock.wall = Date.parse('2026-11-03T22:00:00Z'); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 2, 'Tuesday window start is not permitted');
+    } finally { await h.close(); }
+});
+
+test('weekday conditions are checked for one-shot execution and rechecked after a midnight delay', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.enabled = false; r.conditions = [{type: 'weekday', weekdays: [1], timezone: 'UTC'}];
+        r.actions[0].delay_seconds = 5;
+        await h.store(yaml([r]));
+        h.clock.wall = Date.parse('2026-11-01T23:59:00Z'); await runOnce(h); await flush();
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped');
+        await h.clock.advance(1000); h.clock.wall = Date.parse('2026-11-02T23:59:58Z'); await runOnce(h); await flush();
+        assert.equal(h.extension.status().execution.runs[0].state, 'running');
+        await h.clock.advance(5000);
+        assert.equal(h.commands.length, 0, 'Tuesday is rechecked before the delayed action');
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped');
+    } finally { await h.close(); }
+});
+
+test('restart restores multiple times and weekday conditions without replaying a missed clock slot', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = rule(); r.triggers = ['07:00:00', '18:00:00'].map(at => ({type: 'time', at, timezone: 'UTC'}));
+        r.conditions = [{type: 'weekday', weekdays: [1], timezone: 'UTC'}];
+        await h.store(yaml([r])); await h.activate(); await h.close(false);
+        h = await harness(directory, true, context => { context.clock.wall = Date.parse('2026-11-02T07:00:10Z'); });
+        assert.equal(h.extension.status().executing, true);
+        await h.clock.advance(1000); assert.equal(h.commands.length, 0);
+        h.clock.wall = Date.parse('2026-11-02T17:59:59Z'); await h.clock.advance(1000);
+        assert.equal(h.commands.length, 1);
+        h.clock.wall = Date.parse('2026-11-03T06:59:59Z'); await h.clock.advance(1000);
+        assert.equal(h.commands.length, 1, 'Restored weekday restriction still blocks Tuesday');
+    } finally { await h.close(); }
+});
+
 test('reusable sequences execute in rule order with call delay, step delays and conditions without changing definitions', async () => {
     const h = await harness();
     try {
