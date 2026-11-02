@@ -34,6 +34,13 @@
 
 ## Fehlerkorrekturen
 
+- Regelauswahl und Änderungsverfolgung im nativen Formular funktionieren ohne
+  direkten Zugriff auf PHP-Hilfsklassen des Moduls. Damit entfällt der Fehler
+  „EditorWorkInput not found“, der vor dem Moduleinstieg und dessen Debug-Ausgaben
+  auftrat. Die Erfassung bleibt auf Bearbeitungsfelder begrenzt. Ein zusätzlicher
+  Test prüft das tatsächliche Formularskript in einem getrennten PHP-Prozess.
+  Ein Modulupdate genügt; geöffnete Formulare anschließend schließen und neu öffnen.
+
 - „Zigbee2MQTT-Verbindung prüfen“ funktioniert wieder ohne Parameterfehler.
   Der Button übergibt die vollständige Argumentliste an Symcon; Prüfung und
   zugehörige Debug-Ausgaben werden dadurch wieder gestartet.

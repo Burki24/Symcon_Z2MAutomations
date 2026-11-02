@@ -3528,7 +3528,7 @@
                         "type": "Button",
                         "name": "DiscardEditorNavigation",
                         "caption": "Discard changes and switch",
-                        "onClick": "Z2MA_ResolveEditorNavigation($id, $EditorNavigationToken, \\Z2MAutomations\\EditorWorkInput::Capture(get_defined_vars()));"
+                        "onClick": "Z2MA_ResolveEditorNavigation($id, $EditorNavigationToken, \"\");"
                     }
                 ]
             }

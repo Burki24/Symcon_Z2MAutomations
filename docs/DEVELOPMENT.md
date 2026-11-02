@@ -29,14 +29,59 @@ möglicherweise veralteten Löschzeilen nicht in ein neu aufgebautes Formular
 zurückgeschrieben. Der Schutz ist kein dauerhaftes Sitzungsbackup und ersetzt
 nicht das Übernehmen in den Entwurf. Native Praxisprüfung insbesondere für
 Listendialoge, Löschen, Umsortieren, Popup-Abbruch und Scrollbedienung steht aus.
-In diesem Arbeitspaket wurden weder Test- noch Live-System verändert.
+Während der ersten lokalen Umsetzung wurden weder Test- noch Live-System
+verändert. Die anschließende native Praxisprüfung ist unten getrennt beschrieben.
 
 Lokale Nachweise am 02.11.2026: vollständiges `php tests/run.php` mit
 PHP-/JavaScript-Integration und 106 JavaScript-Tests, separate Strukturprüfung,
 `npm run check:extension`, offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien,
-PHP CS Fixer im Prüfmodus und `git diff --check` erfolgreich. Alle 18 geänderten
+PHP CS Fixer im Prüfmodus und `git diff --check` erfolgreich. Geänderte
 Textdateien als UTF-8 ohne BOM mit LF geprüft. Das Großkatalog-Formular bleibt
-mit 374.618 Bytes unter dem projektinternen Budget von 750 KiB.
+mit 429.636 Bytes unter dem projektinternen Budget von 750 KiB.
+
+## Native Formularskripte ohne Modulklassen
+
+Die Praxisprüfung auf Test-Symcon am 02.11.2026 deckte eine Grenze der bisherigen
+Stub-Prüfung auf: Ein natives Formularskript kann die librarylokale Klasse
+EditorWorkInput nicht direkt aufrufen. Der Auswahlcallback scheiterte deshalb
+vor dem registrierten Moduleinstieg; für diesen Fehler gab es keine Modul-
+Debug-Ausgabe. Der lokale Regressionstest führt jetzt das tatsächlich erzeugte
+Auswahlskript in einem separaten PHP-Prozess ohne Modul-Autoload aus. Er scheiterte
+zuerst mit demselben Klassenfehler und besteht nach der Korrektur.
+
+EditorWorkInput::Callback erzeugt ausschließlich eigenständige PHP-Grundfunktionen.
+Das Skript filtert anhand der zentralen Feldliste, überführt native Listen in
+Arrays und übergibt den begrenzten JSON-Schnappschuss an den bestehenden Wrapper.
+Die eigentliche Erfassung und Normalisierung bleibt im Modul. Unbeteiligte
+Formularvariablen werden bereits vor der Übergabe ausgeschlossen. Der Verwerf-
+Button erhält seine vollständige Erfassung ebenfalls beim Formularaufbau.
+Öffentliche Modulverträge, YAML, MQTT und Erweiterungsartefakt bleiben unverändert.
+
+Die erste eigenständige Fassung vergrößerte die wiederholten Formularskripte
+so stark, dass die PHP-/JavaScript-Integration beim Sammeln der Debug-Nachweise
+an 128 MiB scheiterte. Die erzeugte Feldprüfung verwendet deshalb einen aus der
+Feldliste abgeleiteten regulären Ausdruck und kompakte PHP-Grundfunktionen.
+Es wurden weder das PHP-Speicherlimit noch die Testspeichergrenzen erhöht.
+Auch die kompakte Fassung zeigte den Engpass beim abschließenden gemeinsamen
+JSON-Kopieren aller Debug-Nachweise. Die unveränderte Datenschutzprüfung erfolgt
+nun für jeden kodierten Datensatz einzeln statt über eine zusätzliche Gesamtkopie.
+Alle verbotenen Namen, Auswahlwerte und Token werden weiterhin in jedem Eintrag
+geprüft. Die vollständige Aufzeichnung bleibt für die übrigen Ablaufprüfungen
+vorhanden; es werden weder Meldungen ausgelassen noch Prüffälle abgeschaltet.
+
+Native Prüfkopie anschließend einschließlich Statusvariablen entfernt.
+Der ursprüngliche lokale Entwurf blieb bytegleich. Gespeicherte und aktive
+Revision, Prüfsumme, Zahl eingeschalteter Regeln und Wiederanlauf blieben gleich.
+Kein Schaltversuch, Speichern, Aktivieren, Neustart oder Erweiterungsupdate.
+Die korrigierte Fassung wurde nicht auf die Installation übertragen; erneutes
+Modulupdate und Schließen/Neuöffnen des Formulars stehen vor der Fortsetzung an.
+
+Abschließender lokaler Gesamtlauf erfolgreich mit unverändertem PHP-Limit 128M:
+`php tests/run.php` einschließlich PHP-/JavaScript-Integration und 106
+JavaScript-Tests. Separate Struktur-, Kodierungs- und Artefaktprüfung, offizielle
+StylePHP-Prüfung der eigenen JSON-Dateien, PHP CS Fixer im Prüfmodus und
+`git diff --check` erfolgreich. Alle zehn geänderten Textdateien mit UTF-8 ohne
+BOM und LF. Der korrigierte native Gesamtablauf bleibt praktisch ungeprüft.
 
 ## Vorhandene Szenen als Aktionen
 

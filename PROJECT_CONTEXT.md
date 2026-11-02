@@ -8,6 +8,18 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Native Praxisprüfung von Agenda Punkt 1 am 02.11.2026: aktualisierten Modulstand
+  dateigenau auf Test-Symcon bestätigt. Alte offene Konsole zeigte noch den alten
+  Aufbau; frische Prüfkopie zeigte die neuen Statusanzeigen. Regelauswahl scheiterte
+  vor dem Moduleinstieg an der im separaten Formularskript nicht verfügbaren
+  EditorWorkInput-Klasse. Lokal korrigiert: eigenständige Erfassung mit PHP-
+  Grundfunktionen, anschließende Normalisierung ausschließlich im Modul.
+  Regression im separaten PHP-Prozess zuerst mit demselben Fehler, danach grün.
+  Korrigierter Stand benötigt ein weiteres Modulupdate und erneute native Prüfung.
+  Prüfkopie entfernt; ursprünglicher lokaler Entwurf bytegleich, gespeicherter
+  und aktiver Z2M-Stand samt Wiederanlauf unverändert. Keine Geräteaktion,
+  Speicherung, Aktivierung, Erweiterungsinstallation oder Produktiv-MCP-Änderung.
+
 - Neue verbindliche Reihenfolge: [Entwicklungsagenda](docs/AGENDA.md).
   Punkt 1 lokal umgesetzt: getrennte Angaben zu noch nicht übernommenen
   Formulareingaben, lokalem/geprüftem/gespeichertem Entwurf und bestätigtem

@@ -136,6 +136,12 @@ trait EditorWork
             if (!is_array($values)) {
                 throw new InvalidArgumentException('editor_work_input');
             }
+            if (array_key_exists('_form', $values)) {
+                if (!is_array($values['_form']) || !is_string($values['_deleted'] ?? '')) {
+                    throw new InvalidArgumentException('editor_work_input');
+                }
+                $values = json_decode(EditorWorkInput::Capture($values['_form'], $values['_deleted'] ?? ''), true, 16, JSON_THROW_ON_ERROR);
+            }
             foreach (['rule', 'sequence'] as $kind) {
                 $context = $this->EditorWorkContext($kind);
                 $incoming = $values[$context['area']] ?? null;

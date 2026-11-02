@@ -14,6 +14,16 @@ final class EditorWorkInput
         'EditorWindow', 'EditorAfter', 'EditorBefore', 'EditorWindowTimezone', 'EditorMonday', 'EditorTuesday', 'EditorWednesday', 'EditorThursday',
         'EditorFriday', 'EditorSaturday', 'EditorSunday', 'EditorActions', 'EditorTriggers', 'EditorConditionList'];
 
+    /** Native form scripts execute outside the module's class-loading context. */
+    public static function Callback(string $deletedList = ''): string
+    {
+        $names = array_map(static fn (string $field): string => preg_quote(substr($field, 6), '/'), array_merge(self::FIELDS, ['EditorRule', 'EditorEditToken']));
+        $pattern = '/\A(?:(?:Device|Time|Sequence)?Editor(?:' . implode('|', $names) . ')|Sequence(?:WorkID|EditorID|EditorToken))\z/D';
+        return strtr(<<<'PHP'
+json_encode(['_form' => array_map(static fn ($v) => $v instanceof \Traversable ? iterator_to_array($v) : $v, array_filter(get_defined_vars(), static fn ($k) => preg_match(%PATTERN%, $k), ARRAY_FILTER_USE_KEY)), '_deleted' => %DELETED%], JSON_THROW_ON_ERROR)
+PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($deletedList, true)]);
+    }
+
     public static function Capture(array $variables, string $DeletedList = ''): string
     {
         $result = ['_deleted' => $DeletedList];

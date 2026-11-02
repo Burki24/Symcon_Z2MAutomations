@@ -72,7 +72,7 @@ trait EditorWorkForm
     private function FillEditorWorkForm(array &$form, array $state): void
     {
         $labels = $this->EditorWorkLabels($state);
-        $capture = '\\Z2MAutomations\\EditorWorkInput::Capture(get_defined_vars())';
+        $capture = EditorWorkInput::Callback();
         foreach ($this->EditorFormFields($form['actions']) as &$field) {
             $name = $field['name'] ?? '';
             if (isset($labels[$name])) {
@@ -80,6 +80,9 @@ trait EditorWorkForm
             }
             if ($name === 'SequenceWorkID') {
                 $field['value'] = $this->EditorWorkContext('sequence')['id'];
+            }
+            if ($name === 'DiscardEditorNavigation') {
+                $field['onClick'] = 'Z2MA_ResolveEditorNavigation($id, $EditorNavigationToken, ' . $capture . ');';
             }
             $navigation = match ($name) {
                 'EditorDeviceRule'   => ['rule', 'device', '$EditorDeviceRule'], 'EditorTimeRule' => ['rule', 'time', '$EditorTimeRule'],
@@ -101,7 +104,7 @@ trait EditorWorkForm
                 } else {
                     foreach (['onAdd', 'onEdit', 'onDelete', 'onChangeOrder'] as $event) {
                         if (isset($field[$event])) {
-                            $snapshot = $event === 'onDelete' ? '\\Z2MAutomations\\EditorWorkInput::Capture(get_defined_vars(), "' . $name . '")' : $capture;
+                            $snapshot = $event === 'onDelete' ? EditorWorkInput::Callback($name) : $capture;
                             $field[$event] .= ' Z2MA_TrackEditorInput($id, ' . $snapshot . ', ' . ($event === 'onDelete' ? 'true' : 'false') . ');';
                         }
                     }

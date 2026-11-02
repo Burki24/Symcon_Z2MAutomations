@@ -114,6 +114,20 @@ $run = static function (string $script, array $fields, array $overrides = []) us
     extract(array_replace($values, $overrides), EXTR_SKIP);
     eval($script);
 };
+$standalone = 'function Z2MA_NavigateEditor($id, $kind, $area, $target, $draft, $input) { echo $input; } '
+    . '$id = 1; $EditorTimeRule = "second"; $YamlInput = ""; $TimeEditorName = "Synthetic input"; '
+    . '$TimeEditorRule = ""; $TimeEditorEditToken = ""; $UnrelatedSecret = "must-not-leave-script"; '
+    . $fields['EditorTimeRule']['onChange'];
+$process = proc_open([PHP_BINARY, '-r', $standalone], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+$check(is_resource($process), 'Create isolated native callback process');
+fclose($pipes[0]);
+$standaloneOutput = stream_get_contents($pipes[1]);
+$standaloneError = stream_get_contents($pipes[2]);
+fclose($pipes[1]);
+fclose($pipes[2]);
+$check(proc_close($process) === 0, 'Native callback must work without module helper classes loaded: ' . $standaloneError);
+$check(str_contains($standaloneOutput, 'Synthetic input') && !str_contains($standaloneOutput, 'must-not-leave-script'), 'Isolated script captures editable fields only');
+
 $yaml = $fields['YamlInput']['value'];
 $run($fields['EditorTimeRule']['onChange'], $fields, ['EditorTimeRule' => 'second', 'TimeEditorName' => 'private-unsaved-name']);
 $check(($module->updates['EditorNavigationPopup']['visible'] ?? false) === true, 'Native selection callback protects even edits whose onChange has not arrived');

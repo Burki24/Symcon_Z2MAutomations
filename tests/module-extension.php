@@ -787,11 +787,16 @@ try {
     require __DIR__ . '/rule-execution.inc.php';
     require __DIR__ . '/reusable-sequences.inc.php';
     $stack = [];
-    $captured = json_encode($module->debugMessages, JSON_THROW_ON_ERROR);
-    $check(!str_contains($captured, 'Synthetic click automation') && !str_contains($captured, 'Synthetic timed rule') && !str_contains($captured, 'Synthetic sequence')
-        && !str_contains($captured, $steps[0]['Choice']) && !str_contains($captured, 'EditorAt') && !str_contains($captured, 'activation_token')
-        && !str_contains($captured, $firstWindowToken) && !str_contains($captured, 'automations: []'), 'Debug must not include draft bodies, names or selection/activation tokens');
+    $observed = array_fill_keys(['ActivateAutomations', 'StopAutomations', 'CreateSimpleAutomation', 'FEHLER'], false);
     foreach ($module->debugMessages as [$category, $body]) {
+        // Check each encoded record without copying the complete long-running debug capture.
+        $encoded = json_encode([$category, $body], JSON_THROW_ON_ERROR);
+        $check(!str_contains($encoded, 'Synthetic click automation') && !str_contains($encoded, 'Synthetic timed rule') && !str_contains($encoded, 'Synthetic sequence')
+            && !str_contains($encoded, $steps[0]['Choice']) && !str_contains($encoded, 'EditorAt') && !str_contains($encoded, 'activation_token')
+            && !str_contains($encoded, $firstWindowToken) && !str_contains($encoded, 'automations: []'), 'Debug must not include draft bodies, names or selection/activation tokens');
+        foreach ($observed as $name => $found) {
+            $observed[$name] = $found || str_contains($encoded, $name);
+        }
         $entry = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
         $check(strlen($body) <= 4096 && isset($entry['Instanz'], $entry['Vorgang'], $entry['Aufruf'], $entry['Meldung'], $entry['Bezug']), 'New actions use the central structured debug contract');
         if (str_contains($category, ' | START | ')) {
@@ -800,8 +805,7 @@ try {
             $check(array_pop($stack) === [$entry['Vorgang'], $entry['Aufruf']], 'Nested action/debug scopes are balanced');
         }
     }
-    $check($stack === [] && str_contains($captured, 'ActivateAutomations') && str_contains($captured, 'StopAutomations')
-        && str_contains($captured, 'CreateSimpleAutomation') && str_contains($captured, 'FEHLER'), 'Activation, stop, editor and rejection all remain human-observable');
+    $check($stack === [] && !in_array(false, $observed, true), 'Activation, stop, editor and rejection all remain human-observable');
 } finally {
     fclose($pipes[0]);
     fclose($pipes[1]);
@@ -814,7 +818,7 @@ try {
 // The first phase has asserted all captured debug records. Release its instrumentation
 // before the separate negative protocol phase.
 $module->debugMessages = [];
-unset($captured);
+unset($observed, $encoded);
 
 // Deterministic negative protocol scenarios use the native stub boundary only.
 $parent->onPublish = null;
