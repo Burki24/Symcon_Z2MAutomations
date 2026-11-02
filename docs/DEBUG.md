@@ -44,7 +44,11 @@ und eine Zeitabweichung von höchstens 120 Sekunden; beide Z2M-Rechner und
 Symcon benötigen eine passende Uhrzeit. Ungültige/überzählige Meldungen werden
 höchstens einmal pro Sekunde als Lücke gemeldet. Kein Roh-Payload oder
 Exception-Text geht in die Ausgabe. Aktualisierung von Modul und Erweiterung
-ist erforderlich; die native Praxisprüfung dieses neuen Kanals steht noch aus.
+ist für die Einführung des Kanals erforderlich. Start, Zeitablauf, Stopp und
+Erhalt beim Speichern einschließlich verzögerter Statusbestätigung wurden über
+Test-Symcon praktisch geprüft. Die Korrektur für den Erhalt benötigt nur ein
+Modulupdate. Der gemeinsame Laufbezug einer realen systemübergreifenden
+Geräteaktion bleibt als gesonderter Praxistest offen.
 
 ## Szenenaufrufe
 

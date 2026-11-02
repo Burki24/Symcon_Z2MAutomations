@@ -13,8 +13,11 @@ sie persistent und führt sie unabhängig von Symcon aus.
   unabhängig von ausstehender Bestätigung des gespeicherten Regelstands.
   Client und Endzeit bleiben erhalten; eigener Stopp auch während der Wartephase,
   neuer Start erst nach Bestätigung. Echte PHP-/JS-Regressionsprüfung sowie
-  Zeitablauf, Trennung und Sitzungswechsel geprüft. Keine Erweiterungsänderung;
-  Korrektur noch nicht installiert oder nativ praktisch geprüft.
+  Zeitablauf, Trennung und Sitzungswechsel geprüft. Korrigierter Stand in der
+  Testinstallation dateigenau bestätigt und mit verzögerter echter Z2M-Antwort
+  praktisch geprüft: ursprüngliche Endzeit, Formularstatus und eigener Stopp
+  während der Statusprüfung korrekt. YAML, Revision, Betrieb und vorhandener
+  Entwurf unverändert; keine Schaltbefehle oder Erweiterungsänderungen.
 
 - Sonnenauf-/untergang mit Zeitversatz lokal ergänzt: native Auswahl im
   Zeitbereich, expliziter Standort, Vorbelegung, Bearbeitung, Prüfung und

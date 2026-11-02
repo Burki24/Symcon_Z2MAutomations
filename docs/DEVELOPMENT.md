@@ -1420,3 +1420,57 @@ Strukturprüfung, `npm run check:extension`, offizieller StylePHP-JSON-Check
 eigener Dateien ohne Fremdquellen und PHP CS Fixer 3.95.27 im Prüfmodus.
 Kodierungsprüfung und UTF-8/LF-Kontrolle bestanden. Der ursprüngliche
 Regressionstest wurde vor der Korrektur gezielt fehlschlagend nachgewiesen.
+
+## Ablaufaufzeichnung beim Speichern: Praxisprüfung
+
+Auf gesonderten Auftrag den korrigierten Stand in Test-Symcon geprüft.
+RuntimeDebug.php, ExtensionIntegration.php und Übersetzung waren bereits
+bytegenau aktuell; erneutes Überschreiben oder ein Library-Reload waren nicht
+nötig. Vorhandenen Formularentwurf und den tatsächlichen Z2M-Speicherstand samt
+Betriebsstatus gesichert. Die Z2M-Erweiterung wurde nicht geändert.
+
+Eine temporäre zusätzliche native MQTT-Verbindung lief durch ein ausschließlich
+lokal erreichbares TCP-Relais. Dieses leitete die echten MQTT-Pakete weiter und
+hielt gezielt nur die korrelierte abschließende Speicher-Statusantwort für den
+Testclient zurück. Debugantworten und andere Verbindungen blieben unbeeinflusst.
+Eine automatische Freigabe begrenzte die Verzögerung. Das Relais protokollierte
+nur Zeitpunkt, Auftragsart und gekürzten Hash der Aufzeichnungsidentität; keine
+Zugangsdaten oder Nutzdaten. Seine Schreibfreigabe umfasste nur Health-, Status-,
+Prüfungs-, Speicher- und Debuganfragen; Geräteaktionen, Installationen sowie
+Aktivierungs- oder Stoppbefehle für Automationen waren ausgeschlossen.
+
+Zweimal wurde ausschließlich das bereits gespeicherte Original bytegleich
+geprüft und erneut gespeichert. Die Erweiterung bestätigte beide Vorgänge ohne
+Änderung des Regelstands oder Unterbrechung seiner Ausführung. Es wurden keine
+Testregeln hinzugefügt, aktiviert oder Geräte geschaltet. Eine geänderte
+Speicherung mit anschließendem Stopp der bisherigen Ausführung war nicht Teil
+dieses Praxisauftrags; ihr Nachweis bleibt im synthetischen Integrationstest.
+
+Erster Fall: 60 Sekunden Aufzeichnung angefordert und bestätigt. Rund 28 Sekunden
+später erneut gespeichert und die Statusantwort zurückgehalten. Das Formular
+zeigte weiterhin die laufende Aufzeichnung und einen bedienbaren eigenen
+Stoppbutton; Automationsaktivierung blieb bis zur Statusbestätigung gesperrt.
+Der native Debug meldete den Erhalt der bisherigen Endzeit. Nach Freigabe der
+echten Antwort wurde der gespeicherte Stand bestätigt. Der echte Symcon-Timer
+beendete die Aufzeichnung genau 60 Sekunden nach dem Start, nicht 60 Sekunden
+nach dem Speichern. Das Relais sah keinen zusätzlichen Startauftrag oder
+Clientwechsel; Formulartext und deaktivierter Stoppbutton bestätigten den Ablauf.
+
+Zweiter Fall: neue Aufzeichnung für fünf Minuten gestartet und erneut mit
+zurückgehaltener finaler Statusantwort gespeichert. Bei ausdrücklich weiterhin
+unbestätigtem Speicher-Laufzeitstatus den öffentlichen eigenen Debug-Stopp
+aufgerufen. Die echte Z2M-Antwort bestätigte das Ende mit derselben Clientidentität,
+während die Speicherantwort noch zurückgehalten war. Formulartext, Stoppbutton
+und native Debugausgaben waren korrekt. Erst die anschließend freigegebene
+Statusantwort bestätigte den Speicherworkflow; die Aufzeichnung blieb beendet.
+Die Prüfung nutzte die öffentlichen Modulmethoden und echten Formularzustände
+über MCP, keine automatisierten Zeigerklicks in der nativen Konsole.
+
+Aufräumen bestätigt: erste Aufzeichnung abgelaufen, zweite ausdrücklich beendet;
+temporären Monitor, MQTT-Client und Socket entfernt, native Debug-Dateiaufzeichnung
+beendet und Relais samt Zusatzverbindungen geschlossen. Der direkte abschließende
+Z2M-Abruf bestätigte bytegleiche YAML, identische Revision/Prüfsumme und unveränderte
+Erweiterungsdateien. Ausführung, Mesh und Wiederanlauf blieben freigegeben,
+Laufzeitfehler leer; anderes Z2M-System unverändert aktiv. Ursprünglicher lokaler
+Formularentwurf bytegleich, bestehende MQTT-Verbindung aktiv und unverändert.
+Keine Änderung am Produktiv-Symcon-Modul oder am Funktionscode für diese Prüfung.

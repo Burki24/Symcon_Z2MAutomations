@@ -3,6 +3,8 @@
 Status: angenommen, implementiert und am 02.11.2026 über Test-Symcon installiert.
 Start, Ablauf, Stopp und Systemzuordnung praktisch geprüft; gemeinsamer Laufbezug
 einer realen systemübergreifenden Geräteaktion noch offen.
+Erhalt beim Speichern, ursprüngliche Endzeit und Stopp während ausstehender
+Statusbestätigung mit echten MQTT-Antworten über Test-Symcon bestätigt.
 
 ## Anlass
 
