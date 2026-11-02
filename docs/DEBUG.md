@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Automationsübersicht und Kopieren
+
+FilterAutomations und CopyAutomation verwenden die vorhandenen zentralen
+Start-/Ende-Abläufe. Filtermeldungen nennen Bereich, gesetzte Suche als Ja/Nein,
+Regelschalterfilter und Trefferzahl. Suchtext, Geräte- und Automationsnamen
+werden nicht übergeben. Kopiermeldungen erklären die rein lokale Änderung,
+ausgeschalteten Regelschalter, zurückgesetzten Bereichsfilter sowie Anzahl der
+Regeln, Auslöser, Bedingungen und Aktionen. Kennungen und Regelinhalte bleiben
+geschützt. Abgelehnte Aufrufe nennen ungültige Filter, offene Eingaben,
+überholte Auswahl oder die Grenze von 100 Regeln. Kein zusätzlicher MQTT-Versand.
+
 ## Formulareingaben und Entwurf unterscheiden
 
 Abgelehnte Wechselbestätigungen nennen nun einen festen deutschen Grund:

@@ -357,10 +357,50 @@
                     "width": "100%"
                 },
                 {
+                    "type": "ValidationTextBox",
+                    "name": "EditorDeviceSearch",
+                    "caption": "Search by automation or device name",
+                    "value": "",
+                    "width": "100%",
+                    "onChange": "Z2MA_FilterAutomations($id, 'device', $EditorDeviceSearch, $EditorDeviceStateFilter);"
+                },
+                {
+                    "type": "Select",
+                    "name": "EditorDeviceStateFilter",
+                    "caption": "Rule enabled in the draft",
+                    "value": "all",
+                    "options": [
+                        {
+                            "caption": "All rules",
+                            "value": "all"
+                        },
+                        {
+                            "caption": "Enabled rules",
+                            "value": "enabled"
+                        },
+                        {
+                            "caption": "Disabled rules",
+                            "value": "disabled"
+                        }
+                    ],
+                    "onChange": "Z2MA_FilterAutomations($id, 'device', $EditorDeviceSearch, $EditorDeviceStateFilter);"
+                },
+                {
+                    "type": "Label",
+                    "name": "EditorDeviceResults",
+                    "caption": "0 of 0 automations shown.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Search and filters affect this overview only. Pending edits and Z2M operation are preserved.",
+                    "width": "100%"
+                },
+                {
                     "type": "List",
                     "name": "EditorDeviceRules",
                     "caption": "Draft automations",
-                    "rowCount": 3,
+                    "rowCount": 10,
                     "columns": [
                         {
                             "name": "Name",
@@ -370,12 +410,12 @@
                         {
                             "name": "Source",
                             "caption": "Trigger",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Enabled",
@@ -1257,6 +1297,13 @@
                                     "enabled": false,
                                     "confirm": "Delete the selected automation from the local draft? The running Z2M configuration changes only after validating and storing the draft.",
                                     "onClick": "Z2MA_DeleteAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $YamlInput, true, 'device');"
+                                },
+                                {
+                                    "type": "Button",
+                                    "name": "DeviceCopyRuleButton",
+                                    "caption": "Copy selected automation",
+                                    "enabled": false,
+                                    "onClick": "Z2MA_CopyAutomation($id, $DeviceEditorRule, $DeviceEditorEditToken, $YamlInput, true, 'device');"
                                 }
                             ]
                         }
@@ -1279,10 +1326,50 @@
                     "width": "100%"
                 },
                 {
+                    "type": "ValidationTextBox",
+                    "name": "EditorTimeSearch",
+                    "caption": "Search by automation or device name",
+                    "value": "",
+                    "width": "100%",
+                    "onChange": "Z2MA_FilterAutomations($id, 'time', $EditorTimeSearch, $EditorTimeStateFilter);"
+                },
+                {
+                    "type": "Select",
+                    "name": "EditorTimeStateFilter",
+                    "caption": "Rule enabled in the draft",
+                    "value": "all",
+                    "options": [
+                        {
+                            "caption": "All rules",
+                            "value": "all"
+                        },
+                        {
+                            "caption": "Enabled rules",
+                            "value": "enabled"
+                        },
+                        {
+                            "caption": "Disabled rules",
+                            "value": "disabled"
+                        }
+                    ],
+                    "onChange": "Z2MA_FilterAutomations($id, 'time', $EditorTimeSearch, $EditorTimeStateFilter);"
+                },
+                {
+                    "type": "Label",
+                    "name": "EditorTimeResults",
+                    "caption": "0 of 0 automations shown.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Search and filters affect this overview only. Pending edits and Z2M operation are preserved.",
+                    "width": "100%"
+                },
+                {
                     "type": "List",
                     "name": "EditorTimeRules",
                     "caption": "Draft automations",
-                    "rowCount": 3,
+                    "rowCount": 10,
                     "columns": [
                         {
                             "name": "Name",
@@ -1292,12 +1379,12 @@
                         {
                             "name": "Source",
                             "caption": "Scheduled time",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Enabled",
@@ -2180,6 +2267,13 @@
                                     "enabled": false,
                                     "confirm": "Delete the selected automation from the local draft? The running Z2M configuration changes only after validating and storing the draft.",
                                     "onClick": "Z2MA_DeleteAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $YamlInput, true, 'time');"
+                                },
+                                {
+                                    "type": "Button",
+                                    "name": "TimeCopyRuleButton",
+                                    "caption": "Copy selected automation",
+                                    "enabled": false,
+                                    "onClick": "Z2MA_CopyAutomation($id, $TimeEditorRule, $TimeEditorEditToken, $YamlInput, true, 'time');"
                                 }
                             ]
                         }
@@ -2202,10 +2296,50 @@
                     "width": "100%"
                 },
                 {
+                    "type": "ValidationTextBox",
+                    "name": "EditorAdvancedSearch",
+                    "caption": "Search by automation or device name",
+                    "value": "",
+                    "width": "100%",
+                    "onChange": "Z2MA_FilterAutomations($id, 'advanced', $EditorAdvancedSearch, $EditorAdvancedStateFilter);"
+                },
+                {
+                    "type": "Select",
+                    "name": "EditorAdvancedStateFilter",
+                    "caption": "Rule enabled in the draft",
+                    "value": "all",
+                    "options": [
+                        {
+                            "caption": "All rules",
+                            "value": "all"
+                        },
+                        {
+                            "caption": "Enabled rules",
+                            "value": "enabled"
+                        },
+                        {
+                            "caption": "Disabled rules",
+                            "value": "disabled"
+                        }
+                    ],
+                    "onChange": "Z2MA_FilterAutomations($id, 'advanced', $EditorAdvancedSearch, $EditorAdvancedStateFilter);"
+                },
+                {
+                    "type": "Label",
+                    "name": "EditorAdvancedResults",
+                    "caption": "0 of 0 automations shown.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Search and filters affect this overview only. Pending edits and Z2M operation are preserved.",
+                    "width": "100%"
+                },
+                {
                     "type": "List",
                     "name": "EditorAdvancedRules",
                     "caption": "Draft automations",
-                    "rowCount": 3,
+                    "rowCount": 10,
                     "columns": [
                         {
                             "name": "Name",
@@ -2215,12 +2349,12 @@
                         {
                             "name": "Source",
                             "caption": "Trigger",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "150px"
+                            "width": "auto"
                         },
                         {
                             "name": "Enabled",
@@ -3102,6 +3236,13 @@
                                     "enabled": false,
                                     "confirm": "Delete the selected automation from the local draft? The running Z2M configuration changes only after validating and storing the draft.",
                                     "onClick": "Z2MA_DeleteAutomation($id, $EditorRule, $EditorEditToken, $YamlInput, true, '');"
+                                },
+                                {
+                                    "type": "Button",
+                                    "name": "CopyRuleButton",
+                                    "caption": "Copy selected automation",
+                                    "enabled": false,
+                                    "onClick": "Z2MA_CopyAutomation($id, $EditorRule, $EditorEditToken, $YamlInput, true, '');"
                                 }
                             ]
                         }

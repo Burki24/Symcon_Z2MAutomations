@@ -364,7 +364,7 @@ trait AutomationEditor
             if ($name === 'CreateRuleButton' || $name === 'UpdateRuleButton') {
                 $field['visible'] = $name === 'UpdateRuleButton' ? $selection['selected'] : !$selection['selected'];
             }
-            if ($name === 'DeleteRuleButton') {
+            if (in_array($name, ['DeleteRuleButton', 'CopyRuleButton'], true)) {
                 $field['enabled'] = $selection['selected'];
             }
             if (in_array($name, ['EditorSource', 'EditorSourceChoice', 'EditorTarget', 'EditorTargetChoice'], true)) {

@@ -737,6 +737,7 @@ trait ExtensionIntegration
             'editor_loaded'      => 'Devices and stored automations loaded. Choose source and target.',
             'draft_created'      => 'Automation added to the draft. Validate, store and activate it next.',
             'rule_selected'      => 'Automation selected. Changes affect the local draft only.',
+            'draft_copied'       => 'A disabled copy was added to the draft and opened for editing. Z2M is unchanged.',
             'draft_updated'      => 'Automation updated in the draft. Validate and store it next.',
             'draft_deleted'      => 'Automation removed from the draft. Validate and store it next.',
             default              => ucfirst($state['operation']['status'])

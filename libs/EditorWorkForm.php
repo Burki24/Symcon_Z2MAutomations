@@ -114,9 +114,12 @@ trait EditorWorkForm
                     }
                 }
             }
+            if (isset($field['onChange']) && str_contains($field['onChange'], 'Z2MA_FilterAutomations(')) {
+                $field['onChange'] = 'if (!Z2MA_TrackEditorInput($id, ' . $capture . ', false)) { return; } ' . $field['onChange'];
+            }
             if (isset($field['onClick']) && is_string($field['onClick'])) {
                 $script = $field['onClick'];
-                if (preg_match('/Z2MA_(?:ValidateYaml|StoreYaml|ActivateAutomations|LoadAutomationEditor|ImportSymconEvent|DeleteAutomation|DeleteReusableSequence)\(/', $script)) {
+                if (preg_match('/Z2MA_(?:ValidateYaml|StoreYaml|ActivateAutomations|LoadAutomationEditor|ImportSymconEvent|DeleteAutomation|DeleteReusableSequence|CopyAutomation)\(/', $script)) {
                     $field['onClick'] = 'if (!Z2MA_EditorWorkReady($id, ' . $capture . ')) { return; } ' . $script;
                 } elseif (preg_match('/Z2MA_(?:SaveScheduledAutomation|SaveReusableSequence|UpdateAutomation|CreateSimpleAutomation)\(/', $script)) {
                     $field['onClick'] = 'if (!Z2MA_TrackEditorInput($id, ' . $capture . ', false)) { return; } ' . $script;

@@ -534,7 +534,23 @@
             "Zigbee2MQTT did not respond within the configured waiting time. Please check the MQTT connection and base topic.": "Zigbee2MQTT hat innerhalb der eingestellten Wartezeit nicht geantwortet. Bitte die MQTT-Verbindung und das Basistopic prüfen.",
             "The connection check was cancelled because the connection or settings changed. Please check again.": "Die Verbindungsprüfung wurde abgebrochen, weil sich die Verbindung oder die Einstellungen geändert haben. Bitte erneut prüfen.",
             "The connection check could not be started. Please enable the MQTT connection and check the gateway connection.": "Die Verbindungsprüfung konnte nicht gestartet werden. Bitte die MQTT-Anbindung aktivieren und die Verbindung zum Gateway prüfen.",
-            "The connection check failed. Please check the MQTT connection, base topic and Zigbee2MQTT status.": "Die Verbindungsprüfung ist fehlgeschlagen. Bitte die MQTT-Verbindung, das Basistopic und den Status von Zigbee2MQTT prüfen."
+            "The connection check failed. Please check the MQTT connection, base topic and Zigbee2MQTT status.": "Die Verbindungsprüfung ist fehlgeschlagen. Bitte die MQTT-Verbindung, das Basistopic und den Status von Zigbee2MQTT prüfen.",
+            "Search was not applied. Use at most 160 characters and choose a listed filter.": "Suche nicht angewendet. Bitte höchstens 160 Zeichen eingeben und einen Filter aus der Liste wählen.",
+            "Search by automation or device name": "Nach Automations- oder Gerätenamen suchen",
+            "Rule enabled in the draft": "Regel aktiviert im Entwurf",
+            "All rules": "Alle Regeln",
+            "Enabled rules": "Eingeschaltete Regeln",
+            "Disabled rules": "Ausgeschaltete Regeln",
+            "0 of 0 automations shown.": "0 von 0 Automationen angezeigt.",
+            "%d of %d automations shown.": "%d von %d Automationen angezeigt.",
+            "Search and filters affect this overview only. Pending edits and Z2M operation are preserved.": "Suche und Filter ändern nur diese Übersicht. Ihre Bearbeitung und der Z2M-Betrieb bleiben erhalten.",
+            "%s — currently being edited": "%s – wird gerade bearbeitet",
+            "The open automation does not match the filter and remains available for editing.": "Die geöffnete Automation passt nicht zum Filter. Sie können sie trotzdem weiter bearbeiten.",
+            "Copy selected automation": "Ausgewählte Automation kopieren",
+            "copy": "Kopie",
+            "Apply pending form changes to the draft before copying an automation.": "Bitte offene Formularänderungen zuerst in den Entwurf übernehmen. Danach können Sie die Automation kopieren.",
+            "The draft already contains 100 automations. Remove an automation before creating a copy.": "Der Entwurf enthält bereits 100 Automationen. Bitte zuerst eine Automation entfernen, bevor Sie eine Kopie erstellen.",
+            "A disabled copy was added to the draft and opened for editing. Z2M is unchanged.": "Eine ausgeschaltete Kopie wurde im Entwurf angelegt und zum Bearbeiten geöffnet. Z2M bleibt unverändert."
         }
     }
 }

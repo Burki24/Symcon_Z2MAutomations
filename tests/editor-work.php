@@ -13,7 +13,7 @@ class EditorWorkProbe extends Z2MAutomations
 {
     public array $updates = [];
     public array $debug = [];
-    public function Seed(): void
+    public function Seed(?array $Rules = null): void
     {
         $state = json_decode($this->GetBuffer('TransportState'), true, 32, JSON_THROW_ON_ERROR);
         $choice = ['property' => 'state', 'value' => 'ON'];
@@ -27,7 +27,7 @@ class EditorWorkProbe extends Z2MAutomations
             $rules[] = ['id' => $id, 'name' => 'Synthetic ' . $id, 'enabled' => false,
                 'triggers'   => [['type' => 'time', 'at' => '0' . ($n + 7) . ':00:00', 'timezone' => 'UTC']], 'conditions' => [], 'actions' => [$action]];
         }
-        $document = ['schema_version' => 1, 'revision' => 1, 'automations' => $rules,
+        $document = ['schema_version' => 1, 'revision' => 1, 'automations' => $Rules ?? $rules,
             'sequences'               => [['id' => 'shared', 'name' => 'Synthetic shared', 'actions' => [$action]]]];
         $yaml = json_encode($document, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
         $hash = hash('sha256', $yaml);
@@ -208,9 +208,12 @@ $check($validationFound, 'Exercise the actual validation callback');
 $check(($module->updates['EditorWorkPopup']['visible'] ?? false) && !$module->HasPendingWorkflow(), 'Actual validation button cannot transmit while pending inputs exist');
 $check(!$module->TrackEditorInput('{"time":"invalid"}', false), 'Malformed editor maps are rejected safely');
 
+require __DIR__ . '/editor-overview.inc.php';
+
 IPS_SetProperty($id, 'BaseTopic', 'synthetic/other');
 IPS_ApplyChanges($id);
 $check($module->EditorWorkReady('{}'), 'Pending inputs from an old MQTT scope cannot block loading the new scope');
 $check(str_contains($form()['DraftWorkInfo']['caption'], 'Load devices'), 'Old scope draft is not presented as current');
+$check($form()['EditorDeviceSearch']['value'] === '' && $form()['EditorAdvancedStateFilter']['value'] === 'all', 'View filters do not cross MQTT contexts');
 
 echo "Editor work status and guarded native selection passed.\n";

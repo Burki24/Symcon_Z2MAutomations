@@ -2,6 +2,16 @@
 
 ## Neu
 
+- Größere Automationsübersichten mit zehn sichtbaren Regeln und flexiblen
+  Spalten. Suche nach Automations- und Gerätenamen sowie Filter für eingeschaltete
+  oder ausgeschaltete Regeln je Bereich. Übersicht und Bearbeitungsauswahl
+  zeigen dieselben Treffer; eine laufende Bearbeitung bleibt verfügbar.
+  Ausgewählte Automationen lassen sich als ausgeschaltete Kopien mit neuer
+  Kennung und eigenem Namen in den Entwurf übernehmen. Auslöser, Bedingungen,
+  Aktionen und Folgenverweise bleiben erhalten. Offene Eingaben und veraltete
+  Aufrufe sind geschützt. Deutsche Debug-Ausgaben enthalten keine Suchtexte
+  oder Regelinhalte. Ein Modulupdate genügt; Erweiterung unverändert.
+
 - Der Klick-Editor zeigt noch nicht übernommene Formulareingaben, den Stand des
   Entwurfs und den bestätigten Z2M-Betrieb getrennt an. Beim Wechsel zu einer
   anderen Automation, zum anderen Regelbereich oder zu einer anderen Aktionsfolge

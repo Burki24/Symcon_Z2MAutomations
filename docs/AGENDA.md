@@ -12,8 +12,10 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Schutz vor Prüfung offener Eingaben und Übernahme in einen lokalen Prüfentwurf.
    Aufgedeckte Klassenkontext- und Popup-Einbindungsfehler sind korrigiert.
    Umfang und weitere Prüflimits stehen in DEVELOPMENT.md.
-2. **Viele Automationen übersichtlich verwalten.** Größere Listen, Suche/Filter
-   und Kopieren vorhandener Automationen. Geplant.
+2. **Viele Automationen übersichtlich verwalten.** Zehn sichtbare Listeneinträge,
+   Suche und Regelschalterfilter je Bereich sowie ausgeschaltete Kopien lokal
+   umgesetzt und mit 50/100 synthetischen Regeln geprüft. Auswahl und offene
+   Eingaben bleiben erhalten. Native Praxisprüfung nach Modulupdate offen.
 3. **Zeitsteuerung vervollständigen.** Wochentage unabhängig von Zeitfenstern
    und mehrere Uhrzeiten im Klick-Editor. Geplant.
 4. **Erneute Auslösung festlegen.** Wahlweise ignorieren, neu starten oder

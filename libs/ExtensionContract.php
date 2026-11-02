@@ -167,6 +167,8 @@ final class ExtensionContract
             'editor_duration'       => 'Event duration and action delay must be whole seconds from 0 to 86400.',
             'editor_triggers'       => 'Use 1 to 8 device events and durations from 0 to 86400 seconds.',
             'editor_actions'        => 'Use 1 to 16 actions from the device catalog and waits from 0 to 86400 seconds.',
+            'editor_unapplied'      => 'Apply pending form changes to the draft before copying an automation.',
+            'editor_limit'          => 'The draft already contains 100 automations. Remove an automation before creating a copy.',
             'editor_missing'        => 'The selected automation is no longer in the draft. Select it again.',
             'editor_advanced'       => 'This advanced rule supports name and enabled state changes only in the click editor.',
             'editor_invalid'        => 'Choose a name, source, trigger, target and action from the available options.',

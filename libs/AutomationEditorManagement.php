@@ -231,6 +231,7 @@ trait AutomationEditorManagement
         $this->UpdateEditorField('CreateRuleButton', 'visible', !$fields['selected']);
         $this->UpdateEditorField('UpdateRuleButton', 'visible', $fields['selected']);
         $this->UpdateEditorField('DeleteRuleButton', 'enabled', $fields['selected']);
+        $this->UpdateEditorField('CopyRuleButton', 'enabled', $fields['selected']);
         foreach (['EditorSource', 'EditorSourceChoice', 'EditorTarget', 'EditorTargetChoice'] as $field) {
             $this->UpdateEditorField($field, 'enabled', $fields['simple']);
         }
@@ -275,18 +276,7 @@ trait AutomationEditorManagement
 
     private function AutomationSectionFields(?array $draft, array $selection): array
     {
-        $draft ??= ['configuration' => ['automations' => []]];
-        $selectedIndex = $this->EditorRuleIndex($draft, $selection['EditorRule']);
-        $selectedType = $selectedIndex === null ? '' : $this->EditorRuleType($draft['configuration']['automations'][$selectedIndex]);
-        $fields = [];
-        foreach (['device' => 'Device', 'time' => 'Time', 'advanced' => 'Advanced'] as $type => $stem) {
-            $rows = $this->EditorRuleRows($draft, $type);
-            $fields['Editor' . $stem . 'Rules'] = ['values' => $rows];
-            $fields['Editor' . $stem . 'Rule'] = ['options' => $this->EditorRuleOptions($draft, $type), 'value' => $selectedType === $type ? $selection['EditorRule'] : ''];
-            if ($type === 'advanced') {
-                $fields['EditorAdvancedSection'] = ['visible' => $rows !== []];
-            }
-        }
+        $fields = $this->AutomationOverviewFields($draft, $selection);
         $active = $this->ActiveEditorArea();
         foreach (['device' => 'Device', 'time' => 'Time'] as $type => $stem) {
             $fields[$stem . 'EditorDetails'] = ['visible' => true, 'expanded' => $active === $type];

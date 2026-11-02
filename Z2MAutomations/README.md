@@ -1,5 +1,40 @@
 # Z2MAutomations
 
+## Viele Automationen finden und kopieren
+
+Die Übersichten zeigen jeweils zehn Regeln auf einmal. Name, Auslöser und
+Ziel teilen sich die verfügbare Breite. Weitere Einträge erreichen Sie über
+die Bildlaufleiste der jeweiligen Liste.
+
+Mit **Nach Automations- oder Gerätenamen suchen** grenzen Sie die Übersicht
+und die Auswahl zum Bearbeiten ein. Die Suche berücksichtigt auch Geräte in
+Auslösern, Bedingungen und Aktionsfolgen. Groß- und Kleinschreibung spielen
+keine Rolle. Mehrere Suchwörter müssen alle gefunden werden. Die Anzeige nennt
+die Zahl der Treffer. Unter **Regel aktiviert im Entwurf** wählen Sie zusätzlich
+alle, eingeschaltete oder ausgeschaltete Regeln. Dieser Filter bezieht sich
+auf den Regelschalter im Entwurf und verändert den Z2M-Betrieb nicht.
+
+Jeder Bereich hat eigene Filter. Leeren Sie die Suche und wählen Sie **Alle
+Regeln**, um wieder alles zu sehen. Eine bereits geöffnete Automation bleibt
+mit einem Hinweis in der Bearbeitungsauswahl, auch wenn sie nicht zum Filter
+passt. Ihre Eingaben bleiben erhalten. Auch eine leere Trefferliste löscht
+keine Automation. Die Suchtexte werden nicht im Debug ausgegeben.
+
+Wählen Sie eine bestehende Automation und klicken Sie auf **Ausgewählte
+Automation kopieren**. Offene Eingaben müssen Sie zuerst in den Entwurf
+übernehmen. Die Kopie erhält eine eigene Kennung, einen ergänzten Namen und
+wird direkt zum Bearbeiten geöffnet. Der Filter dieses Bereichs wird dafür
+zurückgesetzt. Der ursprüngliche Regelinhalt bleibt erhalten.
+
+Kopien sind zunächst **ausgeschaltet**. Auslöser, Bedingungen, Szenen,
+Zeitversätze, Wartezeiten und Ziele im zweiten Z2M-System bleiben erhalten.
+Verweise auf wiederverwendbare Aktionsfolgen bleiben mit denselben Folgen
+verbunden; deren Definitionen werden nicht mitkopiert. Die Kopie liegt zuerst
+nur im Symcon-Entwurf. Für den späteren Betrieb müssen Sie sie nach Wunsch
+bearbeiten, den Regelschalter setzen und den Entwurf wie bisher prüfen und
+in Z2M speichern. Insgesamt sind weiterhin höchstens 100 Regeln erlaubt.
+Für diese Erweiterung genügt ein Modulupdate.
+
 ## Bearbeitungsstand erkennen und Änderungen übernehmen
 
 Der Bereich **Bearbeitungsstand und Z2M-Betrieb** erklärt den aktuellen Stand:

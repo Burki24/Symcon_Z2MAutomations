@@ -8,6 +8,24 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 2 lokal implementiert: zehn sichtbare Einträge je Regelbereich,
+  flexible Spalten für Namen/Auslöser/Ziel, Suche einschließlich referenzierter
+  Geräte und kombinierter Filter des Regelschalters. Übersicht und Auswahlliste
+  werden gemeinsam eingegrenzt; aktuelle Bearbeitung bleibt bei abweichendem
+  Filter gekennzeichnet verfügbar. Suchtexte bleiben im flüchtigen, an den
+  MQTT-Kontext gebundenen Zustand und erscheinen nicht im Debug. Eigene Kopier-
+  Aktion mit neuer ID, unterscheidbarem UTF-8-Namen, ausgeschaltetem Regelschalter
+  und unmittelbarer Vorbelegung. Ablauf und gemeinsame Folgenverweise bleiben
+  erhalten; bestehende Regeln und Z2M-Betrieb unverändert. Offene Eingaben,
+  veraltete Aufrufe und die bestehende Grenze von 100 Regeln werden geprüft.
+  Synthetische native Skripte mit 50 Regeln und Grenztest mit 100 Regeln;
+  keine Test-/Produktivinstallation verändert, keine Bildschirmbedienung.
+  Native Praxisprüfung nach Modulupdate steht aus; Erweiterung unverändert.
+
+- Bildschirmbedienung auf Wunsch des Anwenders vor jedem Zugriff ausdrücklich
+  ankündigen. Lokale Entwicklung und Offline-Prüfungen benötigen keine Bedienung
+  seiner Konsole. Praxisprüfungen möglichst bündeln.
+
 - Agenda Punkt 1 am 02.11.2026 in der nativen Testkonsole erfolgreich geprüft.
   Korrigierte Regelauswahl mit Vorbelegung; offene Änderungen bleiben nach
   Statusabfrage, Einklappen und erneutem Formularöffnen erhalten. Weiterbearbeiten
@@ -421,7 +439,7 @@ sie persistent und führt sie unabhängig von Symcon aus.
 ## Nächste Schritte
 
 1. Punkt 1 der [Entwicklungsagenda](docs/AGENDA.md) ist im beschriebenen Umfang
-   praktisch bestätigt. Als Nächstes Punkt 2: Übersicht bei vielen Automationen.
+   praktisch bestätigt. Punkt 2 ist lokal umgesetzt; als Nächstes dessen native Praxisprüfung.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

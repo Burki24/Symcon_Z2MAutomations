@@ -1,3 +1,54 @@
+## Agenda Punkt 2: Übersicht und Kopien
+
+AutomationOverview verwaltet eine begrenzte, an den MQTT-Kontext gebundene
+flüchtige Suche und Regelschalterfilter je Geräte-, Zeit- und weiterem Bereich.
+Filter projizieren denselben vollständigen Entwurf in Listeneinträge und
+Auswahloptionen. Die ausgewählte Regel wird bei abweichendem Filter als
+Bearbeitungsausnahme in den Optionen gehalten. Es werden weder Auswahl-Token
+noch Editorfelder neu gesetzt. Frische unübernommene Felder werden vor nativen
+Filteraufrufen über den vorhandenen EditorWork-Pfad erfasst. Suchwörter werden
+literal, ohne Beachtung der Groß-/Kleinschreibung verglichen; maximal 160 Zeichen.
+Referenzierte Auslöser-, Bedingungs- und Zielgeräte einschließlich aufgelöster
+Folgen werden berücksichtigt. Leere weitere Bereiche mit gesetztem Filter
+bleiben zum Rücksetzen sichtbar. Bestehende stabile Regel-IDs bleiben maßgeblich.
+
+CopyAutomation prüft Kontext, aktuelle Auswahlbindung, offenen Bearbeitungsstand
+und die bestehende 100-Regel-Grenze. Die Regel wird mit neuer ID, eindeutigem
+Namenszusatz und enabled=false über den bestehenden CommitEditorChange-Pfad
+angelegt. Namen bleiben UTF-8 und höchstens 120 Zeichen lang. Aktionen und
+Folgenverweise werden vollständig übernommen; keine neuen Folgendefinitionen,
+Aktivierungen oder Laufzeitaufrufe. Nur der Filter der Kopierkategorie wird
+zurückgesetzt, damit die neue ausgeschaltete Regel direkt sichtbar ist.
+
+ConfigurationFormHelper und DebugFlowHelper wurden vorab geprüft und bleiben
+unverändert eingebunden. Filter-/Regellogik ist librarylokal, da sie nur diese
+Library verwendet. Native Symcon-9.0-Felder und rowCount werden verwendet;
+kein erst in 9.1 verfügbarer onSelectionChanged-Handler, keine eigene Kachel.
+Schema, MQTT-Protokoll, Erweiterung, Abhängigkeiten und Versionsmetadaten
+bleiben unverändert. Öffentliche neue Wrapper erhalten vollständige Parameter.
+
+Neue Nachweise in tests/editor-overview.inc.php laufen über tests/editor-work.php:
+50 Regeln, gleiche Namen bei verschiedenen IDs, kombinierte Bereichsfilter,
+Unicode-Suche, Auswahl außerhalb der Treffer, Erhalt frischer Eingaben und Token,
+Kopiersperre, veraltete wiederholte Aufrufe, getrennte Filterrücksetzung,
+120-Zeichen-Namen, Astro-, Geräte-, gemischte Auslöser, Bedingungen, Wartezeiten,
+Folgenverweise und systemübergreifende Szenen. 100 Regeln begrenzen eine weitere
+Kopie. Bestehende Inhalte und bestätigter Laufzeitstand bleiben gleich; kein
+MQTT-Workflow wird gestartet. Der erste fokussierte Test scheiterte an der noch
+kleinen Übersicht, nach Umsetzung sind die tatsächlichen Formskripte geprüft.
+
+Lokale Abschlussprüfungen am 02.11.2026: php tests/run.php vollständig erfolgreich
+mit PHP-/JavaScript-Integration und 106 JavaScript-Tests. Fokussierte Übersicht-
+und Callback-Tests, separate Struktur- und Artefaktprüfung, Kodierungsprüfung,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien, PHP CS Fixer im
+Prüfmodus und git diff --check erfolgreich. Alle 19 geänderten Textdateien als
+UTF-8 ohne BOM mit LF geprüft. Großkatalog-Formular: 438.969 Bytes, unter 750 KiB.
+
+Keine native Praxisprüfung und keine Installation oder Bildschirmbedienung in
+diesem Arbeitspaket. Nach dem Modulupdate stehen sichtbare Höhe/Spaltenbreite,
+Mausrad, Suche während einer Bearbeitung und Kopierbuttons in der nativen Konsole
+zur Praxisabnahme an. Bildschirmzugriff dafür vorher ausdrücklich ankündigen.
+
 ## Native Abnahme des Bearbeitungsstands am 02.11.2026
 
 Auf Test-Symcon wurde der aktualisierte Modulstand dateigenau bestätigt. Eine
