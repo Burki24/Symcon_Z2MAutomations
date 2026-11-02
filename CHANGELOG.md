@@ -58,6 +58,11 @@
 
 ## Fixes
 
+- Eine laufende Z2M-Ablaufaufzeichnung bleibt beim Speichern von Automationen
+  erhalten und endet weiterhin zur ursprünglich gewählten Zeit. Während der
+  anschließenden Statusbestätigung lässt sie sich beenden. Verbindungs- und
+  Sitzungswechsel beenden die lokale Aufzeichnung weiterhin zuverlässig.
+
 - Nach bestätigter Speicherung fragt das Modul automatisch den vollständigen
   Z2M-Laufzeitstatus ab. Erst eine frische passende Antwort gibt die Aktivierung
   frei; fehlende oder abweichende Bestätigung führt nicht zu erneuter Speicherung.

@@ -781,6 +781,7 @@ try {
     require __DIR__ . '/shared-gateway.inc.php';
     require __DIR__ . '/editor-scenes.inc.php';
     require __DIR__ . '/editor-solar.inc.php';
+    require __DIR__ . '/runtime-debug-storage.inc.php';
     $stack = [];
     $captured = json_encode($module->debugMessages, JSON_THROW_ON_ERROR);
     $check(!str_contains($captured, 'Synthetic click automation') && !str_contains($captured, 'Synthetic timed rule') && !str_contains($captured, 'Synthetic sequence')

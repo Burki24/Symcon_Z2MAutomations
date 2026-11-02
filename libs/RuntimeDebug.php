@@ -54,7 +54,8 @@ trait RuntimeDebug
         if ($lease === []) {
             return;
         }
-        if ($lease['scope'] !== $state['scope'] || !$state['mqttConnected'] || !$state['extensionConfirmed']
+        // Snapshot confirmation can be pending after storage while this lease still belongs to the same session.
+        if ($lease['scope'] !== $state['scope'] || !$state['mqttConnected']
             || $lease['session'] !== ($state['extension']['session'] ?? null)) {
             $this->ResetRuntimeDebug('Aufzeichnung beendet: Verbindung oder Z2M-Sitzung hat sich geändert. Bei Bedarf erneut starten.');
         } elseif ($lease['deadline'] <= $this->Now()) {
@@ -70,10 +71,13 @@ trait RuntimeDebug
             $state = $this->RefreshState();
             $this->SyncRuntimeDebug($state);
             $previous = $this->RuntimeDebugLease();
-            if ($seconds < 0 || $seconds > 900 || !$state['mqttConnected'] || !$state['extensionConfirmed']
-                || ($state['extension']['debugVersion'] ?? 0) !== 1 || ($seconds === 0 && $previous === [])) {
+            if ($seconds < 0 || $seconds > 900 || !$state['mqttConnected']
+                || ($seconds > 0 && (!$state['extensionConfirmed'] || ($state['extension']['debugVersion'] ?? 0) !== 1))
+                || ($seconds === 0 && $previous === [])) {
                 $this->DebugEvent('FEHLER', 'Aufzeichnung nicht gestartet: Dauer von 1 bis 900 Sekunden und bestätigte Erweiterung mit Debugkanal erforderlich; zum Beenden muss eine eigene Aufzeichnung bestehen.');
-                $this->SetBuffer('RuntimeDebugInfo', 'Aufzeichnung nicht verfügbar. Erweiterungsstatus abfragen und bei Bedarf die Erweiterung aktualisieren.');
+                $this->SetBuffer('RuntimeDebugInfo', ($previous['active'] ?? false)
+                    ? 'Aufzeichnung läuft unverändert weiter. Für einen neuen Start zuerst den Erweiterungsstatus prüfen.'
+                    : 'Aufzeichnung nicht verfügbar. Erweiterungsstatus abfragen und bei Bedarf die Erweiterung aktualisieren.');
                 $this->UpdateRuntimeDebugForm();
                 return null;
             }

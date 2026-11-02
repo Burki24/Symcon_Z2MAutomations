@@ -424,6 +424,7 @@
             "Z2M hat die Aufzeichnung nicht bestätigt. Erweiterungsstatus prüfen und erneut starten.": "Z2M hat die Aufzeichnung nicht bestätigt. Erweiterungsstatus prüfen und erneut starten.",
             "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.": "Eigene Aufzeichnung beendet. Andere Aufzeichnungen bleiben unverändert.",
             "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.": "Aufzeichnung läuft und endet automatisch. Meldungen erscheinen im Debugfenster dieser Instanz.",
+            "Aufzeichnung läuft unverändert weiter. Für einen neuen Start zuerst den Erweiterungsstatus prüfen.": "Aufzeichnung läuft unverändert weiter. Für einen neuen Start zuerst den Erweiterungsstatus prüfen.",
             "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.": "Z2M hat die Aufzeichnung bestätigt; sie endet automatisch.",
             "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.": "Keine Aufzeichnung aktiv. Debugfenster öffnen und Aufzeichnung starten.",
             "Start time": "Startzeitpunkt",

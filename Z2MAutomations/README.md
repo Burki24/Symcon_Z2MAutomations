@@ -708,6 +708,12 @@ auch bei gleichlautenden Regelnummern. Es werden keine Gerätenamen, Messwerte,
 Schaltwerte, YAML oder Zugangsdaten in diese Ablaufmeldungen aufgenommen.
 
 „Eigene Z2M-Aufzeichnung beenden“ beendet nur die Aufzeichnung dieser Instanz.
+Das Speichern von Automationen unterbricht eine laufende Aufzeichnung nicht,
+solange MQTT-Verbindung und Z2M-Sitzung gleich bleiben. Ihre gewählte Endzeit
+bleibt unverändert. Auch während der anschließenden Statusbestätigung kann
+die eigene Aufzeichnung beendet werden. Ein neuer Start benötigt weiterhin
+einen bestätigten Erweiterungsstatus.
+
 Andere Symcon-Installationen können unabhängig aufzeichnen. Nach Ablauf der
 gewählten Zeit endet die Übertragung auch ohne laufendes Symcon. Nach
 Einstellungsübernahme, Verbindungswechsel oder Z2M-Neustart bei Bedarf erneut

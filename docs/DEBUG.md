@@ -23,6 +23,12 @@ Eine Freigabe gilt höchstens 900 Sekunden. Maximal acht getrennte Clients
 können aufzeichnen; Beenden betrifft nur den eigenen Client. Keine Persistenz,
 kein automatischer Wiederanlauf der Aufzeichnung, keine Speicherung im YAML.
 Der native Ablauf nennt Bestätigung, Zeitablauf, Abbruch und Übertragungsfehler.
+Die Bindung einer laufenden Freigabe hängt an MQTT-Kontext und Z2M-Sitzung,
+nicht an der Bestätigung des gerade gespeicherten Regelstands. Speicherung
+und anschließende Statusprüfung erhalten Client und ursprüngliche Endzeit;
+der eigene Stopp bleibt möglich. Ein neuer Start oder eine Verlängerung
+benötigen weiterhin den bestätigten Erweiterungsstatus. Der Speicherablauf
+meldet den Erhalt einer laufenden Aufzeichnung ausdrücklich im Debug.
 Bei fehlender Symcon-Verbindung läuft nur die ursprüngliche begrenzte Frist aus;
 es werden keine Meldungen für eine spätere Zustellung gespeichert.
 

@@ -18,7 +18,15 @@ und maximal 900 Sekunden aktiviert die Ausgabe nur für diese Frist. Höchstens
 acht Clients können unabhängig aufzeichnen. Korrelierte Antworten bestätigen
 Beginn und Ende; Sitzung und Transportkontext begrenzen die lokale Annahme.
 Der Timer beendet die lokale Anzeige auch ohne neue MQTT-Meldung. Nach
-Neustart oder Änderung wird keine Aufzeichnung automatisch erneuert.
+Neustart oder Einstellungsübernahme wird keine Aufzeichnung automatisch erneuert.
+
+Eine vorübergehend ausstehende Bestätigung des gespeicherten Regelstands ist
+kein Sitzungswechsel. Bei unverändertem MQTT-Kontext und derselben Z2M-Sitzung
+bleibt eine bereits bestätigte Aufzeichnung bis zu ihrer ursprünglichen Endzeit
+gültig. Der eigene Stopp darf diese vorhandene Clientfreigabe auch während
+einer Statusprüfung beenden. Neue Starts oder Verlängerungen benötigen weiterhin
+einen bestätigten Erweiterungsstatus. Aufzeichnungsdaten bestätigen weder den
+gespeicherten Stand noch die Laufzeit und geben keine Automationsaktivierung frei.
 
 Ein eigener fester Meldungskatalog mit sicheren Positions- und Laufdaten bildet
 das Protokoll. PHP übernimmt keine fremden Meldungstexte. Ein Laufbezug bleibt

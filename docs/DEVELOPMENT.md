@@ -1378,3 +1378,45 @@ und Helligkeit entsprechen dem Ausgangszustand. Formularentwurf bytegleich,
 temporäre Modulinstanzen entfernt, native Debug-Dateiaufzeichnungen beendet und
 lesenden Beobachter samt Zusatzverbindungen geschlossen. Weitere Sonnenereignisse
 oder saisonale Hardwaretests wurden nicht ausgeführt.
+
+## Ablaufaufzeichnung beim Speichern erhalten
+
+Den Nebenbefund des Astro-Gerätetests lokal reproduziert: eine korrekte
+Speicherantwort setzt extensionConfirmed bis zur anschließenden Statusantwort
+zurück. ObserveExtensionStatus kann dieselbe Wartephase bei verändertem Stand
+auslösen. SyncRuntimeDebug behandelte dieses Bestätigungsmerkmal bisher wie
+einen Verlust des MQTT-/Sitzungskontexts und löschte die vorhandene Clientfreigabe.
+Ein Integrationstest mit echtem PHP-Modul, generierter JavaScript-Erweiterung
+und zurückgehaltener finaler Statusantwort scheiterte vor der Korrektur gezielt
+am Erhalt der bestehenden Freigabe.
+
+Die lokale Bindung prüft jetzt weiterhin MQTT-Kontext, Verbindung, Z2M-Sitzung
+und ursprüngliche Endzeit. Die separate Bestätigung eines Regelstands beeinflusst
+sie nicht. Ein Stopauftrag darf eine vorhandene eigene Freigabe auch während
+dieser Wartephase beenden; neue Starts und Verlängerungen benötigen unverändert
+einen bestätigten Erweiterungsstatus. Die Aufzeichnung ersetzt keine Speicher-
+oder Laufzeitbestätigung und gibt den Aktivierungsbutton nicht frei. Der native
+Speicherablauf nennt den Erhalt der laufenden Aufzeichnung ausdrücklich. Eine
+abgelehnte erneute Startanfrage zeigt die bestehende Aufzeichnung weiterhin an.
+
+Die vorhandenen ParentConnectionHelper-, DataFlowHelper- und DebugFlowHelper-
+Verträge wurden geprüft. Die Änderung betrifft ausschließlich das lokale Z2M-
+Protokoll und verwendet diese zentralen Helper unverändert. Keine zusätzlichen
+Maskierungen, Zähler, öffentlichen Methoden oder Erweiterungsänderungen.
+
+Regressionen prüfen unveränderte und geänderte Speicherung, unveränderten Client
+und Endzeit, verspätete Statusbestätigung, Empfang frischer Ablaufmeldungen
+während der Wartephase, weiter gesperrte Automationsaktivierung, abgelehnte
+Verlängerung, eigenen Stopp und Ablauf zur ursprünglichen Endzeit. Echte
+synthetische Parent-Trennung, Einstellungsübernahme und Neustart des realen
+JavaScript-Empfängers beenden die lokale Aufzeichnung weiterhin; eine spätere
+Bestätigung stellt keine beendete Aufzeichnung wieder her. Alle Daten sind
+synthetisch. Keine Installation oder Praxisänderung auf Test-/Produktivsystemen
+für diese Korrektur; native Nachprüfung nach Modulupdate bleibt offen.
+
+Abschließend erfolgreich: `php tests/run.php` einschließlich der neuen
+Speicher-/Aufzeichnungsregressionen und 88 JavaScript-Tests, separate
+Strukturprüfung, `npm run check:extension`, offizieller StylePHP-JSON-Check
+eigener Dateien ohne Fremdquellen und PHP CS Fixer 3.95.27 im Prüfmodus.
+Kodierungsprüfung und UTF-8/LF-Kontrolle bestanden. Der ursprüngliche
+Regressionstest wurde vor der Korrektur gezielt fehlschlagend nachgewiesen.

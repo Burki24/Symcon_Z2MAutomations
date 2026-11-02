@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Rücksetzung der Ablaufaufzeichnung beim Speichern lokal korrigiert:
+  vorhandene Aufzeichnung bleibt an MQTT-Kontext und Z2M-Sitzung gebunden,
+  unabhängig von ausstehender Bestätigung des gespeicherten Regelstands.
+  Client und Endzeit bleiben erhalten; eigener Stopp auch während der Wartephase,
+  neuer Start erst nach Bestätigung. Echte PHP-/JS-Regressionsprüfung sowie
+  Zeitablauf, Trennung und Sitzungswechsel geprüft. Keine Erweiterungsänderung;
+  Korrektur noch nicht installiert oder nativ praktisch geprüft.
+
 - Sonnenauf-/untergang mit Zeitversatz lokal ergänzt: native Auswahl im
   Zeitbereich, expliziter Standort, Vorbelegung, Bearbeitung, Prüfung und
   Speicherung. Eigene tägliche Berechnung in Z2M ohne Symcon oder Internetdienst.
@@ -22,7 +30,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   bestätigt: ein Lauf, native Ablaufmeldungen, Symcon-Zustandswechsel und
   Leistungsrückmeldung. Testregel entfernt, Regeln und Lichtzustand wiederhergestellt.
   Rücksetzung der lokalen Debugaufzeichnung beim Speichern als Nebenbefund
-  dokumentiert. Siehe ADR 0013 und DEVELOPMENT.md.
+  dokumentiert und anschließend lokal korrigiert, siehe oben. Siehe ADR 0013
+  und DEVELOPMENT.md.
 
 - Eigener zeitlich begrenzter MQTT-Debugkanal lokal implementiert: flüchtige
   unabhängige Clientfreigaben, Formularbedienung, feste deutsche Ablaufmeldungen,

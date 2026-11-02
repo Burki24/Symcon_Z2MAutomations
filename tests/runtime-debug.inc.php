@@ -11,6 +11,41 @@ $lease = $module->DebugLease();
 $check($lease['active'] && $lease['pending'] === '', 'Only a matching fresh extension reply confirms recording');
 $check($module->RequestExtensionStatus() !== '' && $module->DebugLease()['active'], 'Ordinary manual status refresh preserves the active recording');
 $check($state()['extension'] === $runtimeBeforeDebug, 'Recording leaves automation runtime state unchanged');
+$debugStoredYaml = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'])['YamlInput']['value'];
+$check($module->ValidateYaml($debugStoredYaml) !== '', 'Existing stored YAML can be validated during recording');
+$debugWire = $parent->onPublish;
+$holdDebugStatus = false;
+$deferredDebugStatus = [];
+$parent->onPublish = static function (array $packet) use ($debugWire, $exchange, &$holdDebugStatus, &$deferredDebugStatus): void
+{
+    if ($holdDebugStatus && str_ends_with($packet['Topic'], '/request/status')) {
+        $deferredDebugStatus = $exchange(['topic' => $packet['Topic'], 'payload' => $packet['Payload']]);
+        return;
+    }
+    if (str_ends_with($packet['Topic'], '/request/store')) {
+        $holdDebugStatus = true;
+    }
+    $debugWire($packet);
+};
+try {
+    $check($module->StoreYaml($debugStoredYaml) !== '' && $deferredDebugStatus !== [], 'Storage waits for a delayed real receiver status reply');
+    $check(!$state()['extensionConfirmed'] && !$state()['runtimeConfirmed'] && $state()['operation']['status'] === 'pending', 'Recording never substitutes for storage and runtime confirmation');
+    $preservedLease = $module->DebugLease();
+    $check(($preservedLease['active'] ?? false) && $preservedLease['client'] === $lease['client'] && $preservedLease['deadline'] === $lease['deadline'], 'Storage preserves the same recording client and original deadline while status is pending');
+    $pendingForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($pendingForm['RuntimeDebugStop']['enabled'] && !$pendingForm['ActivateButton']['enabled'], 'Recording remains stoppable while automation activation awaits confirmation');
+    $beforePendingDebug = count($module->debugMessages);
+    $deliver($exchange(['control' => 'event', 'device' => '0x0000000000000001', 'payload' => ['action' => 'double']]));
+    $check(str_contains(implode('\n', array_column(array_slice($module->debugMessages, $beforePendingDebug), 1)), 'Z2M: Auslöser geprüft.'), 'Fresh matching runtime records still arrive during pending storage confirmation');
+    $check(!$module->StartRuntimeDebug(300), 'Unconfirmed receiver status cannot start or renew a recording');
+    $check($module->StopRuntimeDebug() && $module->DebugLease() === [], 'The existing client can stop its recording before storage status arrives');
+} finally {
+    $parent->onPublish = $debugWire;
+}
+$deliver($deferredDebugStatus);
+$check($state()['operation']['status'] === 'stored' && $state()['runtimeConfirmed'], 'Only the deferred receiver reply confirms the stored snapshot');
+$check($module->StartRuntimeDebug(300), 'A new recording starts after confirmed storage');
+$lease = $module->DebugLease();
 $recordingForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
 $check($recordingForm['RuntimeDebugStop']['enabled'] && str_contains($recordingForm['RuntimeDebugInfo']['caption'], 'Aufzeichnung läuft'), 'Reopened form shows confirmed recording');
 $recordingMessages = $exchange(['control' => 'event', 'device' => '0x0000000000000001', 'payload' => ['action' => 'single']]);
@@ -75,4 +110,5 @@ $deliver($exchange(['control' => 'restart']));
 $check($module->DebugLease() === [], 'A changed extension session cancels recording without enabling it again');
 $check($module->StopAutomations() !== '', 'Debug test restores stopped automation runtime');
 
-unset($recordingForm, $recordingMessages, $recorded, $capturedDebug, $stream, $invalid, $retained, $response, $pending, $send, $lease, $runtimeBeforeDebug);
+unset($recordingForm, $recordingMessages, $recorded, $capturedDebug, $stream, $invalid, $retained, $response, $pending, $send, $lease, $runtimeBeforeDebug,
+    $debugStoredYaml, $debugWire, $holdDebugStatus, $deferredDebugStatus, $preservedLease, $pendingForm, $beforePendingDebug);

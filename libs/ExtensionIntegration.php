@@ -499,6 +499,9 @@ trait ExtensionIntegration
         $state['workflow']['verifyStorage'] = true;
         $state['workflow']['storedSnapshot'] = $metadata + ['session' => $workflow['target']['session']];
         $this->DebugEvent('AKTION', 'Z2M hat die Speicherung bestätigt; vollständigen Laufzeitstatus automatisch nachfragen. Aktivierungsbutton bleibt bis zur passenden Antwort gesperrt.', ['Revision' => $metadata['storedRevision'], 'Unverändert' => $payload->data->unchanged]);
+        if ($this->RuntimeDebugLease()['active'] ?? false) {
+            $this->DebugEvent('AKTION', 'Speicherstatus wird bestätigt; laufende Ablaufaufzeichnung bleibt mit ihrer bisherigen Endzeit erhalten.');
+        }
         return $this->ExtensionFrame($state, 'status');
     }
 
