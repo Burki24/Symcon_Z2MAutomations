@@ -176,6 +176,8 @@ try {
     $module->ReplaceTransportBuffer(json_encode($cachedTransport, JSON_THROW_ON_ERROR));
     $install = $module->InstallExtension(true);
     $check($install !== '' && $state()['operation']['status'] === 'installed' && $state()['extensionConfirmed'], 'Installation with unknown bridge info completes only after a correlated receiver probe');
+    $check($state()['extension']['build'] === Z2MAutomations\ExtensionContract::BundledBuild()
+        && str_contains($module->formUpdates['ExtensionUpdateInfo']['caption'], 'Up to date'), 'Installing the real generated artifact confirms the exact bundled build in the open form');
     $check($module->formUpdates['InstallResultPopup']['visible'] === true && str_contains($module->formUpdates['InstallResultMessage']['caption'], 'confirmed readiness'), 'Installation popup follows the correlated receiver confirmation');
     $sent = $parent->sent;
     $packet = $sent[0];

@@ -1,5 +1,16 @@
 # Erweiterungsprotokoll Version 1
 
+## Erweiterungs-Buildkennung
+
+Statusantworten ergänzen `extension_build` als 64-stellige kleingeschriebene
+SHA-256-Hexkennung des erzeugten eigenen Codes einschließlich eingebettetem
+Schema und Debugkatalog. Die Kennung gehört zum geladenen Artefakt; sie wird
+bei dessen Erzeugung deterministisch eingebettet. Versionsnummer, Protokoll und
+YAML-Identität bleiben unverändert. Ältere Antworten ohne dieses Feld bleiben
+gültig; ein vorhandener ungültiger Wert wird abgewiesen. Im Modul ergibt die
+Gleichheit mit dem eigenen mitgelieferten Artefakt den Updatehinweis. Keine
+Installation oder Aktivierung durch den Vergleich. Siehe [ADR 0016](adr/0016-content-based-extension-build.md).
+
 ## Wiederverwendbare Aktionsfolgen
 
 Der Status ergänzt additiv `sequence_version: 1`. Das optionale Schema-1-Feld

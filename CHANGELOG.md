@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Einrichtung und Diagnose zeigt installierten und mitgelieferten Erweiterungsstand
+  mit automatisch erzeugter Buildkennung und Updatehinweis. Der Vergleich wird
+  durch die vorhandenen Statusabfragen aktualisiert. Ältere Erweiterungen ohne
+  Kennung erhalten eine verständliche Erklärung. Deutsche Debugmeldungen nennen
+  das Ergebnis ohne wiederholte identische Ausgaben. Für den Vergleich Modul und
+  mitgelieferte Erweiterung aktualisieren; keine automatische Installation.
+
 - Wiederverwendbare Aktionsfolgen im Klick-Editor: einmal anlegen, bearbeiten
   und in mehreren Geräte- oder Zeitautomationen auswählen. Name, Schritte und
   Wartezeiten werden vorbelegt; die Übersicht zeigt die Verwendung. Verwendete

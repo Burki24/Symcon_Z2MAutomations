@@ -1,5 +1,14 @@
 # Architektur
 
+## Inhaltlicher Erweiterungsstand
+
+Der Generator bindet eine deterministische Inhaltskennung in das eigene Artefakt
+ein. Die laufende Erweiterung meldet sie additiv im Status. ExtensionContract
+liest den lokalen Upload-Header und prüft empfangene Kennungen; der bestehende
+Statusworkflow aktualisiert drei native Labels und bereinigte Debugentscheidungen.
+Keine zusätzliche Datei, Versionsänderung oder Laufzeitsteuerung. Details und
+Grenzen stehen in [ADR 0016](adr/0016-content-based-extension-build.md).
+
 ## Wiederverwendbare Aktionsfolgen
 
 Der gemeinsame native Editor verwaltet benannte Definitionen und stabile

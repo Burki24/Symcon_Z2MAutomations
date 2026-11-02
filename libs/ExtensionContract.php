@@ -30,6 +30,12 @@ final class ExtensionContract
         return is_string($value) && preg_match('/\A[a-f0-9]{64}\z/D', $value) === 1;
     }
 
+    public static function BundledBuild(): ?string
+    {
+        $header = @file_get_contents(__DIR__ . '/z2m/' . self::NAME, false, null, 0, 1024);
+        return is_string($header) && preg_match('/^export const EXTENSION_BUILD = \'([a-f0-9]{64})\';$/m', $header, $match) === 1 ? $match[1] : null;
+    }
+
     public static function Storage(mixed $data): ?array
     {
         if (!$data instanceof stdClass || !self::Revision($data->stored_revision ?? null)
@@ -55,7 +61,8 @@ final class ExtensionContract
         if ($storage === null || ($data->protocol_version ?? null) !== 1 || ($data->schema_version ?? null) !== 1
             || ($data->extension_version ?? null) !== self::VERSION || !is_string($data->session ?? null)
             || preg_match('/\A[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}\z/D', $data->session) !== 1
-            || !in_array($data->state ?? null, ['ready', 'stopped'], true)) {
+            || !in_array($data->state ?? null, ['ready', 'stopped'], true)
+            || (property_exists($data, 'extension_build') && !self::Checksum($data->extension_build))) {
             return null;
         }
         $runtime = ['runtimeVersion' => 0, 'activeRevision' => null, 'activeChecksum' => null, 'enabledCount' => 0, 'runtimeError' => ''];
@@ -90,7 +97,7 @@ final class ExtensionContract
             }
             $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
         }
-        return $storage + $runtime + $mesh + $resume + ['sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
+        return $storage + $runtime + $mesh + $resume + ['build'            => $data->extension_build ?? null, 'sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
             'session'                                                      => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
     }
 

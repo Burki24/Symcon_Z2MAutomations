@@ -1,5 +1,28 @@
 # Z2MAutomations
 
+## Erweiterungsstand und Updatehinweis
+
+Unter **Einrichtung und Diagnose** stehen der **installierte Erweiterungsstand**
+und der **mitgelieferte Erweiterungsstand**, jeweils mit Version und kurzer
+Buildkennung. Die Kennung wird automatisch aus dem Erweiterungscode erzeugt.
+Sie erkennt Änderungen auch dann, wenn die Versionsnummer gleich bleibt.
+
+**Aktuell** bedeutet, dass beide Stände übereinstimmen. **Aktualisierung verfügbar**
+bedeutet, dass sie sich unterscheiden. Mit **Mitgelieferte Erweiterung installieren
+oder aktualisieren** übernehmen Sie den Stand aus dem Modul. Die Kennung selbst
+ist kein Datum und sagt nicht, welcher Stand jünger ist.
+
+Beim Öffnen des Formulars und nach einem Modulupdate erfolgt die vorhandene
+automatische Statusprüfung. **Erweiterungsstatus abfragen** aktualisiert die
+Anzeige auch manuell. Nach bestätigter Installation wird der Stand erneut geprüft.
+Die Anzeige installiert oder aktiviert selbst keine Erweiterung oder Automation.
+
+Bei **Noch nicht geprüft** fehlt eine bestätigte Statusantwort. Meldet eine ältere
+Erweiterung **ohne Buildkennung**, lässt sich ihr Stand noch nicht vergleichen.
+Installieren beziehungsweise aktualisieren Sie dann die mitgelieferte Erweiterung
+und fragen Sie deren Status erneut ab. Für die neue Anzeige zunächst das Modul
+aktualisieren; für den vollständigen Vergleich auch die Erweiterung aktualisieren.
+
 ## Eine Aktionsfolge mehrfach verwenden
 
 Im Bereich **Wiederverwendbare Aktionsfolgen** wählen Sie **Neue Aktionsfolge

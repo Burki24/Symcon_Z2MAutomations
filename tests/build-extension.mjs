@@ -1,10 +1,13 @@
 import {readFile, writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 
 const source = new URL('../libs/z2m/src/extension.mjs', import.meta.url);
 const schema = new URL('../libs/z2m/automations.schema.json', import.meta.url);
 const target = new URL('../libs/z2m/z2m-automations.mjs', import.meta.url);
 const marker = "import AUTOMATIONS_SCHEMA from '../automations.schema.json' with {type: 'json'};";
 const code = await readFile(source, 'utf8');
+const buildMarker = "export const EXTENSION_BUILD = 'development';";
+if (code.split(buildMarker).length !== 2) throw new Error('Expected exactly one build marker.');
 if (code.split(marker).length !== 2) throw new Error('Expected exactly one schema import.');
 const sequenceMarker = "import {expandActionPlan, SequenceError} from './sequences.mjs';";
 if (code.split(sequenceMarker).length !== 2) throw new Error('Expected exactly one sequence import.');
@@ -32,9 +35,11 @@ const mesh = (await readFile(new URL('../libs/z2m/src/mesh.mjs', import.meta.url
     .replace("import {debugTrace} from './debug.mjs';\n", '')
     .replace("import {RuntimeError} from './runtime.mjs';\n", '');
 const solar = await readFile(new URL('../libs/z2m/src/solar.mjs', import.meta.url), 'utf8');
-const generated = '// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.\n'
+const template = '// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.\n'
     + code.replace(marker, 'const AUTOMATIONS_SCHEMA = ' + JSON.stringify(JSON.parse(await readFile(schema, 'utf8'))) + ';')
         .replace(sequenceMarker, sequences).replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
+const build = createHash('sha256').update(template, 'utf8').digest('hex');
+const generated = template.replace(buildMarker, `export const EXTENSION_BUILD = '${build}';`);
 if (process.argv.includes('--check')) {
     if (await readFile(target, 'utf8') !== generated) throw new Error('Extension artifact is stale. Run npm run build:extension.');
     console.log('Extension artifact matches source and schema.');

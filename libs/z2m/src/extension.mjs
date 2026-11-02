@@ -1,3 +1,4 @@
+export const EXTENSION_BUILD = 'development';
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -403,7 +404,7 @@ export default class Z2MAutomationsExtension {
     }
 
     status() {
-        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', debug_version: 1,
+        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', extension_build: EXTENSION_BUILD, debug_version: 1,
             resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),

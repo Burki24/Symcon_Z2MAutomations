@@ -580,6 +580,7 @@ trait ExtensionIntegration
 
     private function SaveExtensionState(array $state): void
     {
+        $this->UpdateExtensionBuildInfo($state);
         $ready = $state['extensionConfirmed'] && ($state['extension']['ready'] ?? false);
         $this->SetValue('ExtensionReady', $ready);
         $this->SetValue('StoredRevision', $state['extension']['storedRevision'] ?? 0);
@@ -618,6 +619,54 @@ trait ExtensionIntegration
         $this->UpdateFormField('OperationInfo', 'caption', $status);
         $this->UpdateFormField('ErrorInfo', 'caption', $error);
         $this->UpdateFormField('ValidationInfo', 'caption', $this->ValidationPreview($state));
+    }
+
+    private function ExtensionBuildInfo(array $state): array
+    {
+        $bundled = ExtensionContract::BundledBuild();
+        $confirmed = $state['mqttConnected'] && $state['extensionConfirmed'] && ($state['extension']['ready'] ?? false);
+        $installed = $confirmed ? ($state['extension']['build'] ?? null) : null;
+        $comparison = $bundled === null ? 'missing' : (!$confirmed ? 'unconfirmed' : ($installed === null ? 'legacy' : ($installed === $bundled ? 'current' : 'different')));
+        $installedText = $confirmed
+            ? sprintf($this->Translate('Installed extension: %s'), $state['extension']['version'] . ' (' . ($installed === null ? $this->Translate('without build identifier') : 'Build ' . substr($installed, 0, 12)) . ')')
+            : $this->Translate('Installed extension: Not yet confirmed.');
+        $bundledText = $bundled === null ? $this->Translate('Bundled extension: Build identifier unavailable. Check the module files.')
+            : sprintf($this->Translate('Bundled extension: %s'), ExtensionContract::VERSION . ' (Build ' . substr($bundled, 0, 12) . ')');
+        $hint = match ($comparison) {
+            'current'   => 'Up to date. The installed and bundled extensions have the same build.',
+            'different' => 'Update available: The installed build differs from the bundled build. Choose Install or update bundled extension to use the bundled version.',
+            'legacy'    => 'The installed extension cannot be compared because it reports no build identifier. Update the bundled extension, then request its status again.',
+            'missing'   => 'Build comparison unavailable. Update the module files and reopen this form.',
+            default     => 'Not yet checked. Request the extension status to compare builds.'
+        };
+        return ['comparison' => $comparison, 'installed' => $installed, 'bundled' => $bundled, 'confirmed' => $confirmed,
+            'fields'         => ['InstalledExtensionInfo' => $installedText, 'BundledExtensionInfo' => $bundledText, 'ExtensionUpdateInfo' => $this->Translate($hint)]];
+    }
+
+    private function UpdateExtensionBuildInfo(array $state): void
+    {
+        $info = $this->ExtensionBuildInfo($state);
+        $key = json_encode($info, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        if ($this->GetBuffer('ExtensionBuildDisplay') === $key) {
+            return;
+        }
+        $this->SetBuffer('ExtensionBuildDisplay', $key);
+        foreach ($info['fields'] as $field => $text) {
+            $this->UpdateFormField($field, 'caption', $text);
+        }
+        $message = match ($info['comparison']) {
+            'current'   => 'Installierte und mitgelieferte Erweiterung haben denselben Buildstand; kein Update erforderlich.',
+            'different' => 'Installierte Erweiterung weicht vom mitgelieferten Buildstand ab. Zum Angleichen die mitgelieferte Erweiterung installieren oder aktualisieren.',
+            'legacy'    => 'Z2M-Erweiterung meldet keine Buildkennung; Vergleich nicht möglich. Mitgelieferte Erweiterung aktualisieren und Status erneut abfragen.',
+            'missing'   => 'Buildkennung der mitgelieferten Erweiterung nicht lesbar; Moduldateien prüfen.',
+            default     => 'Erweiterungsstand noch nicht bestätigt; Updatebedarf bleibt offen. Erweiterungsstatus abfragen.'
+        };
+        $this->DebugEvent(
+            $info['comparison'] === 'missing' ? 'FEHLER' : 'AKTION',
+            $message,
+            ['Vergleich'             => $info['comparison'], 'Bestätigt' => $info['confirmed'],
+                'InstallierterBuild' => substr($info['installed'] ?? '', 0, 12), 'MitgelieferterBuild' => substr($info['bundled'] ?? '', 0, 12)]
+        );
     }
 
     private function ExtensionErrorText(array $state): string

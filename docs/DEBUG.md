@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Erweiterungsstand vergleichen
+
+Eine geänderte Anzeige erklärt mit festem deutschem Text, ob die Erweiterung
+aktuell ist, abweicht, keine Kennung meldet oder noch nicht bestätigt ist. Bei
+unlesbarer mitgelieferter Buildkennung folgt ein Fehlerhinweis zu den Moduldateien.
+Der Bezug enthält Vergleichszustand, Bestätigung und kurze Buildkennungen.
+Keine fremden Texte, Codeinhalte, YAML, Freigaben oder Gerätebezüge. Unveränderte
+Ergebnisse werden nicht erneut protokolliert. Die vorhandenen öffentlichen
+Status- und Formulareinstiege behalten ihre zentralen Start-/Ende-Abläufe.
+
 ## Wiederverwendbare Aktionsfolgen
 
 Auswahl, Übernahme, Schrittbearbeitung und Löschsperre verwenden die zentralen

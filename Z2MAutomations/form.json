@@ -110,6 +110,24 @@
             "expanded": false,
             "items": [
                 {
+                    "type": "Label",
+                    "name": "InstalledExtensionInfo",
+                    "caption": "Installed extension: Not yet confirmed.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "BundledExtensionInfo",
+                    "caption": "Bundled extension: Build identifier unavailable. Check the module files.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "ExtensionUpdateInfo",
+                    "caption": "Not yet checked. Request the extension status to compare builds.",
+                    "width": "100%"
+                },
+                {
                     "type": "Button",
                     "caption": "Check Zigbee2MQTT connection",
                     "onClick": "Z2MA_CheckHealth($id);"

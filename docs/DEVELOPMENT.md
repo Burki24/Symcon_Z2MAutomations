@@ -1623,3 +1623,43 @@ keine Bedienprüfung in der nativen Konsole oder reale Geräteausführung. In di
 Test- noch Produktivinstallationen verändert. Vor Praxisprüfung Modul und
 Erweiterung aktualisieren; bei Mesh auch die ausführenden Partner für vollständige
 zusätzliche Diagnosebezüge.
+
+
+## Erweiterungsstand mit automatischer Buildkennung am 02.11.2026
+
+Lokal implementiert gemäß ADR 0016. Der Generator bildet eine deterministische
+SHA-256-Kennung des eigenen zusammengesetzten Artefakts mit festem Platzhalter
+und bettet sie in genau diese Datei ein. Status meldet die Kennung des geladenen
+Codes. ExtensionContract liest den lokalen Upload-Header und prüft empfangene
+Kennungen. Drei native Labels unter Einrichtung und Diagnose zeigen installierten
+Stand, mitgelieferten Stand und einen verständlichen Vergleichshinweis.
+
+Offline-Nachweise ausschließlich mit synthetischen Daten:
+
+- Zunächst fehlende Kennung im erzeugten Artefakt und fehlende Formularanzeige
+  gezielt nachgewiesen; anschließend beide Prüfungen erfolgreich.
+- Wiederholte Builds in isolierter Kopie sind bytegleich. Änderungen am Runtimecode,
+  Schema und deutschen Debugkatalog ändern die Kennung. Check-Modus erkennt jeweils
+  die veraltete Datei vor dem erneuten Build. Keine Uhrzeit oder Rechnerdaten.
+- Echte Erweiterung beantwortet Status mit der eingebetteten Kennung und unveränderter
+  Versionsnummer. PHP-/JavaScript-Installation lädt exakt das erzeugte Artefakt;
+  die anschließende passende Statusantwort bestätigt denselben Stand und aktualisiert
+  das offene Formular auf aktuell.
+- Automatische und manuelle Statusabfrage, Formularneuladen, gleicher und abweichender
+  Build, ältere Erweiterung ohne Kennung sowie ungültige Kennungen geprüft.
+  Unbelegte retained Antworten ändern den Vergleich nicht. Kontextwechsel entfernt
+  die alte Zuordnung. Formularaufbau sendet kein synchrones MQTT; verwendete
+  Vergleichsaufträge bleiben lesend. Privater Entwurf bleibt unverändert und fehlt
+  im Debug. Identische Vergleichsergebnisse werden nicht wiederholt protokolliert.
+
+php tests/run.php erfolgreich einschließlich 106 JavaScript-Tests; anschließend
+PHP-/JavaScript-Installation mit zusätzlicher expliziter Buildanzeige-Assertion
+nochmals erfolgreich. Struktur- und zentrale Kodierungsprüfung, aktuelles erzeugtes
+Artefakt, offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in einer temporären
+Kopie sowie PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich. Fremdquellen und zentrale
+Helper unverändert. Geänderte Texte UTF-8 ohne BOM mit LF.
+
+Keine Test- oder Produktivinstallation aktualisiert, keine Automationen gespeichert
+oder aktiviert. Die native Darstellung und eine tatsächliche Z2M-Installation dieses
+Stands bleiben praktisch zu prüfen. Modul und mitgelieferte Erweiterung für einen
+vollständigen Vergleich aktualisieren; ältere Empfänger bleiben weiterhin abfragbar.

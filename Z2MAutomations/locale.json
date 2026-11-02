@@ -499,7 +499,17 @@
             "This action sequence does not exist. Choose an existing sequence.": "Diese Aktionsfolge ist nicht vorhanden. Bitte eine vorhandene Folge auswählen.",
             "An action sequence cannot call another action sequence.": "Eine Aktionsfolge darf keine weitere Aktionsfolge aufrufen.",
             "Including reusable sequences, an automation may execute at most 16 steps.": "Einschließlich wiederverwendbarer Aktionsfolgen darf eine Automation höchstens 16 Schritte ausführen.",
-            "This action sequence identifier is already used.": "Diese Kennung einer Aktionsfolge wird bereits verwendet."
+            "This action sequence identifier is already used.": "Diese Kennung einer Aktionsfolge wird bereits verwendet.",
+            "Installed extension: Not yet confirmed.": "Installierter Erweiterungsstand: Noch nicht bestätigt.",
+            "Bundled extension: Build identifier unavailable. Check the module files.": "Mitgelieferter Erweiterungsstand: Buildkennung nicht lesbar. Bitte die Moduldateien prüfen.",
+            "Not yet checked. Request the extension status to compare builds.": "Noch nicht geprüft. Bitte „Erweiterungsstatus abfragen“ wählen, um die Stände zu vergleichen.",
+            "Installed extension: %s": "Installierter Erweiterungsstand: %s",
+            "Bundled extension: %s": "Mitgelieferter Erweiterungsstand: %s",
+            "without build identifier": "ohne Buildkennung",
+            "Up to date. The installed and bundled extensions have the same build.": "Aktuell. Installierte und mitgelieferte Erweiterung haben denselben Stand.",
+            "Update available: The installed build differs from the bundled build. Choose Install or update bundled extension to use the bundled version.": "Aktualisierung verfügbar: Der installierte Stand weicht vom mitgelieferten Stand ab. Mit „Mitgelieferte Erweiterung installieren oder aktualisieren“ übernehmen Sie den mitgelieferten Stand.",
+            "The installed extension cannot be compared because it reports no build identifier. Update the bundled extension, then request its status again.": "Der installierte Stand lässt sich noch nicht vergleichen, weil diese Erweiterung keine Buildkennung meldet. Bitte die mitgelieferte Erweiterung installieren oder aktualisieren und anschließend den Erweiterungsstatus abfragen.",
+            "Build comparison unavailable. Update the module files and reopen this form.": "Der Stand lässt sich nicht vergleichen. Bitte die Moduldateien aktualisieren und das Formular erneut öffnen."
         }
     }
 }

@@ -134,6 +134,20 @@ async function harness(options = {}) {
         }};
 }
 
+test('fresh status reports the build identity of the actually loaded extension', async () => {
+    const artifact = await readFile(new URL('../libs/z2m/z2m-automations.mjs', import.meta.url), 'utf8');
+    const build = artifact.match(/export const EXTENSION_BUILD = '([a-f0-9]{64})';/)?.[1];
+    assert.match(build ?? '', /^[a-f0-9]{64}$/, 'Generated artifact must carry a content identity');
+    const h = await harness();
+    try {
+        const response = await h.request('status');
+        assert.equal(response.status, 'ok');
+        assert.equal(response.data.extension_build, build);
+        assert.equal(response.data.extension_version, '0.1.0', 'Build comparison needs no manual version bump');
+        assert.equal(h.extension.status().extension_build, build);
+    } finally { await h.close(); }
+});
+
 test('schema accepts the complete synthetic example and an empty rule list', () => {
     assert.equal(validateYaml(fixtureYaml).document.automations.length, 2);
     assert.equal(validateYaml(emptyYaml(1)).document.revision, 1);

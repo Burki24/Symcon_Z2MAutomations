@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Erweiterungsstand lokal ergänzt (ADR 0016): installierte und mitgelieferte
+  Version mit automatisch generierter Inhaltskennung unter Einrichtung und
+  Diagnose. Vergleich über bestätigte Statusantworten, gleiche Kennung aktuell,
+  abweichende Kennung mit Installationshinweis. Ältere Empfänger ohne Kennung
+  bleiben lesbar und erhalten eine Erklärung. Automatische und manuelle Abfrage
+  sowie Installation verwenden denselben Anzeigepfad. Feste deutsche Debugtexte
+  nur bei geänderten Vergleichsergebnissen. Keine Live- oder Testsystemänderung;
+  native Praxisprüfung steht aus.
+
 - Wiederverwendbare Aktionsfolgen lokal implementiert (ADR 0015): eigener
   nativer Verwaltungsbereich, Auswahl in Geräte-/Zeitregeln, stabile Verweise,
   Wartezeiten, Vorbelegung und Schutz verwendeter Folgen vor dem Löschen.

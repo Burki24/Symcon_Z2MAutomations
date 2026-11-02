@@ -20,6 +20,9 @@ Z2M denselben Regelstand auch nach einem Neustart automatisch. Ohne Freigabe
 oder nach bestätigtem Stoppen bleibt die Engine aus; siehe [Laufzeitvertrag](../../docs/RUNTIME.md).
 
 - Hochladbare Einzeldatei: z2m-automations.mjs.
+- Automatische Inhaltskennung: `extension_build` in Statusantworten; Generator
+  und Prüfung berücksichtigen den gesamten eigenen Code einschließlich Schema
+  und Debugkatalog. Details: [ADR 0016](../../docs/adr/0016-content-based-extension-build.md).
 - Eigener Quellcode: src/extension.mjs, src/runtime.mjs, src/sequences.mjs,
   src/mesh.mjs und src/scenes.mjs.
 - Kanonisches Schema: automations.schema.json, JSON Schema Draft 7.
