@@ -1772,3 +1772,47 @@ JavaScript-Tests, Struktur- und zentrale Kodierungsprüfung, Artefaktvergleich,
 offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
 sowie PHP CS Fixer 3.95.27 im Prüfmodus. Nur drei Dokumentationsdateien geändert;
 UTF-8 ohne BOM, LF und git diff --check bestätigt.
+
+## Wiederverwendbare Aktionsfolgen über Mesh: Praxisprüfung am 02.11.2026
+
+Über Test-Symcon und zwei bereits gekoppelte reale Z2M-Systeme geprüft. Der
+Anwender gab das Testlicht ausdrücklich frei. Vorhandene Erweiterungen meldeten
+Folgen-, Einzelstart- und Debugunterstützung; ein Erweiterungsupdate war nicht
+erforderlich. Mit temporären Testmodulen blieben die vorhandenen lokalen Entwürfe
+erhalten. Rohdaten, Sicherungen und Debugdateien blieben außerhalb des Repositorys.
+
+Eine Folge mit zwei entfernten Geräteaktionen und fünf Sekunden Wartezeit vor
+dem zweiten Schritt über die tatsächlichen Formular-Callbacks vorbereitet.
+Der native Gerätekanal besaß Schaltrechte. Folgenschritte und deaktivierte
+aufrufende Zeitregel wurden korrekt vorbelegt; die Prüfung der Quellerweiterung
+war erfolgreich. Nur den Quellstand gespeichert, bestehende aktive Regel und
+Mesh-Berechtigung anschließend wieder aktiviert. Der Zielregelstand wurde
+weder gespeichert noch neu aktiviert.
+
+Nach bestätigtem Start eigener Aufzeichnungen auf beiden Systemen die weiterhin
+deaktivierte Testregel genau einmal gestartet. Der Gerätezustand meldete Ein und
+fünf Sekunden später Aus. Quellstatus anschließend abgeschlossen, kein Laufzeit-
+oder Übertragungsfehler. Die Debugdateien belegen dieselbe Laufkennung, dieselben
+einsbasierten Folgen- und Schrittnummern sowie die Quellrevision auf beiden Seiten.
+Das Ziel meldete exakt zwei native Befehlsübergaben. Die Geräte-Rückmeldungen
+ergänzen diese Übergaben; eine unabhängige Sichtkontrolle wurde nicht erhoben.
+
+Danach ursprünglichen Quellinhalt ohne Testregel und Folge mit fortlaufender
+Revision wiederhergestellt, aktiviert und frisch geladen. Inhaltsvergleich bis
+auf die Revision erfolgreich. Zielrevision und Zielprüfsumme blieben unverändert.
+Beide ursprünglichen aktiven Regeln, Mesh und automatischer Wiederanlauf bestätigt;
+lokale Test-/Produktiventwürfe bytegleich, bestehendes Originalereignis weiterhin
+deaktiviert. Einen später zusätzlich gemeldeten Lichtzustand auf den gesicherten
+ursprünglichen Aus-Zustand zurückgestellt und bestätigt. Eigene Aufzeichnungen
+beendet, native Debugdateien gestoppt und Testmodule samt Statusvariablen entfernt.
+
+Der gezielte synthetische Mesh-Test für gemeinsame Folgen- und Schrittbezüge
+bestand erneut. Keine Änderung an Funktionscode, Helpern, Schema oder Artefakt.
+Reale parallele Verwender, umgekehrte Richtung und Neustart während einer Folge
+waren nicht Teil dieses Praxislaufs; bestehende Offline-Nachweise bleiben maßgeblich.
+
+Abschlussprüfungen erneut erfolgreich: php tests/run.php einschließlich 106
+JavaScript-Tests, Struktur- und zentrale Kodierungsprüfung, Artefaktvergleich,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien und PHP CS Fixer 3.95.27
+im Prüfmodus. Nur drei Dokumentationsdateien geändert, UTF-8 ohne BOM mit LF;
+git diff --check ohne Befund.

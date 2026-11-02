@@ -36,8 +36,11 @@ sie persistent und führt sie unabhängig von Symcon aus.
   zwei deaktivierte Verwender, Löschsperre, Prüfung, Speicherung und Wiederladen.
   Freigegebene Gerätefolge Ein, fünf Sekunden warten, Aus erfolgreich;
   gezielter Stopp vor der ersten Befehlsübergabe bestätigt. Testdaten entfernt,
-  ursprünglicher Regelinhalt und Betrieb wiederhergestellt. Ein realer
-  systemübergreifender Aufruf einer wiederverwendbaren Folge bleibt offen.
+  ursprünglicher Regelinhalt und Betrieb wiederhergestellt. Anschließend dieselbe
+  Gerätefolge auch systemübergreifend real geprüft: zwei bestätigte Übergaben am
+  Ziel, gleiche Lauf-, Folgen-, Schritt- und Quellrevisionsbezüge auf beiden Seiten.
+  Testdaten entfernt; ursprüngliche Quellregel mit neuer Revision wiederhergestellt,
+  gespeicherter Zielstand und lokale Entwürfe unverändert.
 
 - Reale systemübergreifende MQTT-Debugprüfung am 02.11.2026 abgeschlossen:
   zwei vom Benutzer ausgelöste Tasterbetätigungen mit jeweils eigenem Lauf,
@@ -373,9 +376,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Wiederverwendbare Aktionsfolgen bei Bedarf nach gesondertem Praxisauftrag
-   auch systemübergreifend prüfen; der bisherige reale Ablauf war lokal.
-2. Weitere offene Funktionsbausteine mit dem Anwender priorisieren.
+1. Weitere offene Funktionsbausteine mit dem Anwender priorisieren.
+2. Parallele Verwender und Neustart während einer wiederverwendbaren Folge
+   sind synthetisch geprüft; reale Ergänzungsprüfungen nur nach Praxisauftrag.
 3. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

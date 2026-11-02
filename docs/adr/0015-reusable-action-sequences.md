@@ -4,8 +4,9 @@
 
 Angenommen und implementiert. Offline mit synthetischen Daten sowie am
 02.11.2026 über Test-Symcon an einem ausdrücklich freigegebenen Z2M-System
-praktisch geprüft: native Bedienung, Speicherung, reale Gerätefolge und
-gezielter Stopp. Umfang und Grenzen stehen in docs/DEVELOPMENT.md.
+praktisch geprüft: native Bedienung, Speicherung, reale Gerätefolge lokal und
+über Mesh, gemeinsame Diagnosebezüge und gezielter lokaler Stopp.
+Umfang und Grenzen stehen in docs/DEVELOPMENT.md.
 
 ## Entscheidung
 
