@@ -15,7 +15,10 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
 2. **Viele Automationen übersichtlich verwalten.** Zehn sichtbare Listeneinträge,
    Suche und Regelschalterfilter je Bereich sowie ausgeschaltete Kopien lokal
    umgesetzt und mit 50/100 synthetischen Regeln geprüft. Auswahl und offene
-   Eingaben bleiben erhalten. Native Praxisprüfung nach Modulupdate offen.
+   Eingaben bleiben erhalten. Am 02.11.2026 in der nativen Testkonsole bestätigt:
+   Suche, kombinierter Filter, erhaltene Bearbeitung und ausgeschaltete Kopien
+   für Geräte- und Zeitregeln. Dabei Spaltenausrichtung korrigiert; vorhandene
+   Entwürfe und Z2M-Betrieb unverändert. Prüflimits stehen in DEVELOPMENT.md.
 3. **Zeitsteuerung vervollständigen.** Wochentage unabhängig von Zeitfenstern
    und mehrere Uhrzeiten im Klick-Editor. Geplant.
 4. **Erneute Auslösung festlegen.** Wahlweise ignorieren, neu starten oder

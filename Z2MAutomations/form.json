@@ -405,7 +405,7 @@
                         {
                             "name": "Name",
                             "caption": "Automation name",
-                            "width": "auto"
+                            "width": "240px"
                         },
                         {
                             "name": "Source",
@@ -415,7 +415,7 @@
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "auto"
+                            "width": "280px"
                         },
                         {
                             "name": "Enabled",
@@ -1374,7 +1374,7 @@
                         {
                             "name": "Name",
                             "caption": "Automation name",
-                            "width": "auto"
+                            "width": "240px"
                         },
                         {
                             "name": "Source",
@@ -1384,7 +1384,7 @@
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "auto"
+                            "width": "280px"
                         },
                         {
                             "name": "Enabled",
@@ -2344,7 +2344,7 @@
                         {
                             "name": "Name",
                             "caption": "Automation name",
-                            "width": "auto"
+                            "width": "240px"
                         },
                         {
                             "name": "Source",
@@ -2354,7 +2354,7 @@
                         {
                             "name": "Target",
                             "caption": "First target device",
-                            "width": "auto"
+                            "width": "280px"
                         },
                         {
                             "name": "Enabled",

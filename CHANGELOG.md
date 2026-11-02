@@ -10,7 +10,9 @@
   Kennung und eigenem Namen in den Entwurf übernehmen. Auslöser, Bedingungen,
   Aktionen und Folgenverweise bleiben erhalten. Offene Eingaben und veraltete
   Aufrufe sind geschützt. Deutsche Debug-Ausgaben enthalten keine Suchtexte
-  oder Regelinhalte. Ein Modulupdate genügt; Erweiterung unverändert.
+  oder Regelinhalte. Native Sichtprüfung: Namen, Auslöser, Ziel und Regelschalter
+  verwenden genau eine flexible Spalte, damit Überschrift und Zeilen gleich
+  ausgerichtet bleiben. Ein Modulupdate genügt; Erweiterung unverändert.
 
 - Der Klick-Editor zeigt noch nicht übernommene Formulareingaben, den Stand des
   Entwurfs und den bestätigten Z2M-Betrieb getrennt an. Beim Wechsel zu einer

@@ -8,8 +8,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
-- Agenda Punkt 2 lokal implementiert: zehn sichtbare Einträge je Regelbereich,
-  flexible Spalten für Namen/Auslöser/Ziel, Suche einschließlich referenzierter
+- Agenda Punkt 2 implementiert: zehn sichtbare Einträge je Regelbereich,
+  ausgerichtete Spalten mit genau einer flexiblen Auslöserspalte, Suche einschließlich referenzierter
   Geräte und kombinierter Filter des Regelschalters. Übersicht und Auswahlliste
   werden gemeinsam eingegrenzt; aktuelle Bearbeitung bleibt bei abweichendem
   Filter gekennzeichnet verfügbar. Suchtexte bleiben im flüchtigen, an den
@@ -18,9 +18,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
   und unmittelbarer Vorbelegung. Ablauf und gemeinsame Folgenverweise bleiben
   erhalten; bestehende Regeln und Z2M-Betrieb unverändert. Offene Eingaben,
   veraltete Aufrufe und die bestehende Grenze von 100 Regeln werden geprüft.
-  Synthetische native Skripte mit 50 Regeln und Grenztest mit 100 Regeln;
-  keine Test-/Produktivinstallation verändert, keine Bildschirmbedienung.
-  Native Praxisprüfung nach Modulupdate steht aus; Erweiterung unverändert.
+  Synthetische native Skripte mit 50 Regeln und Grenztest mit 100 Regeln.
+  Native Testkonsole am 02.11.2026: Suche, kombinierter Filter, Erhalt offener
+  Eingaben, Kopiersperre sowie Geräte- und Zeitkopie erfolgreich geprüft.
+  Mehrere auto-Spalten verursachten verschobene Zeilen; auf eine auto-Spalte
+  und begrenzte Pixelspalten korrigiert und erneut visuell geprüft. Nur dieses
+  Formular in Test-Symcon nachgezogen. Prüfkopie und Debugdateiaufzeichnung
+  entfernt bzw. beendet; Originalentwurf bytegleich und Z2M-Betrieb unverändert.
+  Erweiterung unverändert. Details und Grenzen in docs/DEVELOPMENT.md.
 
 - Bildschirmbedienung auf Wunsch des Anwenders vor jedem Zugriff ausdrücklich
   ankündigen. Lokale Entwicklung und Offline-Prüfungen benötigen keine Bedienung
@@ -438,8 +443,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Punkt 1 der [Entwicklungsagenda](docs/AGENDA.md) ist im beschriebenen Umfang
-   praktisch bestätigt. Punkt 2 ist lokal umgesetzt; als Nächstes dessen native Praxisprüfung.
+1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
+   Umfang praktisch bestätigt. Als Nächstes: Punkt 3, Wochentage unabhängig
+   vom Zeitfenster und mehrere Uhrzeiten im Klick-Editor.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

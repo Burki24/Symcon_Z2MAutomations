@@ -5,6 +5,8 @@ declare(strict_types=1);
 $overview = $form();
 foreach (['Device', 'Time', 'Advanced'] as $stem) {
     $check($overview['Editor' . $stem . 'Rules']['rowCount'] >= 10, 'Rule overviews show at least ten rows');
+    $widths = array_column($overview['Editor' . $stem . 'Rules']['columns'], 'width');
+    $check(count(array_filter($widths, static fn (string $width): bool => $width === 'auto')) === 1, 'Native overview columns share one flexible width so headers and rows remain aligned');
     $check(isset($overview['Editor' . $stem . 'Search'], $overview['Editor' . $stem . 'StateFilter'], $overview['Editor' . $stem . 'Results']), 'Each overview offers search, enabled filter and a result count');
 }
 $check(isset($overview['DeviceCopyRuleButton'], $overview['TimeCopyRuleButton'], $overview['CopyRuleButton']), 'Every editing area offers a copy action');

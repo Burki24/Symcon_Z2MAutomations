@@ -44,10 +44,72 @@ offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien, PHP CS Fixer im
 Prüfmodus und git diff --check erfolgreich. Alle 19 geänderten Textdateien als
 UTF-8 ohne BOM mit LF geprüft. Großkatalog-Formular: 438.969 Bytes, unter 750 KiB.
 
-Keine native Praxisprüfung und keine Installation oder Bildschirmbedienung in
-diesem Arbeitspaket. Nach dem Modulupdate stehen sichtbare Höhe/Spaltenbreite,
-Mausrad, Suche während einer Bearbeitung und Kopierbuttons in der nativen Konsole
-zur Praxisabnahme an. Bildschirmzugriff dafür vorher ausdrücklich ankündigen.
+Die lokale Implementierungsphase veränderte keine Installation. Der folgende
+Praxisnachweis ergänzt die Offline-Prüfungen nach dem Modulupdate.
+
+## Native Abnahme der Übersicht und Kopien am 02.11.2026
+
+Bildschirmbedienung vorab angekündigt. Auf Test-Symcon den aktualisierten
+Modulstand anhand der Dateihashes bestätigt. Eine vorübergehende Modulkopie las
+die sieben gespeicherten Regeln aus dem gemeinsam genutzten Z2M; der lokale
+Originalentwurf blieb erhalten. Kein Speichern, Aktivieren, Stoppen, Gerätebefehl
+oder Erweiterungsupdate in Z2M.
+
+Die native Konsole zeigte zehn Zeilen Platz je Übersicht, Trefferzahlen sowie
+Such- und Regelfilter. Gemischte Groß-/Kleinschreibung fand Gerätenamen und
+Automationsnamen. Suche und eingeschalteter Regelfilter ergaben gemeinsam null
+Treffer; Zurücksetzen der Suche behielt den Regelfilter und zeigte genau die
+eingeschaltete Regel. Auswahloptionen folgten den Treffern. Eine frische offene
+Namensänderung blieb beim Ausblenden der ausgewählten Regel unverändert; der
+Hinweis erklärte, dass die geöffnete Regel weiter bearbeitet werden kann.
+Kopieren bei dieser offenen Eingabe öffnete den Schutzdialog und erzeugte
+keine zusätzliche Regel.
+
+Nach Rücknahme der Probeänderung die tatsächlichen nativen Kopierbuttons im
+Geräte- und Zeitbereich betätigt. Beide Kopien erhielten neue IDs und den
+Namenszusatz Kopie, waren ausgeschaltet und direkt zur Bearbeitung ausgewählt.
+Uhrzeit, Zeitzone, Zeitfenster, Wochentage, Gerätebedingung und Aktionen der
+Zeitregel waren korrekt vorbelegt und in der Kopie vollständig gleich.
+Alle sieben Originalregeln blieben strukturell gleich; der Prüfentwurf wuchs
+auf neun Regeln. Jeweils der eigene Filter wurde zurückgesetzt. Zielgerätesuche
+im Zeitbereich sowie eine leere Suche mit Umlauten funktionierten. Nach
+Schließen und Neuöffnen blieben Suchtext, Trefferhinweis und ausgewählte Kopie
+erhalten.
+
+Die Sichtprüfung deckte verschobene Spalten auf: Drei auto-Spalten pro Liste
+lassen Symcon Überschrift und einzelne Zeilen unterschiedlich aufteilen. Die
+offizielle List-Schnittstelle unterstützt nur eine auto-Spalte. Namen und
+erstes Zielgerät erhielten begrenzte Pixelbreiten, Auslöser bzw. Zeitpunkt
+nutzen den Rest. Fokussierter Test scheiterte zuvor an mehreren auto-Spalten
+und besteht nach Korrektur für Geräte-, Zeit- und weiteren Bereich. Nur
+form.json in Test-Symcon aktualisiert; Geräte- und Zeitübersicht anschließend
+erneut visuell mit gleich ausgerichteten Zeilen bestätigt. Lange Namen werden
+bei knapper Breite gekürzt; vollständige Namen bleiben im Bearbeitungsfeld.
+Mausrad und Formular-Scrollleiste ließen sich bedienen; Scrollen innerhalb
+einer Liste und außerhalb zum gesamten Formular sind zu unterscheiden.
+
+Die native Debugdatei bestätigte Bereich, gesetzte Suche, Regelfilter und
+Trefferzahl sowie beide lokalen ausgeschalteten Kopien mit Anzahl der
+Auslöser, Bedingungen und Aktionen. Der bewusst eingegebene private Prüftext
+erschien weder aus dem Namensfeld noch aus dem Suchfeld im Debug. Keine
+FEHLER-Meldungen im aufgezeichneten Lauf. Dateiaufzeichnung beendet und
+temporäre Modulkopie mit ihren Statusvariablen entfernt. Originalentwurf
+bytegleich, gespeicherte und aktive Z2M-Revision und Prüfsumme, Regelanzahl,
+eingeschaltete Anzahl, laufender Betrieb, Mesh und Wiederanlauf unverändert
+durch frische Statusantwort bestätigt. Keine private Rohaufzeichnung im Repo.
+
+Prüfgrenzen: Native Konsole 9.1, sieben vorhandene Regeln und zwei vorübergehende
+Kopien; 50/100 Regeln, weitere/gemischte Auslöser, Astro-, Szenen- und
+Folgenkopien sowie MQTT-Kontextwechsel bleiben synthetisch belegt. Kein
+vollständiger nativer Nachweis unter Symcon 9.0 oder für weitere Fensterbreiten.
+Erweiterung und Helper blieben unverändert.
+
+Abschlussprüfung nach der Spaltenkorrektur: php tests/run.php einschließlich
+PHP-/JavaScript-Integration und 106 JavaScript-Tests, separate Struktur-,
+Kodierungs- und Artefaktprüfung erfolgreich. Offizielle StylePHP-Prüfung der
+15 eigenen JSON-Dateien in isolierter Kopie und PHP CS Fixer 3.95.27 im
+Prüfmodus ohne Befund. Sechs geänderte Textdateien als UTF-8 ohne BOM mit LF
+geprüft; git diff --check sauber. Kein Commit oder Push durch den Agenten.
 
 ## Native Abnahme des Bearbeitungsstands am 02.11.2026
 
