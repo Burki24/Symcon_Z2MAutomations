@@ -130,7 +130,7 @@
                 {
                     "type": "Button",
                     "caption": "Check Zigbee2MQTT connection",
-                    "onClick": "Z2MA_CheckHealth($id);"
+                    "onClick": "Z2MA_CheckHealth($id, false);"
                 },
                 {
                     "caption": "Refresh extension status",

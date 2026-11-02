@@ -74,7 +74,25 @@ $parent->publish('test/bridge/bridge/extensions', [['name' => 'z2m-automations.m
 $check($state()['bridgeOnline'] && $state()['version'] === '2.test' && $state()['externalJS'] === true && $state()['extensionInstalled'], 'Normalized bridge cache');
 $check(IPS_GetInstance($id)['InstanceStatus'] === 102, 'Bridge online activates instance');
 $check(!str_contains($module->GetTransportState(), 'synthetic-secret') && !str_contains($module->GetTransportState(), 'synthetic-source'), 'No raw config or extension code in public state');
-$transaction = $module->CheckHealth();
+$form = json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
+$pendingFields = $form['actions'];
+$healthScript = '';
+while ($pendingFields !== []) {
+    $field = array_shift($pendingFields);
+    array_push($pendingFields, ...($field['items'] ?? []));
+    if (str_contains($field['onClick'] ?? '', 'Z2MA_CheckHealth(')) {
+        $healthScript = $field['onClick'];
+    }
+}
+$check($healthScript !== '', 'The native connection check button exists');
+// Native Symcon wrappers require optional PHP parameters explicitly as well.
+$transaction = '';
+$nativeHealth = static function (int $InstanceID, bool $RefreshExtension) use ($id, $module, $check, &$transaction): string
+{
+    $check($InstanceID === $id && !$RefreshExtension, 'The manual button checks health without starting an automatic extension workflow');
+    return $transaction = $module->CheckHealth($RefreshExtension);
+};
+eval(str_replace('Z2MA_CheckHealth(', '$nativeHealth(', $healthScript));
 $check($transaction !== '' && $state()['health'] === 'pending', 'Health request starts asynchronously');
 $sent = $parent->sent;
 $check(count($sent) === 1 && $sent[0]['Topic'] === 'test/bridge/bridge/request/health_check' && $sent[0]['Payload'] === ['transaction' => $transaction], 'Official health topic and transaction');

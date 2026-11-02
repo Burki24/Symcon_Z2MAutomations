@@ -20,6 +20,10 @@
 
 ## Fehlerkorrekturen
 
+- „Zigbee2MQTT-Verbindung prüfen“ funktioniert wieder ohne Parameterfehler.
+  Der Button übergibt die vollständige Argumentliste an Symcon; Prüfung und
+  zugehörige Debug-Ausgaben werden dadurch wieder gestartet.
+
 - Geräte, Eigenschaften und Werte lassen sich im Aktionsdialog wieder auswählen,
   ohne dass die Konsole wegen eines fehlenden Funktionsparameters abbricht.
 

@@ -1663,3 +1663,21 @@ Keine Test- oder Produktivinstallation aktualisiert, keine Automationen gespeich
 oder aktiviert. Die native Darstellung und eine tatsächliche Z2M-Installation dieses
 Stands bleiben praktisch zu prüfen. Modul und mitgelieferte Erweiterung für einen
 vollständigen Vergleich aktualisieren; ältere Empfänger bleiben weiterhin abfragbar.
+
+
+## Nativer Button zur Verbindungsprüfung am 02.11.2026
+
+Der zusätzliche PHP-Parameter RefreshExtension besitzt einen Standardwert. Der
+native Symcon-Wrapper verlangt dennoch seine ausdrückliche Übergabe. Der
+Formularbutton übergab nur die Instanz-ID und brach deshalb vor Eintritt in den
+DebugFlowHelper mit einem ArgumentCountError ab. Er übergibt jetzt zusätzlich
+false; die manuelle reine Health-Prüfung und die automatische Folgeabfrage mit
+true behalten ihre bisherige Bedeutung. Die übrigen Diagnosebuttons übergeben
+bereits sämtliche Parameter ihrer öffentlichen Methoden.
+
+Der MQTT-Integrationstest führt das tatsächliche Formularskript über einen
+Wrapper mit derselben verpflichtenden Parameteranzahl aus. Vor der Korrektur
+ArgumentCountError, danach erfolgreicher asynchroner Health-Versand und passende
+Antwort einschließlich vorhandener Debugprüfung. Automatische Statusfolge
+separat erfolgreich. Kein neuer Laufzeitcode oder geändertes Z2M-Artefakt;
+für die Korrektur genügt ein Modulupdate. Keine Test- oder Live-Systemänderungen.

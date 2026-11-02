@@ -700,7 +700,10 @@ Ergebnis in OperationStatus.
 
 ## Öffentliche Funktionen
 
-- Z2MA_CheckHealth(InstanceID): Startet eine asynchrone Gesundheitsanfrage.
+- Z2MA_CheckHealth(InstanceID, false): Startet eine asynchrone Gesundheitsanfrage.
+  Der native Symcon-Aufruf benötigt den zweiten Parameter ausdrücklich. Mit
+  true folgt nach erfolgreicher Gesundheitsprüfung zusätzlich eine Statusabfrage
+  der Erweiterung; der Formularbutton verwendet false für die reine Verbindungsprüfung.
   Liefert die Transaktions-ID oder einen leeren String, wenn kein Versand möglich
   ist. Bei bereits offener Anfrage wird deren ID zurückgegeben, ohne erneut zu
   senden. Ein nicht leerer Rückgabewert bestätigt noch keine erfolgreiche Prüfung.
