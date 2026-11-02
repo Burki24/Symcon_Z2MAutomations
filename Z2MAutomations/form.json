@@ -233,6 +233,32 @@
         },
         {
             "type": "ExpansionPanel",
+            "name": "EditorWorkPanel",
+            "caption": "Editing and Z2M operation",
+            "expanded": true,
+            "items": [
+                {
+                    "type": "Label",
+                    "name": "EditorWorkInfo",
+                    "caption": "Form: No pending edits. Changes must be applied to the draft before transfer.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "DraftWorkInfo",
+                    "caption": "Draft: Load devices and saved automations first.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "RuntimeWorkInfo",
+                    "caption": "Z2M operation: Not yet confirmed. Request extension status.",
+                    "width": "100%"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
             "name": "EventImportSection",
             "caption": "Import Symcon events",
             "expanded": false,
@@ -3466,6 +3492,58 @@
                         "type": "Label",
                         "name": "HealthResultMessage",
                         "caption": "Zigbee2MQTT connection check",
+                        "width": "100%"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "SequenceWorkID",
+            "caption": "Action sequence selection",
+            "value": "",
+            "visible": false
+        },
+        {
+            "type": "PopupAlert",
+            "name": "EditorNavigationPopup",
+            "visible": false,
+            "popup": {
+                "caption": "Changes not yet applied",
+                "closeCaption": "Continue editing",
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Your changes are only in the form. Continue editing and apply them to the draft, or discard them to switch.",
+                        "width": "100%"
+                    },
+                    {
+                        "type": "ValidationTextBox",
+                        "name": "EditorNavigationToken",
+                        "caption": "Editing confirmation",
+                        "value": "",
+                        "visible": false
+                    },
+                    {
+                        "type": "Button",
+                        "name": "DiscardEditorNavigation",
+                        "caption": "Discard changes and switch",
+                        "onClick": "Z2MA_ResolveEditorNavigation($id, $EditorNavigationToken, \\Z2MAutomations\\EditorWorkInput::Capture(get_defined_vars()));"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "PopupAlert",
+            "name": "EditorWorkPopup",
+            "visible": false,
+            "popup": {
+                "caption": "Changes not yet applied",
+                "closeCaption": "Continue editing",
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Apply your form changes to the draft first. Then validate, store or activate the automations. Your inputs are preserved.",
                         "width": "100%"
                     }
                 ]

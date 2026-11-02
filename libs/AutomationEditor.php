@@ -98,6 +98,7 @@ trait AutomationEditor
                 }
                 $this->SaveEditorDraft($draft, $yaml);
                 $this->SetEditorSelection($this->ReadEditorDraft(), '');
+                $this->CompleteEditorWork('rule');
                 $state['validation'] = null;
                 $state['lastError'] = '';
                 $state['operation'] = ['kind' => 'editor', 'status' => 'draft_created', 'transaction' => ''];

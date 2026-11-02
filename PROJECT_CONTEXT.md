@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Neue verbindliche Reihenfolge: [Entwicklungsagenda](docs/AGENDA.md).
+  Punkt 1 lokal umgesetzt: getrennte Angaben zu noch nicht übernommenen
+  Formulareingaben, lokalem/geprüftem/gespeichertem Entwurf und bestätigtem
+  Z2M-Betrieb. Native Regel-/Bereichs-/Folgenwechsel fragen vor dem Verwerfen;
+  Prüfung, Übertragung und Aktivierung verlangen die vorherige Übernahme.
+  Statusabfragen und Stopp bleiben verfügbar. Kontext- und Auswahlbindungen
+  verhindern veraltete Bestätigungen. Synthetische native Callback-Prüfungen;
+  Praxisprüfung in der nativen Konsole steht aus. Kein Test- oder Live-System
+  verändert; ein Modulupdate genügt, Erweiterung unverändert.
+
 - Manuelle Verbindungsprüfung lokal um ein natives Ergebnis-Popup ergänzt:
   eigener öffentlicher CheckConnection-Einstieg, gemeinsame Health-Anfrage,
   Bestätigung erst nach passender frischer Antwort, klare Fehler-/Timeout- und
@@ -381,7 +391,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Weitere offene Funktionsbausteine mit dem Anwender priorisieren.
+1. Punkt 1 der [Entwicklungsagenda](docs/AGENDA.md) in der nativen Konsole
+   praktisch prüfen; danach die vereinbarte Reihenfolge fortsetzen.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

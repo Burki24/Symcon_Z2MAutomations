@@ -2,6 +2,15 @@
 
 ## Neu
 
+- Der Klick-Editor zeigt noch nicht übernommene Formulareingaben, den Stand des
+  Entwurfs und den bestätigten Z2M-Betrieb getrennt an. Beim Wechsel zu einer
+  anderen Automation, zum anderen Regelbereich oder zu einer anderen Aktionsfolge
+  bleiben Änderungen erhalten, bis der Anwender ausdrücklich verwirft. Prüfung,
+  Laden, Import, Löschen, Speicherung und Aktivierung erinnern bei offenen Eingaben
+  an die Übernahme in den Entwurf. Statusabfragen und Stopp bleiben verfügbar.
+  Verständliche deutsche Debug-Ausgaben protokollieren den Ablauf ohne Eingaben.
+  Ein Modulupdate genügt; die Z2M-Erweiterung bleibt unverändert.
+
 - Die manuelle Zigbee2MQTT-Verbindungsprüfung bestätigt das Ergebnis in einem
   Popup. Erfolg erst nach passender Antwort; Fehler, Abbruch und fehlende Antwort
   erhalten verständliche Hinweise. Automatische Prüfungen bleiben ohne Popup.

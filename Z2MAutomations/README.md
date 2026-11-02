@@ -1,5 +1,35 @@
 # Z2MAutomations
 
+## Bearbeitungsstand erkennen und Änderungen übernehmen
+
+Der Bereich **Bearbeitungsstand und Z2M-Betrieb** erklärt den aktuellen Stand:
+
+- **Formular:** Haben Sie Felder geändert, sind diese Angaben zunächst noch
+  nicht im Entwurf. Klicken Sie im jeweiligen Bearbeitungsbereich auf den Button
+  zum Übernehmen in den Entwurf. Für diese Bearbeitung erscheint kein allgemeiner
+  orangefarbener Übernehmen-Button von Symcon.
+- **Entwurf:** Die Änderungen liegen anschließend in Symcon. Die Anzeige sagt,
+  ob der Entwurf noch geprüft werden muss, erfolgreich geprüft oder bereits in
+  Z2M gespeichert ist. Zum Übertragen verwenden Sie die gemeinsamen Buttons
+  **Entwurf in Z2M prüfen** und **Geprüften Entwurf in Z2M speichern**.
+- **Z2M-Betrieb:** Diese Angabe zeigt den bestätigten Ausführungszustand.
+  Bereits laufende Automationen verwenden weiterhin den gespeicherten Stand,
+  solange Änderungen nur im Formular oder im Entwurf stehen. Nach dem Speichern
+  aktivieren Sie die gespeicherten Automationen wie bisher.
+
+Beim Wechsel zu einer anderen Automation, zwischen geräteausgelöster und
+zeitgesteuerter Bearbeitung oder zu einer anderen Aktionsfolge fragt das Modul
+bei offenen Änderungen nach. **Weiter bearbeiten** erhält Ihre Eingaben und die
+bisherige Auswahl. Nur **Änderungen verwerfen und wechseln** verwirft die
+Formulareingaben. Der vorhandene Entwurf und die in Z2M gespeicherten Regeln
+werden dabei nicht geändert.
+
+Prüfung, Laden gespeicherter Regeln, Import, Löschen, Speicherung und Aktivierung
+weisen bei offenen Formulareingaben auf die nötige Übernahme hin. Statusabfragen
+und Stopp können Sie weiterhin verwenden. Regelbearbeitung und Aktionsfolgen
+werden getrennt verfolgt; das Übernehmen einer Regel verwirft keine offene
+Bearbeitung einer Aktionsfolge. Die Änderung benötigt nur ein Modulupdate.
+
 ## Verbindung prüfen und Rückmeldung erhalten
 
 Mit **Zigbee2MQTT-Verbindung prüfen** starten Sie eine Prüfung über das zugeordnete

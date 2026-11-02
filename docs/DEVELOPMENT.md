@@ -1,3 +1,43 @@
+## Bearbeitungsstand und geschützter Formularwechsel
+
+Agenda Punkt 1: EditorWorkInput erfasst ausschließlich ausdrücklich freigegebene
+Bearbeitungsfelder. EditorWork bindet normalisierte Eingaben in flüchtigen
+Symcon-Buffern an Regel-/Folgenauswahl, Token, MQTT-Kontext und Inhaltsstand.
+EditorWorkForm ergänzt die vorhandenen nativen Callbacks. Ein einmaliges
+Bestätigungstoken erlaubt den Wechsel nur bei unveränderter Ausgangslage.
+Formulareingaben werden getrennt vom persistenten Entwurf und von bestätigten
+Z2M-Statusdaten geführt. Erfolgreiche Übernahme bereinigt ausschließlich den
+betroffenen Bearbeitungsbereich; parallele Folgenbearbeitung bleibt erhalten.
+Ein MQTT-Kontextwechsel darf das Laden des neuen Systems nicht blockieren.
+
+Geprüfte vorhandene Helper: ConfigurationFormHelper und DebugFlowHelper bleiben
+unverändert eingebunden. Regel-/Folgenzustand und deren Navigation sind
+librarylokal, da keine zweite Library denselben Vertrag verwendet.
+Kein Protokoll-, YAML-Schema-, Erweiterungs- oder Abhängigkeitswechsel.
+
+`tests/editor-work.php` führt die tatsächlich erzeugten nativen Callback-Skripte
+mit synthetischen Regeln aus: Wechsel mit noch nicht gemeldeter Namenseingabe,
+Weiterbearbeitung, ausdrückliches Verwerfen, abgelehnte Wiederholung, getrennte
+Bearbeitungsbereiche, Übernahme, parallele Folgenbearbeitung, Statusabfragen,
+MQTT-Kontextwechsel und bereinigtes Debug. Bestehender Ereignisimport und
+PHP-/JS-Integration bleiben Bestandteil der vollständigen Projektprüfung.
+
+Native Listen können beim onDelete noch die Zeilen vor der Löschung liefern.
+Der Callback markiert deshalb offene Änderungen; der anschließende Wechsel
+liest die aktuelle Liste erneut. Vor dieser frischen Erfassung werden die
+möglicherweise veralteten Löschzeilen nicht in ein neu aufgebautes Formular
+zurückgeschrieben. Der Schutz ist kein dauerhaftes Sitzungsbackup und ersetzt
+nicht das Übernehmen in den Entwurf. Native Praxisprüfung insbesondere für
+Listendialoge, Löschen, Umsortieren, Popup-Abbruch und Scrollbedienung steht aus.
+In diesem Arbeitspaket wurden weder Test- noch Live-System verändert.
+
+Lokale Nachweise am 02.11.2026: vollständiges `php tests/run.php` mit
+PHP-/JavaScript-Integration und 106 JavaScript-Tests, separate Strukturprüfung,
+`npm run check:extension`, offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien,
+PHP CS Fixer im Prüfmodus und `git diff --check` erfolgreich. Alle 18 geänderten
+Textdateien als UTF-8 ohne BOM mit LF geprüft. Das Großkatalog-Formular bleibt
+mit 374.618 Bytes unter dem projektinternen Budget von 750 KiB.
+
 ## Vorhandene Szenen als Aktionen
 
 EditorScenes und src/scenes.mjs sind librarylokal; vorhandene zentrale Formular-,

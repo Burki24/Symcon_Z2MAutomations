@@ -11,6 +11,8 @@ require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/RuleExecution.php';
 require_once __DIR__ . '/../libs/ReusableSequences.php';
+require_once __DIR__ . '/../libs/EditorWork.php';
+require_once __DIR__ . '/../libs/EditorWorkForm.php';
 require_once __DIR__ . '/../libs/SequencePlan.php';
 require_once __DIR__ . '/../libs/ExecutionContract.php';
 require_once __DIR__ . '/../libs/AutomaticStatusRefresh.php';
@@ -48,6 +50,8 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\RuntimeDebug;
     use Z2MAutomations\RuleExecution;
     use Z2MAutomations\ReusableSequences;
+    use Z2MAutomations\EditorWork;
+    use Z2MAutomations\EditorWorkForm;
     use Z2MAutomations\AutomaticStatusRefresh;
     use Z2MAutomations\EditorGroupTargets;
     use Z2MAutomations\EditorScenes;
@@ -185,6 +189,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->FillRuntimeDebugForm($form);
             $this->FillRuleExecutionForm($form, $state);
             $this->FillReusableSequenceForm($form);
+            $this->FillEditorWorkForm($form, $state);
             $this->QueueAutomaticStatusRefresh('Formular geöffnet');
             return $this->EncodeConfigurationForm($form);
         });
@@ -542,6 +547,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->SetValue('HealthStatus', $this->Translate(ucfirst($state['health'])));
         $this->SaveExtensionState($state);
         $this->UpdateRuleExecutionForm($state);
+        $this->UpdateEditorWorkStatus($state);
         $deadlines = [];
         foreach ([$state['pending'], $state['workflow']] as $request) {
             if ($request !== null) {

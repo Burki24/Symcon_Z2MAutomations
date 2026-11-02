@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Formulareingaben und Entwurf unterscheiden
+
+TrackEditorInput, NavigateEditor, ResolveEditorNavigation und EditorWorkReady
+verwenden den kanonischen DebugFlowHelper. Feste deutsche Meldungen erklären
+neue offene Eingaben, die Rückkehr zum Entwurfsstand, den angehaltenen Wechsel,
+das ausdrücklich bestätigte Verwerfen und abgelehnte veraltete Bestätigungen.
+Der Bezug benennt nur Automation oder Aktionsfolge. Weder Eingabewerte, Namen,
+Auswahltoken noch der Formularschnappschuss gelangen in Debug-Ausgaben.
+Eine normale Statusabfrage verändert den Bearbeitungsstand nicht. Die drei
+Formularanzeigen erklären Eingaben, Entwurfsstand und tatsächlichen Betrieb.
+
 ## Rückmeldung der manuellen Verbindungsprüfung
 
 CheckConnection verwendet den bestehenden DebugFlowHelper und denselben
