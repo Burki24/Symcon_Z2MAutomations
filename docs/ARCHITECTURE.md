@@ -1,15 +1,25 @@
 # Architektur
 
+## Lesende Anbindung des Automationsdesigners
+
+AutomationDesigner ergänzt OpenAutomationDesigner/GetDesignerData und einen
+flüchtigen, instanzbezogenen GET-WebHook. Der Designer zeigt nur bereits
+vorhandene, zum aktuellen TransportScope passende Editor-/Katalogdaten.
+Keine MQTT-Abfrage, keine Attributänderung und kein Aufruf der Laufzeitsteuerung.
+Anzeigen/Schaltrechte verwenden die vorhandenen Katalogpfade. Der Browserzugang
+ist gehasht, zeitlich begrenzt und ohne Query-Token; Routen sind fest begrenzt.
+Assets und HTTP-Antworten verwenden unveränderte zentrale Helper.
+Details und Grenzen: [ADR 0021](adr/0021-read-only-browser-designer.md).
+
 ## Offline-Entwurf des Automationsdesigners
 
-docs/prototypes/automation-designer enthält eine separat gehostete statische
-Bedienvorschau mit eigenem, flüchtigem Ansichtsmodell. Sie ist nicht Teil des
-Modulformulars oder Erweiterungsartefakts und ändert keine öffentlichen
-Verträge. Kein WebHook, keine Kachel, keine neue Server- oder MQTT-Schicht.
-Prüfen, Speichern und Betrieb sind dort ausdrücklich Simulationen mit
-synthetischen Daten. Die spätere Host-/Backend-Anbindung ist noch offen;
-vorhandene Modulvalidierung, Speicherwege und DebugFlowHelper bleiben dafür
-maßgeblich. Siehe [Umfang und Grenzen](prototypes/automation-designer/README.md).
+Die Anleitung unter docs/prototypes/automation-designer verweist auf die
+kanonischen Assets unter Z2MAutomations/visualization. index.html/designer.js
+bleiben als separat gehosteter Offline-Modus mit synthetischem Ansichtsmodell
+verfügbar. Die echte WebHook-Seite lädt ausschließlich reader.js und keine
+Beispieldaten. Nur die statische HTML-/CSS-Grundlage wird gemeinsam genutzt.
+Prüfen, Speichern und Betrieb im Offline-Modus bleiben ausdrücklich Simulationen.
+Siehe [Umfang und Grenzen](prototypes/automation-designer/README.md).
 
 ## Startbedingungen
 

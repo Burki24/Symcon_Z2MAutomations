@@ -67,7 +67,7 @@ h1 { font-size: 16px; letter-spacing: -.2px; }
 .entry.active { background: #f3f8fa; border-color: #b5d1d4; box-shadow: inset 3px 0 0 var(--primary); }
 .entry-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 7px; }
 .entry-title-row strong { line-height: 1.45; overflow-wrap: anywhere; font-weight: 650; }
-.entry small { display: block; font-size: 10px; color: #7a899b; line-height: 1.5; margin-top: 7px; }
+.entry small { display: block; font-size: 10px; color: #7a899b; line-height: 1.5; margin-top: 7px; overflow-wrap: anywhere; }
 .enabled-dot { margin-top: 5px; width: 6px; height: 6px; border-radius: 50%; background: #b8c2cd; flex-shrink: 0; }
 .enabled-dot.on { background: #39a482; }
 .empty-list { color: var(--muted); line-height: 1.6; padding: 15px 8px; font-size: 12px; }
@@ -159,6 +159,14 @@ dialog h2 { font-size: 20px; margin: 9px 0 23px; }
 dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .dialog-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }
 [hidden] { display: none !important; }
+.read-only #save-button, .read-only #activate-button, .read-only #stop-button, .read-only .navigation-footer, .read-only .activity, .read-only .toolbar-divider { display: none; }
+.read-only .preview-label { color: #276d67; background: #e7f5ef; }
+.read-only .preview-notice { color: #276d67; background: #edf8f4; border-color: #cfe5dc; }
+.read-card { width: 100%; text-align: left; font-weight: 400; }
+.read-summary { display: block; font-size: 12px; line-height: 1.6; color: #64758a; margin-top: 5px; overflow-wrap: anywhere; }
+.read-field { border-bottom: 1px solid var(--line); padding: 0 0 15px; margin-bottom: 16px; overflow-wrap: anywhere; }
+.read-field > span { display: block; font-size: 12px; color: #68768b; margin-bottom: 6px; }
+.read-field > strong { display: block; font-size: 13px; font-weight: 500; white-space: pre-wrap; line-height: 1.6; }
 @media (min-width: 1600px) { .workspace { grid-template-columns: 270px minmax(400px, 1fr) 350px; padding-left: 26px; padding-right: 26px; gap: 22px; } .flow { padding-top: 35px; } .flow-card { min-height: 83px; } }
 @media (max-width: 1100px) { .workspace { grid-template-columns: 210px minmax(310px, 1fr) 280px; gap: 10px; padding-left: 12px; padding-right: 12px; } .flow { padding: 22px 18px; } .canvas-heading { padding: 21px 18px; } .canvas-heading h2 { font-size: 18px; } .brand strong { font-size: 17px; } .app-header { padding: 14px 18px; } .canvas-footer { flex-wrap: wrap; } }
 @media (max-width: 950px) { .workspace { height: auto; min-height: 0; grid-template-columns: 210px minmax(0, 1fr); align-items: start; } .navigation { grid-row: 1 / span 2; position: sticky; top: 12px; max-height: calc(100dvh - 24px); } .canvas { min-height: 550px; } .canvas-scroll { max-height: none; overflow-y: visible; } .inspector { grid-column: 2; } .inspector-fields { overflow-y: visible; } .preview-notice { flex-wrap: wrap; gap: 5px 8px; } .app-header { align-items: flex-start; flex-direction: column; } .status-strip { padding-left: 14px; padding-right: 14px; } .entry-list { max-height: 440px; } }

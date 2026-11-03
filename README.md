@@ -71,6 +71,9 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
 
 ## Module
 
+- [Lesender Automationsdesigner](Z2MAutomations/README.md#automationsdesigner-im-browser-zunächst-nur-ansehen):
+  Regeln, Aktionsfolgen und Gerätedaten der Modulinstanz übersichtlich im Browser
+  ansehen. Die erste Anbindung verändert weder Entwürfe noch Geräte oder Z2M.
 - [Vorschau des Automationsdesigners](docs/prototypes/automation-designer/README.md):
   separat öffnbarer Oberflächenentwurf mit erfundenen Beispielen. Noch keine
   Anbindung an das Modul oder an Geräte.

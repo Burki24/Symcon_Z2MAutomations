@@ -21,6 +21,12 @@
         },
         "DebugFlowHelper": {
             "target": "libs/helper/DebugFlowHelper.php"
+        },
+        "VisualizationAssetHelper": {
+            "target": "libs/helper/VisualizationAssetHelper.php"
+        },
+        "HttpResponseHelper": {
+            "target": "libs/helper/HttpResponseHelper.php"
         }
     }
 }

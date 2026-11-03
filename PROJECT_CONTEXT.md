@@ -8,13 +8,22 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Designer Schritt 1 lesend angebunden (ADR 0021): Formularbutton öffnet den
+  instanzbezogenen Browserzugang. Vorhandene Regeln/Folgen und Katalogdaten aus
+  passendem TransportScope, keine MQTT-/Speicher-/Geräteaktion. Kurzlebige,
+  gehashte Zugänge, feste GET-Routen, zentrale Asset-/HTTP-Helper unverändert
+  als Bundle. HTML/CSS und Offline-Beispiele jetzt kanonisch im Modulordner;
+  echte Ansicht lädt nur reader.js. Früh eintreffenden MQTT-Empfang beim
+  Modulneuladen abgesichert. Praxis- und Prüfnachweise in DEVELOPMENT.md.
+
 - Erster klickbarer Automationsdesigner unter docs/prototypes/automation-designer
   lokal umgesetzt und im Browser geprüft: Navigation, Wenn/Nur wenn/Dann,
   Eigenschaften, Drag & Drop mit Schrittwartezeiten und simulierte Statusführung.
   Ausschließlich synthetische Beispiele, keine Symcon-/MQTT-/Geräteanbindung
-  und keine Live-Änderung. Kein Kachelprojekt. Vor Integration geeigneten
-  Symcon-Host, Eingabevertrag und Helper-Anbindung getrennt festlegen; ein
-  eigener Konsolentab ist noch nicht als öffentliche Schnittstelle bestätigt.
+  und keine Live-Änderung. Kein Kachelprojekt. Anschließend über einen
+  instanzbezogenen Browserlink lesend angebunden; ein eigener Konsolentab
+  ist weiterhin nicht als öffentliche Schnittstelle bestätigt. Bearbeitung
+  und Übertragung im neuen Designer bleiben ein Folgeschritt.
   Geprüfte Bedienwege und Grenzen stehen im Prototyp-README und DEVELOPMENT.md.
 
 - Gerätebedingungen mit „Nur beim Start“ lokal ergänzt (ADR 0020). Neues

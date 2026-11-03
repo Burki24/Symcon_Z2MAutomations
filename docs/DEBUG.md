@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Lesender Automationsdesigner
+
+OpenAutomationDesigner, GetDesignerData und ProcessHookData verwenden den
+bestehenden DebugFlowHelper mit Start und Ende. Deutsche Ablaufmeldungen
+erklären den befristeten Lesezugang, Mengen vorhandener Geräte/Regeln/Folgen,
+fehlende Entwurfsdaten und beantwortete HTTP-Abrufe. Ablehnungen nennen den
+HTTP-Status. Weder Zugang, Link, HTTP-Header, Regelnamen noch Schaltwerte oder
+Entwurfsinhalte werden protokolliert. Auch Aktualisieren verändert weder
+Entwurf noch Z2M. Es startet keine MQTT-Aufzeichnung oder Statusabfrage.
+
+Während einer Modulinitialisierung eingehende MQTT-Nachrichten werden bis zur
+Registrierung der Einstellungen mit einer erklärenden Ablaufmeldung verworfen,
+statt nicht vorhandene Properties zu lesen. ApplyChanges setzt danach wieder
+den vorhandenen Topicfilter und die verzögerte Statusprüfung.
+
 ## Startbedingungen
 
 InspectEditorConditions und SaveScheduledAutomation nennen zusätzlich die

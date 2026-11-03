@@ -583,7 +583,10 @@
             "Color": "Farbe",
             "Set %s properties together": "%s Eigenschaften gemeinsam setzen",
             "Only at start": "Nur beim Start",
-            "Only at start: this condition must match before a new run. Later actions and extending a running wait do not check it again. A restart checks it again. Use this for brightness so the delayed Off action still runs when it gets brighter.": "Nur beim Start: Diese Bedingung muss vor einem neuen Ablauf erfüllt sein. Danach werden die Aktionen und das Verlängern der Wartezeit davon nicht mehr blockiert. Beim Neustart des Ablaufs wird sie erneut geprüft. Das eignet sich für Helligkeit: Das Licht wird nach der Wartezeit auch dann ausgeschaltet, wenn es inzwischen heller ist."
+            "Only at start: this condition must match before a new run. Later actions and extending a running wait do not check it again. A restart checks it again. Use this for brightness so the delayed Off action still runs when it gets brighter.": "Nur beim Start: Diese Bedingung muss vor einem neuen Ablauf erfüllt sein. Danach werden die Aktionen und das Verlängern der Wartezeit davon nicht mehr blockiert. Beim Neustart des Ablaufs wird sie erneut geprüft. Das eignet sich für Helligkeit: Das Licht wird nach der Wartezeit auch dann ausgeschaltet, wenn es inzwischen heller ist.",
+            "Automation designer": "Automationsdesigner",
+            "View existing automations, sequences and device properties in the browser. Read-only module data; no storage, activation or device commands.": "Vorhandene Automationen, Aktionsfolgen und Geräteeigenschaften im Browser ansehen. Nur Daten aus dem Modul; kein Speichern, Aktivieren oder Schalten.",
+            "Open automation designer (read-only)": "Automationsdesigner öffnen (nur lesen)"
         }
     }
 }

@@ -2,6 +2,15 @@
 
 ## Neu
 
+- Erster lesender Automationsdesigner aus dem Modul: vorhandene Regeln,
+  Aktionsfolgen, Geräte, Kanäle und Szenen im Browser ansehen. Bedingungen,
+  Wartezeiten und systemübergreifende Ziele werden mit den vorhandenen Daten
+  angezeigt; aktuelle Symcon-Schaltrechte sind erkennbar. Kurzlebiger Lesezugang,
+  verständliche Hinweise bei fehlenden Daten und deutsche native Debugausgaben.
+  Kein Speichern oder Schalten, keine Änderung der Z2M-Erweiterung. Zusätzlich
+  frühe MQTT-Nachrichten beim Modulneuladen bis zur vollständigen Registrierung
+  der Einstellungen abweisen. Die Offline-Vorschau bleibt getrennt erhalten.
+
 - Klickbare Offline-Vorschau eines eigenen Automationsdesigners: Navigation,
   Ablauf „Wenn / Nur wenn / Dann“, Eigenschaften und Aktionen per Drag & Drop.
   Ausschließlich erfundene Beispieldaten und Speicherung im geöffneten Fenster;

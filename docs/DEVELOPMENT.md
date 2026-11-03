@@ -1,3 +1,87 @@
+## Automationsdesigner: lesende Anbindung am 03.11.2026
+
+Den bestätigten Entwurf als ersten Integrationsschritt an vorhandene Moduldaten
+angebunden (ADR 0021). Formularbutton mit dokumentiertem relativem Browserlink,
+flüchtiger instanzbezogener WebHook, streng begrenzter GET-Vertrag und gehashte
+15-Minuten-Zugänge. Kein neuer YAML-Speicher und keine Z2M-Operation. Der Export
+liest vorhandene Editor-/Katalogcaches, prüft den gemeinsamen TransportScope und
+verwendet aktuelle Symcon-Schaltrechte. Offene native Formulareingaben bleiben
+erhalten und werden nur als ausstehend gekennzeichnet. Fehlende oder abweichende
+Daten werden nicht durch Beispiele ersetzt. Antworten auf 2 MiB begrenzt.
+
+VisualizationAssetHelper und HttpResponseHelper aus dem zentralen Manifest mit
+dem vorhandenen Bundle-Verfahren einschließlich Assets übernommen. Subscription
+und Consumer-Manifest ergänzt, zentrale Dateien unverändert. Keine Kachel oder
+IPSView-Seite; der entsprechende Seiten-Helper wird deshalb nicht eingebunden.
+HTML/CSS und Offline-JavaScript aus dem Prototypordner in den kanonischen
+Modulordner verschoben. WebHook lädt nur reader.js; die separate Offline-Vorschau
+bleibt über denselben lokalen Vorschau-Server erreichbar.
+
+Neue synthetische Grenztests prüfen fehlende Caches, vollständige vorhandene
+Regeln/Folgen und Wartezeiten, offene Formulareingaben, entzogene Schaltrechte,
+HTTP-Routen, verweigerte Schreibzugriffe und unzulässige Datei-/Queryzugriffe.
+Zugang ohne Token, falscher Token, andere Instanz, Ablaufzeit, maximal vier
+Sitzungen und angewendeter Topicwechsel werden abgewiesen. Getrennte native
+Eingaben, lokaler Entwurf und Transportzustand bleiben bei Leseabrufen bytegleich.
+Debug enthält deutsche Entscheidungen und Mengen, keine Werte/Namen/Zugänge.
+Beide Designer-Skripte werden jetzt auch im zentralen Projektlauf syntaktisch
+geprüft. Die Originalerweiterung und ihr Artefakt bleiben unverändert.
+
+Nur Test-Symcon 9.1 per MCP aktualisiert, Originaldateien und Testentwurf außerhalb
+des Repositorys gesichert. Vorhandene Datei-Hashes mit lokalem Ausgangsstand
+abgeglichen. Beim ersten Reload trifft ein MQTT-Paket vor Registrierung der
+BaseTopic-Property ein und erzeugt Warnung/TypeError. Empfang während der
+Initialisierung jetzt gesperrt und im Handler über einen Bereitschaftsbuffer
+abgewiesen. Gezielt synthetisch nachgestellt; erneuter echter Reload ohne
+Warnungen/Fehler, MQTT-Regression erfolgreich.
+
+Der bisherige lokale Testentwurf/Katalog gehört nicht mehr zur aktuellen
+Verbindung. Keine automatische Ersetzung. Deshalb eine ausdrücklich temporäre
+Prüfinstanz am vorhandenen Testgateway angelegt und nur bestehende Z2M-Daten
+geladen. Keine Regel validiert, gespeichert, aktiviert oder gestoppt und keine
+Erweiterung installiert. Die vorhandene Editorlogik bereitet gegebenenfalls
+eine lokale Folgerevision vor; die Browseranzeige unterscheidet diesen lokalen
+Entwurf vom zuletzt bestätigten aktiven Stand.
+
+Im eigenen Hintergrund-Browsertab acht vorhandene Regeln und 91 Geräte/Gruppen
+gelesen. Geräteereignisse, Zeitregel mit Zeitfenster und Temperatur, Startbedingung,
+Schaltaktionen und Schrittwartezeit korrekt sichtbar. Einzelne Tasterkanäle samt
+Symcon-Schaltrecht und reine Anzeigeeigenschaften getrennt dargestellt. Suche,
+Bereichs-/Regelauswahl, Detailvorbelegung und erneutes Lesen bestätigt. Lange
+Gerätetexte verursachten zunächst einen horizontalen Listenüberlauf; gezielt
+umbrochen, danach Client-/Scrollbreite gleich. Browser enthält außer Suchfeld
+keine Regelfelder und keine Speicher-/Betriebsaktionen. Keine Browserwarnungen
+oder JavaScriptfehler. Mausrad über Liste, Ablauf und Eigenschaften jeweils in
+beide Richtungen mit unveränderten Nachbarbereichen geprüft. Responsive Ansicht
+bei 760 und 390 Pixel ohne horizontale Seiten-/Panelüberbreite.
+
+Echte HTTP-Nachweise: Shell 200, Daten ohne Token 403, Beispielskript 404,
+POST 405; no-store, no-referrer, nosniff und CSP gesetzt. Ein autorisierter
+GET liefert denselben Datenvertrag wie der Modulaufruf. Wegen stark rotierendem
+gemeinsamem Debugbuffer zuletzt kurz eine native Debugdatei verwendet. Sie
+bestätigt Öffnen und Export sowie den HTTP-Handler mit Start/Sendung/Ende,
+deutscher Erläuterung, Mengen und Byteumfang, ohne Token oder Inhalte. Symcon
+führt die WebHook-Klasse als HookInstance; die Instanz-ID bleibt der Bezug.
+Aufzeichnung danach beendet. Temporäre Prüfinstanz samt eigenen Statusvariablen
+entfernt und Fehlen bestätigt. Originaler Testentwurf bytegleich; zuvor bestätigte
+gespeicherte/aktive Revision, eingeschaltete Anzahl, Mesh und Fehlerfreiheit
+unverändert. Keine Änderung der Produktivinstallation oder des Z2M-Regelstands.
+
+Native Desktopkonsolen-Klicks, Fernzugriff/Proxy, andere Browser und native
+Symcon 9.0 sind damit nicht abgenommen. Ein eigener Konsolentab wird nicht
+behauptet. Im realen Datenbestand waren keine wiederverwendbaren Folgen
+gespeichert; deren Export wurde synthetisch, ihr Aufruf nicht real geprüft.
+Screenshots, Zugänge, Debugrohdatei und private Daten außerhalb des Repositorys.
+
+Abschluss erfolgreich: php tests/run.php einschließlich der neuen Designer-
+Grenzprüfung, beider JavaScript-Syntaxprüfungen und 127 JavaScript-Tests;
+Erweiterungsartefakt aktuell, Struktur- und zentrale Kodierungsprüfung sauber.
+Offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
+und PHP CS Fixer 3.95.27 im Prüfmodus (0 von 78 Dateien zu ändern) erfolgreich.
+Helper-/Asset-Hashes und neue Helper gegen die dokumentierte zentrale
+Commitquelle verglichen. Eigene Dateien UTF-8 ohne BOM/LF, git diff --check
+sauber. Kein Commit, Push oder Release.
+
 ## Automationsdesigner: erste Offline-Vorschau am 03.11.2026
 
 Auf ausdrücklichen Auftrag die bestätigte Aufteilung als klickbaren Entwurf

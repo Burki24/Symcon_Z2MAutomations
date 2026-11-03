@@ -7,6 +7,9 @@ require_once __DIR__ . '/../libs/helper/ParentConnectionHelper.php';
 require_once __DIR__ . '/../libs/helper/VariablePresentationHelper.php';
 require_once __DIR__ . '/../libs/helper/ConfigurationFormHelper.php';
 require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
+require_once __DIR__ . '/../libs/helper/VisualizationAssetHelper.php';
+require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
+require_once __DIR__ . '/../libs/AutomationDesigner.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/RuleExecution.php';
@@ -49,6 +52,9 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\VariablePresentationHelper;
     use Burki24\SymconModuleHelper\ConfigurationFormHelper;
     use Burki24\SymconModuleHelper\DebugFlowHelper;
+    use Burki24\SymconModuleHelper\VisualizationAssetHelper;
+    use Burki24\SymconModuleHelper\HttpResponseHelper;
+    use Z2MAutomations\AutomationDesigner;
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\RuntimeDebug;
     use Z2MAutomations\RuleExecution;
@@ -82,6 +88,8 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::Create();
+            $this->SetBuffer('ModulePropertiesReady', '');
+            $this->SetReceiveDataFilter(Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->RegisterPropertyBoolean('Active', false);
             $this->RegisterPropertyBoolean('ResumeAfterRestart', true);
             $this->RegisterPropertyString('BaseTopic', 'zigbee2mqtt');
@@ -100,6 +108,10 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('EditorConditionProperty', '');
             $this->RegisterAttributeString('EditorModes', '');
             $this->RegisterAttributeBoolean('ShowYaml', false);
+            $this->SetBuffer('DesignerSessions', '');
+            if (!$this->RegisterHook($this->DesignerHookName())) {
+                $this->DebugEvent('FEHLER', 'Lesender Designerzugang konnte nicht registriert werden. Das native Formular bleibt verfügbar.');
+            }
             $this->RegisterTimer('RuntimeDebugExpiry', 0, 'Z2MA_ExpireRuntimeDebug($_IPS[\'TARGET\']);');
             $this->RegisterTimer('ExecutionRefresh', 0, 'Z2MA_RefreshExecutionStatus($_IPS[\'TARGET\']);');
             $this->RegisterTimer('StatusRefresh', 0, 'Z2MA_RefreshStatus($_IPS[\'TARGET\']);');
@@ -122,6 +134,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterVariableString('ExecutionStatus', $this->Translate('Automation execution'), $this->TextPresentation(), 130);
             $this->RegisterVariableString('RuntimeError', $this->Translate('Last execution error'), $this->TextPresentation(), 140);
             $this->RegisterVariableBoolean('MeshReady', $this->Translate('Incoming actions from second Z2M enabled'), $this->BooleanPresentation($this->Translate('Active'), $this->Translate('Stopped or unknown')), 150);
+            $this->SetBuffer('ModulePropertiesReady', '1');
         });
     }
 
@@ -130,6 +143,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::ApplyChanges();
+            $this->SetBuffer('DesignerSessions', '');
             $this->SetBuffer('GatewayTopicReview', '');
             $this->SetReceiveDataFilter($this->ReadPropertyBoolean('Active') ? Z2MProtocol::ReceiveFilter($this->ReadPropertyString('BaseTopic')) : Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->WithTransportLock(function (): void
@@ -228,6 +242,10 @@ class Z2MAutomations extends IPSModuleStrict
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($JSONString)
         {
+            if ($this->GetBuffer('ModulePropertiesReady') !== '1') {
+                $this->DebugEvent('AKTION', 'Frühe MQTT-Nachricht während der Modulinitialisierung verworfen; Einstellungen noch nicht vollständig registriert.');
+                return '';
+            }
             try {
                 if (strlen($JSONString) > Z2MProtocol::MAX_PAYLOAD_BYTES * 2 + 8192) {
                     $this->DebugEvent('FEHLER', 'MQTT-Nachricht wegen Übergröße verworfen.');
@@ -374,6 +392,11 @@ class Z2MAutomations extends IPSModuleStrict
         });
     }
 
+    protected function VisualizationAssetDirectory(): string
+    {
+        return __DIR__ . '/visualization';
+    }
+
     protected function Now(): int
     {
         return time();
@@ -485,6 +508,7 @@ class Z2MAutomations extends IPSModuleStrict
         if ($parent === $previous) {
             return;
         }
+        $this->SetBuffer('DesignerSessions', '');
         foreach ([IM_CHANGESTATUS, IM_DELETE] as $message) {
             if ($previous > 0) {
                 $this->UnregisterMessage($previous, $message);
@@ -506,14 +530,19 @@ class Z2MAutomations extends IPSModuleStrict
             && $this->ReadPropertyInteger('RequestTimeout') >= 1 && $this->ReadPropertyInteger('RequestTimeout') <= 120;
     }
 
-    private function RefreshState(): array
+    private function TransportScope(): string
     {
-        $parent = $this->GetParentID();
-        $context = [$parent, $this->ReadPropertyString('BaseTopic'), $this->ReadPropertyBoolean('Active'), $this->ReadPropertyInteger('RequestTimeout')];
+        $context = [$this->GetParentID(), $this->ReadPropertyString('BaseTopic'), $this->ReadPropertyBoolean('Active'), $this->ReadPropertyInteger('RequestTimeout')];
         if ($this->ReadPropertyInteger('PeerModuleID') !== 0) {
             $context[] = $this->PeerContext();
         }
-        $scope = json_encode($context, JSON_THROW_ON_ERROR);
+        return json_encode($context, JSON_THROW_ON_ERROR);
+    }
+
+    private function RefreshState(): array
+    {
+        $parent = $this->GetParentID();
+        $scope = $this->TransportScope();
         $connected = $this->ReadPropertyBoolean('Active') && $this->ValidConfiguration() && $this->HasParent()
             && in_array(IPS_GetInstance($parent)['ModuleInfo']['ModuleID'], [Z2MProtocol::MQTT_CLIENT, Z2MProtocol::MQTT_SERVER], true)
             && $this->HasActiveParent();

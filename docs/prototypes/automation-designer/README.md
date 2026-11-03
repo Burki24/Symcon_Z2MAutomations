@@ -1,16 +1,18 @@
 # Automationsdesigner: klickbare Vorschau
 
-Dieser erste Entwurf zeigt eine eigene Konfigurationsoberfläche mit Navigation,
-Ablauf und Eigenschaften. Er ist noch kein Bestandteil des installierten Moduls.
-Alle Geräte, Regeln, Kanäle und Szenen sind erfundene Beispiele.
+Dieser Offline-Modus zeigt die eigene Konfigurationsoberfläche mit Navigation,
+Ablauf und Eigenschaften. Alle Geräte, Regeln, Kanäle und Szenen sind erfundene
+Beispiele. Die kanonischen Dateien liegen jetzt unter
+Z2MAutomations/visualization. Der getrennte lesende Modulzugang lädt reader.js;
+diese Offline-Vorschau lädt weiterhin designer.js mit Beispielen.
 
 ## Öffnen
 
-[index.html](index.html) direkt im Browser öffnen. Alternativ aus dem
+[index.html](../../../Z2MAutomations/visualization/index.html) direkt im Browser öffnen. Alternativ aus dem
 Repository-Verzeichnis einen lokalen Vorschau-Server starten:
 
 ```powershell
-python -m http.server 7405 --bind 127.0.0.1 --directory docs/prototypes/automation-designer
+python -m http.server 7405 --bind 127.0.0.1 --directory Z2MAutomations/visualization
 ```
 
 Danach `http://127.0.0.1:7405/` aufrufen. Es sind keine zusätzlichen Pakete nötig.

@@ -20,9 +20,36 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
-Eine [separate Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
-zeigt die geplante übersichtlichere Bearbeitung. Sie verwendet ausschließlich
-Beispiele und ist noch nicht mit dieser Instanz verbunden.
+## Automationsdesigner im Browser: zunächst nur ansehen
+
+„Automationsdesigner öffnen (nur lesen)“ öffnet die übersichtliche Browseransicht
+dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder
+„Geräte & Kanäle“ auswählen. In der Mitte einen Baustein anklicken; rechts
+erscheinen seine Angaben. Auch Bedingungen, Wartezeiten, Szenen, gemeinsame
+Gerätebefehle und Ziele des zweiten Systems werden dargestellt.
+
+Diese erste Anbindung zeigt ausschließlich bereits im Modul vorhandene Daten.
+„Ansicht aktualisieren“ liest sie erneut aus dem Modul. Es fragt keine Geräte
+oder Z2M ab und ersetzt keine Entwürfe. Der angezeigte Betrieb ist der zuletzt
+bestätigte Stand; ein eingeschalteter Regelschalter im Entwurf bedeutet nicht
+automatisch, dass diese Fassung bereits läuft.
+
+Fehlen Daten für die aktuelle Verbindung, erscheint ein Hinweis. Ein noch aus
+einer anderen Verbindung stammender Entwurf wird nicht als aktueller Stand
+angezeigt oder überschrieben. Bitte den vorhandenen Entwurf zuerst im nativen
+Formular prüfen. Noch nicht übernommene Formulareingaben bleiben dort erhalten
+und werden in der Browseransicht lediglich als ausstehend gemeldet.
+
+Bearbeiten, Speichern, Aktivieren und Stoppen erfolgen weiterhin im nativen
+Formular. Die Browseransicht bietet dafür noch keine Bedienelemente. Nach 15
+Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
+nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen
+können. Ein Modulupdate genügt, die Z2M-Erweiterung bleibt unverändert.
+
+Die [Offline-Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
+bleibt zusätzlich mit erfundenen Beispielen zum Ausprobieren verfügbar. Ihre
+simulierten Speicher- und Betriebsbuttons sind vom echten lesenden Designer
+getrennt.
 
 ## Voraussetzungen und Einrichtung
 

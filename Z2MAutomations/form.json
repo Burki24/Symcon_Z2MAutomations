@@ -191,6 +191,25 @@
             ]
         },
         {
+            "type": "ExpansionPanel",
+            "name": "AutomationDesigner",
+            "caption": "Automation designer",
+            "expanded": true,
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "View existing automations, sequences and device properties in the browser. Read-only module data; no storage, activation or device commands.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Button",
+                    "name": "OpenDesignerButton",
+                    "caption": "Open automation designer (read-only)",
+                    "onClick": "$link = Z2MA_OpenAutomationDesigner($id); echo $link !== '' ? $link : 'Der Automationsdesigner konnte nicht geöffnet werden. Bitte das Debugfenster prüfen.';"
+                }
+            ]
+        },
+        {
             "type": "Label",
             "name": "ExecutionInfo",
             "caption": "Execution state unknown. Refresh extension status.",

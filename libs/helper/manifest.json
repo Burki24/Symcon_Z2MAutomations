@@ -46,6 +46,32 @@
                     "source_sha": "a80c7b9fc1d943651a37128d174ee56be0cb275f"
                 }
             ]
+        },
+        "VisualizationAssetHelper": {
+            "version": "1.1.1",
+            "sha256": "5df251b5ceb7a9867f2330de6b0476b0c11f1762aeda7c03f08d3ad66f4433d6",
+            "path": "libs/helper/VisualizationAssetHelper.php",
+            "source_sha": "b70deba539c9b7ed0c758320d9d4ef52eb9ebfc1",
+            "assets": [
+                {
+                    "path": "libs/helper/visualization/http-origin.js",
+                    "sha256": "c6c8dd8355b426ddaa38d1789164aac06b4d7d0ccfb8196fcaa88b2ebc2c0456"
+                },
+                {
+                    "path": "libs/helper/visualization/interaction.js",
+                    "sha256": "ed03a790da87ccaf747dac426107bf9b9b57a54c5bcab2281b199d662cbaa3ed"
+                },
+                {
+                    "path": "libs/helper/visualization/interaction.min.js",
+                    "sha256": "0bd1aa60899bd9859a26943a9506b5b52126f45f9cd19532a573e6cb0cb28289"
+                }
+            ]
+        },
+        "HttpResponseHelper": {
+            "version": "1.1.0",
+            "sha256": "be4fae4c23f757ab462237d8e74d2a9dca1b504937ed4d4b51c7ff76004cf1cd",
+            "path": "libs/helper/HttpResponseHelper.php",
+            "source_sha": "b70deba539c9b7ed0c758320d9d4ef52eb9ebfc1"
         }
     }
 }
