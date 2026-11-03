@@ -53,6 +53,83 @@ Großkatalog-Formular: 611.982 Bytes unter 750 KiB. Neue/geänderte Texte UTF-8
 ohne BOM mit LF; git diff --check sauber. Keine Fremdquellen, zentralen Helper
 oder Versionsmetadaten geändert; kein Commit/Push.
 
+## Erneute Auslösung: Editor-/Speicherprüfung am 03.11.2026
+
+Nach Modulupdate zunächst lesend Dateiidentitäten, laufenden Erweiterungsbuild
+und Status bestätigt. Mitgelieferte und installierte Kennung waren identisch.
+Ausdrücklicher Praxisauftrag für Test-Symcon am gemeinsam verwendeten Z2M:
+deaktivierte Prüfregel speichern und den ursprünglichen Betrieb wiederherstellen,
+keine Geräte schalten. Kein Produktiv-Symcon-MCP verwendet.
+
+Temporäre Modulkopie mit eigener Debugdateiaufzeichnung angelegt; ursprünglicher
+lokaler Entwurf blieb unangetastet. Gespeicherten Originaltext anhand der frischen
+SHA-256-Prüfsumme exakt rekonstruiert und außerhalb des Repositorys gesichert.
+Sieben Originalregeln, eine eingeschaltet, sowie Partnerfreigabe und Wiederanlauf
+bildeten den Wiederherstellungsstand. Keine Extension neu installiert und kein
+Z2M-Neustart durchgeführt.
+
+Bildschirmbedienung angekündigt und Computer-Use-Skill verwendet. Die separate
+native Testkonsole und ausschließlich die Modulkopie bedient. Eine Zeitregel
+über die öffentliche CopyAutomation-Methode ausgeschaltet kopiert; Name und
+Optionen anschließend nativ bearbeitet. Alle drei verständlichen Menüeinträge
+waren vorhanden. Von-vorn-beginnen und Wartezeit-zurücksetzen jeweils nativ
+ausgewählt und über den echten Übernehmen-Button in den Entwurf geschrieben.
+Name, ausgeschalteter Regelschalter und unveränderte sieben Originalregeln
+anschließend per Formular-/Entwurfsvergleich bestätigt. Hilfetext und volle
+Feldbreite waren in der verwendeten Konsole lesbar. Eine vorhandene Geräte-
+regel zusätzlich per öffentlicher Auswahlmethode geöffnet: bisheriger Default
+ignore, alle drei Optionen und bearbeitbares Feld korrekt vorbelegt.
+
+Speicherprüfung per MCP: jeweils aus der nativ erzeugten Testregel ein Dokument
+für restart, extend und ignore vorbereitet. Ausschließlich Testoption und
+fortlaufende Revision variiert; die Original-Partnerfreigabe statt der im
+unverknüpften Testmodul normalisierten leeren Liste erhalten. Alle sieben
+Originalregeln vor jeder Übertragung inhaltlich verglichen. Jedes Dokument
+über ValidateYaml geprüft und über StoreYaml gespeichert; anschließend über
+LoadAutomationEditor geladen und die Testregel ausgewählt. Z2M bestätigte je
+acht gespeicherte Regeln bei gestoppter Ausführung. GetConfigurationForm und
+geladener Entwurf enthielten jeweils genau die gespeicherte Option und den
+ausgeschalteten Regelschalter. Die Testregel wurde nie aktiviert oder gestartet.
+
+Eine direkt nach GetConfigurationForm gesendete Folgeprüfung traf auf die
+automatische Statusabfrage und erhielt keine neue Auftragskennung. Der Debug-
+verlauf belegte den gleichzeitig laufenden Statusauftrag. Zunächst den Original-
+stand wiederhergestellt, danach die restlichen Prüfungen mit abgewarteter
+Statusbestätigung durchgeführt. Keine Quellcodeänderung wegen dieses bereits
+bekannten Ablaufs; keine ungeprüfte automatische Wiederholung von Speicher-
+oder Aktivierungsbefehlen.
+
+Nach Abschluss Testregel durch Wiederherstellung entfernt. Originaltext war
+bis auf fortlaufende Revision bytegleich zur Sicherung; dessen berechnete
+Prüfsumme entsprach dem gespeicherten und aktiven Z2M-Stand. Erst den ursprüng-
+lichen Sieben-Regel-Stand wieder aktiviert. Frische Antwort bestätigte eine
+eingeschaltete Regel, Mesh-Bereitschaft, Partneranzahl und Wiederanlauf armed,
+ohne Fehler. Ungültige Testkopie mit retrigger=parallel danach nur validiert:
+invalid_schema mit /automations/7 und enum; gespeicherte Revision und laufender
+Betrieb blieben unverändert. Gültigen Originaltext erneut geprüft.
+
+Debug bestätigte feste deutsche Übernahmemeldungen und Erneuerungsart sowie den
+Schemafehler. Der eingegebene Testname kam in der Debugdatei nicht vor. Eigene
+Dateiaufzeichnung beendet und temporäre Modulkopie samt Statusvariablen per MCP
+entfernt. Frische Abfrage des Originalmoduls: nur die ursprüngliche Instanz,
+Status 102, lokaler Entwurf bytegleich, gespeicherte/aktive Prüfsumme identisch.
+
+Prüfgrenzen: native Zeitregel-Auswahl und lokale Übernahme in Symcon 9.1;
+Prüfung/Speicherung/Wiederladen und Geräte-Vorbelegung über öffentliche Methoden.
+ignore wurde als Default nativ beobachtet und als gezielt vorbereiteter Wert
+gespeichert. Keine neue geräteausgelöste Testregel, keine vollständige Abnahme
+weiterer Fensterbreiten oder Symcon 9.0. Tatsächliche erneute Auslösung laufender
+Automationen bleibt durch die synthetischen Runtime-/Mesh-Tests belegt; in diesem
+Praxisauftrag keine Testausführung, kein Einzelstart und kein Gerätebefehl.
+
+Abschlussprüfungen: php tests/run.php erneut vollständig erfolgreich,
+einschließlich PHP-/JavaScript-Speicherintegration und 121 JavaScript-Tests.
+Struktur-/Kodierungsprüfung und Aktualität des generierten Artefakts bestätigt.
+Offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
+und PHP CS Fixer im Prüfmodus erfolgreich. Ausschließlich Praxisdokumentation
+geändert; UTF-8 ohne BOM mit LF und git diff --check sauber. Keine Änderungen
+an Implementierung, Fremdquellen, Helpern oder Versionen; kein Commit/Push.
+
 ## Agenda Punkt 3: Kalendertage und mehrere Uhrzeiten
 
 AutomationEditorCalendar ergänzt eine Liste von 1–8 normalisierten, verschiedenen

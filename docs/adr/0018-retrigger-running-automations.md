@@ -1,6 +1,7 @@
 # ADR 0018: Erneute Auslösung einer laufenden Automation
 
-Status: lokal umgesetzt; native und reale Praxisprüfung nach Update ausstehend.
+Status: lokal umgesetzt; Editor-/Speicherpraxis am 03.11.2026 bestätigt.
+Reale erneute Laufzeitauslösung in diesem Auftrag nicht geprüft.
 Datum: 03.11.2026
 
 ## Entscheidung

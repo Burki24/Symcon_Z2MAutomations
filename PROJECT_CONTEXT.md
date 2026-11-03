@@ -19,7 +19,18 @@ sie persistent und führt sie unabhängig von Symcon aus.
   erneuerung bleibt der Lauf-/Schrittbezug erhalten. Offline-Nachweise für
   native Callbacks, PHP-/JS-Speicherung, Laufzeit, Mesh und Wiederanlauf.
   Modul und Erweiterung gemeinsam aktualisieren. Kein Zugriff auf Test-/Live-
-  Systeme oder Bildschirm, keine Geräteaktionen. Praxisprüfung steht aus.
+  Systeme oder Bildschirm in der Implementierungsphase, keine Geräteaktionen.
+  Anschließend am 03.11.2026 nach ausdrücklicher Freigabe über Test-Symcon am
+  gemeinsamen Z2M geprüft: aktuelle Builds bestätigt, ausgeschaltete Zeitkopie,
+  Neustart-/Wartezeitoptionen nativ gewählt und übernommen. Alle drei Werte
+  geprüft, gespeichert, wieder geladen und korrekt vorbelegt; vorhandene
+  Geräte-Vorbelegung ohne Option bleibt ignore. Originalregeln und Partner-
+  freigaben erhalten. Testregel entfernt, Originalinhalt bis auf Revision
+  bytegleich wiederhergestellt, bisheriger Betrieb samt Wiederanlauf bestätigt.
+  Originaler lokaler Entwurf unverändert, Prüfkopie und Aufzeichnung bereinigt.
+  Ungültiger Wert wird mit betroffener Regel abgewiesen, ohne Speicheränderung.
+  Keine Testausführung oder Schaltanforderung. Echte erneute Laufzeitauslösung
+  hier nicht geprüft; genaue Nachweise und Grenzen in docs/DEVELOPMENT.md.
 
 - Agenda Punkt 3 lokal implementiert (ADR 0017): Klick-Editor mit einer bis acht
   verschiedenen Uhrzeiten in gemeinsamer Zeitzone. Bestehende einzelne und
@@ -483,8 +494,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
    Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
-   Grenzen. Punkt 4 ist lokal umgesetzt; als Nächstes steht seine Praxisprüfung
-   nach gemeinsamem Modul-/Erweiterungsupdate an. Danach Punkt 5: zusammengesetzte
+   Grenzen. Punkt 4 ist lokal umgesetzt; Editor-/Speicherprüfung am 03.11.2026
+   ohne Testausführung abgeschlossen. Reale erneute Auslösung bleibt als eigener
+   Praxisauftrag möglich. Nächste Implementierung ist Punkt 5: zusammengesetzte
    Befehle und Farben im Klick-Editor.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.

@@ -31,8 +31,11 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    die aktuelle Wartezeit zurücksetzen, wenn eine Automation bereits läuft.
    Lokal umgesetzt: Vorbelegung, geschützte Eingaben, Prüfung, Speicherung,
    Bedingungsprüfung, serialisierter Neustart und deutsche Debugmeldungen.
-   Native und reale Praxisprüfung nach Modul-/Erweiterungsupdate ausstehend;
-   Details und Grenzen in ADR 0018 und DEVELOPMENT.md.
+   Nach gemeinsamem Update am 03.11.2026 geprüft: native Zeitregel-Auswahl und
+   Übernahme, Prüfung/Speicherung/Wiederladen aller drei Werte, Geräte-Vorbelegung
+   und Debug. Testregel ausgeschaltet, anschließend entfernt und ursprünglichen
+   Betrieb wiederhergestellt. Keine reale erneute Auslösung geprüft; Details
+   und Grenzen in ADR 0018 und DEVELOPMENT.md.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle
    und Farben im Klick-Editor. Geplant.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,
