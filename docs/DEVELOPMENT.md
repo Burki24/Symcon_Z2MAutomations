@@ -1,3 +1,78 @@
+## Agenda 5: Native Editor- und Speicherprüfung am 03.11.2026
+
+Nach gemeldetem Modul- und Erweiterungsupdate über Test-Symcon geprüft.
+Relevante hochgeladene PHP-/Formulardateien entsprechen den lokalen Hashes;
+beide erreichbaren Z2M-Erweiterungen melden den mitgelieferten Build. Die
+Testanbindung verwendet weiterhin gemeinsam genutzte Z2M-Systeme. Produktiv-
+Symcon-MCP nicht verwendet, keine Erweiterung installiert und kein Neustart.
+
+Zwei temporäre Automationsmodule verwenden die bestehenden MQTT-Verbindungen
+und einander als Partner. Ursprünglichen lokalen Entwurf, exakten Z2M-YAML-Text,
+Prüfsummen, Regelschalter, Partnerfreigaben und Betriebszustand außerhalb des
+Repositorys gesichert. Ausgangspunkt am Speicherempfänger: sieben Regeln,
+eine eingeschaltet. Das zweite System behielt seinen gespeicherten Stand.
+
+Bildschirmbedienung vorher angekündigt und Computer-Use-Skill verwendet.
+Native Symcon-9.1-Konsole: ausgeschaltete Zeitregel erstellt, Aktionsart für
+mehrere Eigenschaften gewählt und eine vorhandene Farbleuchte ausgewählt.
+Status, Helligkeit und Farbe nacheinander über die getrennten Auswahlfelder
+und den Hinzufügen-/Ersetzen-Button zusammengefügt. Den tatsächlichen nativen
+Farbwähler geöffnet, Farbton und Sättigung/Helligkeit per Maus gewählt und
+in den Schritt übernommen. Gemeinsame Wartezeit gesetzt. Der echte native
+Übernehmen-Button erzeugt einen einzelnen set-Schritt mit drei typisierten
+Werten; die sieben Originalregeln sind inhaltlich unverändert.
+
+Vorhandene Regel nativ erneut ausgewählt und Schrittdialog geöffnet: Gerät,
+Aktionsart, alle Werte und Wartezeit korrekt vorbelegt. Ungültige Helligkeit
+über die öffentliche Modulgrenze abgewiesen, mit sichtbarem Hinweis und
+unveränderter Zusammenstellung. Helligkeit nativ ersetzt, entfernt und wieder
+hinzugefügt; die übrigen Werte bleiben erhalten. Beim erneuten Auswählen der
+Farbe zeigt auch das native Farbfeld den übernommenen Farbwert. Bearbeitete
+Regel bleibt ausgeschaltet und wird über den nativen Button übernommen.
+
+Öffentliche Modulmethoden prüfen zusätzlich dieselben drei Eigenschaften als
+entferntes Ziel mit tatsächlichen Partner-Variablen-IDs. Vorbelegung und
+native Create-Callback-Ausführung erzeugen einen ausgeschalteten Entwurf mit
+eindeutigem Zielsystem. Dessen Z2M-Prüfung erfolgreich; dort nichts gespeichert
+oder aktiviert. Eine wiederverwendbare Definition am Speicherempfänger erhält
+denselben vollständigen gemeinsamen Befehl. Diese zusätzliche Bearbeitung und
+Partnerprüfung erfolgten über Modulmethoden, nicht als vollständige Mausprüfung.
+
+Der Empfänger bestätigt Validierung und Speicherung von ausgeschalteter
+Testregel und Definition. Aus Z2M erneut geladen: drei Werte einschließlich
+des exakten RGB-Werts und gemeinsame Wartezeit in Regel und wiederverwendbarer
+Definition erhalten; Vorbelegung über GetEditorItemForm geprüft. Keine
+Testregel aktiviert oder einmalig gestartet. Der Speichertest unterbrach den
+Automatikbetrieb kurz; anschließend Originaltext ausschließlich mit fortlaufender
+Revision geprüft und gespeichert. Regelinhalt, Partnerfreigaben und sonstige
+Angaben entsprechen wieder der Sicherung. Erst diesen ursprünglichen Stand
+reaktiviert; frischer Status bestätigt sieben Regeln, eine eingeschaltet,
+identische gespeicherte/aktive Prüfsumme, Mesh, Wiederanlauf armed und keinen
+Laufzeitfehler. Der andere Empfänger behält Revision, Prüfsumme und Betrieb.
+
+Debugdateien bestätigen Vorbelegung, Eigenschaftsanzahl, Zurückweisung,
+Ersetzen, Entfernen, Wartezeit und ZweitesSystem=true bei der Partnerprüfung.
+Der Debugtext enthält weder den Testnamen noch Farbcode oder command-Kodierung.
+Originaler Symcon-Entwurf bleibt bytegleich. Eigene Dateiaufzeichnungen beendet,
+Prüfkopien samt Statusvariablen entfernt und nativen Prüf-Tab geschlossen.
+Originalinstanz danach erneut mit Status 102 und bestätigtem Betrieb gelesen.
+
+Grenzen: kein realer Farb-/Mehrfach-Schaltbefehl und keine physische Converter-
+Prüfung, keine vollständige Gruppen- oder Symcon-9.0-Abnahme. Nach animiertem
+Scrollen zunächst versehentlich einen leeren Hinzufügen-Dialog geöffnet und
+abgebrochen; die Bearbeitung danach gezielt über das tatsächliche Zahnradsymbol
+geprüft. Ein außerhalb des Fensters liegender Button erforderte weiteres Scrollen.
+Das sind Grenzen der Testbedienung, keine belegten Modulfehler. Wiederholte
+Auswahltexte und lange Gerätenamen werden in den nativen Auswahlfeldern gekürzt;
+die Menüs zeigen die vollständige Auswahl. Keine Implementierung geändert.
+
+Für diesen Praxisnachweis ausschließlich Dokumentation aktualisiert. Zentrale
+Kodierungsprüfung, validate_structure, offizielle StylePHP-Prüfung der 15 eigenen
+JSON-Dateien in isolierter Kopie sowie PHP CS Fixer im Prüfmodus erfolgreich.
+Neue Texte UTF-8 ohne BOM mit LF; git diff --check sauber. Unveränderte Offline-
+Laufzeittests hier nicht erneut ausgeführt. Keine Änderungen an Fremdquellen,
+Helpern oder Versionsmetadaten; kein Commit/Push.
+
 ## Agenda 5: Gemeinsame Gerätebefehle und Farben
 
 Lokal am 03.11.2026 gemäß ADR 0019 implementiert. Vorhandene ConfigurationForm-

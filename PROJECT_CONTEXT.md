@@ -498,10 +498,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
    ohne Testausführung abgeschlossen. Reale erneute Auslösung bleibt als eigener
    Praxisauftrag möglich. Punkt 5 ist lokal umgesetzt: gemeinsame Gerätebefehle
    und native Farben, Vorbelegung, aktuelle Schaltrechte und gemeinsame Nutzung
-   in Folgen/über Systemgrenzen. Vor einer praktischen Prüfung Modul und
-   Erweiterung aktualisieren und Gerätedaten neu laden. Kein Zugriff auf laufende
-   Installationen für diese Implementierung; native Bedienung und konkrete
-   Farbleuchten noch offen. Nächster Agendapunkt: Abschluss und Dokumentation.
+   in Folgen/über Systemgrenzen. Nach Update am 03.11.2026 native Erstellung und
+   Bearbeitung samt RGB-Farbwahl in Test-Symcon 9.1 bestätigt. Prüfung, Speicherung,
+   Wiederladen und Folgenvorbelegung am gemeinsamen Empfänger erfolgreich;
+   Partnerauswahl und -validierung über Modulmethoden. Ausgeschaltete Testdaten
+   entfernt, Originalbetrieb und lokaler Originalentwurf wieder bestätigt.
+   Keine reale Ausführung; konkrete Farbconverter und Symcon 9.0 noch offen.
+   Nächster Agendapunkt: Abschluss und Dokumentation.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

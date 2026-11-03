@@ -10,7 +10,11 @@
   im zweiten System. Unbekannte Composite-Kinder werden nicht mehr fälschlich
   als einzelne Schaltwerte angeboten. Verständliche deutsche Debug-Ausgaben
   ohne Nutzwerte. Modul und Erweiterung aktualisieren und Gerätedaten neu laden.
-  Lokal mit synthetischen Daten geprüft; keine laufende Installation verändert.
+  Zunächst lokal mit synthetischen Daten geprüft. Anschließend native Erstellung,
+  RGB-Farbwahl, Vorbelegung, Ersetzen und Entfernen in Test-Symcon bestätigt;
+  Prüfung, Speicherung und Wiederladen einschließlich wiederverwendbarer Folge
+  erfolgreich. Partnerziele über Modulmethoden geprüft. Ausgeschaltete Testdaten
+  entfernt und ursprünglichen Betrieb wiederhergestellt; keine Testausführung.
 
 - Verhalten bei erneuter Auslösung im Klick-Editor: neue Auslösung ignorieren,
   die Aktionsfolge von vorn beginnen oder die laufende Wartezeit zurücksetzen.

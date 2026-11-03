@@ -40,9 +40,12 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    und Farben im Klick-Editor. Lokal umgesetzt: bis zu acht Eigenschaften eines
    Geräts als gemeinsamer Schritt, Hinzufügen/Ersetzen/Entfernen, native Farbwahl,
    sichere Vorbelegung und aktuelle Symcon-Schaltrechte. Wiederverwendbare Folgen
-   und entfernte Geräte verwenden denselben Pfad. Nur synthetisch geprüft;
-   native Bedienung und geeignete Geräte bleiben als Praxisauftrag offen.
-   Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
+   und entfernte Geräte verwenden denselben Pfad. Nach Update am 03.11.2026
+   nativ in Test-Symcon geprüft: ausgeschaltete Zeitregel erstellen, RGB-Farbwahl,
+   Vorbelegung, Ersetzen, Entfernen/Wiederhinzufügen und Übernehmen. Prüfung,
+   Speicherung und Wiederladen einschließlich Folge bestätigt; Partnerziele
+   über Modulmethoden geprüft. Testdaten entfernt und Originalbetrieb wiederhergestellt.
+   Keine reale Ausführung. Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,
    unterstützte Z2M-Versionen mit tatsächlichen Nachweisen benennen. Geplant.
 

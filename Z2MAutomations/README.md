@@ -38,9 +38,9 @@ angeboten. Komplexere, im Editor nicht vollständig darstellbare YAML-Befehle
 bleiben erhalten und können dort nur umbenannt oder ein-/ausgeschaltet werden.
 
 Für die Farbauswahl sind **Modul- und Erweiterungsupdate** sowie das erneute
-Laden der Gerätedaten nötig. Die Umsetzung ist zunächst lokal geprüft;
-die Bedienung in einer echten Konsole und konkrete Farbleuchten sind noch
-praktisch zu prüfen.
+Laden der Gerätedaten nötig. Native Bearbeitung und Speicherung sind in Symcon
+9.1 geprüft. Die tatsächliche Farbausführung am jeweiligen Gerät hängt weiterhin
+von dessen Unterstützung durch Z2M und den Geräte-Converter ab.
 
 ## Wenn eine laufende Automation erneut ausgelöst wird
 

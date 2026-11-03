@@ -1,6 +1,6 @@
 # ADR 0019: Gemeinsame Gerätebefehle und native Farbauswahl
 
-- Status: lokal implementiert; Praxisprüfung offen
+- Status: implementiert; native Editor-/Speicherprüfung bestätigt, reale Ausführung offen
 - Datum: 03.11.2026
 
 ## Kontext
