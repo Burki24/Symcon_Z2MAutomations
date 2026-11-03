@@ -474,7 +474,17 @@ erneut laden. Ihr Katalog liefert auch lesbare Messgrößen für Zahlenbedingung
   mindestens und höchstens. Die Einheit steht neben der Messgröße. Beispiel:
   täglich 07:15 Uhr, nur wenn die Temperatur kleiner als 18,5 °C ist.
 - Bei Bedarf eine Wartezeit vor der Aktion angeben. Alle eingeschalteten
-  Bedingungen müssen erfüllt sein; sie werden vor der Aktion erneut geprüft.
+  Bedingungen müssen zum Start erfüllt sein. Ohne „Nur beim Start“ werden sie
+  zusätzlich vor jeder Aktion erneut geprüft.
+
+Bei einer Gerätebedingung können Sie **Nur beim Start** einschalten. Das ist
+zum Beispiel für eine Helligkeitsgrenze sinnvoll: Das Licht soll bei Bewegung
+nur im Dunkeln angehen, nach der Wartezeit aber auch dann ausgehen, wenn es
+inzwischen heller geworden ist. Weitere Bewegung darf die laufende Wartezeit
+ebenfalls verlängern. Ein vollständig neuer Ablauf und **Aktionsfolge von vorn
+beginnen** prüfen die Helligkeit wieder. Ohne Häkchen gilt die Bedingung weiterhin
+auch für spätere Aktionen und das Verlängern. Zeitfenster und Wochentage werden
+immer erneut geprüft. Für die neue Auswahl Modul und Z2M-Erweiterung aktualisieren.
 
 Zeitfenster, unabhängige Wochentage und Gerätebedingungen können gemeinsam verwendet
 werden. Insgesamt sind höchstens 16 Bedingungen erlaubt. Eine
@@ -516,7 +526,7 @@ Die Angaben werden beim Auswählen und Laden vorhandener Regeln vorbelegt.
 Übernehmen Sie Änderungen zuerst in den lokalen Entwurf, prüfen und speichern
 Sie ihn anschließend in Z2M. Verpasste Uhrzeiten werden nicht nachgeholt. Bei
 der Zeitumstellung läuft jede eingetragene Uhrzeit in einer doppelt vorkommenden
-Stunde nur einmal. Bedingungen werden vor verzögerten Aktionen erneut geprüft.
+Stunde nur einmal. Bedingungen ohne „Nur beim Start“ werden vor verzögerten Aktionen erneut geprüft.
 
 Für diese Funktion müssen **Modul und mitgelieferte Z2M-Erweiterung** aktualisiert
 werden. Ein älterer Empfänger lehnt die neue Wochentagsbedingung ab; es erfolgt
@@ -535,7 +545,7 @@ Standort wird nicht stillschweigend durch 0/0 ersetzt. Die Zeitzone bestimmt den
 Der Zeitversatz wird in ganzen Minuten eingegeben: −30 startet eine halbe Stunde
 vor dem Ereignis, +15 eine Viertelstunde danach. Möglich sind −720 bis +720
 Minuten. Der Start darf dadurch auf den vorherigen oder folgenden Tag fallen.
-Bedingungen gelten zum tatsächlichen Start und vor den weiteren Aktionsschritten.
+Bedingungen gelten zum tatsächlichen Start; ohne „Nur beim Start“ auch vor den weiteren Aktionsschritten.
 
 Die Regel wie gewohnt in den Entwurf übernehmen, prüfen, speichern und aktivieren.
 Z2M berechnet die Zeiten täglich selbst, auch wenn Symcon ausgeschaltet ist.
@@ -571,7 +581,7 @@ unterstützten Schritte einschließlich ihrer Wartezeiten geladen. Einzelaktione
 erscheinen als eine Zeile. Die Wartezeit gehört zum Schritt und wandert beim
 Umsortieren mit.
 
-Alle Bedingungen werden vor jedem Schritt erneut geprüft. Ist eine Bedingung
+Alle Bedingungen ohne „Nur beim Start“ werden vor jedem Schritt erneut geprüft. Ist eine solche Bedingung
 nicht mehr erfüllt, endet die verbleibende Folge. „Automationen in Z2M stoppen“
 verwirft ausstehende Wartezeiten; bereits übergebene Aktionen werden nicht rückgängig
 gemacht. Die Ausführung der gespeicherten, aktivierten Folge benötigt kein Symcon.
@@ -811,8 +821,8 @@ nur diese gespeicherte Regel einmal aus. Das funktioniert auch bei deaktivierten
 Regeln und bei gestopptem Automatikbetrieb. Änderungen im Entwurf müssen zuvor
 geprüft und gespeichert werden. Alternativ laden Sie den gespeicherten Stand neu.
 
-Die Bedingungen gelten auch beim einmaligen Start und werden vor jeder Aktion
-erneut geprüft. Unbekannte Sensorwerte erlauben keine Ausführung. Für die erste
+Die Bedingungen gelten auch beim einmaligen Start. Bedingungen ohne „Nur beim
+Start“ werden vor jeder Aktion erneut geprüft. Unbekannte Sensorwerte erlauben keine Ausführung. Für die erste
 Prüfung verwendet Z2M seine zuletzt bekannten Sensorwerte; deshalb muss ein
 Sensor nicht erst erneut auslösen. Uhrzeitbedingungen gelten zum Ausführungszeitpunkt.
 Die Statusanzeige erklärt, ob der Ablauf läuft, abgeschlossen, wegen einer
@@ -854,7 +864,8 @@ nicht wiederholt. Meldet ein Auslöser nur Wertänderungen, muss zunächst wiede
 eine solche Änderung vorliegen; nicht jede unveränderte Sensormeldung zählt.
 
 Die Auswahl gilt auch für weitere Geräteauslöser derselben Regel sowie für
-Uhrzeit- und Astro-Auslöser. Alle Bedingungen müssen erneut passen. Die
+Uhrzeit- und Astro-Auslöser. Bedingungen ohne „Nur beim Start“ müssen auch beim
+Verlängern erneut passen; ein Neuanfang prüft alle Bedingungen. Die
 Sperrzeit von einer Sekunde bleibt bestehen. Beim Neuanfang können bereits
 erledigte Aktionen nochmals ausgeführt werden, auch ein Umschaltbefehl.
 Einmalige manuelle Starts ersetzen einen laufenden Ablauf nicht. Stoppen und

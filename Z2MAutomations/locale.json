@@ -581,7 +581,9 @@
             "Properties included in this command (up to 8)": "Eigenschaften in diesem Befehl (höchstens 8)",
             "Property type": "Art der Eigenschaft",
             "Color": "Farbe",
-            "Set %s properties together": "%s Eigenschaften gemeinsam setzen"
+            "Set %s properties together": "%s Eigenschaften gemeinsam setzen",
+            "Only at start": "Nur beim Start",
+            "Only at start: this condition must match before a new run. Later actions and extending a running wait do not check it again. A restart checks it again. Use this for brightness so the delayed Off action still runs when it gets brighter.": "Nur beim Start: Diese Bedingung muss vor einem neuen Ablauf erfüllt sein. Danach werden die Aktionen und das Verlängern der Wartezeit davon nicht mehr blockiert. Beim Neustart des Ablaufs wird sie erneut geprüft. Das eignet sich für Helligkeit: Das Licht wird nach der Wartezeit auch dann ausgeschaltet, wenn es inzwischen heller ist."
         }
     }
 }

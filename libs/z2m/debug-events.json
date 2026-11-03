@@ -242,5 +242,9 @@
     "event_52": {
         "event": "AKTION",
         "message": "Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft."
+    },
+    "condition_start_only": {
+        "event": "AKTION",
+        "message": "Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft."
     }
 }

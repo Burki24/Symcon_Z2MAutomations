@@ -294,6 +294,11 @@ trait EditorItemForms
             if ($context !== null) {
                 $duration = $context['duration'] === '' ? '0' : '$' . $name . "['" . $context['duration'] . "'] ?? 0";
                 $field['form'] = "return json_decode(Z2MA_GetEditorItemForm(\$id, '" . $name . "', $" . $name . "['Choice'] ?? '', " . $duration . ', $' . $name . "['Compare'] ?? 'eq', $" . $name . "['Changed'] ?? false), true);";
+                if ($context['duration'] === '') {
+                    $field['form'] = str_replace('return json_decode(', '$conditionForm = json_decode(', $field['form'])
+                        . ' foreach ($conditionForm as &$conditionField) { if (($conditionField[\'name\'] ?? \'\') === \'StartOnly\') { $conditionField[\'value\'] = $'
+                        . $name . "['StartOnly'] ?? false; } } unset(\$conditionField); return \$conditionForm;";
+                }
             }
         }
         unset($field);

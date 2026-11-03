@@ -84,7 +84,8 @@ trait AutomationEditorSchedule
                 if ($rule !== null && $ActionSteps === '' && (count($rule['actions']) > 1 || count(array_filter($rule['actions'], static fn (array $a): bool => count($a['values'] ?? []) > 1)) > 0)) {
                     return $this->RejectEditorChange($state, 'editor_actions');
                 }
-                if ($rule !== null && count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'device_value')) > 1 && $ConditionSteps === '') {
+                if ($rule !== null && $ConditionSteps === '' && (count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'device_value')) > 1
+                    || count(array_filter($rule['conditions'], static fn (array $c): bool => $c['start_only'] ?? false)) > 0)) {
                     return $this->RejectEditorChange($state, 'editor_condition');
                 }
                 $reason = 'editor_schedule';
@@ -102,7 +103,8 @@ trait AutomationEditorSchedule
             } else {
                 $draft['configuration']['automations'][$index] = $rule;
             }
-            $this->DebugEvent('AKTION', 'Auslöser und Bedingungen für den lokalen Entwurf vorbereitet.', ['Bereich' => $this->EditorTypeLabel($this->EditorRuleType($rule)), 'Auslöser' => count($rule['triggers']), 'Verknüpfung' => 'ODER', 'Bedingungen' => count($rule['conditions']), 'Bedingungsverknüpfung' => 'UND']);
+            $this->DebugEvent('AKTION', 'Auslöser und Bedingungen für den lokalen Entwurf vorbereitet.', ['Bereich' => $this->EditorTypeLabel($this->EditorRuleType($rule)), 'Auslöser' => count($rule['triggers']), 'Verknüpfung' => 'ODER', 'Bedingungen' => count($rule['conditions']),
+                'NurBeimStart'                                                                                      => count(array_filter($rule['conditions'], static fn (array $c): bool => $c['start_only'] ?? false)), 'Bedingungsverknüpfung' => 'UND']);
             $this->DebugEditorActionSteps($rule['actions']);
             $this->DebugEvent('AKTION', 'Verhalten bei erneuter Auslösung für den lokalen Entwurf übernommen.', ['ErneuteAuslösung' => match ($rule['retrigger'] ?? 'ignore') {
                 'restart' => 'Von vorn beginnen', 'extend' => 'Laufende Wartezeit zurücksetzen', default => 'Ignorieren'

@@ -8,6 +8,22 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Gerätebedingungen mit „Nur beim Start“ lokal ergänzt (ADR 0020). Neues
+  optionales start_only verhindert, dass etwa zunehmende Helligkeit spätere
+  Ausschaltaktionen oder Verlängerungen blockiert. Neue Läufe und Neustarts
+  prüfen vollständig; andere Bedingungen bleiben fortlaufend. Native
+  Bedingungszeile einschließlich Vorbelegung und Eingabeschutz, fester
+  Debugkatalog und Schema ergänzt; Artefakt neu gebaut. Keine installierten
+  Modul-/Erweiterungsdateien geändert. Getrennter ausgeschalteter
+  Bewegungsmelder-Entwurf über Test-Symcon vorbereitet; ältere Originalbearbeitung
+  unverändert. Anwender wünscht eine verlängerbare Nachlaufzeit und korrigiert
+  die externe Helligkeitsgrenze; konkrete Werte bleiben außerhalb des Repositorys.
+  Endgültiger ausgeschalteter
+  Entwurf außerhalb des Repositorys gesichert. Gemeinsames Update, native
+  Praxisprüfung der Startbedingung und anschließende dauerhafte Aktivierung
+  stehen aus. Originalereignisse bleiben ausgeschaltet; noch keine Z2M-
+  Speicherung oder Schaltanforderung in dieser Vorbereitung.
+
 - Agenda Punkt 4 lokal umgesetzt (ADR 0018): Geräte-/Zeit-/Astro-Regeln mit
   Auswahl zum Ignorieren, Neustarten oder Zurücksetzen einer laufenden Wartezeit.
   Optionale Schema-1-Regelangabe retrigger; fehlend bleibt ignore. Vorbelegung,

@@ -26,7 +26,8 @@ trait AutomationEditorConditions
                 $Change === 'delete'
                 ? 'Bedingung zum Löschen ausgewählt; Anzahl beschreibt den Vorbestand. Verbleibende Liste wird beim Übernehmen geprüft.'
                 : 'Bedingungsliste im Formular bearbeitet; alle Bedingungen müssen gemeinsam erfüllt sein (UND).',
-                [$Change === 'delete' ? 'BedingungenVorLöschen' : 'Bedingungen' => count($conditions)]
+                [$Change === 'delete' ? 'BedingungenVorLöschen' : 'Bedingungen' => count($conditions),
+                    'NurBeimStart'                                              => count(array_filter($conditions, static fn (array $condition): bool => $condition['start_only'] ?? false))]
             );
             return true;
         });
@@ -52,7 +53,8 @@ trait AutomationEditorConditions
                 return null;
             }
             $row = (array) $row;
-            if (count($row) !== 2 || !is_string($row['Choice'] ?? null)) {
+            if (!in_array(count($row), [2, 3], true) || array_diff(array_keys($row), ['Choice', 'Compare', 'StartOnly']) !== []
+                || !is_string($row['Choice'] ?? null) || (array_key_exists('StartOnly', $row) && !is_bool($row['StartOnly']))) {
                 return null;
             }
             $parts = explode(':', $row['Choice']);
@@ -65,6 +67,9 @@ trait AutomationEditorConditions
                 return null;
             }
             $conditions[] = ['type' => 'device_value', 'device' => $device, 'property' => $choice['property'], 'operator' => $row['Compare'], 'value' => $choice['value']];
+            if ($row['StartOnly'] ?? false) {
+                $conditions[array_key_last($conditions)]['start_only'] = true;
+            }
         }
         return $conditions;
     }
@@ -85,7 +90,8 @@ trait AutomationEditorConditions
             if ($choice === null || !$this->EditorComparisonAllowed($snapshot, $condition['device'], $choice, $condition['operator'])) {
                 return null;
             }
-            $rows[] = ['Choice' => $condition['device'] . ':' . $key, 'Compare' => $condition['operator']];
+            $rows[] = ['Choice' => $condition['device'] . ':' . $key, 'Compare' => $condition['operator']]
+                + (($condition['start_only'] ?? false) ? ['StartOnly' => true] : []);
         }
         return count($rows) <= 16 ? $rows : null;
     }
@@ -94,7 +100,8 @@ trait AutomationEditorConditions
     {
         $columns = $this->EditorTriggerColumns($snapshot, $rows, 'Condition');
         $columns[0]['caption'] = $this->Translate('Device, property and value');
-        return array_slice($columns, 0, 2);
+        return [...array_slice($columns, 0, 2), ['name' => 'StartOnly', 'caption' => $this->Translate('Only at start'),
+            'width'                                     => '140px', 'add' => false, 'edit' => ['type' => 'CheckBox']]];
     }
 
     private function FillConditionSequenceForm(array &$form, array $selection, array $snapshot): void

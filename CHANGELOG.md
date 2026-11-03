@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Gerätebedingungen erhalten die Auswahl „Nur beim Start“. Damit kann etwa
+  Helligkeit das Einschalten begrenzen, ohne später das Ausschalten oder die
+  Verlängerung einer laufenden Wartezeit zu verhindern. Ein neuer Start und
+  „Von vorn beginnen“ prüfen die Bedingung erneut. Vorbelegung, Eingabeschutz,
+  Validierung und deutsche Debugmeldungen berücksichtigen die Auswahl.
+  Modul und Z2M-Erweiterung müssen gemeinsam aktualisiert werden.
+
 - Die Spalte „Im Entwurf eingeschaltet“ erhält mehr Platz, da der vollständige
   Titel in der nativen Konsole mit der bisherigen Breite abgeschnitten wurde.
   Für die angepasste Breite genügt ein Modulupdate.

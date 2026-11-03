@@ -1,5 +1,14 @@
 # Architektur
 
+## Startbedingungen
+
+Die optionale Gerätebedingungsangabe `start_only` wird als StartOnly in der
+vorhandenen nativen Bedingungszeile geführt. Speicherung, Vorbelegung und
+EditorWorkInput verwenden den bestehenden Pfad. Die Runtime unterscheidet
+Neuanfang von laufenden Schritten und Verlängerung; Zeit-/Kalenderbedingungen
+bleiben unverändert. Keine neue MQTT-Operation, Laufzeit oder zentrale Helper-
+Abstraktion. Details: [ADR 0020](adr/0020-start-only-device-conditions.md).
+
 ## Gemeinsame Gerätebefehle und native Farbauswahl
 
 EditorCommands ergänzt die bestehende Aktionszeile um eine begrenzte,

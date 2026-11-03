@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Startbedingungen
+
+InspectEditorConditions und SaveScheduledAutomation nennen zusätzlich die
+Anzahl „NurBeimStart“. Die Runtime protokolliert mit Regel-/Lauf-/Bedingungsbezug,
+wenn eine nur für den Start vorgesehene Bedingung im laufenden Ablauf nicht
+erneut geprüft wird. Neue Starts und Neustarts verwenden die bisherige
+Bedingungsprüfung. Werte, Namen und Gerätereferenzen werden nicht zusätzlich
+ausgegeben. Der feste MQTT-Debugkatalog und DebugFlowHelper bleiben der
+vorhandene Übertragungs- und Bereinigungspfad.
+
 ## Z2M-Abläufe im Debugfenster verfolgen
 
 Unter „Einrichtung und Diagnose“ das Debugfenster dieser Modulinstanz öffnen

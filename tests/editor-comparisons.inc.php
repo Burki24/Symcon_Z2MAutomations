@@ -27,16 +27,20 @@ $module->SelectEditorDevice('Source', '0x0000000000000002');
 $catalogFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
 // The state value has a stable typed catalog key.
 $offChoice = '0x0000000000000002:' . hash('sha256', json_encode(['property' => 'state', 'value' => 'OFF'], JSON_THROW_ON_ERROR));
-$conditions = [['Choice' => $offChoice, 'Compare' => 'eq'], ['Choice' => $conditionThreshold, 'Compare' => 'lt']];
+$conditions = [['Choice' => $offChoice, 'Compare' => 'eq'], ['Choice' => $conditionThreshold, 'Compare' => 'lt', 'StartOnly' => true]];
 $conditionForm = formFields(json_decode($module->GetEditorItemForm('DeviceEditorConditionList', $conditionThreshold, 0, 'lt'), true, 512, JSON_THROW_ON_ERROR));
-$check($conditionForm['RowNumber']['value'] === 19.5 && $conditionForm['Compare']['value'] === 'lt' && !isset($conditionForm['Hold']), 'Condition row dialog restores numeric comparison without a trigger duration');
+$check($conditionForm['RowNumber']['value'] === 19.5 && $conditionForm['Compare']['value'] === 'lt' && !isset($conditionForm['Hold'])
+    && $conditionForm['StartOnly']['value'] === false, 'Condition row dialog restores numeric comparison with a safe start-only default');
 $stateForm = formFields(json_decode($module->GetEditorItemForm('DeviceEditorConditionList', $offChoice, 0, 'ne'), true, 512, JSON_THROW_ON_ERROR));
 $runEditorScript($stateForm['Compare']['onChange'], $stateForm, ['Compare' => 'ne']);
 $check($module->formUpdates['Choice']['value'] === $offChoice, 'Discrete comparison callback preserves the state choice');
 $check(count($stateForm['Compare']['options']) === 2 && $stateForm['Compare']['value'] === 'ne', 'Discrete conditions offer equality and inequality only');
 $check(!$module->InspectEditorConditions(json_encode([['Choice' => $offChoice, 'Compare' => 'gt']]), 'add', 'device'), 'Ordered comparisons on state strings are rejected');
 $check(!$module->InspectEditorTriggers(json_encode([['Choice' => $offChoice, 'Compare' => 'gt', 'Hold' => 0]]), 'add', 'device'), 'State triggers cannot use numeric comparisons');
-foreach (['{}', '[null]', json_encode([['Choice' => $offChoice, 'Compare' => 'unknown']]), json_encode(array_fill(0, 17, $conditions[0]))] as $invalid) {
+foreach (['{}', '[null]', json_encode([['Choice' => $offChoice, 'Compare' => 'unknown']]), json_encode(array_fill(0, 17, $conditions[0])),
+    json_encode([['Choice' => $conditionThreshold, 'Compare' => 'lt', 'StartOnly' => 'true']]),
+    json_encode([['Choice' => $conditionThreshold, 'Compare' => 'lt', 'StartOnly' => null]]),
+    json_encode([['Choice' => $conditionThreshold, 'Compare' => 'lt', 'extra' => true]])] as $invalid) {
     $check(!$module->InspectEditorConditions($invalid, 'edit', 'device'), 'Malformed or oversized condition lists are rejected');
 }
 $check($module->InspectEditorConditions(json_encode(array_fill(0, 16, $conditions[0])), 'add', 'device'), 'Sixteen device conditions fit the schema boundary');
@@ -55,7 +59,8 @@ $document = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_
 $comparisonRule = $document['automations'][array_key_last($document['automations'])];
 $check($comparisonRule['triggers'][0]['operator'] === 'gt' && $comparisonRule['triggers'][0]['value'] === 16.5
     && count($comparisonRule['conditions']) === 2 && $comparisonRule['conditions'][1]['operator'] === 'lt'
-    && $comparisonRule['conditions'][1]['value'] === 19.5, 'Generated YAML preserves all typed comparisons and conditions');
+    && $comparisonRule['conditions'][1]['value'] === 19.5 && $comparisonRule['conditions'][1]['start_only'] === true
+    && !isset($comparisonRule['conditions'][0]['start_only']), 'Generated YAML preserves typed comparisons and explicit start-only conditions');
 $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Thresholds and multiple conditions validate and persist in the real receiver');
 $module->LoadAutomationEditor();
 $check($module->SelectAutomation($comparisonRule['id']), 'Reopen the stored comparison rule');
@@ -64,7 +69,19 @@ $check($fields['DeviceEditorTriggers']['values'] === [$thresholdRow] && $fields[
     && $fields['DeviceEditorConditionList']['enabled'] && !$fields['DeviceEditorNumber']['visible'], 'Stored comparison triggers and every condition are restored in the active editor');
 $DeviceEditorConditionList = $conditions[1];
 $dynamicForm = formFields(eval($fields['DeviceEditorConditionList']['form']));
-$check($dynamicForm['Compare']['value'] === 'lt' && $dynamicForm['RowNumber']['value'] === 19.5, 'The real condition list form script forwards the saved comparison');
+$check(
+    $dynamicForm['Compare']['value'] === 'lt' && $dynamicForm['RowNumber']['value'] === 19.5 && $dynamicForm['StartOnly']['value'] === true,
+    'The real condition form script forwards the saved comparison and start-only flag'
+);
+$uncheckedConditions = [$conditions[0], array_replace($conditions[1], ['StartOnly' => false])];
+$runEditorScript($fields['DeviceEditorConditionList']['onEdit'], $fields, ['DeviceEditorConditionList' => new ArrayIterator($uncheckedConditions)]);
+$pendingFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+$check(
+    $pendingFields['DeviceEditorConditionList']['values'] === array_map(static fn (array $row): array => $row + ['StartOnly' => false], $uncheckedConditions)
+    && $pendingFields['YamlInput']['value'] === $fields['YamlInput']['value'],
+    'Changing only the start-only flag survives form reopening as an uncommitted protected input'
+);
+$runEditorScript($pendingFields['DeviceEditorConditionList']['onEdit'], $pendingFields, ['DeviceEditorConditionList' => new ArrayIterator($conditions)]);
 $token = $fields['EditorEditToken']['value'];
 $check(!$module->SaveScheduledAutomation($comparisonRule['id'], $token, 'Refuse missing conditions', true, '', '', '', '', '{}', '', false, json_encode($actionRows), 'device', json_encode([$thresholdRow])), 'Incomplete saves cannot silently truncate multiple conditions');
 $check(!$module->SaveScheduledAutomation($comparisonRule['id'], $token, 'Too many conditions', true, '', '', '', '', json_encode(['EditorTriggerType' => 'device', 'EditorWindow' => true]), '', false, json_encode($actionRows), 'device', json_encode([$thresholdRow]), json_encode(array_fill(0, 16, $conditions[0]))), 'The optional time window counts toward the schema limit of sixteen conditions');

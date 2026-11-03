@@ -223,8 +223,12 @@ export class AutomationRuntime {
         return {day: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}:${p.second}`};
     }
 
-    conditions(rule, context = {}) {
+    conditions(rule, context = {}, starting = true) {
         return rule.conditions.every((clause, index) => {
+            if (clause.start_only && !starting) {
+                this.log('AKTION', 'Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft.', {}, {...context, condition: index + 1});
+                return true;
+            }
             let passed;
             if (clause.type === 'device_value') passed = Boolean(this.device(clause.device)
                 && compare((this.executions.get(context.run)?.values ?? this.values).get(clause.device)?.[clause.property], clause));
@@ -373,7 +377,7 @@ export class AutomationRuntime {
             this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'cooldown'}, context);
             return;
         }
-        if (!this.conditions(rule, context)) {
+        if (!this.conditions(rule, context, policy !== 'extend')) {
             this.log('AKTION', 'Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert.', {}, context);
             return;
         }
@@ -481,7 +485,7 @@ export class AutomationRuntime {
             }
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
             if (!this.canContinue(generation, context)) return;
-            if (!this.conditions(rule, step)) {
+            if (!this.conditions(rule, step, false)) {
                 this.executionState(rule, context, 'skipped', 'conditions_not_met', index + 1);
                 this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;
             }

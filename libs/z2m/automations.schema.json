@@ -226,6 +226,9 @@
                         "null"
                     ],
                     "maxLength": 256
+                },
+                "start_only": {
+                    "type": "boolean"
                 }
             },
             "required": [

@@ -91,7 +91,7 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
                 foreach ($value as $row) {
                     $row = (array) $row;
                     $clean = [];
-                    foreach ($key === 'EditorTimes' ? ['At'] : ['Choice', 'Delay', 'Compare', 'Hold', 'Changed'] as $cell) {
+                    foreach ($key === 'EditorTimes' ? ['At'] : ['Choice', 'Delay', 'Compare', 'Hold', 'Changed', 'StartOnly'] as $cell) {
                         if (array_key_exists($cell, $row)) {
                             if (!is_scalar($row[$cell]) || (is_string($row[$cell]) && strlen($row[$cell]) > 2048)) {
                                 throw new InvalidArgumentException('editor_work_input');
@@ -104,6 +104,9 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
                     }
                     if ($key === 'EditorTriggers') {
                         $clean['Changed'] ??= false;
+                    }
+                    if ($key === 'EditorConditionList') {
+                        $clean['StartOnly'] ??= false;
                     }
                     $rows[] = $clean;
                 }

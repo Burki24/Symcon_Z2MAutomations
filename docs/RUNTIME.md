@@ -1,5 +1,19 @@
 # Automationen ausführen
 
+## Bedingungen nur beim Start
+
+`device_value.start_only: true` beschränkt eine Gerätebedingung auf die
+Zulassung eines neuen Laufs. Fehlend oder false erhält das bisherige Verhalten.
+Automatische und einmalige Starts prüfen alle Bedingungen; unbekannte Werte
+berechtigen nicht zum Start. Vor konkreten Aktionen und beim Verlängern wird
+eine ausdrücklich so markierte Bedingung nicht erneut geprüft. Andere
+Gerätebedingungen, Zeitfenster und Wochentage gelten weiterhin. Ein angeforderter
+Neustart prüft alle Bedingungen sowohl beim Vormerken als auch beim tatsächlichen
+Neuanfang. Damit kann eine Helligkeitsgrenze den Start begrenzen, ohne den
+verzögerten Ausschaltbefehl zu verhindern. Gilt ebenso für aufgelöste Folgen und
+Mesh-Aktionen. Stopp und Wiederanlauf behalten ihre bisherigen Grenzen.
+Siehe [ADR 0020](adr/0020-start-only-device-conditions.md).
+
 ## Erneute Auslösung während eines Laufs
 
 `retrigger` ist eine optionale Schema-1-Regelangabe. Fehlend oder `ignore`
@@ -9,9 +23,9 @@ wartet laufende Übergaben ab, beendet den Rest und startet mit neuer Laufkennun
 Höchstens ein Neustart ist vorgemerkt; keine parallele Ausführung derselben
 Regel. Unsichere oder fehlgeschlagene Übergaben verwerfen den Neustart.
 
-Bedingungen und die bestehende Sekundensperre gelten auch für Erneuerungen.
+Bedingungen ohne start_only und die bestehende Sekundensperre gelten auch für Erneuerungen.
 Eine abgewiesene Erneuerung verändert den vorhandenen Lauf nicht. Bedingungen
-werden beim tatsächlichen Neustart und vor Aktionen nochmals geprüft.
+werden beim tatsächlichen Neustart vollständig und vor Aktionen ohne start_only nochmals geprüft.
 Einzelstarts bleiben bei einer laufenden Regel gesperrt und werden selbst
 nicht automatisch erneuert. Stopp, geändertes Speichern und Wiederanlauf
 behalten ihre Abbruchsemantik. Details einschließlich Folgenwartezeiten:

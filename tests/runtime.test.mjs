@@ -30,6 +30,65 @@ test('retrigger policies validate strictly while missing policy keeps ignore sem
     for (const retrigger of ['', 'parallel', null, true, 1, {}]) assert.throws(() => validateYaml(yaml([{...rule(), retrigger}])));
 });
 
+test('start-only conditions reject unknown or bright starts but allow extension and delayed off after it gets bright', async () => {
+    const h = await harness();
+    try {
+        const r = {...rule(), retrigger: 'extend', conditions: [{type: 'device_value', device: sourceID,
+            property: 'illuminance', operator: 'lt', value: 20, start_only: true}]};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        assert.doesNotThrow(() => validateYaml(yaml([r])));
+        await h.store(yaml([r])); await h.activate();
+        await h.event({occupancy: true}); assert.equal(h.commands.length, 0, 'Unknown brightness cannot authorize a start');
+        await h.clock.advance(1000); await h.event({occupancy: true, illuminance: 30}); assert.equal(h.commands.length, 0);
+        await h.clock.advance(1000); await h.event({occupancy: true, illuminance: 10});
+        assert.deepEqual(h.commands.map(c => c.data.state), ['ON']);
+        const run = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(3000); await h.event({occupancy: true, illuminance: 30});
+        await h.clock.advance(2000); assert.equal(h.commands.length, 1, 'New movement renewed the original deadline despite brightness');
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'OFF']);
+        assert.equal(h.extension.status().execution.runs[0].run, run);
+        await h.clock.advance(1000); await h.event({occupancy: true}); assert.equal(h.commands.length, 2, 'A subsequent new run must check brightness again');
+        assert.ok(h.logs.some(line => line.includes('Nur beim Start gültige Bedingung')));
+    } finally { await h.close(); }
+});
+
+test('start-only flags validate strictly and restarting still requires every start condition', async () => {
+    const condition = {type: 'device_value', device: sourceID, property: 'illuminance', operator: 'lt', value: 20};
+    for (const start_only of ['true', 1, null, {}]) assert.throws(() => validateYaml(yaml([{...rule(), conditions: [{...condition, start_only}]}])));
+    const h = await harness();
+    try {
+        const r = {...rule(), retrigger: 'restart', conditions: [{...condition, start_only: true}]};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true, illuminance: 10});
+        const run = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(2000); await h.event({occupancy: true, illuminance: 30});
+        assert.equal(h.extension.status().execution.runs[0].run, run, 'Rejected restart preserves the existing run');
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'OFF']);
+    } finally { await h.close(); }
+});
+
+test('start-only conditions also authorize a one-shot run once while continuous conditions still guard its tail', async () => {
+    const h = await harness();
+    try {
+        const r = {...rule(), enabled: false, conditions: [{type: 'device_value', device: sourceID,
+            property: 'illuminance', operator: 'lt', value: 20, start_only: true}]};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r]));
+        await runOnce(h); await flush();
+        assert.equal(h.extension.status().execution.runs[0].error, 'conditions_not_met');
+        h.targetStates.set(sourceID, {illuminance: 10});
+        assert.equal((await runOnce(h)).status, 'ok'); await flush();
+        await h.clock.advance(2000); await h.event({illuminance: 30});
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'OFF']);
+        assert.equal(h.extension.status().executing, false, 'One-shot execution does not enable automatic execution');
+        r.conditions.push({type: 'device_value', device: sourceID, property: 'occupancy', operator: 'eq', value: true});
+        await h.store(yaml([r], 2)); h.targetStates.set(sourceID, {illuminance: 10, occupancy: true});
+        await runOnce(h); await flush(); await h.clock.advance(2000); await h.event({occupancy: false});
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'OFF', 'ON']);
+        assert.equal(h.extension.status().execution.runs[0].state, 'skipped', 'Only the explicitly marked condition is exempt from rechecking');
+    } finally { await h.close(); }
+});
+
 test('extend renews only the current delay without repeating prior actions and respects cooldown', async () => {
     const h = await harness();
     try {

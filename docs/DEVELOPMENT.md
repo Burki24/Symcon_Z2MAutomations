@@ -1,3 +1,62 @@
+## Startbedingungen und ausgeschalteter Bewegungsmelder-Entwurf am 03.11.2026
+
+Nach Anwenderwahl einer Nachlaufzeit einen getrennten, ausgeschalteten
+Regelentwurf in Test-Symcon vorbereitet. Der dortige ältere Originalentwurf
+bleibt bytegleich erhalten. Die Quelle ist anhand der Geräteidentität und
+Variablenzuordnung dieselbe wie bei der bisherigen Bewegungsmeldersteuerung.
+Feste Ein-/Aus-Aktionen statt Umschalten; erneute passende Präsenzmeldungen
+setzen die Wartezeit zurück. Sieben bestehende Regeln und Partnerfreigaben in
+der Prüfkopie erhalten. Eine zusätzliche inaktive Partnerzuordnung verhindert,
+dass beim Entwurfsladen die vorhandene Mesh-Freigabe entfernt wird. Beide
+Vorbereitungsinstanzen bleiben für die Fortsetzung erhalten. Ihre native
+Debugdatei wurde wieder gestoppt.
+
+Die native Modul-API erstellt die ausgeschaltete Regel; Formular-JSON und
+Zeilendialoge bestätigen Auslöser, Ein/Aus, Wartezeit und extend. Z2M bestätigt
+nur ihre Validierung. Keine Speicherung, Aktivierung, Installation oder
+Schaltanforderung. Gespeicherte und aktive Revision/Prüfsumme unverändert,
+bisheriger Automatikbetrieb und Wiederanlauf bestätigt, keine Laufzeitfehler.
+Die zwei vom Anwender ausgeschalteten Originalereignisse bleiben aus.
+
+Anschließend wünscht der Anwender dauerhafte Aktivierung mit Helligkeitsgrenze.
+Die gewünschte externe Helligkeitsquelle wurde lesend bestätigt; maßgeblich ist
+die zuletzt vom Anwender korrigierte Grenze; konkrete Installationsdaten bleiben
+außerhalb des Repositorys. Noch keine Aktivierung: Eine
+fortlaufende Bedingung könnte bei steigender Helligkeit auch das Ausschalten
+verhindern. Deshalb lokal start_only für Gerätebedingungen ergänzt (ADR 0020).
+Ein neuer Lauf prüft vollständig; spätere Schritte und extend lassen nur diese
+explizit markierten Startbedingungen aus. restart prüft sie erneut. Zeitfenster,
+Wochentage und normale Gerätebedingungen bleiben fortlaufend.
+
+Der native Bedingungen-Dialog erhält „Nur beim Start“, einschließlich
+Formularserialisierung, Vorbelegung, Schutz offener Eingaben und detaillierter
+Validierung. Fehlende/ausgeschaltete Auswahl behält die bisherige Semantik;
+falsche Datentypen und unvollständige Speicheraufrufe werden verworfen.
+Der bestehende DebugFlowHelper und feste MQTT-Ereigniskatalog bleiben der
+Diagnosepfad. Eigene Quellen und Schema geändert, Artefakt ausschließlich mit
+npm run build:extension erzeugt. Keine Helper- oder Fremdquellen geändert.
+
+Zuerst gezielte Laufzeittests gegen den alten Stand fehlgeschlagen, anschließend
+mit der Erweiterung erfolgreich: unbekannt/zu hell, Helligkeitsanstieg,
+Verlängern, abschließendes Aus, neuer Lauf und Neustart sowie Einzelstart mit
+gemischten Bedingungen. PHP-/JavaScript-Integration prüft native Bearbeitung,
+Speicherung/Wiederladen und ungültige Flags mit synthetischen Daten. Der
+endgültige ausgeschaltete Entwurf mit Startbedingung ist außerhalb des
+Repositorys für die Fortsetzung gesichert und gegen die neue Erweiterung
+validiert. Er ist noch nicht in die installierte ältere Modul-/Erweiterungsversion
+übernommen. Gemeinsames Update, native Praxis der neuen Option, Speicherung und
+Aktivierung der gewünschten Bewegungsmelderregel stehen noch aus.
+
+Abschließend php tests/run.php mit 127 JavaScript-Tests und sämtlichen PHP-
+Prüfungen erfolgreich. Zusätzlich offizielle StylePHP-Prüfung der 15 eigenen
+JSON-Dateien in isolierter Kopie und PHP CS Fixer im Prüfmodus erfolgreich;
+Erweiterungsartefakt aktuell, UTF-8 ohne BOM mit LF und git diff --check sauber.
+Der neue Eingabeschutztest berücksichtigt auch das normalisierte false einer
+nicht angehakten Bedingungszeile. Die konkrete Helligkeitsquelle und der vom
+Anwender korrigierte Zahlenvergleich wurden zusätzlich im installierten
+Zeilendialog vorbelegt; die neue Startoption ist dort erst nach Update prüfbar.
+Kein Commit oder Push.
+
 ## Agenda 4: Frühe Aus-Meldung und isolierte Nachprüfung am 03.11.2026
 
 Zunächst ausdrücklich nur lesend untersucht: gesicherte Testbeobachtungen,
