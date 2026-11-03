@@ -68,7 +68,8 @@ Lokale Auslöser, Bedingungen und Verzögerungen bleiben auf dem Quellsystem.
 Ein Stopp verwirft ausstehende Anfragen und Empfangsfreigaben. Die Folge wartet
 vor ihrem nächsten Schritt auf die Bestätigung der nativen Befehlsübergabe.
 Fehlende oder verspätete Antworten sind ein Fehler, keine Gerätebestätigung.
-Kein automatisches Nachholen, Wiederholen oder Starten nach Neustart.
+Keine automatische Wiederholung unterbrochener Aktionen. Ein Wiederanlauf
+aktiviert ausschließlich den freigegebenen Regelstand für neue Auslöser.
 Siehe [ADR 0009](adr/0009-cross-system-actions-over-mqtt-bridge.md).
 
 Die Erweiterung kann gespeicherte Schema-1-Automationen ausführen. Sie lädt die
@@ -182,16 +183,19 @@ Aktivierung, Stopp, Beginn/Ende einer Folge, Übergabe und feste Fehlercodes.
 Keine YAML, Aktionswerte, Sitzungs-/Aktivierungskennungen oder fremden
 Exception-Texte. Ein defekter Logger unterbricht die Ausführung nicht.
 
-## Nachweise und nächster Praxistest
+## Nachweise
 
 `tests/runtime.test.mjs` prüft das erzeugte Einzeldatei-Artefakt mit synthetischen
 Geräten, nativer Eventbus-Form, virtueller Zeit und echtem temporärem YAML-Speicher.
 `tests/extension.test.mjs` und die PHP-/JavaScript-Integration bleiben erhalten.
-Ein neuer Live-Upload und ein Schaltversuch sind noch nicht erfolgt.
+Installation, Speicherung und reale Geräteausführung sind inzwischen praktisch
+belegt. Einzelheiten und Grenzen stehen in [DEVELOPMENT.md](DEVELOPMENT.md) und
+der [Versionsübersicht](COMPATIBILITY.md).
 
-Für den ersten Praxisversuch [simple-device.yaml](../libs/z2m/examples/simple-device.yaml)
-verwenden: zwei bewusst ausgewählte reale Geräte eintragen, die nächste Revision
-verwenden, prüfen, speichern und erst anschließend ausdrücklich aktivieren.
+Für weitere eigene Praxisversuche kann
+[simple-device.yaml](../libs/z2m/examples/simple-device.yaml) als synthetische
+Vorlage dienen. Geräte gezielt auswählen, Ausgangsbetrieb sichern, prüfen,
+speichern und erst anschließend ausdrücklich aktivieren.
 
 Geprüfte native Schnittstellen als Informationsquelle, ohne Übernahme von Code:
 [Z2M EventBus](https://github.com/Koenkk/zigbee2mqtt/blob/master/lib/eventBus.ts),

@@ -50,7 +50,13 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Debug bestätigen das Ergebnis. Lichtzustand und Originalbetrieb wiederhergestellt.
    Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,
-   unterstützte Z2M-Versionen mit tatsächlichen Nachweisen benennen. Geplant.
+   Z2M-Versionen mit tatsächlichen Nachweisen benennen. Am 03.11.2026
+   lokal geprüft und bereinigt: Anleitung in Bedienreihenfolge, widersprüchliche
+   Alttexte korrigiert, Regelschalter im Entwurf deutlicher bezeichnet,
+   Einstellungen/Statusvariablen/Skriptaufrufe ergänzt. COMPATIBILITY.md trennt
+   den belegten Stand 2.14.2-dev von Referenzziel und ungeprüften Versionen.
+   Keine Änderung am Live-System und keine neue native Bedienabnahme.
+   Breitere Versions-/Geräteabnahme und native Symcon-9.0-Prüfung bleiben offen.
 
 Die Bestandsfunktionen und bisherige Praxisnachweise stehen in
 [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md). Ausführung und Datenmodell verbleiben

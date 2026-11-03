@@ -10,7 +10,7 @@ Aktionen können über einen gemeinsamen Broker oder eine vorhandene Broker-Brid
 an ein zweites Z2M-System übergeben werden. Der eigene Mesh-Transport nutzt ausschließlich `z2ma/mesh/#`
 und verlangt eine aktivierte Empfangsfreigabe auf der Gegenseite. Kurzlebige
 Einmalfreigaben verhindern zusätzliche Ausführung durch alte oder doppelte
-Execute-Nachrichten. Der neue Stand wurde noch nicht praktisch installiert;
+Execute-Nachrichten. Reale systemübergreifende Abläufe sind dokumentiert;
 siehe [ADR 0009](../../docs/adr/0009-cross-system-actions-over-mqtt-bridge.md).
 
 Die eigene Erweiterung empfängt Automationen über MQTT, validiert YAML und
@@ -18,8 +18,8 @@ Schema und speichert die letzte gültige Fassung im persistenten Z2M-Datenordner
 Eine gespeicherte Revision kann anschließend ausdrücklich aktiviert werden.
 Die Engine unterstützt das bestehende Schema mit Geräte-/Zeittriggern,
 Bedingungen und geordneten Set-/Umschaltaktionen. Speichern allein aktiviert nichts.
-Das Symcon-Modul bietet Aktivierungs-/Stoppbuttons und einen ersten Klick-Editor.
-Die Erweiterung stellt dafür einen begrenzten Gerätekatalog aus diskreten Exposes
+Das Symcon-Modul bietet Aktivierungs-/Stoppbuttons und den Klick-Editor.
+Die Erweiterung stellt dafür einen begrenzten Gerätekatalog aus Z2M-Eigenschaften
 und die bereits gespeicherte Konfiguration bereit. Nach der Aktivierung laufen
 Regeln ohne Symcon weiter. Mit gespeicherter Wiederanlauf-Freigabe aktiviert
 Z2M denselben Regelstand auch nach einem Neustart automatisch. Ohne Freigabe
@@ -39,10 +39,12 @@ werden aus den vorhandenen Z2M-Abhängigkeiten geladen. Ein separates Hochladen
 von Schema- oder Hilfsdateien ist nicht erforderlich. Das Artefakt wird mit
 npm run build:extension erstellt und durch npm run check:extension geprüft.
 
-Vertragsziel dieser Ausbaustufe: Z2M 2.14.2 mit Node ab 22.2, js-yaml 5.4.2
-und Ajv 8.20.0. Genau diese Parser-/Validatorstände sind als lokale
-Testabhängigkeiten festgelegt. Installation und YAML-Übertragung wurden praktisch
-geprüft; für die neue Engine stehen Live-Upload und Schaltversuch noch aus.
+Schnittstellenziel ist Z2M 2.14.2. Praktisch belegt ist 2.14.2-dev; eine eigene
+Abnahme der stabilen Ausgabe liegt nicht vor. Die genaue Entwicklungsrevision
+ist nicht dokumentiert. Die lokale Testbasis verwendet Node ab 22.2,
+js-yaml 5.4.2 und Ajv 8.20.0. Installation, Übertragung und reale Ausführung sind
+im jeweils beschriebenen Umfang bestätigt. Siehe
+[Versionsübersicht und Grenzen](../../docs/COMPATIBILITY.md).
 
 Der eigene Constructor nutzt die offiziell dokumentierten zehn Z2M-Argumente;
 ein optionales elftes Argument ersetzt ausschließlich im Test Dateisystem und

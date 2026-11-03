@@ -1,3 +1,49 @@
+## Agenda 6: Benutzerführung und Dokumentation am 03.11.2026
+
+Formulartexte und deutsche Übersetzungen, Modul-/Library-Anleitung, sichtbare
+Einstellungen und Statusvariablen gegen Implementierung und Praxisberichte
+abgeglichen. Vorhandenen ConfigurationFormHelper geprüft; kein neuer Helper
+oder zweiter Formularpfad erforderlich. Lokaler Ausgangsarbeitsbaum sauber.
+
+Die Benutzeranleitung beginnt jetzt bei der Einrichtung und führt zur ersten
+Regel sowie Übernehmen, Prüfen, Speichern und Aktivieren. Vorhandene Themen
+wurden in Bedienreihenfolge geordnet und über Einstiegspfade verlinkt.
+Widersprüchliche Alttexte zu automatischer Statusprüfung, numerischen Aktionen,
+Gruppen, Zeitbereich und Wiederanlauf korrigiert. Alle fünf Properties und alle
+15 registrierten Statusvariablen sind beschrieben; die Skriptreferenz enthält
+die gebräuchlichen Aufrufe mit vollständigen nativen Parametern, Rückgabebedeutung,
+Regelkennung und Seiteneffekten. Ablaufaufzeichnung nach DEBUG.md verschoben.
+
+Die deutsche Listenspalte heißt ausdrücklich „Im Entwurf eingeschaltet“ und
+erhält dafür 170 Pixel statt 80. Der Löschdialog erklärt die Wirkung des späteren
+Speicherns. „Revision“ wird als „Standnummer“ bezeichnet. Keine neuen
+Callbacks, Abläufe oder Debuglogik und keine Änderung an Erweiterung/Build.
+
+COMPATIBILITY.md trennt die praktisch belegte Version 2.14.2-dev vom
+Schnittstellenziel 2.14.2 und anderen ungeprüften Versionen. Die genaue Git-
+Revision des Entwicklungsstands ist unbekannt. Vorhandene Z2MVersion-Variablen
+auf Test- und Produktiv-Symcon ausschließlich lesend abgefragt: ein nicht leerer
+Wert bestätigt 2.14.2-dev, leere Werte bleiben unbekannt. Keine MQTT-Anfrage,
+kein Formular geöffnet, keine Konfigurationsänderung, Installation oder
+Geräteaktion auf laufenden Systemen. Offizielle Z2M-Erweiterungsdokumentation
+und Paketmetadaten des Referenzziels nur als Schnittstellenquelle geprüft.
+
+Grenzen: lokale Text-/Formularprüfung und dokumentierter Versionsnachweis,
+keine neue native Sicht-/Bedienprüfung und keine zusätzliche Versionsabnahme.
+Native Symcon-9.0-Abnahme, weitere Z2M-Versionen und breitere Geräte-/Gruppen-
+prüfung bleiben ausdrücklich offen. Keine Veröffentlichung oder Metadatenänderung.
+
+Abschluss: php tests/run.php vollständig erfolgreich, einschließlich PHP-/JS-
+Integration, Formulargrößenprüfung und 124 JavaScript-Tests. Struktur- und
+Kodierungsprüfung eingeschlossen; offizielle StylePHP-Prüfung der 15 eigenen
+JSON-Dateien in isolierter Kopie sowie PHP CS Fixer im Prüfmodus erfolgreich.
+Geänderte Markdown-Verweise und Anker, statische Formularübersetzungen,
+UTF-8 ohne BOM, LF und git diff --check geprüft. Das sprachneutrale „OK“ benötigt
+keine Übersetzung. Ein erster Lauf traf während der Dateibearbeitung auf eine
+unvollständig neu geschriebene Formular-Datei; der anschließend vollständig
+wiederholte Lauf auf dem fertigen Stand ist erfolgreich. Keine Tests oder
+Fremdquellen geändert und kein Commit/Push.
+
 ## Agenda 5: Reale gemeinsame Geräteaktion am 03.11.2026
 
 Mit ausdrücklichem Praxisauftrag über Test-Symcon am gemeinsam genutzten

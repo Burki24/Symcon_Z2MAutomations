@@ -1,5 +1,44 @@
 # Debug und MQTT-Diagnose
 
+## Z2M-Abläufe im Debugfenster verfolgen
+
+Unter „Einrichtung und Diagnose“ das Debugfenster dieser Modulinstanz öffnen
+und dessen Aufzeichnung starten. Danach im Formular „Z2M-Aufzeichnung starten“
+wählen. Die Dauer beträgt wahlweise 5, 10 oder 15 Minuten. Der Formulartext
+bestätigt den Start erst nach der Antwort von Z2M. Erscheint keine Bestätigung,
+den Erweiterungsstatus abfragen und gegebenenfalls die mitgelieferte Erweiterung
+aktualisieren. Der allgemeine Z2M-Protokolllevel muss dafür nicht geändert werden.
+
+Die Meldungen erklären Auslöser, erfüllte oder nicht erfüllte Bedingungen,
+Mindestdauer, Wartezeiten, Aktionsschritte und Abbruchgründe. Regelnummer und
+Revision bezeichnen die Position in den gespeicherten Automationen; ein
+„Regellauf“ verbindet zusammengehörige Meldungen. Die Annahme eines Befehls
+bestätigt seine Übergabe an Z2M, nicht die Wirkung am Gerät.
+
+Bei einer Aktion zwischen zwei Z2M-Systemen die Aufzeichnung in beiden
+Automationsmodulen starten. Derselbe Regellauf und Aktionsschritt erscheinen
+auf beiden Seiten. Systembezug und Ursprungssystem erlauben die Zuordnung
+auch bei gleichlautenden Regelnummern. Es werden keine Gerätenamen, Messwerte,
+Schaltwerte, YAML oder Zugangsdaten in diese Ablaufmeldungen aufgenommen.
+
+„Eigene Z2M-Aufzeichnung beenden“ beendet nur die Aufzeichnung dieser Instanz.
+Das Speichern von Automationen unterbricht eine laufende Aufzeichnung nicht,
+solange MQTT-Verbindung und Z2M-Sitzung gleich bleiben. Ihre gewählte Endzeit
+bleibt unverändert. Auch während der anschließenden Statusbestätigung kann
+die eigene Aufzeichnung beendet werden. Ein neuer Start benötigt weiterhin
+einen bestätigten Erweiterungsstatus.
+
+Andere Symcon-Installationen können unabhängig aufzeichnen. Nach Ablauf der
+gewählten Zeit endet die Übertragung auch ohne laufendes Symcon. Nach
+Einstellungsübernahme, Verbindungswechsel oder Z2M-Neustart bei Bedarf erneut
+starten. Automationen werden dadurch weder gestartet noch gestoppt. Bei
+Überlast oder Übertragungsfehlern weist Debug auf Lücken hin; ausgefallene
+Ablaufmeldungen werden nicht nachträglich wiederholt.
+
+Programmierbare Aufrufe: `Z2MA_StartRuntimeDebug(InstanceID, Seconds)` mit
+1–900 Sekunden, `Z2MA_StopRuntimeDebug(InstanceID)`; der Timer-Einstieg
+`Z2MA_ExpireRuntimeDebug(InstanceID)` wird normalerweise automatisch verwendet.
+
 ## Gemeinsame Gerätebefehle und Farben
 
 GetEditorItemForm, ConfigureEditorItem, ConfigureSequenceCall und

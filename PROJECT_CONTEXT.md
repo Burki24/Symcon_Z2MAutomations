@@ -508,12 +508,18 @@ sie persistent und führt sie unabhängig von Symcon aus.
    Ursprüngliche Farbe, Helligkeit und Aus-Zustand wiederhergestellt; Testregel
    entfernt und ursprünglichen Betrieb erneut bestätigt. Weitere Farbconverter,
    Gruppen und Symcon 9.0 bleiben als eigene Praxisnachweise offen.
-   Nächster Agendapunkt: Abschluss und Dokumentation.
+   Punkt 6 am 03.11.2026 lokal bearbeitet: Benutzeranleitung neu geordnet,
+   veraltete Aussagen zu automatischen Prüfungen, Editorumfang und Wiederanlauf
+   korrigiert; Einstellungen, Status und Skriptaufrufe vervollständigt.
+   COMPATIBILITY.md dokumentiert den belegten Stand 2.14.2-dev mit Grenzen.
+   Reine Textänderungen an der deutschen Oberfläche; keine Live-Änderung.
+   Eine breite Versionsabnahme und native Symcon-9.0-Prüfung bleiben offen.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 
 ## Dokumentation
 
+- [Versionsübersicht und Grenzen](docs/COMPATIBILITY.md)
 - [Architektur](docs/ARCHITECTURE.md)
 - [ADR 0001](docs/adr/0001-execute-automations-in-z2m.md)
 - [ADR 0002](docs/adr/0002-use-native-symcon-mqtt.md)

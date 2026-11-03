@@ -2,6 +2,14 @@
 
 ## Neu
 
+- Benutzeranleitung nach Einrichtung und Arbeitsablauf geordnet. Veraltete
+  Hinweise zu automatischer Statusprüfung, Editorumfang und Wiederanlauf
+  korrigiert; Einstellungen, Statusvariablen und Skriptaufrufe ergänzt.
+  Die Regelübersicht nennt ausdrücklich den Schalter im Entwurf; der Löschdialog
+  erklärt, dass erst das spätere Speichern den Z2M-Betrieb ändert.
+  Versionsübersicht unterscheidet den praktisch belegten Stand 2.14.2-dev
+  von der noch nicht separat abgenommenen stabilen Ausgabe 2.14.2.
+
 - Gemeinsame Gerätebefehle im Klick-Editor: bis zu acht schaltbare Eigenschaften
   eines Geräts in einem Schritt hinzufügen, ersetzen und entfernen. Vorbelegung
   zeigt alle enthaltenen Werte; Farbleuchten erhalten eine native Farbauswahl.

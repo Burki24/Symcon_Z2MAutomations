@@ -20,8 +20,10 @@ Brokers. Die Berechtigungen des Bridge-Benutzers sind davon unabhängig.
 Symcons MQTT-Clients benötigen für die Regelverwaltung keine Mesh-Berechtigung;
 sie kommunizieren weiterhin nur über ihre eigenen Basistopics.
 Keine Passwörter, echten Adressen oder lokalen Konfigurationen in der Library.
-Berechtigungen und Praxisabnahme werden auf ausdrücklichen Auftrag separat
-durchgeführt; der neue Code wurde noch nicht auf den Z2M-Systemen installiert.
+Berechtigungen und Praxisabnahme wurden für die freigegebene Installation
+geprüft; reale systemübergreifende Läufe sind in DEVELOPMENT.md dokumentiert.
+Das ersetzt keine Prüfung weiterer Broker- oder Z2M-Versionen; siehe
+[Versionsübersicht](COMPATIBILITY.md).
 
 Diese Datei beschreibt den Symcon-Transport einschließlich der Installation und
 des [Empfängervertrags der Z2M-Erweiterung](EXTENSION_PROTOCOL.md).

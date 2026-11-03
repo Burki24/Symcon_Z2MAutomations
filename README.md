@@ -6,8 +6,8 @@
 [![Check Style](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=dev)](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml?query=branch%3Adev)
 [![Tests](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=dev)](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml?query=branch%3Adev)
 
-Z2MAutomations soll die Einrichtung von Zigbee2MQTT-Automationen in Symcon
-vereinfachen. Symcon erstellt die Regeln und überträgt sie als YAML an eine
+Z2MAutomations vereinfacht die Einrichtung von Zigbee2MQTT-Automationen in Symcon.
+Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
 Bei erneuter Auslösung einer laufenden Automation lässt sich wählen, ob die
@@ -35,7 +35,7 @@ Die eigene Z2M-Erweiterung lässt sich aus dem Modul über MQTT installieren.
 Das Modul prüft YAML über den Empfänger und überträgt sie nach Vorschau und
 Bestätigung in dessen persistenten Speicher. Die Erweiterung kann eine gespeicherte
 Revision nach ausdrücklicher Aktivierung ausführen. Aktivierung und Stopp werden
-im Modul bedient und von Z2M bestätigt. Ein erster Klick-Editor lädt Geräte aus
+im Modul bedient und von Z2M bestätigt. Der Klick-Editor lädt Geräte aus
 Z2M und erstellt Geräte- oder Zeitautomationen mit Bedingungen und bis zu 16
 geordneten Geräteaktionen. Die Wartezeit ist pro Schritt einstellbar;
 YAML-Kenntnisse sind dafür nicht erforderlich. Unterstützte ausgelöste
@@ -48,8 +48,8 @@ Beide Systeme benötigen dafür gespeicherte und ausdrücklich aktivierte Freiga
 Ein [synthetisches YAML-Beispiel](libs/z2m/examples/automations.yaml) zeigt das
 eigene Format; der [YAML-Vertrag](docs/YAML_SCHEMA.md) beschreibt die Felder.
 
-Weitere Auslöser, Bedingungen und Gruppen sind über die zusätzliche YAML-Ansicht
-möglich. Die Ausführung aktivierter Regeln findet in Z2M statt und benötigt
+Weitere, im Klick-Editor nicht darstellbare Regelstrukturen sind über die zusätzliche
+YAML-Ansicht möglich. Die Ausführung aktivierter Regeln findet in Z2M statt und benötigt
 kein laufendes Symcon. Auf Wunsch startet Z2M den zuletzt aktivierten Regelstand
 nach einem Neustart selbstständig wieder; bestätigtes Stoppen bleibt wirksam.
 Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertragen.
@@ -64,11 +64,15 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
   Ein vorhandenes Abonnement # genügt ebenfalls.
 - Für die Erweiterungsinstallation muss externes JavaScript in Z2M bereits
   freigeschaltet sein. Das Modul ändert diese Einstellung nicht und startet Z2M nicht neu.
+- Praktisch belegter Z2M-Stand: **2.14.2-dev**. Die stabile Ausgabe 2.14.2 ist
+  das Schnittstellenziel und besitzt noch keine eigene Praxisabnahme. Die genaue
+  Git-Revision des geprüften Entwicklungsstands ist nicht dokumentiert.
+  [Versionsübersicht und Grenzen](docs/COMPATIBILITY.md).
 
 ## Module
 
-- [Z2MAutomations](Z2MAutomations/README.md): MQTT-Anbindung, Statusanzeige und
-  Verbindungsprüfung als Grundlage der geplanten Automationsverwaltung.
+- [Z2MAutomations](Z2MAutomations/README.md): Einrichtung, Klick-Editor, Import,
+  Prüfung, Übertragung und Steuerung der Automationen.
 - [Eigene Z2M-Erweiterung](libs/z2m/README.md): Empfänger mit Schema-Prüfung,
   persistentem Konfigurationsspeicher und Sicherung der vorherigen Fassung.
 
@@ -79,10 +83,12 @@ In einer Entwicklungsinstallation die Instanz mit dem vorhandenen MQTT-Gateway
 verbinden, das Basistopic einstellen und die MQTT-Anbindung aktivieren.
 Details stehen in der [Modulanleitung](Z2MAutomations/README.md).
 
-Die Anbindung ist zunächst deaktiviert. Aktivieren oder Öffnen des Formulars
-sendet keine automatischen Anfragen. Bedienaktionen werden ausdrücklich über
-die jeweiligen Schaltflächen gestartet. Details zum Ablauf für Installation,
-YAML-Prüfung und Speicherung stehen in der Modulanleitung.
+Die Anbindung ist zunächst deaktiviert. Nach dem Einschalten und Übernehmen der
+MQTT-Einstellungen sowie beim Öffnen des aktiven Formulars wird der Status
+einmalig automatisch geprüft. Installation, Übertragung und Aktivierung erfolgen
+über die jeweiligen Schaltflächen. Änderungen im Klick-Editor zuerst mit dessen
+Übernehmen-Button in den Entwurf übernehmen, danach prüfen, speichern und aktivieren.
+Der normale orangefarbene Symcon-Button gilt für die Moduleinstellungen.
 
 ## Lizenz und Änderungen
 
