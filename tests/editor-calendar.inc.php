@@ -6,6 +6,9 @@ $module->Seed();
 $check($module->SelectAutomation('first', '', false, 'time'), 'Open a clock rule for calendar editing');
 $calendar = $form();
 $check(isset($calendar['TimeEditorTimes'], $calendar['TimeEditorWeekdays'], $calendar['DeviceEditorWeekdays']), 'Time list and independent weekdays are available in the native editors');
+foreach (['EditorTimes', 'TimeEditorTimes', 'DeviceEditorTimes'] as $clockList) {
+    $check(($calendar[$clockList]['add'] ?? false) && ($calendar[$clockList]['delete'] ?? false), 'Native time lists must expose their add and delete controls');
+}
 $check($calendar['TimeEditorTimes']['values'] === [['At' => '07:00:00']] && !$calendar['TimeEditorWeekdays']['value'], 'An existing single time is prefilled without inventing a weekday restriction');
 $originalCalendarYaml = $calendar['YamlInput']['value'];
 $calendarOverrides = ['TimeEditorTimes' => new ArrayIterator([['At' => '07:30'], ['At' => '18:45:12']]),

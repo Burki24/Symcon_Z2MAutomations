@@ -18,8 +18,20 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Bearbeitung nicht vollständig darstellbarer Regeln bleiben erhalten.
   Deutsche bereinigte Debugmeldungen, Z2M-Diagnoseereignis über bestehenden Kanal.
   Modul und generiertes Erweiterungsartefakt gemeinsam aktualisieren. Keine
-  Test-/Produktivinstallation und keine Geräte verändert; native Praxisprüfung
-  steht aus. Nachweise und Grenzen stehen in docs/DEVELOPMENT.md.
+  Test-/Produktivinstallation in der lokalen Implementierungsphase verändert.
+  Anschließend am 02.11.2026 per Test-Symcon geprüft, nach ausdrücklicher Freigabe
+  am gemeinsam genutzten Z2M: neuen Erweiterungsstand bestätigt; fehlende native
+  Listenoptionen add/delete korrigiert und nur das Testformular nachgezogen.
+  Zwei Uhrzeiten und unabhängige Tage nativ erstellt, deaktiviert geprüft und
+  gespeichert; geänderte Zeiten, Tage und getrennte Zeitzonen erneut gespeichert
+  und korrekt vorbelegt. Bearbeitung der gespeicherten Regel über öffentliche
+  Modulmethoden, sichtbare Vorbelegung zusätzlich in der nativen Konsole bestätigt.
+  Doppelte Zeiten und leere Tage lokal abgewiesen; Z2M benennt bei leerer Tagesliste
+  die genaue Bedingung. Testregel entfernt, ursprünglicher gespeicherter Inhalt
+  bis auf fortlaufende Revision bytegleich wiederhergestellt. Bisherige aktive
+  Regel, Partnerfreigabe und Wiederanlauf bestätigt. Originaler Symcon-Entwurf
+  bytegleich; Prüfkopie und eigene Aufzeichnung bereinigt. Keine Testausführung
+  oder Schaltbefehle. Nachweise und Grenzen stehen in docs/DEVELOPMENT.md.
 
 - Agenda Punkt 2 implementiert: zehn sichtbare Einträge je Regelbereich,
   ausgerichtete Spalten mit genau einer flexiblen Auslöserspalte, Suche einschließlich referenzierter
@@ -457,8 +469,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
 ## Nächste Schritte
 
 1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
-   Umfang praktisch bestätigt. Punkt 3 ist lokal implementiert; als Nächstes
-   native Praxisprüfung nach gemeinsamem Modul- und Erweiterungsupdate.
+   Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
+   Grenzen. Als Nächstes: Punkt 4, Verhalten bei erneuter Auslösung.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

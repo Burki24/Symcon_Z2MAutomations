@@ -61,6 +61,88 @@ Großkatalog-Formular: 605.934 Bytes, unter der Grenze von 750 KiB. Geänderte
 Textdateien UTF-8 ohne BOM mit LF; git diff --check sauber. Kein Commit/Push
 und keine Änderung an Fremdquellen, zentralen Helpern oder Versionsmetadaten.
 
+## Kalendereditor: Praxisprüfung am 02.11.2026
+
+Auftrag: mehrere Uhrzeiten und unabhängige Wochentage über Test-Symcon erstellen,
+bearbeiten, vorbelegen, prüfen und speichern, ohne Geräte zu schalten. Modul-
+Dateihashes bestätigten den neuen Stand. Der gemeinsame Z2M-Empfänger meldete
+noch den alten Erweiterungsbuild. Nach ausdrücklicher zusätzlicher Freigabe
+die mitgelieferte Erweiterung auf genau diesem Empfänger aktualisiert. Neuer
+Build und automatische Wiederaufnahme des bisherigen Betriebs bestätigt.
+
+Bildschirmbedienung vorab angekündigt. Temporäre Modulkopie statt Überschreiben
+des originalen lokalen Entwurfs. Gespeicherten Originaltext anhand der gemeldeten
+SHA-256-Prüfsumme exakt gesichert; Sicherung und private Debugdaten außerhalb
+des Repositorys. Sieben bestehende Regeln, davon eine eingeschaltet, und die
+vorhandene Partnerfreigabe waren der Wiederherstellungsstand.
+
+Die native Liste zeigte zunächst nur Bearbeiten: List.add und List.delete
+fehlten, obwohl die Spalten und Callbacks vorhanden waren. Fokussierte Prüfung
+der tatsächlich angebotenen Formularoptionen schlug zuerst fehl. Beide Optionen
+für die kanonische sowie Geräte-/Zeitliste ergänzt; Prüfung danach erfolgreich.
+Nur form.json nach Test-Symcon übertragen und das Formular frisch geöffnet.
+Hinzufügen-Button und Löschen-Symbole waren sichtbar. Keine erneute Änderung
+der Erweiterungsquellen durch diese Formularkorrektur.
+
+Eine ausgeschaltete neue Zeitregel nativ erstellt: erste Uhrzeit im vorhandenen
+Bearbeiten-Dialog ohne Sekunden geändert, zweite über Hinzufügen mit Sekunden
+ergänzt. Unabhängige Wochentage Montag bis Freitag gewählt; Zeitfenster blieb
+aus. Vorhandenes Gerät, schaltbarer Statuskanal und Wert im Aktionsdialog nur
+als Definition ausgewählt. Über den nativen Erstellen-Button in den lokalen
+Entwurf übernommen. Zwei normalisierte time-Auslöser und eine weekday-Klausel
+bestätigt; alle sieben Originalregeln unverändert.
+
+Prüfung, Speicherung und Wiederladen über die öffentlichen Modulfunktionen.
+Z2M bestätigte den neuen gespeicherten Stand und blieb nach geändertem Speichern
+wie vorgesehen gestoppt. Neue Regel weiterhin ausgeschaltet. Regelauswahl und
+GetConfigurationForm bestätigten beide Zeiten, alle Tage, getrennte Zeitzonen,
+ausgeschaltetes Zeitfenster, Aktion und Regelschalter. Danach über die öffentliche
+SaveScheduledAutomation-Methode Uhrzeiten und Name geändert, Dienstag/Donnerstag
+sowie UTC für die Tage gewählt; Uhrzeiten behielten ihre andere Zeitzone.
+Erneut geprüft, gespeichert, geladen und alle Werte verglichen. Die native
+Konsole zeigte anschließend ebenfalls beide geänderten Zeiten und UTC.
+
+Zwei unmittelbar nach GetConfigurationForm ausgeführte Bearbeitungsaufrufe
+überschnitten sich mit der verzögerten automatischen Statusabfrage. Sie wurden
+mit editor_changed abgewiesen; Auswahlkennung und Entwurf blieben stabil. Nach
+protokolliertem Abschluss der Abfrage funktionierte derselbe gebundene Aufruf.
+Die allgemeine Schutzmeldung unterscheidet diesen laufenden Auftrag noch nicht
+von einer tatsächlich veränderten Auswahl. Kein verlorener Inhalt; hier keine
+zusätzliche Änderung dieses bestehenden Ablaufvertrags vorgenommen.
+
+Testregel aus dem übertragenen Stand entfernt und Originaltext mit fortlaufender
+Revision wieder gespeichert. Der Text war bis auf genau die Revision bytegleich
+zur Sicherung. Erst diesen ursprünglichen Sieben-Regel-Stand wieder aktiviert;
+die Testregel war zu keinem Zeitpunkt eingeschaltet oder aktiv. Frischer Status
+bestätigte laufenden Betrieb mit der ursprünglichen eingeschalteten Anzahl,
+identische gespeicherte/aktive Prüfsumme, Partnerfreigabe und Wiederanlauf.
+
+Zusätzliche Negativprüfungen nach Wiederherstellung ohne Speicherung: doppelte
+Uhrzeiten und leere unabhängige Tage über SaveScheduledAutomation abgewiesen,
+lokaler Prüfentwurf bytegleich. Eine fehlerhafte Kopie über ValidateYaml an Z2M
+gesendet; invalid_schema benannte die genaue Automations-/Bedingungsposition
+weekdays mit minItems=1. Gespeicherter und aktiver Stand blieben erhalten.
+Danach nur gültigen Originaltext erneut validiert. Debug enthielt verständliche
+deutsche Ursachen, Uhrzeitenanzahl und Wochentags-/Zeitfensterkennzeichen, aber
+nicht den eingegebenen Prüf-Namen. Eigene Debugdateiaufzeichnung beendet,
+temporäre Modulkopie samt Statusvariablen entfernt. Originaler Symcon-Entwurf
+bytegleich; keine Schaltanforderung oder Testausführung gesendet.
+
+Prüfgrenzen: native Konsole 9.1 und bestehender realer Empfänger, keine reale
+zeit-/wochentagsgesteuerte Geräteausführung, keine native Löschbetätigung und
+keine vollständige Abnahme weiterer Fensterbreiten oder Symcon 9.0. Das Ändern
+der bereits gespeicherten Gesamtregel erfolgte per öffentlicher Modul-API;
+die nativen Erstellen-/Listen-/Aktionsdialoge und die sichtbare Vorbelegung
+wurden separat bedient bzw. beobachtet. Offline-Nachweise ergänzen diese Grenzen.
+
+Abschluss nach der Formularkorrektur: php tests/run.php vollständig erfolgreich,
+einschließlich Speicherintegration, Struktur-/Kodierungsprüfung, aktuellem
+Erweiterungsartefakt und 111 JavaScript-Tests. Offizielle StylePHP-Prüfung der
+15 eigenen JSON-Dateien in isolierter Kopie sowie PHP CS Fixer im Prüfmodus
+erfolgreich. Großkatalog-Formular: 606.021 Bytes, unter 750 KiB. Geänderte
+Textdateien UTF-8 ohne BOM mit LF; git diff --check sauber. Keine Änderung
+an Fremdquellen, zentralen Helpern oder Versionsmetadaten; kein Commit/Push.
+
 ## Agenda Punkt 2: Übersicht und Kopien
 
 AutomationOverview verwaltet eine begrenzte, an den MQTT-Kontext gebundene

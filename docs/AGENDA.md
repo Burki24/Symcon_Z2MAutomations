@@ -22,8 +22,11 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
 3. **Zeitsteuerung vervollständigen.** Wochentage unabhängig von Zeitfenstern
    und mehrere Uhrzeiten im Klick-Editor. Lokal implementiert: eine bis acht
    Uhrzeiten, eigene Kalendertagsbedingung, Vorbelegung, sichere Bearbeitung
-   und deutsche Debug-Ausgaben. Native Praxisprüfung nach Modul- und
-   Erweiterungsupdate offen; keine laufende Installation geändert.
+   und deutsche Debug-Ausgaben. Am 02.11.2026 in Test-Symcon geprüft: native
+   Erstellung, Listenbearbeitung, unabhängige Tage, Prüfung, Speicherung und
+   Wiederladen. Fehlende Listenbuttons korrigiert. Keine Testregel ausgeführt;
+   Testdaten entfernt und vorheriger Betrieb wiederhergestellt. Umfang und
+   Grenzen stehen in DEVELOPMENT.md.
 4. **Erneute Auslösung festlegen.** Wahlweise ignorieren, neu starten oder
    verlängern, wenn eine Automation bereits läuft. Geplant.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle

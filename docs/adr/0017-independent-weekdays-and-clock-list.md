@@ -2,8 +2,11 @@
 
 ## Status
 
-Angenommen und lokal implementiert. Synthetische Prüfungen; native Konsole und
-reale Z2M-Installation werden erst nach gesondertem Praxisauftrag aktualisiert.
+Angenommen und implementiert. Synthetisch sowie am 02.11.2026 über Test-Symcon
+am nachträglich ausdrücklich freigegebenen gemeinsamen Z2M-Empfänger geprüft.
+Native Erstellung und Listenbearbeitung, lokale Negativprüfungen, Speicherung,
+Änderung und Wiederladen deaktivierter Regeln bestätigt. Keine Testausführung
+oder Geräteaktion. Umfang und Grenzen stehen in docs/DEVELOPMENT.md.
 
 ## Entscheidung
 

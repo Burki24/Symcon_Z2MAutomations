@@ -13,6 +13,10 @@
   Debugmeldungen erklären Bearbeitung und Wochentagsprüfung. Modul und
   Z2M-Erweiterung müssen gemeinsam aktualisiert werden; lokale Tests mit
   synthetischen Daten, noch keine Änderungen an laufenden Installationen.
+  Anschließende native Prüfung: fehlende Hinzufügen-/Löschen-Optionen der
+  Uhrzeitenlisten korrigiert. Erstellen sowie Prüfen, Speichern, Bearbeiten und
+  Wiederladen am freigegebenen Empfänger bestätigt; Testregel ausgeschaltet,
+  nach Abschluss entfernt und vorheriger Betrieb wiederhergestellt.
 
 - Größere Automationsübersichten mit zehn sichtbaren Regeln und flexiblen
   Spalten. Suche nach Automations- und Gerätenamen sowie Filter für eingeschaltete
