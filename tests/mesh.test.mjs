@@ -18,6 +18,29 @@ async function meshRequest(node, operation, fields = {}) {
     return node.messages.findLast(message => message.data.transaction === transaction).data;
 }
 
+test('retrigger restart awaits a remote result and never replays an unconfirmed mesh action', async () => {
+    const h = await pair();
+    try {
+        const r = {...remoteRule('set'), retrigger: 'restart'};
+        await h.a.load([r]); await h.b.load([]);
+        h.network.holdResult = true;
+        await h.a.trigger(); assert.equal(h.b.commands.length, 1);
+        h.advance(2000); await h.a.trigger();
+        assert.equal(h.b.commands.length, 1, 'Restart must not cancel a pending result or send another execute');
+        const result = h.wire.find(item => item.event.topic.endsWith('/result')).event;
+        h.network.holdResult = false;
+        await h.a.extension.receive(result); await flush();
+        assert.equal(h.b.commands.length, 2, 'A successful result authorizes the serial replacement');
+        const next = {...r, id: 'synthetic_timeout'};
+        await h.a.load([next]); h.network.holdResult = true;
+        h.advance(2000); await h.a.trigger(); h.advance(2000); await h.a.trigger();
+        const count = h.b.commands.length;
+        await new Promise(resolve => setTimeout(resolve, 4100)); await flush();
+        assert.equal(h.b.commands.length, count, 'A lost result never causes the queued restart to repeat the command');
+        assert.equal(h.a.extension.status().runtime_error, 'mesh_timeout');
+    } finally { await h.close(); }
+});
+
 test('reusable sequences keep their run, flattened step and internal sequence positions across both systems', async () => {
     const h = await pair();
     try {

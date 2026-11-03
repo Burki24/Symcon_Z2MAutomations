@@ -186,6 +186,7 @@ trait AutomationEditorManagement
         $rule = $selected ? $draft['configuration']['automations'][$index] : null;
         $simple = $rule === null ? null : $this->ScheduledEditorFields($rule);
         return ['EditorRule'      => $selected ? $id : '', 'EditorEditToken' => $selected ? $selection['token'] : '',
+            'EditorRetrigger'     => $rule['retrigger'] ?? 'ignore',
             'EditorName'          => $rule['name'] ?? '', 'EditorEnabled' => $rule['enabled'] ?? true,
             'EditorSource'        => $simple['EditorSource'] ?? '', 'EditorSourceChoice' => $simple['EditorSourceChoice'] ?? '',
             'EditorTarget'        => $simple['EditorTarget'] ?? '', 'EditorTargetChoice' => $simple['EditorTargetChoice'] ?? '',

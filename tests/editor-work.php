@@ -118,6 +118,10 @@ if (defined('Z2MA_CALENDAR_TEST')) {
     require __DIR__ . '/editor-calendar.inc.php';
     exit;
 }
+if (defined('Z2MA_RETRIGGER_TEST')) {
+    require __DIR__ . '/editor-retrigger.inc.php';
+    exit;
+}
 $standalone = 'function Z2MA_NavigateEditor($id, $kind, $area, $target, $draft, $input) { echo $input; } '
     . '$id = 1; $EditorTimeRule = "second"; $YamlInput = ""; $TimeEditorName = "Synthetic input"; '
     . '$TimeEditorRule = ""; $TimeEditorEditToken = ""; $UnrelatedSecret = "must-not-leave-script"; '

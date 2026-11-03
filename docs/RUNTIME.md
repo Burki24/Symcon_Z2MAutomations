@@ -1,13 +1,30 @@
 # Automationen ausführen
 
+## Erneute Auslösung während eines Laufs
+
+`retrigger` ist eine optionale Schema-1-Regelangabe. Fehlend oder `ignore`
+erhält den bisherigen Lauf. `extend` setzt ausschließlich den Timer der gerade
+laufenden Schrittwartezeit zurück; ohne diesen Timer keine Änderung. `restart`
+wartet laufende Übergaben ab, beendet den Rest und startet mit neuer Laufkennung.
+Höchstens ein Neustart ist vorgemerkt; keine parallele Ausführung derselben
+Regel. Unsichere oder fehlgeschlagene Übergaben verwerfen den Neustart.
+
+Bedingungen und die bestehende Sekundensperre gelten auch für Erneuerungen.
+Eine abgewiesene Erneuerung verändert den vorhandenen Lauf nicht. Bedingungen
+werden beim tatsächlichen Neustart und vor Aktionen nochmals geprüft.
+Einzelstarts bleiben bei einer laufenden Regel gesperrt und werden selbst
+nicht automatisch erneuert. Stopp, geändertes Speichern und Wiederanlauf
+behalten ihre Abbruchsemantik. Details einschließlich Folgenwartezeiten:
+[ADR 0018](adr/0018-retrigger-running-automations.md).
+
 ## Mehrere Uhrzeiten und unabhängige Wochentage
 
 Jeder `time`-Auslöser einer Regel besitzt wie bisher seine eigene Tagesmarke.
 Mehrere Uhrzeiten lösen unabhängig dieselbe Regel aus. Eine doppelte lokale
 Stunde bei der Zeitumstellung wird je Auslöser nicht wiederholt; verpasste
 Uhrzeiten werden nicht nachgeholt. Parallelitäts- und Sperrzeitregeln bleiben
-unverändert: Eine bereits laufende Regel startet durch eine weitere Uhrzeit
-keinen zweiten gleichzeitigen Lauf.
+unverändert. Eine weitere Uhrzeit verwendet die gewählte Erneuerungsart,
+ohne einen zweiten gleichzeitigen Lauf derselben Regel anzulegen.
 
 Die `weekday`-Bedingung verwendet den aktuellen Kalendertag ihrer expliziten
 Zeitzone. Sie benötigt weder einen Zeit-Auslöser noch ein Zeitfenster. Sie wird
@@ -111,8 +128,8 @@ Zusätzliche Fehler: `activation_expired`, `checksum_mismatch`, `unknown_entity`
   oder komplexe Vergleichswerte erfüllen auch `ne` nicht.
 - Ohne `for_seconds` ist jeder frische passende Bericht ein Ereignis. Wiederholte
   Tastendrücke mit demselben Aktionswert bleiben damit möglich. Pro Regel gilt
-  mindestens eine Sekunde Abstand; während einer laufenden Folge wird kein
-  weiterer Lauf vorgemerkt.
+  mindestens eine Sekunde Abstand. Während einer laufenden Folge entscheidet
+  `retrigger`; nur bei `restart` wird höchstens ein neuer Lauf vorgemerkt.
 - `for_seconds` misst eine durchgehend passende Bedingung ab dem ersten neuen
   Bericht. Weitere passende Berichte setzen den Timer nicht zurück. Ein falscher
   Wert verwirft ihn. Pro zusammenhängender Wahrphase wird höchstens einmal

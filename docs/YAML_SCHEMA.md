@@ -51,6 +51,7 @@ Referenzprojekts Luligu/zigbee2mqtt-automations.
 | id | Eindeutiger stabiler Schlüssel, 1–64 Zeichen; beginnt mit a–z, danach a–z, 0–9, _ oder - |
 | name | Anzeigename, 1–120 Zeichen; Namen dürfen sich wiederholen |
 | enabled | Regel wird nach ausdrücklicher Aktivierung der Revision berücksichtigt |
+| retrigger | Optional: ignore (Standard), restart oder extend; Verhalten bei erneuter Auslösung während eines Laufs |
 | triggers | 1–8 Auslöser |
 | conditions | 0–16 Bedingungen; die leere Liste ist ausdrücklich anzugeben |
 | actions | 1–16 Aktionen |
@@ -59,6 +60,13 @@ Maximal 100 Automationen pro Dokument. IDs dürfen nicht mehrfach vorkommen.
 Die Engine unterstützt alternative Auslöser, gemeinsam zu erfüllende Bedingungen
 und geordnete Aktionen. Zeit-, Verzögerungs-, Neustart- und Fehlerverhalten
 sind in [RUNTIME.md](RUNTIME.md) festgelegt.
+
+`restart` beginnt nach Abschluss einer laufenden Befehlsübergabe wieder bei der
+ersten Aktion. `extend` setzt nur die aktuelle Wartezeit vor einem Aktionsschritt
+auf volle Dauer zurück. Ohne Wartezeit bleibt die neue Auslösung ohne Wirkung.
+Bedingungen, Sperrzeit und Stopp gelten weiterhin. Unbekannte Werte einschließlich
+`null` werden abgewiesen. Eine ältere Erweiterung ohne diese Schemaergänzung
+weist das Feld ab; Modul und Erweiterung gemeinsam aktualisieren.
 
 ## Auslöser
 

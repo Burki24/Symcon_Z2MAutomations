@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Erneute Auslösung
+
+SaveScheduledAutomation erklärt die übernommene Erneuerungsart mit festen
+deutschen Texten, ohne Regelinhalt oder Namen. Die neuen Formularfelder werden
+wie bisher über den unveränderten DebugFlowHelper im öffentlichen Einstieg
+und durch EditorWorkInput erfasst.
+
+Die Runtime meldet Ignorieren, abgelehnte Bedingungen, fehlende Wartezeit,
+erneuerte Wartezeit, vorgemerkten Neustart und dessen Abbruch bei unsicherer
+Übergabe. Erneuern behält den Lauf; Neustart erhält eine neue Laufkennung.
+Beide gehören weiter zu derselben Regel und Quellrevision. Der feste gemeinsame
+Katalog macht diese Meldungen auch in Symcon sichtbar, wenn die vorhandene
+zeitlich begrenzte Aufzeichnung läuft. Keine neue Freigabe oder Aufzeichnung
+allein durch die Einstellung. Der bestehende Diagnosekanal bleibt begrenzt.
+
 ## Uhrzeiten und unabhängige Wochentage
 
 ConfigureEditorWeekdays und InspectEditorTimes verwenden den kanonischen

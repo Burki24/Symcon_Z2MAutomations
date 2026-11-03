@@ -1,5 +1,15 @@
 # Architektur
 
+## Erneute Auslösung
+
+Die optionale Regelangabe retrigger wird im bestehenden Schedule-Optionsvertrag
+erzeugt und durch EditorWorkInput geschützt. Die vorhandene Runtime entscheidet
+bei einer belegten Regel zwischen Ignorieren, einem serialisierten Neustart
+und Erneuern der aktuellen Wartezeit. Mesh-Übergaben bleiben bis zu ihrem
+Ergebnis unangetastet; Fehler, Stopp und Generationswechsel löschen vorgemerkte
+Neustarts. Keine eigene Queue, Timerengine oder MQTT-Steuerschnittstelle.
+Siehe [ADR 0018](adr/0018-retrigger-running-automations.md).
+
 ## Kalendertage und mehrere Uhrzeiten
 
 AutomationEditorCalendar ergänzt die vorhandene Schedule-Bearbeitung um eine

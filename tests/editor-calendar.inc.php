@@ -5,6 +5,7 @@ declare(strict_types=1);
 $module->Seed();
 $check($module->SelectAutomation('first', '', false, 'time'), 'Open a clock rule for calendar editing');
 $calendar = $form();
+$check(($calendar['TimeEditorRetrigger']['value'] ?? null) === 'ignore' && isset($calendar['DeviceEditorRetrigger']), 'Every native rule editor offers retrigger selection with the existing ignore default');
 $check(isset($calendar['TimeEditorTimes'], $calendar['TimeEditorWeekdays'], $calendar['DeviceEditorWeekdays']), 'Time list and independent weekdays are available in the native editors');
 foreach (['EditorTimes', 'TimeEditorTimes', 'DeviceEditorTimes'] as $clockList) {
     $check(($calendar[$clockList]['add'] ?? false) && ($calendar[$clockList]['delete'] ?? false), 'Native time lists must expose their add and delete controls');

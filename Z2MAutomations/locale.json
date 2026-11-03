@@ -565,7 +565,13 @@
             "Window starts on Friday": "Zeitfenster beginnt am Freitag",
             "Window starts on Saturday": "Zeitfenster beginnt am Samstag",
             "Window starts on Sunday": "Zeitfenster beginnt am Sonntag",
-            "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.": "Die Automation startet zu jeder eingetragenen Uhrzeit oder zum gewählten Sonnenereignis. Es gilt die ausgewählte Zeitzone. Verpasste Zeiten werden nicht nachgeholt. Alle Bedingungen müssen erfüllt sein."
+            "Each listed time or the selected solar event can start the automation. Times use the selected time zone. Missed times are not replayed. All conditions must be fulfilled.": "Die Automation startet zu jeder eingetragenen Uhrzeit oder zum gewählten Sonnenereignis. Es gilt die ausgewählte Zeitzone. Verpasste Zeiten werden nicht nachgeholt. Alle Bedingungen müssen erfüllt sein.",
+            "When triggered again during execution": "Wenn die laufende Automation erneut ausgelöst wird",
+            "Ignore the new trigger": "Neue Auslösung ignorieren",
+            "Start again from the first action": "Aktionsfolge von vorn beginnen",
+            "Reset the current waiting time": "Laufende Wartezeit zurücksetzen",
+            "Restart begins again at the first action. Extend resets only the current waiting time; completed actions are not repeated. With no waiting time, the new trigger is ignored.": "Von vorn beginnen wiederholt die Folge ab der ersten Aktion. Wartezeit zurücksetzen startet nur die aktuelle Wartezeit erneut; erledigte Aktionen werden nicht wiederholt. Ohne laufende Wartezeit wird die neue Auslösung ignoriert.",
+            "Choose Ignore, Restart or Extend waiting time for repeated triggers.": "Bitte wählen Sie, was bei erneuter Auslösung passieren soll: ignorieren, von vorn beginnen oder die laufende Wartezeit zurücksetzen."
         }
     }
 }

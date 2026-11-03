@@ -214,5 +214,33 @@
     "event_45": {
         "event": "AKTION",
         "message": "Kalendertag gegen erlaubte Wochentage geprüft."
+    },
+    "event_46": {
+        "event": "AKTION",
+        "message": "Erneute Auslösung ignoriert; vorhandener Regellauf bleibt unverändert."
+    },
+    "event_47": {
+        "event": "AKTION",
+        "message": "Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert."
+    },
+    "event_48": {
+        "event": "AKTION",
+        "message": "Keine laufende Wartezeit; erneute Auslösung verändert den Ablauf nicht."
+    },
+    "event_49": {
+        "event": "AKTION",
+        "message": "Wartezeit wegen erneuter Auslösung auf volle Dauer zurückgesetzt."
+    },
+    "event_50": {
+        "event": "AKTION",
+        "message": "Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet."
+    },
+    "event_51": {
+        "event": "FEHLER",
+        "message": "Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen."
+    },
+    "event_52": {
+        "event": "AKTION",
+        "message": "Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft."
     }
 }

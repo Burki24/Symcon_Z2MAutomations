@@ -10,7 +10,7 @@ use Traversable;
 /** Only editable values enter the work snapshot, never the complete form or configuration. */
 final class EditorWorkInput
 {
-    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorTimeMode', 'EditorAt', 'EditorTimes', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
+    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorRetrigger', 'EditorTimeMode', 'EditorAt', 'EditorTimes', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
         'EditorWeekdays', 'EditorWeekdayTimezone', 'EditorDayMonday', 'EditorDayTuesday', 'EditorDayWednesday', 'EditorDayThursday', 'EditorDayFriday', 'EditorDaySaturday', 'EditorDaySunday',
         'EditorWindow', 'EditorAfter', 'EditorBefore', 'EditorWindowTimezone', 'EditorMonday', 'EditorTuesday', 'EditorWednesday', 'EditorThursday',
         'EditorFriday', 'EditorSaturday', 'EditorSunday', 'EditorActions', 'EditorTriggers', 'EditorConditionList'];
@@ -54,7 +54,7 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
 
     public static function Normalize(array $values, string $area): array
     {
-        $keys = ['EditorName', 'EditorEnabled'];
+        $keys = ['EditorName', 'EditorEnabled', 'EditorRetrigger'];
         if ($area !== 'advanced') {
             $keys[] = 'EditorActions';
         }

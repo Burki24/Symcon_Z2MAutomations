@@ -1,5 +1,11 @@
 # Eigene Zigbee2MQTT-Erweiterung
 
+Die optionale Regelangabe `retrigger` steuert erneute Auslösungen während einer
+laufenden Folge: ignorieren, serialisiert von vorn beginnen oder nur die aktuelle
+Wartezeit zurücksetzen. Laufende Übergaben werden abgewartet; unsichere Ergebnisse
+werden nicht automatisch wiederholt. Details und Updategrenzen stehen in
+[ADR 0018](../../docs/adr/0018-retrigger-running-automations.md).
+
 Aktionen können über einen gemeinsamen Broker oder eine vorhandene Broker-Bridge
 an ein zweites Z2M-System übergeben werden. Der eigene Mesh-Transport nutzt ausschließlich `z2ma/mesh/#`
 und verlangt eine aktivierte Empfangsfreigabe auf der Gegenseite. Kurzlebige

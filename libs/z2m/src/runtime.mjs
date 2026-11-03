@@ -102,7 +102,8 @@ export class AutomationRuntime {
 
     stopRule(ruleID, run) {
         const execution = this.executions.get(run);
-        if (!execution || execution.rule.id !== ruleID || execution.cancelled) throw new RuntimeError('run_conflict');
+        if (!execution || execution.rule.id !== ruleID || (execution.cancelled && !execution.restart)) throw new RuntimeError('run_conflict');
+        execution.restart = null;
         execution.cancelled = true;
         for (const [timer, wait] of this.waits) if (wait.run === run) {
             this.clock.clearTimeout(timer); this.waits.delete(timer); wait.resolve(false);
@@ -190,7 +191,7 @@ export class AutomationRuntime {
     }
 
     deactivate() {
-        for (const [run, execution] of this.executions) if (!execution.cancelled) this.stopRule(execution.rule.id, run);
+        for (const [run, execution] of this.executions) if (!execution.cancelled || execution.restart) this.stopRule(execution.rule.id, run);
         this.generation++;
         this.onDeactivate?.();
         this.active = null;
@@ -346,17 +347,67 @@ export class AutomationRuntime {
         if (!this.canContinue(generation, context)) return Promise.resolve(false);
         if (!milliseconds) return Promise.resolve(true);
         return new Promise(resolve => {
-            const timer = this.clock.setTimeout(() => { this.waits.delete(timer); resolve(this.canContinue(generation, context)); }, milliseconds);
-            timer?.unref?.();
-            this.waits.set(timer, {resolve, run: context.run});
+            const wait = {resolve, run: context.run, context, milliseconds, timer: null};
+            wait.arm = () => {
+                if (wait.timer !== null) { this.clock.clearTimeout(wait.timer); this.waits.delete(wait.timer); }
+                wait.timer = this.clock.setTimeout(() => {
+                    this.waits.delete(wait.timer);
+                    resolve(this.canContinue(generation, context));
+                }, milliseconds);
+                wait.timer?.unref?.();
+                this.waits.set(wait.timer, wait);
+            };
+            wait.arm();
         });
     }
 
-    launch(rule, context = this.trace(rule), once = null) {
+    retrigger(rule, context) {
+        const execution = [...this.executions.values()].find(item => item.rule.id === rule.id);
+        const policy = rule.retrigger ?? 'ignore';
         const now = this.clock.now();
+        if (!execution || execution.once || execution.cancelled || execution.restart || policy === 'ignore') {
+            this.log('AKTION', 'Erneute Auslösung ignoriert; vorhandener Regellauf bleibt unverändert.', {}, context);
+            return;
+        }
+        if (now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs) {
+            this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'cooldown'}, context);
+            return;
+        }
+        if (!this.conditions(rule, context)) {
+            this.log('AKTION', 'Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert.', {}, context);
+            return;
+        }
+        if (policy === 'extend') {
+            const wait = [...this.waits.values()].find(item => item.run === execution.context.run);
+            if (!wait) {
+                this.log('AKTION', 'Keine laufende Wartezeit; erneute Auslösung verändert den Ablauf nicht.', {}, execution.context);
+                return;
+            }
+            this.cooldowns.set(rule.id, now);
+            wait.arm();
+            this.executionState(rule, execution.context, 'running');
+            this.log('AKTION', 'Wartezeit wegen erneuter Auslösung auf volle Dauer zurückgesetzt.', {}, {...wait.context, trigger: context.trigger, delay: wait.milliseconds / 1000});
+            return;
+        }
+        this.cooldowns.set(rule.id, now);
+        execution.restart = {context, generation: this.generation, candidate: this.active};
+        // Let an already handed-off action settle. Cancelling its acknowledgement could hide an uncertain result.
+        if (!execution.dispatching) {
+            execution.cancelled = true;
+            for (const [timer, wait] of this.waits) if (wait.run === execution.context.run) {
+                this.clock.clearTimeout(timer); this.waits.delete(timer); wait.resolve(false);
+            }
+            this.executionState(rule, execution.context, 'stopped');
+        }
+        this.log('AKTION', 'Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet.', {}, {...execution.context, trigger: context.trigger});
+    }
+
+    launch(rule, context = this.trace(rule), once = null, replacement = false) {
+        const now = this.clock.now();
+        if (!once && this.active && this.running.has(rule.id)) { this.retrigger(rule, context); return; }
         const reason = !this.active && !once ? 'inactive' : this.running.has(rule.id) ? 'already_running'
             : this.tasks.size >= RUNTIME_LIMITS.concurrentRules ? 'concurrency_limit'
-                : now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown' : '';
+                : !replacement && now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs ? 'cooldown' : '';
         if (reason) {
             this.log('AKTION', 'Regellauf nicht gestartet.', {Regel: rule.id, Grund: reason}, context);
             if (once) throw new RuntimeError(reason === 'already_running' ? 'rule_busy' : 'busy');
@@ -386,17 +437,28 @@ export class AutomationRuntime {
         this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
         const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
+            if (execution.restart) {
+                execution.restart = null;
+                this.log('FEHLER', 'Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen.', {}, context);
+            }
             if (execution.cancelled) return;
             const code = error instanceof RuntimeError ? error.code : 'action_failed';
             if (!once) this.lastError = code;
             this.executionState(rule, context, 'failed', code);
             this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: code}, context);
         }).finally(() => {
+            const restart = execution.restart;
+            if (restart) this.executionState(rule, context, 'stopped');
             if (this.results.get(rule.id)?.run === context.run && this.results.get(rule.id)?.state === 'running') this.executionState(rule, context, 'completed');
             this.executions.delete(context.run);
             if (this.running.get(rule.id) === task) this.running.delete(rule.id);
             this.tasks.delete(task);
             this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
+            if (restart && restart.generation === this.generation && this.active === restart.candidate) {
+                this.onCancelRun?.(context.run);
+                this.log('AKTION', 'Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft.', {}, restart.context);
+                this.launch(rule, restart.context, null, true);
+            }
         });
         this.running.set(rule.id, task);
         this.tasks.add(task);
@@ -407,13 +469,13 @@ export class AutomationRuntime {
         const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
         for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
             const {action} = entry;
-            if (!this.canContinue(generation, context)) return;
+            if (!this.canContinue(generation, context) || this.executions.get(context.run)?.restart) return;
             const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0,
                 ...(entry.sequence ? {sequence: entry.sequence, sequence_step: entry.sequence_step} : {})};
             if (entry.sequence_step === 1) this.log('AKTION', 'Wiederverwendbare Aktionsfolge im Regellauf begonnen.', {}, step);
             this.executionState(rule, context, 'running', '', index + 1);
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
-            if (!await this.wait(step.delay * 1000, generation, context)) {
+            if (!await this.wait(step.delay * 1000, generation, step)) {
                 this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
                 return;
             }
@@ -424,6 +486,7 @@ export class AutomationRuntime {
                 this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;
             }
             try {
+                this.executions.get(context.run).dispatching = true;
                 if (action.target.system !== undefined) {
                     await this.remoteDispatch(action, step);
                 } else {
@@ -432,7 +495,7 @@ export class AutomationRuntime {
             } catch (error) {
                 this.log('FEHLER', 'Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen.', {Grund: error instanceof RuntimeError ? error.code : 'action_failed'}, step);
                 throw error;
-            }
+            } finally { const execution = this.executions.get(context.run); if (execution) execution.dispatching = false; }
         }
     }
 

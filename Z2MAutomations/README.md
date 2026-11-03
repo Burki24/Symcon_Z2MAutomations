@@ -1,5 +1,35 @@
 # Z2MAutomations
 
+## Wenn eine laufende Automation erneut ausgelöst wird
+
+Unter **Wenn die laufende Automation erneut ausgelöst wird** wählen Sie:
+
+- **Neue Auslösung ignorieren:** Die aktuelle Folge läuft unverändert weiter.
+  Das ist auch das bisherige Verhalten vorhandener Regeln.
+- **Aktionsfolge von vorn beginnen:** Der noch offene Rest wird beendet und
+  die Folge startet wieder bei der ersten Aktion. Eine gerade laufende
+  Befehlsübergabe wird vorher abgewartet. Bei einer fehlgeschlagenen oder nicht
+  rechtzeitig bestätigten Übergabe wird der vorgemerkte Neustart verworfen.
+- **Laufende Wartezeit zurücksetzen:** Nur die aktuelle Wartezeit beginnt
+  wieder mit ihrer vollen Dauer. Bereits erledigte Schritte werden nicht
+  wiederholt. Ohne laufende Wartezeit bleibt die neue Auslösung ohne Wirkung.
+
+Beispiel: Ein Bewegungsmelder schaltet das Licht ein, wartet fünf Minuten und
+schaltet es aus. Mit **Laufende Wartezeit zurücksetzen** beginnt die Wartezeit
+bei jeder passenden neuen Bewegung erneut. Die Einschaltaktion wird dabei
+nicht wiederholt. Meldet ein Auslöser nur Wertänderungen, muss zunächst wieder
+eine solche Änderung vorliegen; nicht jede unveränderte Sensormeldung zählt.
+
+Die Auswahl gilt auch für weitere Geräteauslöser derselben Regel sowie für
+Uhrzeit- und Astro-Auslöser. Alle Bedingungen müssen erneut passen. Die
+Sperrzeit von einer Sekunde bleibt bestehen. Beim Neuanfang können bereits
+erledigte Aktionen nochmals ausgeführt werden, auch ein Umschaltbefehl.
+Einmalige manuelle Starts ersetzen einen laufenden Ablauf nicht. Stoppen und
+Neustarts von Z2M setzen unterbrochene Schritte nicht später fort.
+
+Übernehmen Sie die Änderung wie gewohnt in den Entwurf, prüfen und speichern
+Sie ihn in Z2M. Für diese Erweiterung sind Modul- und Erweiterungsupdate nötig.
+
 ## Viele Automationen finden und kopieren
 
 Die Übersichten zeigen jeweils zehn Regeln auf einmal. Name, Auslöser und
@@ -43,8 +73,9 @@ vorhandene Einträge können Sie bearbeiten oder löschen. Zum Beispiel startet
 eine Regel um 07:00 und um 18:30 jeweils dieselbe Aktionsfolge. Die Uhrzeiten
 verwenden die gemeinsam ausgewählte Zeitzone. Leere, ungültige und doppelte
 Einträge lassen sich nicht in den Entwurf übernehmen.
-Läuft die Aktionsfolge noch, startet eine weitere Uhrzeit keinen zweiten
-gleichzeitigen Ablauf derselben Regel.
+Läuft die Aktionsfolge noch, gilt für eine weitere Uhrzeit die Auswahl zum
+erneuten Auslösen. Ein zweiter gleichzeitiger Ablauf derselben Regel entsteht
+dabei nicht.
 
 Unter **Nur wenn …** können Sie **Nur an ausgewählten Wochentagen** einschalten.
 Wählen Sie mindestens einen Tag und die Zeitzone dafür. Das funktioniert auch

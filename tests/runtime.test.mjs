@@ -3,7 +3,7 @@ import test from 'node:test';
 import {mkdtemp, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import Extension, {validateYaml, entityScenes, buildEditorScenes} from '../libs/z2m/z2m-automations.mjs';
+import Extension, {validateYaml, entityScenes, buildEditorScenes, DEBUG_EVENTS} from '../libs/z2m/z2m-automations.mjs';
 
 const sourceID = '0x0000000000000001';
 const targetID = '0x0000000000000002';
@@ -12,6 +12,155 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
     conditions: [], actions: [{type: 'set', target: {type: 'device', id: targetID}, values: {state: 'ON'}}]});
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
+
+test('retrigger policies validate strictly while missing policy keeps ignore semantics', () => {
+    for (const retrigger of ['ignore', 'restart', 'extend']) assert.doesNotThrow(() => validateYaml(yaml([{...rule(), retrigger}])));
+    for (const retrigger of ['', 'parallel', null, true, 1, {}]) assert.throws(() => validateYaml(yaml([{...rule(), retrigger}])));
+});
+
+test('extend renews only the current delay without repeating prior actions and respects cooldown', async () => {
+    const h = await harness();
+    try {
+        const r = {...rule(), retrigger: 'extend'};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true});
+        await h.request('debug', {session: h.session, client: '11111111-1111-4111-8111-111111111111', seconds: 60});
+        const run = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(3000); await h.event({occupancy: true});
+        await h.clock.advance(500); await h.event({occupancy: true});
+        await h.clock.advance(4499); assert.deepEqual(h.commands.map(c => c.data.state), ['ON']);
+        await h.clock.advance(1); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'OFF']);
+        assert.equal(h.extension.status().execution.runs[0].run, run);
+        assert.ok(h.logs.some(line => line.includes('Wartezeit wegen erneuter Auslösung auf volle Dauer zurückgesetzt.')));
+        const code = Object.keys(DEBUG_EVENTS).find(key => DEBUG_EVENTS[key].message.startsWith('Wartezeit wegen erneuter'));
+        const record = h.messages.find(m => m.data.record?.event === code)?.data.record;
+        assert.equal(record?.run, run); assert.equal(record.step, 2); assert.equal(record.delay, 5);
+    } finally { await h.close(); }
+});
+
+test('restart cancels the old wait, creates one new run and never overlaps the old tail', async () => {
+    const h = await harness();
+    try {
+        const r = {...rule(), retrigger: 'restart'};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true});
+        const old = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(3000); await h.event({occupancy: true});
+        assert.notEqual(h.extension.status().execution.runs[0].run, old);
+        assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'ON']);
+        await h.clock.advance(2000); assert.equal(h.commands.length, 2);
+        await h.clock.advance(3000); assert.deepEqual(h.commands.map(c => c.data.state), ['ON', 'ON', 'OFF']);
+    } finally { await h.close(); }
+});
+
+test('failed retrigger conditions preserve the original wait and explicit single starts stay busy', async () => {
+    for (const retrigger of ['restart', 'extend']) {
+        const h = await harness();
+        try {
+            const r = {...rule(), retrigger, conditions: [{type: 'device_value', device: sourceID, property: 'illuminance', operator: 'lt', value: 20}]};
+            r.actions[0].delay_seconds = 5;
+            await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true, illuminance: 10});
+            const run = h.extension.status().execution.runs[0].run;
+            await h.clock.advance(2000); await h.event({occupancy: true, illuminance: 30});
+            assert.equal(h.extension.status().execution.runs[0].run, run);
+            assert.equal((await runOnce(h)).error.code, 'rule_busy');
+            await h.event({illuminance: 10}); await h.clock.advance(3000);
+            assert.equal(h.commands.length, 1, 'Rejected trigger did not change the original deadline');
+        } finally { await h.close(); }
+    }
+});
+
+test('restart waits for an in-flight handoff, coalesces triggers and abandons replacement on failure', async () => {
+    for (const fail of [false, true]) {
+        const h = await harness(); let release;
+        try {
+            const r = {...rule(), retrigger: 'restart'};
+            r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+            await h.store(yaml([r])); await h.activate();
+            let dispatches = 0;
+            h.extension.runtime.dispatch = () => { dispatches++; return dispatches === 1 ? new Promise((resolve, reject) => { release = () => fail ? reject(new Error()) : resolve(); }) : undefined; };
+            await h.event({occupancy: true}); await h.clock.advance(2000); await h.event({occupancy: true});
+            await h.clock.advance(1000); await h.event({occupancy: true});
+            assert.equal(dispatches, 1, 'No second handoff before the first settles');
+            release(); await flush();
+            assert.equal(dispatches, fail ? 1 : 2);
+            if (fail) assert.equal(h.extension.status().execution.runs[0].state, 'failed');
+            await h.deactivate(); await h.clock.advance(10000);
+            assert.equal(dispatches, fail ? 1 : 2);
+        } finally { release?.(); await h.close(); }
+    }
+});
+
+test('targeted stop and changed storage discard pending restarts and renewed waits', async () => {
+    for (const retrigger of ['restart', 'extend']) {
+        const h = await harness();
+        try {
+            const r = {...rule(), retrigger}; r.actions[0].delay_seconds = 5;
+            await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true});
+            await h.clock.advance(2000); await h.event({occupancy: true});
+            const run = h.extension.status().execution.runs[0];
+            assert.equal((await h.request('stop_rule', {session: h.session, rule_id: r.id, run: run.run, expected_revision: 1, checksum: h.extension.status().checksum})).status, 'ok');
+            await h.clock.advance(10000); assert.equal(h.commands.length, 0);
+            await h.event({occupancy: true}); await h.clock.advance(2000); await h.event({occupancy: true});
+            await h.store(yaml([r], 2)); await h.clock.advance(10000); assert.equal(h.commands.length, 0);
+        } finally { await h.close(); }
+    }
+});
+
+test('ignore preserves the existing deadline and extend cannot replay an action during a handoff', async () => {
+    for (const policy of [undefined, 'ignore', 'extend']) {
+        const h = await harness(); let release;
+        try {
+            const r = rule(); if (policy) r.retrigger = policy;
+            await h.store(yaml([r])); await h.activate();
+            let count = 0;
+            h.extension.runtime.dispatch = () => { count++; return new Promise(resolve => { release = resolve; }); };
+            await h.event({occupancy: true}); await h.clock.advance(2000); await h.event({occupancy: true});
+            assert.equal(count, 1); release(); await flush();
+            assert.equal(h.extension.status().execution.runs[0].state, 'completed');
+        } finally { release?.(); await h.close(); }
+    }
+});
+
+test('explicit stop cancels a restart queued behind a handoff and timeout never retries it', async () => {
+    for (const stop of [false, true]) {
+        const h = await harness();
+        try {
+            const r = {...rule(), retrigger: 'restart'};
+            await h.store(yaml([r])); await h.activate();
+            let count = 0;
+            h.extension.runtime.dispatch = () => { count++; return new Promise(() => {}); };
+            await h.event({occupancy: true}); await h.clock.advance(2000); await h.event({occupancy: true});
+            if (stop) {
+                const run = h.extension.status().execution.runs[0];
+                assert.equal((await h.request('stop_rule', {session: h.session, rule_id: r.id, run: run.run, expected_revision: 1, checksum: h.extension.status().checksum})).status, 'ok');
+            }
+            await h.clock.advance(5000);
+            assert.equal(count, 1);
+            assert.equal(h.extension.status().execution.runs[0].state, stop ? 'stopped' : 'failed');
+        } finally { await h.close(); }
+    }
+});
+
+test('clock retriggers restart a waiting rule and renewed waits do not survive an extension restart', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = {...rule(), retrigger: 'restart'};
+        r.triggers = ['12:00:01', '12:00:03'].map(at => ({type: 'time', at, timezone: 'UTC'}));
+        r.actions[0].delay_seconds = 5;
+        await h.store(yaml([r])); await h.activate();
+        await h.clock.advance(1000); const old = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(2000); assert.notEqual(h.extension.status().execution.runs[0].run, old);
+        await h.clock.advance(3000); assert.equal(h.commands.length, 0);
+        await h.clock.advance(2000); assert.equal(h.commands.length, 1);
+        r.retrigger = 'extend'; r.triggers = rule().triggers;
+        await h.store(yaml([r], 2)); await h.activate(); await h.event({occupancy: true});
+        await h.clock.advance(2000); await h.event({occupancy: true}); await h.close(false);
+        h = await harness(directory); assert.equal(h.extension.status().executing, true);
+        await h.clock.advance(10000); assert.equal(h.commands.length, 0);
+        await h.event({occupancy: true}); await h.clock.advance(5000); assert.equal(h.commands.length, 1);
+    } finally { await h.close(); }
+});
 
 test('weekday clauses validate independently and reject malformed days, zones and oversized time lists', () => {
     const r = rule(); r.conditions = [{type: 'weekday', weekdays: [1, 3, 7], timezone: 'Pacific/Auckland'}];

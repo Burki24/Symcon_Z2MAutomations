@@ -88,7 +88,7 @@ trait AutomationEditorSchedule
                     return $this->RejectEditorChange($state, 'editor_condition');
                 }
                 $reason = 'editor_schedule';
-                $parts = $this->BuildScheduledRule($Source, $Trigger, $Target, $Action, $Options, $reason, $ActionSteps, $TriggerSteps, $ConditionSteps);
+                $parts = $this->BuildScheduledRule($Source, $Trigger, $Target, $Action, $Options, $reason, $ActionSteps, $TriggerSteps, $ConditionSteps, $rule['retrigger'] ?? 'ignore');
                 if ($parts === null) {
                     return $this->RejectEditorChange($state, $reason);
                 }
@@ -104,6 +104,9 @@ trait AutomationEditorSchedule
             }
             $this->DebugEvent('AKTION', 'Auslöser und Bedingungen für den lokalen Entwurf vorbereitet.', ['Bereich' => $this->EditorTypeLabel($this->EditorRuleType($rule)), 'Auslöser' => count($rule['triggers']), 'Verknüpfung' => 'ODER', 'Bedingungen' => count($rule['conditions']), 'Bedingungsverknüpfung' => 'UND']);
             $this->DebugEditorActionSteps($rule['actions']);
+            $this->DebugEvent('AKTION', 'Verhalten bei erneuter Auslösung für den lokalen Entwurf übernommen.', ['ErneuteAuslösung' => match ($rule['retrigger'] ?? 'ignore') {
+                'restart' => 'Von vorn beginnen', 'extend' => 'Laufende Wartezeit zurücksetzen', default => 'Ignorieren'
+            }]);
             $this->DebugEvent('AKTION', 'Zeit- und Wochentagsangaben für den Entwurf geprüft; in Z2M wird noch nichts geändert.', [
                 'FesteUhrzeiten'   => count(array_filter($rule['triggers'], static fn (array $t): bool => $t['type'] === 'time')),
                 'Wochentagsfilter' => count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'weekday')) > 0,
@@ -148,7 +151,7 @@ trait AutomationEditorSchedule
 
     private function ScheduleDefaults(): array
     {
-        return ['EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
+        return ['EditorRetrigger'   => 'ignore', 'EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
             'EditorWindow'          => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
             'EditorMonday'          => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
             'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
@@ -162,7 +165,7 @@ trait AutomationEditorSchedule
         return preg_match('/\A(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?\z/D', $value) === 1 ? (strlen($value) === 5 ? $value . ':00' : $value) : null;
     }
 
-    private function BuildScheduledRule(string $sourceID, string $triggerKey, string $targetID, string $actionKey, string $options, string &$reason, string $actionSteps = '', string $triggerSteps = '', string $conditionSteps = ''): ?array
+    private function BuildScheduledRule(string $sourceID, string $triggerKey, string $targetID, string $actionKey, string $options, string &$reason, string $actionSteps = '', string $triggerSteps = '', string $conditionSteps = '', string $retrigger = 'ignore'): ?array
     {
         if (strlen($options) > 8192) {
             return null;
@@ -173,10 +176,15 @@ trait AutomationEditorSchedule
             return null;
         }
         $defaults = $this->ScheduleDefaults();
+        $defaults['EditorRetrigger'] = $retrigger;
         if (!is_array($input) || array_diff(array_keys($input), array_keys($defaults)) !== []) {
             return null;
         }
         $v = array_replace($defaults, $input);
+        if (!in_array($v['EditorRetrigger'], ['ignore', 'restart', 'extend'], true)) {
+            $reason = 'editor_retrigger';
+            return null;
+        }
         foreach ($defaults as $key => $default) {
             if ((is_bool($default) && !is_bool($v[$key])) || (is_string($default) && !is_string($v[$key]))) {
                 return null;
@@ -310,7 +318,7 @@ trait AutomationEditorSchedule
             $reason = 'editor_conditions';
             return null;
         }
-        return ['triggers' => $triggers ?? [$trigger], 'conditions' => $conditions, 'actions' => $actions];
+        return ['retrigger' => $v['EditorRetrigger'], 'triggers' => $triggers ?? [$trigger], 'conditions' => $conditions, 'actions' => $actions];
     }
 
     private function ScheduledEditorFields(array $rule): ?array
@@ -321,6 +329,10 @@ trait AutomationEditorSchedule
         $t = $rule['triggers'][0];
         $a = SequencePlan::Expand($this->ReadEditorDraft()['configuration'], $rule['actions'])[0]['action'];
         $v = $this->ScheduleDefaults();
+        $v['EditorRetrigger'] = $rule['retrigger'] ?? 'ignore';
+        if (!in_array($v['EditorRetrigger'], ['ignore', 'restart', 'extend'], true)) {
+            return null;
+        }
         $v['EditorTriggerType'] = $t['type'];
         $v['EditorHold'] = $t['for_seconds'] ?? 0;
         $v['EditorDelay'] = $a['delay_seconds'] ?? 0;

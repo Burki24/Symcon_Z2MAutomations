@@ -8,6 +8,19 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 4 lokal umgesetzt (ADR 0018): Geräte-/Zeit-/Astro-Regeln mit
+  Auswahl zum Ignorieren, Neustarten oder Zurücksetzen einer laufenden Wartezeit.
+  Optionale Schema-1-Regelangabe retrigger; fehlend bleibt ignore. Vorbelegung,
+  geschützte Formulareingaben, deaktivierte Kopien und fehlende Option älterer
+  API-Aufrufe erhalten die Auswahl. Erneute Bedingungs-/Sperrzeitprüfung,
+  maximal ein serialisierter Neustart nach laufender Übergabe, kein Neustart
+  nach unbestätigtem Ergebnis. Einzelstart und Stopp behalten ihre Grenzen.
+  Feste deutsche Debugereignisse im bestehenden MQTT-Kanal; bei Wartezeit-
+  erneuerung bleibt der Lauf-/Schrittbezug erhalten. Offline-Nachweise für
+  native Callbacks, PHP-/JS-Speicherung, Laufzeit, Mesh und Wiederanlauf.
+  Modul und Erweiterung gemeinsam aktualisieren. Kein Zugriff auf Test-/Live-
+  Systeme oder Bildschirm, keine Geräteaktionen. Praxisprüfung steht aus.
+
 - Agenda Punkt 3 lokal implementiert (ADR 0017): Klick-Editor mit einer bis acht
   verschiedenen Uhrzeiten in gemeinsamer Zeitzone. Bestehende einzelne und
   mehrere time-Auslöser werden vollständig vorbelegt. Unabhängige Auswahl von
@@ -470,7 +483,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
    Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
-   Grenzen. Als Nächstes: Punkt 4, Verhalten bei erneuter Auslösung.
+   Grenzen. Punkt 4 ist lokal umgesetzt; als Nächstes steht seine Praxisprüfung
+   nach gemeinsamem Modul-/Erweiterungsupdate an. Danach Punkt 5: zusammengesetzte
+   Befehle und Farben im Klick-Editor.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

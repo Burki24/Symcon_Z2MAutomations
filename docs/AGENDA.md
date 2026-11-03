@@ -28,7 +28,11 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Testdaten entfernt und vorheriger Betrieb wiederhergestellt. Umfang und
    Grenzen stehen in DEVELOPMENT.md.
 4. **Erneute Auslösung festlegen.** Wahlweise ignorieren, neu starten oder
-   verlängern, wenn eine Automation bereits läuft. Geplant.
+   die aktuelle Wartezeit zurücksetzen, wenn eine Automation bereits läuft.
+   Lokal umgesetzt: Vorbelegung, geschützte Eingaben, Prüfung, Speicherung,
+   Bedingungsprüfung, serialisierter Neustart und deutsche Debugmeldungen.
+   Native und reale Praxisprüfung nach Modul-/Erweiterungsupdate ausstehend;
+   Details und Grenzen in ADR 0018 und DEVELOPMENT.md.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle
    und Farben im Klick-Editor. Geplant.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,

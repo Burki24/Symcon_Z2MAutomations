@@ -2,6 +2,15 @@
 
 ## Neu
 
+- Verhalten bei erneuter Auslösung im Klick-Editor: neue Auslösung ignorieren,
+  die Aktionsfolge von vorn beginnen oder die laufende Wartezeit zurücksetzen.
+  Vorbelegung, geschützte Formulareingaben, Kopieren, Prüfung und Speicherung
+  enthalten die Auswahl. Laufzeit prüft Bedingungen und Sperrzeit erneut,
+  wartet laufende Befehlsübergaben ab und verwirft vorgemerkte Neustarts bei
+  Fehlern oder Stopp. Feste deutsche Ablaufmeldungen über den vorhandenen
+  Debugkanal. Modul und Z2M-Erweiterung gemeinsam aktualisieren; zunächst nur
+  lokal mit synthetischen Daten geprüft, keine laufende Installation verändert.
+
 - Mehrere Startzeiten im Klick-Editor: eine bis acht unterschiedliche Uhrzeiten
   mit gemeinsamer Zeitzone starten dieselbe Automation. Einträge lassen sich
   hinzufügen, bearbeiten und löschen; vorhandene Regeln werden vorbelegt.

@@ -501,6 +501,13 @@
                 "enabled": {
                     "type": "boolean"
                 },
+                "retrigger": {
+                    "enum": [
+                        "ignore",
+                        "restart",
+                        "extend"
+                    ]
+                },
                 "triggers": {
                     "type": "array",
                     "minItems": 1,

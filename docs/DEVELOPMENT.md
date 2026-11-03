@@ -1,3 +1,58 @@
+## Agenda Punkt 4: Erneute Auslösung einer laufenden Automation
+
+Lokal am 03.11.2026 umgesetzt gemäß ADR 0018. Vorhandene ConfigurationFormHelper-
+und DebugFlowHelper-Quellen sowie verwandte Schedule-/EditorWork- und Runtime-
+Pfade geprüft; zentrale Quellen unverändert. Fachliche Ablaufentscheidungen
+bleiben in der Library. Keine Änderung öffentlicher Methodensignaturen.
+
+EditorRetrigger erweitert den bestehenden Optionsvertrag und die geschützte
+Eingabe. Beide nativen Bereiche erhalten dieselben drei Optionen und Hilfetexte.
+Fehlende Angabe älterer Aufrufer erhält eine gespeicherte Auswahl, statt diese
+stillschweigend auf ignore zurückzustellen. Metadatenbearbeitung nicht komplett
+darstellbarer Regeln erhält die Laufzeitangabe. Synthetische native Callbacks
+prüfen offene Eingaben, Übernehmen, Auswahlwechsel, Vorbelegung und Kopieren.
+Unbekannte Optionen werden ohne Entwurfsänderung abgewiesen. Die bestehende
+PHP-/JavaScript-Integration prüft neue und geänderte Auswahl bis zum Wiederladen
+aus dem echten synthetischen Empfängerspeicher.
+
+Runtime.wait behält den vorhandenen Timerbesitz und kann nur seine aktuelle
+Schrittwartezeit neu setzen. Keine zweite Timerengine und kein Warteschlangen-
+speicher. Neustart wartet einen bereits begonnenen Dispatch ab und hält dafür
+maximal einen flüchtigen Wunsch im bisherigen Lauf. Stopp und geändertes Speichern
+löschen ihn. Fehler oder Timeout der Übergabe verwerfen den Wunsch, statt einen
+unsicheren Befehl automatisch zu wiederholen. Frische Bedingungen gelten bei
+Erneuerung und tatsächlichem Neustart; Sekundensperre und Parallelitätsgrenzen
+bleiben wirksam. Einzelstarts werden weder ersetzt noch automatisch verlängert.
+
+Zuerst fehlender Schema-/Editorvertrag durch fokussierte rote Tests belegt,
+anschließend implementiert. Deterministische virtuelle Uhr prüft erneuerte
+Fristen, unveränderte erste Aktionen, neue Laufkennung, alte verworfene Reste,
+unerfüllte Bedingungen, Sekundensperre, Einzelstart und Stopp. Laufende native
+Handoffs werden kontrolliert aufgelöst, abgewiesen oder bis Timeout offengehalten.
+Zusätzlicher Zwei-Erweiterungs-Mesh-Test hält die echte Result-Nachricht zurück:
+kein zweites Execute bis zur Bestätigung, danach genau ein neuer Lauf; bei
+verlorenem Result kein Neustart. Uhrzeitauslöser und Wiederanlauf mit gespeicherter
+Option geprüft; eine unterbrochene erneuerte Wartezeit wird nicht fortgesetzt.
+
+Ein zusätzlicher Diagnosevertrag fand zunächst den fehlenden Schrittbezug einer
+Wartezeit-Erneuerung. Die Wartezeit erhält jetzt den tatsächlichen Schrittkontext
+einschließlich Folgenbezug; der MQTT-Datensatz nennt dieselbe Laufkennung, Schritt
+und volle Verzögerung. Gemeinsamer fester Katalog, keine freien Werte oder Namen.
+
+Kein MCP-/Bildschirmzugriff, keine Installation und keine Schaltanforderung an
+reale Geräte. Native Symcon-9.0-/9.1-Bedienung und realer Empfänger bleiben nach
+gemeinsamem Update praktisch zu prüfen. Bestehende Statusabfrage-/Editor-
+Kollisionsmeldung aus dem vorherigen Praxisauftrag hier nicht verändert.
+
+Abschluss am 03.11.2026: php tests/run.php vollständig erfolgreich, einschließlich
+synthetischer nativer Formularskripte, PHP-/JavaScript-Speicherintegration und
+121 JavaScript-Tests. Struktur- und zentrale Kodierungsprüfung sowie aktuelles
+generiertes Artefakt bestätigt. Offizielle StylePHP-Prüfung der 15 eigenen
+JSON-Dateien in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus erfolgreich.
+Großkatalog-Formular: 611.982 Bytes unter 750 KiB. Neue/geänderte Texte UTF-8
+ohne BOM mit LF; git diff --check sauber. Keine Fremdquellen, zentralen Helper
+oder Versionsmetadaten geändert; kein Commit/Push.
+
 ## Agenda Punkt 3: Kalendertage und mehrere Uhrzeiten
 
 AutomationEditorCalendar ergänzt eine Liste von 1–8 normalisierten, verschiedenen
