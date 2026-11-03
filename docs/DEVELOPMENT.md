@@ -1,3 +1,42 @@
+## Bewegungsmelderregel: Reale Nachlaufverlängerung am 03.11.2026
+
+Auf ausdrücklichen Auftrag bei passender Außenhelligkeit die dauerhaft aktive
+Regel mit echten Bewegungsmeldungen geprüft. Vorab Licht aus, Sensorbereich frei,
+Helligkeitsbedingung erfüllt; gespeicherte und aktive Prüfsumme identisch,
+Wiederanlauf armed und kein Laufzeitfehler. Zeitlich begrenzte eigene MQTT-
+Aufzeichnung bestätigt und native Debugdatei gestartet. Keine Regel-, Geräte-
+oder Ereigniseinstellung verändert und keine Testereignisse eingespeist.
+
+Der Anwender bestätigt das Einschalten nach Bewegung. Anfängliche Aufforderungen
+zur Wiederholung kamen zu spät: Die ursprüngliche Minute war bereits abgelaufen,
+und eine weitere Bewegung startete einen neuen Lauf. Dies ist kein Nachweis
+eines Verlängerungsfehlers; diese Durchgänge wurden nicht als Verlängerung
+gewertet. Danach Sensorfreigabe und tatsächliche Einschaltzeit als Bezug genutzt.
+
+Im auswertbaren Lauf erfolgt die zweite Bewegung 43 Sekunden nach dem Start.
+Debug bestätigt „Wartezeit wegen erneuter Auslösung auf volle Dauer
+zurückgesetzt“ mit derselben Laufkennung und Schritt 2. Genau ein Einschalt-
+und ein Ausschaltauftrag, kein erneutes Einschalten. Eine lesende Statusprobe
+26 Sekunden nach der alten Ausschaltfrist bestätigt weiterhin Ein. Genau
+60 Sekunden nach der erneuten Meldung endet die Wartezeit; die native
+Lichtvariable wechselt im selben Sekundenintervall auf Aus. Frische weitere
+Variablenmeldungen bestätigen Aus und Helligkeit null. Laufstatus completed,
+Schritt 2 und Fehler leer. Debug zeigt, dass die Startbedingung vor der
+abschließenden Aktion nicht erneut geprüft wird.
+
+Abschluss bestätigt: gespeicherte/aktive Revision und Prüfsumme unverändert,
+acht Regeln und zwei eingeschaltete Regeln, Automatikbetrieb aktiv, Mesh bereit,
+Wiederanlauf armed und kein Laufzeitfehler. Die ursprünglichen Symcon-Ereignisse
+bleiben ausgeschaltet. Nur eigene Aufzeichnungen beendet; die dauerhaft aktive
+Regel bleibt wie beauftragt erhalten. Kein Update, Speichern oder Neustart in
+diesem Durchgang. Rohdaten, genaue Zeitbezüge und Installationsdaten ausschließlich
+außerhalb des Repositorys gesichert. Ein Helligkeitsanstieg über die Grenze
+während der Wartezeit wurde real nicht herbeigeführt. Kein Funktionscode geändert.
+
+Kodierungs- und Strukturprüfung sowie git diff --check erfolgreich. Nur die
+drei Nachweisdokumente geändert; unveränderte Offline-Laufzeit- und Stilprüfungen
+nicht wiederholt. Kein Commit oder Push.
+
 ## Startbedingungen: Praxis und dauerhafte Übernahme am 03.11.2026
 
 Nach ausdrücklicher Fortsetzung zunächst Modul- und Erweiterungsstände beider

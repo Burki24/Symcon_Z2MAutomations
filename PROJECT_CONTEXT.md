@@ -26,9 +26,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
   bisherige sieben Regeln und Partnerfreigabe unverändert. Gespeicherter und
   aktiver Stand identisch, Wiederanlauf armed, kein Laufzeitfehler. Original-
   ereignisse bleiben aus. Vorbereitungsinstanzen entfernt, eigene Aufzeichnungen
-  beendet, ursprünglicher lokaler Testentwurf unverändert. Der Anwender möchte
-  den realen Sensor-/Lichttest später bei passender Helligkeit durchführen.
-  Kein neuer Schaltversuch oder Neustart in dieser Übernahmephase.
+  beendet, ursprünglicher lokaler Testentwurf unverändert. Später bei erfüllter
+  Helligkeitsbedingung realen Sensor-/Lichttest durchgeführt: erneute Bewegung
+  setzt die volle Minute im selben Lauf zurück. Licht bleibt über die alte Frist
+  hinaus an und meldet erst zur verlängerten Frist Aus; kein erneuter Einschalt-
+  befehl und kein Fehler. Regel unverändert dauerhaft aktiv, Originalereignisse
+  aus und eigene Aufzeichnungen beendet. Kein Helligkeitsanstieg über die
+  Schwelle während des realen Laufs und kein weiterer Neustart geprüft.
 
 - Agenda Punkt 4 lokal umgesetzt (ADR 0018): Geräte-/Zeit-/Astro-Regeln mit
   Auswahl zum Ignorieren, Neustarten oder Zurücksetzen einer laufenden Wartezeit.

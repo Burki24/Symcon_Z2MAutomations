@@ -1,6 +1,6 @@
 # ADR 0020: Gerätebedingungen nur beim Start prüfen
 
-- Status: implementiert; Modul-/MQTT-/Speicherpraxis bestätigt, reale Sensor-/Lichtprüfung offen
+- Status: implementiert; Modul-/MQTT-/Speicherpraxis und reale Sensor-/Lichtprüfung mit Verlängerung bestätigt
 - Datum: 03.11.2026
 
 ## Kontext
@@ -40,7 +40,7 @@ bei steigender Helligkeit, sichere Ausschaltung, erneute Prüfung nach Abschluss
 abgelehnten Neustart, Einzelstart und gemischte fortlaufende Bedingungen. Die
 PHP-/JavaScript-Integration prüft native Formularserialisierung, Vorbelegung und
 Speicherung einschließlich Geräte- und Zeitbereichen sowie ungültige Flags.
-Produktive Aktivierung und reale Sensormeldungen sind separat abzunehmen.
+Die folgenden Praxisnachweise ergänzen diese synthetischen Prüfungen.
 
 Nach gemeinsamem Update am selben Tag die Modul-API, reales Formular-JSON und
 das tatsächliche Zeilendialog-Skript geprüft. Auswahl und Vorbelegung einschließlich
@@ -48,3 +48,12 @@ StartOnly korrekt; Empfänger validiert und speichert die neue Regel. Wiederlade
 ist bytegleich, bisherige Regeln unverändert. Dauerhafte Aktivierung einschließlich
 gespeicherter Wiederanlaufabsicht bestätigt. Keine neue Neustart- oder reale
 Sensor-/Lichtprüfung: Der Anwender verschiebt diese bis zur passenden Helligkeit.
+
+Später am selben Tag bei erfüllter Helligkeitsbedingung mit tatsächlichen
+Sensormeldungen geprüft: Einschaltung, erneute Auslösung im selben Lauf und
+Ausschaltung nach voller erneuerter Minute. Das Licht bleibt über die alte
+Ausschaltfrist hinaus an; kein erneuter Einschaltbefehl und kein Laufzeitfehler.
+Startbedingung wird laut Debug vor dem Ausschalten nicht erneut geprüft.
+Regel bleibt aktiv, eigene Aufzeichnungen beendet. Ein Helligkeitsanstieg über
+die Schwelle während des Laufs wurde real nicht herbeigeführt; diese Grenze ist
+weiterhin durch synthetische Tests, nicht durch diesen Geräteversuch abgedeckt.
