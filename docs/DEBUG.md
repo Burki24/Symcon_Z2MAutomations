@@ -1,6 +1,15 @@
 # Debug und MQTT-Diagnose
 
-## Lesender Automationsdesigner
+## Automationsdesigner
+
+Der neue POST-create-Auftrag bleibt im bestehenden ProcessHookData-Debugfluss.
+Ablehnungen nennen einen sicheren deutschen Hinweis und HTTP-Status; Erfolg
+nennt Regel-/Schrittzahlen und die ausschließlich lokale Entwurfsänderung.
+Wiederholte Aufträge melden ausdrücklich, dass keine zweite Regel angelegt wurde.
+Der gemeinsame CommitEditorChange protokolliert die native Entwurfsübernahme.
+Browserauswahlen senden keine zusätzlichen Anfragen nur für Debugzwecke.
+Namen, Gerätekennungen, Schaltwerte, Anfragekörper, Zugang und Herkunftsheader
+werden nicht in diese Meldungen kopiert. Der Prüfzugang bleibt DebugFlowHelper.
 
 RefreshDeviceCatalog protokolliert den reinen Geräteabruf, korrelierte Phasen,
 Erfolg mit Geräte-/Gruppen-/Szenenzahlen sowie Ablehnungen. Meldungen erklären,
@@ -10,7 +19,7 @@ Fehler aktualisieren ihn nicht. Keine Gerätenamen oder Nutzdaten im Debug.
 
 OpenAutomationDesigner, GetDesignerData und ProcessHookData verwenden den
 bestehenden DebugFlowHelper mit Start und Ende. Deutsche Ablaufmeldungen
-erklären den befristeten Lesezugang, Mengen vorhandener Geräte/Regeln/Folgen,
+erklären den befristeten Zugang, Mengen vorhandener Geräte/Regeln/Folgen,
 fehlende Entwurfsdaten und beantwortete HTTP-Abrufe. Ablehnungen nennen den
 HTTP-Status. Weder Zugang, Link, HTTP-Header, Regelnamen noch Schaltwerte oder
 Entwurfsinhalte werden protokolliert. Auch Aktualisieren verändert weder

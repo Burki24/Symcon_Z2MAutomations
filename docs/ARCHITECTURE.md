@@ -1,6 +1,14 @@
 # Architektur
 
-## Lesende Anbindung des Automationsdesigners
+## Automationsdesigner: Anzeige und lokale Regelerstellung
+
+Zusätzlich zum lesenden GET-Vertrag gibt es eine feste POST-create-Route
+(ADR 0022). Neue Sitzungen erlauben diese begrenzte Entwurfsergänzung; alte
+Lesezugänge werden nicht aufgewertet. AutomationDesignerCreation prüft
+Herkunft, JSON-Grenze, Zugang, Kontext, native Eingaben und aktuelle Katalogrechte.
+SimpleEditorRule und CommitEditorChange bleiben der gemeinsame Regel-/Entwurfspfad.
+Der Browser erhält nur eine Bestätigung und lädt danach den aktuellen Entwurf
+neu. Kein zweiter YAML-Speicher und kein allgemeiner Browser-Aktionsendpunkt.
 
 Ein getrennter nativer RefreshDeviceCatalog-Aufruf nutzt die korrelierte
 status/catalog-Workflowkette. catalog liefert denselben begrenzten Geräte-,
@@ -17,7 +25,7 @@ ursprüngliche Eingabepuffer bleiben erhalten.
 AutomationDesigner ergänzt OpenAutomationDesigner/GetDesignerData und einen
 flüchtigen, instanzbezogenen GET-WebHook. Der Designer zeigt nur bereits
 vorhandene, zum aktuellen TransportScope passende Editor-/Katalogdaten.
-Keine MQTT-Abfrage, keine Attributänderung und kein Aufruf der Laufzeitsteuerung.
+GET führt keine MQTT-Abfrage, Attributänderung oder Laufzeitsteuerung aus.
 Anzeigen/Schaltrechte verwenden die vorhandenen Katalogpfade. Der Browserzugang
 ist gehasht, zeitlich begrenzt und ohne Query-Token; Routen sind fest begrenzt.
 Assets und HTTP-Antworten verwenden unveränderte zentrale Helper.

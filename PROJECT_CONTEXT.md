@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Designer Schritt 2 lokal umgesetzt (ADR 0022): „Neue Automation“ mit
+  getrennt durchsuchbarer Geräte-/Kanal-/Wertauswahl für Auslöser und Aktion.
+  Begrenztes POST ergänzt nur eine ausgeschaltete Regel im bestehenden Entwurf.
+  Native Guards, aktuelle Aktionsrechte, Kontextkonflikte und Wiederholschutz;
+  keine MQTT-/Live-Änderung. Browserprüfung gegen synthetisches PHP-Modul mit
+  50 Geräten erfolgreich. Weitere Bearbeitung und Übertragung bleiben nativ.
+
 - Getrennter Geräteabruf lokal ergänzt: RefreshDeviceCatalog fragt status/catalog
   korreliert ab, übernimmt nur geprüfte Geräte/Gruppen/Szenen und loadedAt.
   Native Eingaben, Entwürfe und Laufzeit bleiben erhalten. Neuer Modulbutton,

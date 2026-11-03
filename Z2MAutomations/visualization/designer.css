@@ -155,6 +155,16 @@ h1 { font-size: 16px; letter-spacing: -.2px; }
 .issues button { padding: 4px; min-height: 25px; border: 0; background: none; color: #9b4b4b; font-size: 11px; text-align: left; font-weight: 400; justify-content: flex-start; }
 dialog { width: min(440px, calc(100vw - 32px)); border: 1px solid #cfdbe4; border-radius: 15px; padding: 26px; color: var(--ink); box-shadow: 0 25px 80px #16344a35; }
 dialog::backdrop { background: #18304750; backdrop-filter: blur(2px); }
+.creation-dialog { width: min(900px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow-y: auto; }
+.creation-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 20px; }
+.creation-side { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.creation-side legend { font-weight: 600; padding: 0 7px; font-size: 13px; }
+.creation-side select[size] { height: 160px; padding: 4px; }
+.creation-side select[size] option { padding: 7px; overflow-wrap: anywhere; }
+.creation-dialog .dialog-actions { flex-wrap: wrap; }
+.creation-dialog input[type="color"] { height: 42px; width: 100%; }
+.creation-dialog #create-message { color: #325a67; background: #f0f7fa; border-radius: 8px; padding: 12px; overflow-wrap: anywhere; }
+@media (max-width: 700px) { .creation-columns { grid-template-columns: minmax(0, 1fr); } .creation-dialog { padding: 18px; } .creation-dialog .dialog-actions button { width: 100%; } }
 dialog h2 { font-size: 20px; margin: 9px 0 23px; }
 dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .dialog-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }

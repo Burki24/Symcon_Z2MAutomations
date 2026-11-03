@@ -1,3 +1,39 @@
+## Automationsdesigner: Regelerstellung am 03.11.2026
+
+ADR 0022 ergänzt den bestehenden Browserzugang um eine eng begrenzte lokale
+Regelerstellung. AutomationDesignerCreation verwaltet keine zweite Regeldatei,
+sondern nutzt SimpleEditorRule und CommitEditorChange. Die native einfache
+Erstellung nutzt denselben Regelaufbau. creator.js ergänzt Suchfelder,
+Gerätelisten, rollenabhängige Kanal-/Wertauswahl und einen eigenen Dialog.
+Schreibbare Aktionswerte einschließlich Umschalten kommen aus dem nativen
+Katalog. Keine eigenen Aktionsrechte oder MQTT-Befehle im Browser.
+
+Die vorhandenen zentralen HTTP-/Asset-/DebugFlow-Helper wurden geprüft und
+unverändert verwendet. HTTP-Anfragen und Antworten bleiben lokal ergänzt;
+ein allgemeiner Request- oder Berechtigungshelper ist dafür nicht eingebunden.
+Die neue Route begrenzt JSON, Herkunft und Zugang, prüft eine Inhaltskennung und
+bekannte native Eingaben und speichert nur ausgeschaltete Entwurfsergänzungen.
+Auftragsbestätigungen verhindern Dubletten auch bei erneuter Ansicht nach einer
+verlorenen Antwort. Abgelaufene, alte reine Lesezugänge und Kontextwechsel
+berechtigen nicht zur Erstellung. Neue öffentliche Symcon-Funktionen oder
+Änderungen der Z2M-Erweiterung sind dafür nicht erforderlich.
+
+Lokaler Praxisnachweis gegen den echten PHP-Hook-/Entwurfspfad mit Symcon-Stubs:
+50 synthetische Geräte, Suche nach einem einzelnen Auslöser, Zielkanal L2,
+Umschalten, Browserübernahme und anschließender GET. Drei Regeln statt zwei,
+die neue ausgeschaltet, Quellkennung und Zielkanal korrekt; MQTT-Zähler null.
+Deutsche Debugmeldungen für Commit und Browserübernahme vorhanden. Geräteliste
+und Dialog per Mausrad bedienbar; Browser meldet keine Skriptfehler. Temporärer
+Prüfserver und Prüftab werden danach geschlossen. Keine Dateien oder Entwürfe
+einer laufenden Installation geändert. Native Formular-/Browserabnahme nach
+dem Modulupdate bleibt offen; weitere Bearbeitung und Übertragung bleiben nativ.
+
+Abschluss: php tests/run.php einschließlich aller PHP-Prüfungen und 131
+JavaScript-Tests erfolgreich. Offizielle StylePHP-Prüfung für 15 eigene JSON-
+Dateien, php-cs-fixer im Prüfmodus (0/81), Kodierungs-/Strukturprüfung und
+Extension-Buildabgleich erfolgreich. Die Erweiterungsquellen und eingebundenen
+Fremdquellen bleiben unverändert.
+
 ## Automationsdesigner: getrennter Geräteabruf am 03.11.2026
 
 RefreshDeviceCatalog verwendet den bestehenden Workflow mit status/catalog.

@@ -20,7 +20,7 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
-## Automationsdesigner im Browser: zunächst nur ansehen
+## Automationsdesigner im Browser
 
 Im nativen Modul steht „Nur Gerätedaten aktualisieren“ bereit. Damit lesen Sie
 Geräte, Kanäle, Gruppen und Szenen aus Z2M neu ein. Symcon ergänzt die Zuordnung
@@ -36,13 +36,13 @@ Für diese Funktion auch die mitgelieferte Z2M-Erweiterung aktualisieren.
 Dieser lädt zusätzlich die gespeicherten Regeln und ersetzt nach Bestätigung
 den lokalen Entwurf. Verwenden Sie ihn nicht nur zum Aktualisieren der Geräte.
 
-„Automationsdesigner öffnen (nur lesen)“ öffnet die übersichtliche Browseransicht
+„Automationsdesigner öffnen“ öffnet die übersichtliche Browseransicht
 dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder
 „Geräte & Kanäle“ auswählen. In der Mitte einen Baustein anklicken; rechts
 erscheinen seine Angaben. Auch Bedingungen, Wartezeiten, Szenen, gemeinsame
 Gerätebefehle und Ziele des zweiten Systems werden dargestellt.
 
-Diese erste Anbindung zeigt ausschließlich bereits im Modul vorhandene Daten.
+Die Ansicht zeigt die bereits im Modul vorhandenen Daten.
 „Ansicht aktualisieren“ liest sie erneut aus dem Modul. Es fragt keine Geräte
 oder Z2M ab und ersetzt keine Entwürfe. Der angezeigte Betrieb ist der zuletzt
 bestätigte Stand; ein eingeschalteter Regelschalter im Entwurf bedeutet nicht
@@ -54,15 +54,37 @@ angezeigt oder überschrieben. Bitte den vorhandenen Entwurf zuerst im nativen
 Formular prüfen. Noch nicht übernommene Formulareingaben bleiben dort erhalten
 und werden in der Browseransicht lediglich als ausstehend gemeldet.
 
-Bearbeiten, Speichern, Aktivieren und Stoppen erfolgen weiterhin im nativen
-Formular. Die Browseransicht bietet dafür noch keine Bedienelemente. Nach 15
+Mit **„Neue Automation“** legen Sie eine einfache geräteausgelöste Regel an:
+
+1. Einen verständlichen Namen eintragen.
+2. Das auslösende Gerät suchen und auswählen. Danach Eigenschaft/Kanal,
+   Vergleich und auslösenden Wert wählen. Lesbare Sensoren sind erlaubt.
+3. Das Zielgerät suchen und auswählen. Danach den zu schaltenden Kanal und
+   gewünschten Wert wählen. Angeboten werden nur schaltbare Eigenschaften.
+   Ein vorhandenes zweites Z2M-System erscheint bei seinen Zielgeräten.
+4. „Ausgeschaltet zum Entwurf hinzufügen“ wählen. Die neue Regel erscheint
+   im Ablauf und bleibt ausgeschaltet; vorhandene Regeln bleiben erhalten.
+
+Die Erstellung benötigt passende Gerätedaten und einen geladenen Entwurf.
+Fehlt dieser, zuerst im nativen Formular „Geräte und gespeicherte Automationen
+laden“ wählen. Dabei wird der lokale Entwurf nach Bestätigung ersetzt: Offene
+Arbeit zuerst prüfen. Ein abweichender alter Entwurf wird im Browser niemals
+automatisch überschrieben. Bekannte offene Eingaben im nativen Formular müssen
+vor dem Hinzufügen übernommen oder zurückgenommen werden. Bei einer inzwischen
+geänderten Auswahl bleiben die Browserangaben im Dialog erhalten. Dort die
+Ansicht aktualisieren und die Angaben nochmals prüfen. Abbrechen verwirft nur
+die noch nicht hinzugefügte Browserregel.
+
+Weitere Auslöser, Bedingungen, Aktionen, Zeiten und das Bearbeiten vorhandener
+Regeln erfolgen vorerst im nativen Formular. Auch Prüfen, Übertragen, Aktivieren
+und Stoppen erfolgen dort. Das Anlegen im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen
 können. Ein Modulupdate genügt, die Z2M-Erweiterung bleibt unverändert.
 
 Die [Offline-Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
 bleibt zusätzlich mit erfundenen Beispielen zum Ausprobieren verfügbar. Ihre
-simulierten Speicher- und Betriebsbuttons sind vom echten lesenden Designer
+simulierten Speicher- und Betriebsbuttons sind vom echten Moduldesigner
 getrennt.
 
 ## Voraussetzungen und Einrichtung

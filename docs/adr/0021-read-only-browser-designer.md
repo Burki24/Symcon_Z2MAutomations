@@ -3,6 +3,11 @@
 - Status: angenommen für den ersten Integrationsschritt
 - Datum: 03.11.2026
 
+Der Folgeschritt [ADR 0022](0022-browser-create-disabled-rule.md) ergänzt eine
+feste Route für lokale ausgeschaltete Regeln. Die hier beschriebene erste
+Leseanbindung bleibt die Grundlage für GET; neue Zugänge erlauben zusätzlich
+die begrenzte Regelerstellung. Alte Lesezugänge erhalten dieses Recht nicht.
+
 ## Anlass
 
 Die bestätigte eigene Bedienvorschau soll vorhandene Regeln und Gerätedaten

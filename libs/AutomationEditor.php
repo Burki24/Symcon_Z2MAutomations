@@ -96,9 +96,7 @@ trait AutomationEditor
                     return false;
                 }
                 $draft['configuration']['revision'] = $draft['baseRevision'] + 1;
-                $draft['configuration']['automations'][] = ['id' => 'rule_' . bin2hex(random_bytes(8)), 'name' => $name, 'enabled' => $Enabled,
-                    'triggers'                                   => [['type' => 'device', 'device' => $Source, 'property' => $source['property'], 'operator' => 'eq', 'value' => $source['value']]],
-                    'conditions'                                 => [], 'actions' => [$this->BuildEditorAction($Target, $target)]];
+                $draft['configuration']['automations'][] = $this->SimpleEditorRule($name, $Source, $source, $Target, $target, $Enabled);
                 $yaml = json_encode($draft['configuration'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
                 if (!ExtensionContract::ValidYamlText($yaml)) {
                     $state['lastError'] = 'editor_invalid';
@@ -120,6 +118,13 @@ trait AutomationEditor
                 return true;
             });
         });
+    }
+
+    private function SimpleEditorRule(string $name, string $source, array $trigger, string $target, array $action, bool $enabled, string $operator = 'eq'): array
+    {
+        return ['id'     => 'rule_' . bin2hex(random_bytes(8)), 'name' => $name, 'enabled' => $enabled,
+            'triggers'   => [['type' => 'device', 'device' => $source, 'property' => $trigger['property'], 'operator' => $operator, 'value' => $trigger['value']]],
+            'conditions' => [], 'actions' => [$this->BuildEditorAction($target, $action)]];
     }
 
     private function ReceiveEditorData(array &$state, stdClass $data, array $target, bool $catalogOnly = false): void

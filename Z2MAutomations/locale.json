@@ -592,7 +592,9 @@
             "Device data has not yet been refreshed for this connection.": "Die Gerätedaten wurden für diese Verbindung noch nicht aktualisiert.",
             "Device data last refreshed: %s": "Gerätedaten zuletzt aktualisiert: %s",
             "Device data refreshed. Drafts and open inputs are unchanged. Refresh the browser view to see the new device data.": "Gerätedaten aktualisiert. Entwürfe und offene Eingaben sind unverändert. Mit „Ansicht aktualisieren“ werden die neuen Gerätedaten im Browser angezeigt.",
-            "Update the bundled extension before refreshing device data separately. Your draft remains unchanged.": "Bitte zuerst die mitgelieferte Erweiterung aktualisieren. Danach können die Gerätedaten einzeln geladen werden. Ihr Entwurf bleibt unverändert."
+            "Update the bundled extension before refreshing device data separately. Your draft remains unchanged.": "Bitte zuerst die mitgelieferte Erweiterung aktualisieren. Danach können die Gerätedaten einzeln geladen werden. Ihr Entwurf bleibt unverändert.",
+            "Open automation designer": "Automationsdesigner öffnen",
+            "View existing automations and device properties in the browser, or add a new disabled rule to the local draft. Transfer and activation remain in the native form.": "Vorhandene Automationen und Geräteeigenschaften im Browser ansehen oder eine neue ausgeschaltete Regel im lokalen Entwurf ergänzen. Übertragen und Aktivieren weiterhin im nativen Formular."
         }
     }
 }

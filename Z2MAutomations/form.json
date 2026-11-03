@@ -198,7 +198,7 @@
             "items": [
                 {
                     "type": "Label",
-                    "caption": "View existing automations, sequences and device properties in the browser. Read-only module data; no storage, activation or device commands.",
+                    "caption": "View existing automations and device properties in the browser, or add a new disabled rule to the local draft. Transfer and activation remain in the native form.",
                     "width": "100%"
                 },
                 {
@@ -221,7 +221,7 @@
                 {
                     "type": "Button",
                     "name": "OpenDesignerButton",
-                    "caption": "Open automation designer (read-only)",
+                    "caption": "Open automation designer",
                     "onClick": "$link = Z2MA_OpenAutomationDesigner($id); echo $link !== '' ? $link : 'Der Automationsdesigner konnte nicht geöffnet werden. Bitte das Debugfenster prüfen.';"
                 }
             ]

@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Browserdesigner: „Neue Automation“ ergänzt eine ausgeschaltete Geräte-Regel
+  im bestehenden Symcon-Entwurf. Auslöser und Zielgerät getrennt durchsuchen,
+  dann Eigenschaft/Kanal und Wert wählen. Aktuelle Schaltrechte, offene native
+  Eingaben und zwischenzeitliche Entwurfsänderungen werden beim Übernehmen
+  geprüft; wiederholtes Senden legt keine zweite Regel an. Deutsche Debugmeldungen
+  erklären Ergebnis und Ablehnungen. Keine Übertragung oder Aktivierung in Z2M.
+
 - Gerätedaten getrennt von gespeicherten Automationen aktualisieren: Der neue
   Modulbutton liest Geräte, Kanäle, Gruppen und Szenen aus Z2M, ohne Entwürfe,
   offene Formulareingaben oder den Automatikbetrieb zu ersetzen. Native Anzeige

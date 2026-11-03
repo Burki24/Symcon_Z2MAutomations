@@ -15,6 +15,7 @@ class DesignerProbe extends Z2MAutomations
     public int $clock = 1800000000;
     public array $debug = [];
     public bool $hookAvailable = true;
+    public string $requestBody = '';
     public function Seed(): void
     {
         $state = json_decode($this->GetBuffer('TransportState'), true);
@@ -38,7 +39,7 @@ class DesignerProbe extends Z2MAutomations
         $yaml = json_encode($configuration) . "\n";
         $this->WriteAttributeString('EditorSnapshot', json_encode($snapshot));
         $this->WriteAttributeString('YamlDraft', $yaml);
-        $this->WriteAttributeString('EditorDraft', json_encode(['scope' => $state['scope'], 'configuration' => $configuration, 'draftChecksum' => hash('sha256', $yaml)]));
+        $this->WriteAttributeString('EditorDraft', json_encode(['scope' => $state['scope'], 'session' => '11111111-1111-4111-8111-111111111111', 'baseRevision' => 3, 'baseChecksum' => str_repeat('a', 64), 'configuration' => $configuration, 'draftChecksum' => hash('sha256', $yaml)]));
         $this->SetBuffer('EditorWork.rule', json_encode(['context' => ['scope' => $state['scope']], 'dirty' => true, 'input' => ['secret' => 'not-exported']]));
     }
 
@@ -61,11 +62,28 @@ class DesignerProbe extends Z2MAutomations
     {
         $this->WriteAttributeString('YamlDraft', 'Different local input');
     }
+    public function ReadyForCreation(): void
+    {
+        $this->SetBuffer('EditorWork.rule', '');
+        $this->SetBuffer('EditorWork.sequence', '');
+    }
+    public function MakeReadOnly(string $token): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) {
+            if ($session['hash'] === hash('sha256', $token)) unset($session['create']);
+        }
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
     public function Hook(string $path, string $method = 'GET', string $token = ''): array
     {
         $_SERVER['REQUEST_URI'] = '/hook/Z2MAutomationsDesigner' . $this->InstanceID . '/' . $path;
         $_SERVER['REQUEST_METHOD'] = $method;
         $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] = $token;
+        $_SERVER['HTTP_HOST'] ??= '127.0.0.1:3777';
+        $_SERVER['HTTP_ORIGIN'] ??= 'http://127.0.0.1:3777';
+        $_SERVER['CONTENT_TYPE'] ??= 'application/json';
         ob_start();
         try {
             $this->ProcessHookData();
@@ -77,6 +95,10 @@ class DesignerProbe extends Z2MAutomations
     protected function Now(): int
     {
         return $this->clock;
+    }
+    protected function DesignerRequestBody(): string
+    {
+        return $this->requestBody;
     }
     protected function RegisterHook(string $HookPath): bool
     {
@@ -139,6 +161,7 @@ for ($i = 0; $i < 5; $i++) $links[] = explode('#', $module->OpenAutomationDesign
 $check($module->Hook('data', 'GET', $links[0])[0] === 403 && $module->Hook('data', 'GET', $links[4])[0] === 200, 'At most four viewer sessions valid');
 $other = IPS\InstanceManager::getInstanceInterface(IPS_CreateInstance($guid));
 $check($other->Hook('data', 'GET', $links[4])[0] === 403, 'Capability grants no access to another module');
+require __DIR__ . '/designer-create.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');
@@ -151,6 +174,6 @@ $check(!$applied['draftAvailable'] && !$applied['catalogAvailable'] && $applied[
 $module->hookAvailable = false;
 $check($module->OpenAutomationDesigner() === '', 'Failed hook registration returns no broken URL');
 $debug = implode("\n", $module->debug);
-$check(str_contains($debug, 'keine Abfrage') && str_contains($debug, 'Lesezugang') && !str_contains($debug, $token)
+$check(str_contains($debug, 'keine Abfrage') && str_contains($debug, 'Zugang') && !str_contains($debug, $token)
     && !str_contains($debug, 'Synthetic motion rule') && !str_contains($debug, 'not-exported'), 'German debug explains actions without exposing names, input or capabilities');
 echo "Read-only designer data, rights, isolation, HTTP whitelist and capability lifecycle passed.\n";

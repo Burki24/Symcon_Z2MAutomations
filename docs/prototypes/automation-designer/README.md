@@ -3,7 +3,8 @@
 Dieser Offline-Modus zeigt die eigene Konfigurationsoberfläche mit Navigation,
 Ablauf und Eigenschaften. Alle Geräte, Regeln, Kanäle und Szenen sind erfundene
 Beispiele. Die kanonischen Dateien liegen jetzt unter
-Z2MAutomations/visualization. Der getrennte lesende Modulzugang lädt reader.js;
+Z2MAutomations/visualization. Der getrennte Modulzugang lädt reader.js und
+creator.js für die lokale Regelerstellung (ADR 0022);
 diese Offline-Vorschau lädt weiterhin designer.js mit Beispielen.
 
 ## Öffnen

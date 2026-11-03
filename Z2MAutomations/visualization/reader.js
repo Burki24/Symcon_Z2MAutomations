@@ -1,4 +1,5 @@
-/* Own read-only designer. Its only transport is the scoped cache GET below. */
+/* Own scoped module view. Creation is a separate, local-draft-only POST. */
+import {installCreation} from './creator.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -18,11 +19,11 @@
     const endpoint = new URL('data', location.href);
     endpoint.hash = '';
 
-    document.body.classList.add('read-only');
-    $('.toolbar').setAttribute('aria-label', 'Lesende Modulansicht');
-    $('.preview-label').textContent = 'NUR LESEN';
-    $('.preview-notice strong').textContent = 'Lesende Modulansicht';
-    $('.preview-notice > span:last-child').textContent = 'Vorhandene Moduldaten · keine Z2M-Abfrage · Speichern und Schalten sind hier gesperrt.';
+    document.body.classList.add('module-designer');
+    $('.toolbar').setAttribute('aria-label', 'Modulansicht und neue Automation');
+    $('.preview-label').textContent = 'ENTWURF';
+    $('.preview-notice strong').textContent = 'Modulansicht mit Regelerstellung';
+    $('.preview-notice > span:last-child').textContent = 'Neue Regeln werden ausgeschaltet im Symcon-Entwurf ergänzt. Übertragen und Aktivieren weiterhin im nativen Formular.';
     $('#validate-button').innerHTML = icon('check') + 'Ansicht aktualisieren';
     $('#validate-button').removeAttribute('data-action');
     ['#save-button', '#activate-button', '#stop-button', '.toolbar-divider', '.navigation-footer', '.activity', '#new-dialog', '#confirm-dialog'].forEach(selector => $(selector).remove());
@@ -31,7 +32,7 @@
     detailsButton.setAttribute('aria-label', 'Details der ausgewählten Regel anzeigen');
     detailsButton.title = 'Regeldetails';
     $('#selection-hint').textContent = 'Baustein anklicken → Details ansehen';
-    $('.canvas-footer > span:last-child').textContent = 'Lesende Ansicht · Bearbeiten weiterhin im nativen Formular';
+    $('.canvas-footer > span:last-child').textContent = 'Neue Regeln hier anlegen · Weitere Bearbeitung im nativen Formular';
     $('#draft-status').textContent = 'Moduldaten werden geladen …';
     $('#runtime-status').textContent = 'Betrieb noch nicht gelesen';
     $('#flow').innerHTML = '';
@@ -194,8 +195,8 @@
     $('#search').addEventListener('input', renderNavigation);
     $('#validate-button').addEventListener('click', load);
 
-    async function load() {
-        if (busy) return;
+    async function load(preferredRule = '') {
+        if (busy) return false;
         busy = true; $('#validate-button').disabled = true;
         message('Vorhandene Moduldaten werden gelesen. Es wird keine Z2M-Abfrage gestartet.');
         try {
@@ -212,7 +213,7 @@
             const next = JSON.parse(text);
             if (next.contractVersion !== 1 || next.mode !== 'read' || !Array.isArray(next.devices) || !next.module || !next.status) throw new Error('invalid');
             data = next;
-            document.title = `${data.module.name} · Automationsdesigner · Nur lesen`;
+            document.title = `${data.module.name} · Automationsdesigner · Entwurf`;
             $('#draft-status').textContent = data.draftAvailable ? `Lokaler Entwurf · Revision ${data.configuration.revision}` : 'Kein passender Editorentwurf geladen';
             $('#runtime-status').textContent = data.status.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision}` : 'Betrieb noch nicht bestätigt';
             $('#draft-status').className = 'status-chip';
@@ -228,19 +229,28 @@
             $('#issues').textContent = notices.join(' ');
             $('#feedback').dataset.tone = '';
             message(notices[0]);
-            if (!current()) {
+            if (typeof preferredRule === 'string' && data.configuration?.automations.some(rule => rule.id === preferredRule)) {
+                category = 'device'; selected = 'rule:' + preferredRule; selectedPart = null; $('#search').value = '';
+            } else if (!current()) {
                 const first = entries().find(entry => entry.kind === category) ?? entries()[0];
                 if (category !== 'catalog' && first) category = first.kind;
                 selected = category === 'catalog' ? data.devices[0]?.key : entryKeyOrNull(first);
                 selectedPart = null;
             }
             render();
+            return true;
         } catch (error) {
             const text = error.message === 'access' ? 'Der Lesezugang fehlt oder ist abgelaufen. Bitte den Designer erneut im Modul öffnen.' : 'Moduldaten konnten nicht gelesen werden. Verbindung und Debug prüfen; die bisherige Anzeige ist möglicherweise veraltet.';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
+            return false;
         } finally { busy = false; $('#validate-button').disabled = false; }
     }
+    installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
+        const refreshed = await load(ruleId);
+        message(refreshed ? 'Neue Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen und Übertragen weiterhin im nativen Formular.'
+            : 'Die Automation wurde im Entwurf ergänzt. Die Ansicht konnte noch nicht aktualisiert werden; bitte „Ansicht aktualisieren“ wählen.');
+    }});
     render();
     load();
 })();
