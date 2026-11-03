@@ -1,3 +1,57 @@
+## Automationsdesigner: erste Offline-Vorschau am 03.11.2026
+
+Auf ausdrücklichen Auftrag die bestätigte Aufteilung als klickbaren Entwurf
+umgesetzt: linke Bereichs-/Regelauswahl, mittlerer Ablauf Wenn/Nur wenn/Dann,
+rechte Eigenschaften und obere Prüf-/Speicher-/Betriebsanzeige. Ausschließlich
+eigene HTML-/CSS-/JavaScript-Dateien und lokale SVG-Symbole unter
+docs/prototypes/automation-designer. Keine Fremdimplementierung, neuen Pakete
+oder Änderungen an Modul, Erweiterung, Helper-Bundle oder Live-System.
+
+Vor Umsetzung die vorhandenen VisualizationAssetHelper- und
+IPSViewHTMLPageHelper-Angebote geprüft. In diesem statischen Offline-Schritt
+gibt es noch keinen PHP-/Modulhost; deshalb keine zusätzliche Helper-Einbindung
+oder lokale Kopie. Die Integration wird gesondert festgelegt. Insbesondere ist
+ein eigener Tab wie beim IPSView-Designer noch kein bestätigter Symcon-Vertrag.
+Kein Kachelprojekt. Das Ansichtsmodell ist kein zweiter YAML-Vertrag.
+
+Praktische Bedienprüfung über einen ausschließlich an Loopback gebundenen
+Vorschau-Server im eigenen In-App-Browsertab, ohne Übernahme bestehender
+Desktopfenster. Namen ändern, Bedingungen und Aktionseigenschaften bearbeiten,
+Gerät/Kanal/Wert getrennt wählen und nach Wechsel erneut vorbelegen bestätigt.
+Aktionen bieten nur die beschreibbaren Beispielgeräte; Szenen und gemeinsame
+Folgen sind wählbar. Eine verwendete Folge lässt sich nicht löschen. Neu- und
+Kopieranlage beginnen ausgeschaltet; Abbrechen und Bestätigen des Löschdialogs
+geprüft. Ungültige Uhrzeit und leere neue Regel liefern benannte Hinweise und
+geben das Speichern nicht frei. Mehrere Uhrzeiten, Astro-Versatz und abgewählte
+Wochenendtage bleiben nach erneutem Auswählen erhalten.
+
+Der erste HTML-Dragversuch änderte die Reihenfolge im Prüfbrowser nicht.
+Gezielte Pointer-Bedienung am Griff umgesetzt; tatsächliches Mausziehen
+verschiebt anschließend den zweiten Schritt vor den ersten, einschließlich
+seiner 60-Sekunden-Wartezeit. Rückverschieben über den Pfeil ebenfalls bestätigt.
+Prüfen, Speichern, simulierter Aktivstatus und Stopp praktisch bestätigt;
+nach einer Eingabe ist eine neue Prüfung nötig. Diese Statusanzeige führt
+keine Geräteaktionen oder Zeitgeber aus und schreibt nur in den Fensterspeicher.
+Neuladen setzt den Beispielstand wieder her. Das sichtbare Bedienprotokoll ist
+auf 30 Meldungen begrenzt und ausdrücklich kein nativer Modul-/Z2M-Debugkanal.
+
+Mausrad in allen drei überlaufenden Bereichen separat abwärts und aufwärts
+betätigt. DOM-Nachweis: nur der jeweils angesprochene Bereich scrollt, anschließend
+alle wieder bei Null. Responsive Sichtkontrolle bei 1280, 1000, 760 und 390 Pixel
+Breite; keine horizontale Seitenüberbreite. Bei schmaler Ansicht werden die
+Eigenschaften unter dem Ablauf angeordnet. Keine JavaScriptfehler oder Warnungen
+im Browserprotokoll. Direkte Dateiöffnung, Touch und andere Browser sowie die
+spätere Einbettung sind damit nicht abgenommen. README erklärt weitere fehlende
+Editorfunktionen, flüchtige Speicherung und die reine Beispielvalidierung.
+
+Abschlussprüfungen erfolgreich: node --check für designer.js, php tests/run.php
+einschließlich 127 JavaScript-Tests, Struktur- und zentrale Kodierungsprüfung,
+aktuelles Erweiterungsartefakt, offizielle StylePHP-Prüfung der 15 eigenen
+JSON-Dateien in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus
+(0 von 76 Dateien zu ändern). Eigene neue/bearbeitete Dateien UTF-8 ohne BOM
+mit LF; git diff --check sauber. Browserstand auf die Beispiele zurückgesetzt.
+Keine Commits, Pushes oder Veröffentlichung.
+
 ## Bewegungsmelderregel: Reale Nachlaufverlängerung am 03.11.2026
 
 Auf ausdrücklichen Auftrag bei passender Außenhelligkeit die dauerhaft aktive

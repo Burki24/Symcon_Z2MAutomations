@@ -1,5 +1,16 @@
 # Architektur
 
+## Offline-Entwurf des Automationsdesigners
+
+docs/prototypes/automation-designer enthält eine separat gehostete statische
+Bedienvorschau mit eigenem, flüchtigem Ansichtsmodell. Sie ist nicht Teil des
+Modulformulars oder Erweiterungsartefakts und ändert keine öffentlichen
+Verträge. Kein WebHook, keine Kachel, keine neue Server- oder MQTT-Schicht.
+Prüfen, Speichern und Betrieb sind dort ausdrücklich Simulationen mit
+synthetischen Daten. Die spätere Host-/Backend-Anbindung ist noch offen;
+vorhandene Modulvalidierung, Speicherwege und DebugFlowHelper bleiben dafür
+maßgeblich. Siehe [Umfang und Grenzen](prototypes/automation-designer/README.md).
+
 ## Startbedingungen
 
 Die optionale Gerätebedingungsangabe `start_only` wird als StartOnly in der

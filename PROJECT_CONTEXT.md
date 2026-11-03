@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Erster klickbarer Automationsdesigner unter docs/prototypes/automation-designer
+  lokal umgesetzt und im Browser geprüft: Navigation, Wenn/Nur wenn/Dann,
+  Eigenschaften, Drag & Drop mit Schrittwartezeiten und simulierte Statusführung.
+  Ausschließlich synthetische Beispiele, keine Symcon-/MQTT-/Geräteanbindung
+  und keine Live-Änderung. Kein Kachelprojekt. Vor Integration geeigneten
+  Symcon-Host, Eingabevertrag und Helper-Anbindung getrennt festlegen; ein
+  eigener Konsolentab ist noch nicht als öffentliche Schnittstelle bestätigt.
+  Geprüfte Bedienwege und Grenzen stehen im Prototyp-README und DEVELOPMENT.md.
+
 - Gerätebedingungen mit „Nur beim Start“ lokal ergänzt (ADR 0020). Neues
   optionales start_only verhindert, dass etwa zunehmende Helligkeit spätere
   Ausschaltaktionen oder Verlängerungen blockiert. Neue Läufe und Neustarts

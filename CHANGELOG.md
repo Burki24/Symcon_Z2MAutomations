@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Klickbare Offline-Vorschau eines eigenen Automationsdesigners: Navigation,
+  Ablauf „Wenn / Nur wenn / Dann“, Eigenschaften und Aktionen per Drag & Drop.
+  Ausschließlich erfundene Beispieldaten und Speicherung im geöffneten Fenster;
+  noch keine Modul-, MQTT- oder Geräteanbindung. Einstieg und Prüfgrenzen unter
+  docs/prototypes/automation-designer/README.md. Bestehende Formulare und die
+  Z2M-Erweiterung bleiben unverändert.
+
 - Gerätebedingungen erhalten die Auswahl „Nur beim Start“. Damit kann etwa
   Helligkeit das Einschalten begrenzen, ohne später das Ausschalten oder die
   Verlängerung einer laufenden Wartezeit zu verhindern. Ein neuer Start und

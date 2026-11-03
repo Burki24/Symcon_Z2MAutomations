@@ -20,6 +20,10 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
+Eine [separate Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
+zeigt die geplante übersichtlichere Bearbeitung. Sie verwendet ausschließlich
+Beispiele und ist noch nicht mit dieser Instanz verbunden.
+
 ## Voraussetzungen und Einrichtung
 
 IP-Symcon ab 9.0 mit PHP 8.5 sowie eine konfigurierte MQTT-Client- oder

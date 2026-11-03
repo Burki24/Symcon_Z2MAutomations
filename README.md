@@ -71,6 +71,9 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
 
 ## Module
 
+- [Vorschau des Automationsdesigners](docs/prototypes/automation-designer/README.md):
+  separat öffnbarer Oberflächenentwurf mit erfundenen Beispielen. Noch keine
+  Anbindung an das Modul oder an Geräte.
 - [Z2MAutomations](Z2MAutomations/README.md): Einrichtung, Klick-Editor, Import,
   Prüfung, Übertragung und Steuerung der Automationen.
 - [Eigene Z2M-Erweiterung](libs/z2m/README.md): Empfänger mit Schema-Prüfung,
