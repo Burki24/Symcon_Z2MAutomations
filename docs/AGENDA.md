@@ -45,7 +45,10 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Vorbelegung, Ersetzen, Entfernen/Wiederhinzufügen und Übernehmen. Prüfung,
    Speicherung und Wiederladen einschließlich Folge bestätigt; Partnerziele
    über Modulmethoden geprüft. Testdaten entfernt und Originalbetrieb wiederhergestellt.
-   Keine reale Ausführung. Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
+   Anschließend gemeinsamen Befehl an einer Farbleuchte real geprüft:
+   Einschalten, Helligkeit und Blau in einem Schritt; frische Gerätewerte und
+   Debug bestätigen das Ergebnis. Lichtzustand und Originalbetrieb wiederhergestellt.
+   Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,
    unterstützte Z2M-Versionen mit tatsächlichen Nachweisen benennen. Geplant.
 

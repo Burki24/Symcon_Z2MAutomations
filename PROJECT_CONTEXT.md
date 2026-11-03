@@ -503,7 +503,11 @@ sie persistent und führt sie unabhängig von Symcon aus.
    Wiederladen und Folgenvorbelegung am gemeinsamen Empfänger erfolgreich;
    Partnerauswahl und -validierung über Modulmethoden. Ausgeschaltete Testdaten
    entfernt, Originalbetrieb und lokaler Originalentwurf wieder bestätigt.
-   Keine reale Ausführung; konkrete Farbconverter und Symcon 9.0 noch offen.
+   Gemeinsamen Einschalt-/Helligkeits-/Farbbefehl anschließend an einer Farbleuchte
+   real bestätigt, einschließlich frischer Gerätewerte, Symcon-Variablen und Debug.
+   Ursprüngliche Farbe, Helligkeit und Aus-Zustand wiederhergestellt; Testregel
+   entfernt und ursprünglichen Betrieb erneut bestätigt. Weitere Farbconverter,
+   Gruppen und Symcon 9.0 bleiben als eigene Praxisnachweise offen.
    Nächster Agendapunkt: Abschluss und Dokumentation.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.

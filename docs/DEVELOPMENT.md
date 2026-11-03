@@ -1,3 +1,48 @@
+## Agenda 5: Reale gemeinsame Geräteaktion am 03.11.2026
+
+Mit ausdrücklichem Praxisauftrag über Test-Symcon am gemeinsam genutzten
+Z2M-Empfänger geprüft. Keine Erweiterung installiert, kein Neustart und keine
+Bedienung des Rechners erforderlich. Vorherigen YAML-Text, lokalen Originalentwurf,
+Betriebszustand und rohe Gerätewerte außerhalb des Repositorys gesichert.
+
+Eine ausgeschaltete temporäre Regel mit einem einzigen set-Schritt enthält
+Einschalten, Helligkeit 120 und Blau als verschachtelten hex-Farbwert. Über die
+öffentlichen Editor- und Übernahmemethoden erstellt, in Z2M geprüft und gespeichert.
+Diese Regel einmalig gestartet, ohne den gesamten Teststand zu aktivieren.
+Der Regellauf meldet Schritt 1 und anschließend abgeschlossen ohne Fehler.
+Die zeitlich begrenzte MQTT-Aufzeichnung ordnet Übergabe und Bestätigung
+demselben Lauf und Schritt zu. Ihre ausdrückliche Grenze bleibt sichtbar:
+Eine angenommene Befehlsübergabe bestätigt allein noch keine Gerätewirkung.
+
+Die zusätzliche frische Geräteabfrage bestätigt eingeschaltet, Helligkeit 120
+und die vom Geräte-Converter gelieferten XY-Werte für Blau. Auch die tatsächlichen
+Symcon-Variablen melden Ein, rund 47 Prozent und den blauen RGB-Wert. Die
+Helligkeitsskalen unterscheiden sich: 0 bis 254 im Z2M-Gerätebefehl gegenüber
+Prozent in der vorhandenen Symcon-Geräteinstanz. Kein SetValue zur Simulation.
+
+Zur Wiederherstellung zunächst ursprüngliche rohe Helligkeit und XY-Farbe gesetzt
+und deren Geräte-Rückmeldung mit der Sicherung verglichen, danach wieder
+ausgeschaltet. Farbe, Helligkeit, Aus-Zustand und Symcon-Werte entsprechen dem
+Ausgangsstand. Die Testregel entfernt; ursprünglichen YAML-Inhalt ausschließlich
+mit fortlaufender Revision geprüft und gespeichert. Nur den wiederhergestellten
+Originalstand reaktiviert: sieben Regeln, eine eingeschaltet, identische aktive
+und gespeicherte Prüfsumme, Mesh bereit, Wiederanlauf armed, kein Laufzeitfehler.
+Der andere Empfänger behält seinen gespeicherten Stand und Betrieb.
+
+Lokaler Originalentwurf bleibt bytegleich, Status der Originalinstanz 102.
+Eigene MQTT-Aufzeichnung automatisch abgelaufen, native Dateiaufzeichnung beendet
+und beide temporären Prüfmodule samt Statusvariablen entfernt. Keine
+Originalereignisse oder Gerätezuordnungen geändert. Keine Implementierung geändert.
+
+Grenzen: dieser Nachweis gilt für die geprüfte Farbleuchte und den lokalen
+gemeinsamen Befehl. Kein zusätzlicher realer Farbtest über Mesh oder an Gruppen,
+keine vollständige Geräte-/Converter- oder Symcon-9.0-Abnahme.
+
+Nur Dokumentation geändert. Kodierungs- und Strukturprüfung, offizielle StylePHP-
+Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie und PHP CS Fixer im
+Prüfmodus erfolgreich; UTF-8 ohne BOM, LF und git diff --check bestätigt.
+Unveränderte Offline-Laufzeittests nicht erneut ausgeführt; kein Commit/Push.
+
 ## Agenda 5: Native Editor- und Speicherprüfung am 03.11.2026
 
 Nach gemeldetem Modul- und Erweiterungsupdate über Test-Symcon geprüft.

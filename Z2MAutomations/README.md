@@ -39,8 +39,9 @@ bleiben erhalten und können dort nur umbenannt oder ein-/ausgeschaltet werden.
 
 Für die Farbauswahl sind **Modul- und Erweiterungsupdate** sowie das erneute
 Laden der Gerätedaten nötig. Native Bearbeitung und Speicherung sind in Symcon
-9.1 geprüft. Die tatsächliche Farbausführung am jeweiligen Gerät hängt weiterhin
-von dessen Unterstützung durch Z2M und den Geräte-Converter ab.
+9.1 geprüft. Ein gemeinsamer Befehl für Einschalten, Helligkeit und Farbe ist
+zusätzlich an einer Farbleuchte real bestätigt. Die Farbausführung am jeweiligen
+Gerät hängt von dessen Unterstützung durch Z2M und den Geräte-Converter ab.
 
 ## Wenn eine laufende Automation erneut ausgelöst wird
 

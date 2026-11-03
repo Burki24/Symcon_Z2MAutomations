@@ -14,7 +14,10 @@
   RGB-Farbwahl, Vorbelegung, Ersetzen und Entfernen in Test-Symcon bestätigt;
   Prüfung, Speicherung und Wiederladen einschließlich wiederverwendbarer Folge
   erfolgreich. Partnerziele über Modulmethoden geprüft. Ausgeschaltete Testdaten
-  entfernt und ursprünglichen Betrieb wiederhergestellt; keine Testausführung.
+  entfernt und ursprünglichen Betrieb wiederhergestellt. Anschließend Einschalten,
+  Helligkeit und Farbe an einer Farbleuchte in einem einzigen Schritt real geprüft;
+  frische Gerätewerte, Symcon-Variablen und Debug bestätigen das Ergebnis.
+  Ursprünglichen Lichtzustand und Automatikbetrieb wiederhergestellt.
 
 - Verhalten bei erneuter Auslösung im Klick-Editor: neue Auslösung ignorieren,
   die Aktionsfolge von vorn beginnen oder die laufende Wartezeit zurücksetzen.
