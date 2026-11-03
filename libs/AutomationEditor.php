@@ -272,8 +272,10 @@ trait AutomationEditor
         $peer = $this->PeerContext();
         if (!$synchronizePeer) {
             $this->DebugEvent('AKTION', 'Gespeicherten Z2M-Stand vollständig in den lokalen Entwurf geladen. Regeln, Partnerfreigaben und YAML-Text bleiben unverändert; Z2M wurde nicht verändert.', ['Automationen' => count($draft['configuration']['automations']), 'Revision' => $draft['configuration']['revision'], 'Partnerfreigaben' => count($draft['configuration']['mesh_peers'] ?? [])]);
-        } elseif ($peer !== null || array_key_exists('mesh_peers', $draft['configuration'])) {
-            $peers = $peer === null ? [] : [$peer['system']];
+        } elseif ($peer === null) {
+            $this->DebugEvent('AKTION', 'Kein verfügbares Partnermodul ausgewählt. Vorhandene Partnerfreigaben bleiben im lokalen Entwurf erhalten; Z2M wurde nicht verändert.', ['Partnerfreigaben' => count($draft['configuration']['mesh_peers'] ?? [])]);
+        } else {
+            $peers = [$peer['system']];
             if (($draft['configuration']['mesh_peers'] ?? []) !== $peers) {
                 $draft['configuration']['revision'] = $draft['baseRevision'] + 1;
                 $draft['configuration']['mesh_peers'] = $peers;

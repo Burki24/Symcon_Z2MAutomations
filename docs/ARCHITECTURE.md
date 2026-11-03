@@ -4,8 +4,11 @@
 
 Der vollständige Editorabruf übernimmt den gespeicherten YAML-Text samt Revision
 und Partnerfreigaben unverändert. SaveEditorDraft synchronisiert beim reinen
-Laden keine lokale Partnerauswahl. Die bestehende Synchronisierung bei einer
-tatsächlichen lokalen Entwurfsbearbeitung bleibt davon getrennt. Ein zuvor
+Laden keine lokale Partnerauswahl. Bei tatsächlicher Entwurfsbearbeitung wird
+nur eine verfügbare ausdrückliche Partnerauswahl synchronisiert. Ohne diese
+Auswahl bleiben vorhandene Freigaben unverändert, einschließlich fehlendem oder
+ausdrücklich leerem mesh_peers. Zielauswahl und Schaltrechte bleiben an das
+ausgewählte Partnermodul gebunden. Ein zuvor
 fremd gebundener Entwurf wird vor einem beauftragten Abgleich extern gesichert
 und regelweise mit dem gespeicherten Stand verglichen.
 

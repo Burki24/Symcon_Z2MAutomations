@@ -16,7 +16,7 @@ class DesignerProbe extends Z2MAutomations
     public array $debug = [];
     public bool $hookAvailable = true;
     public string $requestBody = '';
-    public function Seed(): void
+    public function Seed(?array $peers = null): void
     {
         $state = json_decode($this->GetBuffer('TransportState'), true);
         $properties = [];
@@ -36,6 +36,7 @@ class DesignerProbe extends Z2MAutomations
                 'triggers'   => [['type' => 'time', 'at' => '18:00:00', 'timezone' => 'UTC'], ['type' => 'time', 'at' => '21:00:00', 'timezone' => 'UTC']],
                 'conditions' => [['type' => 'weekday', 'weekdays' => [1, 2, 3, 4, 5], 'timezone' => 'UTC']], 'actions' => [['type' => 'sequence', 'sequence_id' => 'shared']]]],
             'sequences' => [['id' => 'shared', 'name' => 'Synthetic shared', 'actions' => [['type' => 'toggle', 'target' => ['type' => 'device', 'id' => $device], 'property' => 'state']]]]];
+        if ($peers !== null) $configuration['mesh_peers'] = $peers;
         $yaml = json_encode($configuration) . "\n";
         $this->WriteAttributeString('EditorSnapshot', json_encode($snapshot));
         $this->WriteAttributeString('YamlDraft', $yaml);

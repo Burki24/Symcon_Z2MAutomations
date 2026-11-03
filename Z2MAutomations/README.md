@@ -37,6 +37,9 @@ Dieser lädt zusätzlich die gespeicherten Regeln und ersetzt nach Bestätigung
 den lokalen Entwurf. Verwenden Sie ihn nicht nur zum Aktualisieren der Geräte.
 Gespeicherte Regeln und Freigaben für ein zweites Z2M-System werden dabei
 unverändert geladen. Der Ladevorgang speichert oder aktiviert nichts in Z2M.
+Auch beim Hinzufügen oder Bearbeiten einer Automation bleiben vorhandene
+Freigaben erhalten, wenn hier kein zweites Automationsmodul ausgewählt oder
+verfügbar ist. Ziele des zweiten Systems benötigen weiterhin dessen Auswahl.
 
 „Automationsdesigner öffnen“ öffnet die übersichtliche Browseransicht
 dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder

@@ -28,6 +28,11 @@ schreiben nichts nach Z2M. Beide Dokumente müssen gespeichert und ausdrücklich
 aktiviert werden; eine empfangende Engine darf null eigene Regeln enthalten.
 Stopp sperrt auch eingehende Aktionen. Neustarts starten keine Engine automatisch.
 
+Eine fehlende oder nicht mehr verfügbare Partnermodul-Auswahl ist kein Auftrag,
+vorhandene Empfangsfreigaben beim Hinzufügen oder Bearbeiten lokaler Regeln zu
+löschen. Diese bleiben im Entwurf unverändert erhalten; die Auswahl entfernter
+Aktionsziele benötigt weiterhin ein ausdrücklich zugeordnetes Partnermodul.
+
 ## Transport
 
 Bei getrennten Brokern transportiert eine außerhalb der Library konfigurierte

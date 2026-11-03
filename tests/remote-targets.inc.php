@@ -49,4 +49,11 @@ $reloadedPeerFields = formFields(json_decode($module->GetConfigurationForm(), tr
 $check($reloadedPeerFields['YamlInput']['value'] === $remoteFields['YamlInput']['value'], 'Loading stored rules preserves exact YAML and peer permissions even without a selected peer module');
 $reloadedPeerView = json_decode($module->GetDesignerData(), true, 32, JSON_THROW_ON_ERROR);
 $check($reloadedPeerView['draftAvailable'] && !$reloadedPeerView['draftMismatch'] && $reloadedPeerView['configuration']['mesh_peers'] === ['synthetic/Z2M-2'], 'Reloaded designer draft keeps the stored peer permission and matches its current scope');
+$check($module->CreateSimpleAutomation('Synthetic local permission regression', '0x0000000000000001', $trigger, '0x0000000000000002', $action, '', false, false), 'Native creation remains available without a selected peer');
+$nativePeerView = json_decode($module->GetDesignerData(), true, 32, JSON_THROW_ON_ERROR);
+$check($nativePeerView['configuration']['mesh_peers'] === ['synthetic/Z2M-2']
+    && array_slice($nativePeerView['configuration']['automations'], 0, -1) === $reloadedPeerView['configuration']['automations']
+    && !$nativePeerView['configuration']['automations'][array_key_last($nativePeerView['configuration']['automations'])]['enabled'], 'Native creation retains existing rules and peer permissions while adding only a disabled rule');
+$module->LoadAutomationEditor();
+unset($nativePeerView);
 unset($reloadedPeerFields, $reloadedPeerView);

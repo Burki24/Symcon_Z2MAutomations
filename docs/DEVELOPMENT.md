@@ -1,3 +1,31 @@
+## Partnerfreigaben bei lokaler Regelerstellung am 03.11.2026
+
+Die Browserprüfung im ursprünglichen Testmodul zeigte nach dem verlustfreien
+Laden noch einen gesonderten Fehler beim Hinzufügen einer Regel: Die fehlende
+lokale Partnermodul-Auswahl wurde als leere Empfangsfreigabe gespeichert. Die
+neue Regel war korrekt ausgeschaltet und Bestandsregeln unverändert; Z2M blieb
+unverändert. Nach der Prüfung wurde der Ausgangsentwurf bytegleich hergestellt.
+
+Auf Korrekturauftrag den gemeinsamen SaveEditorDraft-Pfad angepasst. Ohne ein
+verfügbares Partnermodul bleibt mesh_peers exakt erhalten, einschließlich
+fehlender und ausdrücklich leerer Angaben. Eine verfügbare ausdrückliche
+Partnerauswahl verwendet weiterhin den bisherigen Synchronisierungspfad.
+Katalog-, Ziel- und Aktionsrechte werden dadurch nicht erweitert. Der Debug
+erklärt den Erhalt mit der Anzahl der Freigaben, ohne Topics oder Nutzdaten.
+
+Regression über den echten Browser-Hook mit synthetischer vorhandener Freigabe:
+zuerst am konkreten Freigabeverlust fehlgeschlagen, nach Korrektur erfolgreich.
+Fehlendes und leeres Feld sowie Debugdatenschutz ebenfalls geprüft. Der native
+Erstellungspfad wird zusätzlich in der PHP-/JavaScript-Integration geprüft.
+Keine Test-/Produktivinstallation oder Z2M-Datei für diese Korrektur aktualisiert;
+keine Geräteaktion, Speicherung oder Aktivierung. Modulupdate erforderlich,
+Erweiterungsartefakt unverändert. Erneute reale Browserabnahme steht noch aus.
+
+Frische Prüfung: php tests/run.php einschließlich nativer PHP-/JavaScript-
+Integration und 131 JavaScript-Tests erfolgreich. Offizielle StylePHP-Prüfung
+für eigene JSON-Dateien und php-cs-fixer im Prüfmodus ohne Befund. Kodierung,
+LF-Zeilenenden, Struktur und unverändertes Erweiterungsartefakt bestätigt.
+
 ## Verlustfreier Testentwurfsabgleich am 03.11.2026
 
 Auf ausdrücklichen Auftrag den bisherigen Testentwurf mit einem getrennt

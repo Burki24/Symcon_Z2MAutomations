@@ -2,6 +2,12 @@
 
 ## Automationsdesigner
 
+Bei lokaler Entwurfsbearbeitung ohne verfügbares Partnermodul meldet
+SaveEditorDraft: „Vorhandene Partnerfreigaben bleiben im lokalen Entwurf
+erhalten; Z2M wurde nicht verändert.“ Der Bezug nennt nur die Anzahl der
+Freigaben. Topicnamen und Entwurfsinhalt werden nicht protokolliert. Eine
+verfügbare ausdrückliche Partnerauswahl behält den bisherigen Synchronisierungspfad.
+
 Beim Laden gespeicherter Regeln bestätigt der Debug die vollständige lokale
 Übernahme einschließlich Partnerfreigaben und unverändertem YAML-Text. Er nennt
 nur Regelzahl, Revision und Anzahl der Freigaben. Das Laden synchronisiert keine

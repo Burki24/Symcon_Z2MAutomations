@@ -2,6 +2,11 @@
 
 ## Neu
 
+- Beim Hinzufügen und Bearbeiten von Automationen vorhandene Partnerfreigaben
+  erhalten, wenn kein verfügbares Partnermodul ausgewählt ist. Die bisherige
+  Freigabe wird nicht mehr nebenbei durch eine leere Liste ersetzt. Der Debug
+  erklärt ausdrücklich, dass sie im Entwurf erhalten bleibt und Z2M unverändert ist.
+
 - Gespeicherte Automationen beim Laden vollständig übernehmen, einschließlich
   Partnerfreigaben, Revision und unverändertem YAML-Text. Ein im Symcon-Modul
   nicht ausgewählter Partner verändert den geladenen Stand nicht mehr nebenbei.

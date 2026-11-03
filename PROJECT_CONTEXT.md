@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Freigabeverlust beim lokalen Hinzufügen von Regeln korrigiert: Ohne ein
+  verfügbares Partnermodul erhält SaveEditorDraft vorhandene Partnerfreigaben
+  unverändert. Explizite gültige Partnerauswahl und Aktionsrechte unverändert.
+  Browser-Hook-Regression zuerst rot, danach grün; zusätzliche native Erstellung
+  und fehlende/leere Freigaben abgedeckt. Deutsche Debugmeldung ohne Topics.
+  Nur lokale Quellen geändert; Modulupdate und erneute reale Browserabnahme
+  stehen aus. Erweiterung und installierte Entwürfe unverändert.
+  Alle Projektprüfungen einschließlich 131 JavaScript-Tests und Stilprüfungen grün.
+
 - Ursprünglichen Testentwurf auf Anwenderauftrag verlustfrei mit gespeichertem
   Z2M-Stand abgeglichen. Alle bisherigen Regeln identisch enthalten, zusätzliche
   gespeicherte Regel übernommen; beide Fassungen extern gesichert. Ladepfad

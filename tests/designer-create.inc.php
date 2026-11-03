@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $createToken = $links[4];
 $check($module->Hook('create', 'GET', $createToken)[0] === 405, 'Creation route never accepts a GET');
+$module->Seed(['synthetic/retained-peer']);
 $module->ReadyForCreation();
 IPS_SetVariableCustomAction(IPS_GetObjectIDByIdent('state', $deviceID), 0);
 $createView = json_decode($module->GetDesignerData(), true);
@@ -44,6 +45,9 @@ $createdResponse = $module->Hook('create', 'POST', $createToken);
 $check($createdResponse[0] === 200, 'Browser creates a local rule through the real hook');
 $created = json_decode($createdResponse[1], true);
 $afterCreate = json_decode($module->GetDesignerData(), true);
+$check($afterCreate['configuration']['mesh_peers'] === ['synthetic/retained-peer'], 'Browser creation preserves existing peer permissions when no peer module is selected');
+$check(str_contains(implode("\n", $module->debug), 'Vorhandene Partnerfreigaben bleiben im lokalen Entwurf erhalten')
+    && !str_contains(implode("\n", $module->debug), 'synthetic/retained-peer'), 'Safe German debug explains retained permissions without logging partner topics');
 $newRule = $afterCreate['configuration']['automations'][2];
 $check(count($afterCreate['configuration']['automations']) === 3 && !$newRule['enabled'] && $newRule['id'] === $created['ruleId']
     && $newRule['triggers'][0]['property'] === 'action' && $newRule['actions'][0]['values']['state'] === 'ON', 'Existing rules remain, and the selected source/channel/value becomes a disabled rule');
@@ -83,6 +87,19 @@ $module->requestBody = json_encode($request);
 $toggleResponse = $module->Hook('create', 'POST', $createToken);
 $toggleView = json_decode($module->GetDesignerData(), true);
 $check($toggleResponse[0] === 200 && $toggleView['configuration']['automations'][3]['actions'][0]['type'] === 'toggle', 'Existing native toggle semantics are used by browser creation');
+
+foreach ([null, []] as $peerIndex => $permissions) {
+    $module->Seed($permissions);
+    $module->ReadyForCreation();
+    $permissionView = json_decode($module->GetDesignerData(), true);
+    $request['context'] = $permissionView['createContext'];
+    $request['requestId'] = $peerIndex === 0 ? '55555555-5555-4555-8555-555555555555' : '66666666-6666-4666-8666-666666666666';
+    $module->requestBody = json_encode($request);
+    $check($module->Hook('create', 'POST', $createToken)[0] === 200, 'Creation supports drafts without peer permissions');
+    $permissionAfter = json_decode($module->GetDesignerData(), true)['configuration'];
+    $check($permissions === null ? !array_key_exists('mesh_peers', $permissionAfter) : $permissionAfter['mesh_peers'] === [], 'Creation preserves the distinction between absent and explicitly empty permissions');
+}
+unset($permissionView, $permissionAfter, $permissions, $peerIndex);
 
 $module->Seed();
 $pendingView = json_decode($module->GetDesignerData(), true);
