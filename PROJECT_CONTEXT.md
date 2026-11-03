@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Vorhandene Regeln im Browser bearbeiten (ADR 0023): Geräte/Zeiten/Astro,
+  Bedingungen und Aktionen mit typisierter Vorbelegung und geschützten Bereichen.
+  Feste POST-edit-Route über den nativen Commitpfad; Kontext-, Rechte- und
+  Wiederholungsprüfung. Keine Z2M-Übertragung oder Aktivierung. Lokale synthetische
+  Browserprüfung und 134 JavaScript-Tests bestanden; reale Symcon-Abnahme nach
+  Modulupdate bleibt offen. Erweiterungsquellen und Live-System unverändert.
+
 - Freigabeverlust beim lokalen Hinzufügen von Regeln korrigiert: Ohne ein
   verfügbares Partnermodul erhält SaveEditorDraft vorhandene Partnerfreigaben
   unverändert. Explizite gültige Partnerauswahl und Aktionsrechte unverändert.

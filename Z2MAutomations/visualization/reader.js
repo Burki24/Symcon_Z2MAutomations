@@ -1,5 +1,6 @@
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
 import {installCreation} from './creator.js';
+import {installEditing} from './editor.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -15,6 +16,7 @@ import {installCreation} from './creator.js';
     let selected = null;
     let selectedPart = null;
     let busy = false;
+    let editing = null;
     const token = location.hash.slice(1);
     const endpoint = new URL('data', location.href);
     endpoint.hash = '';
@@ -22,8 +24,8 @@ import {installCreation} from './creator.js';
     document.body.classList.add('module-designer');
     $('.toolbar').setAttribute('aria-label', 'Modulansicht und neue Automation');
     $('.preview-label').textContent = 'ENTWURF';
-    $('.preview-notice strong').textContent = 'Modulansicht mit Regelerstellung';
-    $('.preview-notice > span:last-child').textContent = 'Neue Regeln werden ausgeschaltet im Symcon-Entwurf ergänzt. Übertragen und Aktivieren weiterhin im nativen Formular.';
+    $('.preview-notice strong').textContent = 'Automationen im lokalen Entwurf';
+    $('.preview-notice > span:last-child').textContent = 'Regeln hier erstellen und bearbeiten. Änderungen betreffen nur den Symcon-Entwurf. Übertragen und Aktivieren weiterhin im nativen Formular.';
     $('#validate-button').innerHTML = icon('check') + 'Ansicht aktualisieren';
     $('#validate-button').removeAttribute('data-action');
     ['#save-button', '#activate-button', '#stop-button', '.toolbar-divider', '.navigation-footer', '.activity', '#new-dialog', '#confirm-dialog'].forEach(selector => $(selector).remove());
@@ -32,7 +34,7 @@ import {installCreation} from './creator.js';
     detailsButton.setAttribute('aria-label', 'Details der ausgewählten Regel anzeigen');
     detailsButton.title = 'Regeldetails';
     $('#selection-hint').textContent = 'Baustein anklicken → Details ansehen';
-    $('.canvas-footer > span:last-child').textContent = 'Neue Regeln hier anlegen · Weitere Bearbeitung im nativen Formular';
+    $('.canvas-footer > span:last-child').textContent = 'Regeln hier erstellen und bearbeiten · Z2M bleibt unverändert';
     $('#draft-status').textContent = 'Moduldaten werden geladen …';
     $('#runtime-status').textContent = 'Betrieb noch nicht gelesen';
     $('#flow').innerHTML = '';
@@ -170,11 +172,11 @@ import {installCreation} from './creator.js';
             }
         }
         $('#inspector-title').textContent = title;
-        $('#inspector-subtitle').textContent = 'Nur Anzeige. Änderungen erfolgen weiterhin im nativen Formular.';
+        $('#inspector-subtitle').textContent = category === 'catalog' ? 'Gerätedaten zur Auswahl in Automationen.' : entry?.kind === 'sequence' ? 'Aktionsfolgen werden weiterhin im nativen Formular bearbeitet.' : 'Bausteindetails anzeigen. Für Änderungen „Automation bearbeiten“ wählen.';
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
-    function render() { renderNavigation(); renderFlow(); renderInspector(); }
+    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); }
     function selectEntry(key) { selected = key; selectedPart = null; render(); }
     function chooseArea(area) {
         category = area; selectedPart = null;
@@ -230,7 +232,7 @@ import {installCreation} from './creator.js';
             $('#feedback').dataset.tone = '';
             message(notices[0]);
             if (typeof preferredRule === 'string' && data.configuration?.automations.some(rule => rule.id === preferredRule)) {
-                category = 'device'; selected = 'rule:' + preferredRule; selectedPart = null; $('#search').value = '';
+                category = entries().find(entry => entry.id === preferredRule && entry.kind !== 'sequence').kind; selected = 'rule:' + preferredRule; selectedPart = null; $('#search').value = '';
             } else if (!current()) {
                 const first = entries().find(entry => entry.kind === category) ?? entries()[0];
                 if (category !== 'catalog' && first) category = first.kind;
@@ -250,6 +252,11 @@ import {installCreation} from './creator.js';
         const refreshed = await load(ruleId);
         message(refreshed ? 'Neue Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen und Übertragen weiterhin im nativen Formular.'
             : 'Die Automation wurde im Entwurf ergänzt. Die Ansicht konnte noch nicht aktualisiert werden; bitte „Ansicht aktualisieren“ wählen.');
+    }});
+    editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onEdited: async ruleId => {
+        const refreshed = await load(ruleId);
+        message(refreshed ? 'Änderung im lokalen Symcon-Entwurf übernommen. In Z2M wurde nichts gespeichert oder aktiviert.'
+            : 'Die Änderung wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
     }});
     render();
     load();

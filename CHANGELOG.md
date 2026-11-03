@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Browserdesigner: Vorhandene Automationen direkt bearbeiten. Geräte-, Zeit-
+  und Astroauslöser, Bedingungen, Aktionsschritte und Wartezeiten werden
+  vorbelegt. Aktuelle Rechte und zwischenzeitliche Änderungen werden geprüft;
+  nicht vollständig darstellbare Bereiche bleiben geschützt erhalten. Die
+  Übernahme ändert nur den lokalen Entwurf und erhält andere Regeln,
+  Partnerfreigaben und Aktionsfolgen. Verständliche deutsche Debug-Ausgaben.
+
 - Beim Hinzufügen und Bearbeiten von Automationen vorhandene Partnerfreigaben
   erhalten, wenn kein verfügbares Partnermodul ausgewählt ist. Die bisherige
   Freigabe wird nicht mehr nebenbei durch eine leere Liste ersetzt. Der Debug

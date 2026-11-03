@@ -7,11 +7,13 @@ namespace Z2MAutomations;
 use Throwable;
 
 require_once __DIR__ . '/AutomationDesignerCreation.php';
+require_once __DIR__ . '/AutomationDesignerEditing.php';
 
 /** Scoped browser access to existing caches and guarded local draft creation. */
 trait AutomationDesigner
 {
     use AutomationDesignerCreation;
+    use AutomationDesignerEditing;
     public function OpenAutomationDesigner(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(function (): string
@@ -22,9 +24,9 @@ trait AutomationDesigner
             }
             $token = bin2hex(random_bytes(32));
             $sessions = $this->DesignerSessions();
-            $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->TransportScope(), 'create' => true, 'receipts' => []];
+            $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->TransportScope(), 'create' => true, 'edit' => true, 'receipts' => []];
             $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
-            $this->DebugEvent('AKTION', 'Automationsdesigner mit 15 Minuten Zugang geöffnet. Neue ausgeschaltete Regeln können lokal ergänzt werden; keine Abfrage oder Geräteaktion.', ['DauerSekunden' => 900]);
+            $this->DebugEvent('AKTION', 'Automationsdesigner mit 15 Minuten Zugang geöffnet. Neue ausgeschaltete Regeln ergänzen und vorhandene Regeln lokal bearbeiten; keine Abfrage oder Geräteaktion.', ['DauerSekunden' => 900]);
             return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
         }));
     }
@@ -44,20 +46,20 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'reader.js' => 'application/javascript', 'creator.js' => 'application/javascript', 'data' => 'application/json', 'create' => 'application/json'];
+            $types = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'reader.js' => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = $asset === 'create' ? 'POST' : 'GET';
+            $method = in_array($asset, ['create', 'edit'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
-                if ($asset === 'create') {
-                    [$status, $result] = $this->DesignerCreateRequest();
+                if (in_array($asset, ['create', 'edit'], true)) {
+                    [$status, $result] = $asset === 'create' ? $this->DesignerCreateRequest() : $this->DesignerEditRequest();
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;
                 }
@@ -138,7 +140,8 @@ trait AutomationDesigner
                 'executing'                    => ($extension['executing'] ?? false) === true, 'storedRevision' => $extension['storedRevision'] ?? 0,
                 'activeRevision'               => $extension['activeRevision'] ?? 0, 'enabledCount' => $extension['enabledCount'] ?? 0],
             'createContext' => $this->DesignerCreateContext(), 'createAllowed' => $this->DesignerCreateBlock() === '',
-            'createNotice'  => $this->DesignerCreateBlock()];
+            'createNotice'  => $this->DesignerCreateBlock(), 'editAllowed' => $this->DesignerCreateBlock(false) === '', 'editNotice' => $this->DesignerCreateBlock(false),
+            'editSections'  => $this->DesignerEditableSections($configuration)];
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (strlen($json) > 2097152) {
             throw new \RuntimeException('Designer response exceeds size limit.');

@@ -2,6 +2,15 @@
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
+ADR 0023 ergänzt die feste POST-edit-Route und AutomationDesignerEditing.
+Neue Zugänge besitzen eine eigene edit-Berechtigung; alte Lese-/Erstellzugänge
+werden nicht aufgewertet. Eine vorhandene Regel wird verlustfrei kopiert und
+nur um ausdrücklich geänderte Felder ergänzt. Identität, Partnerfreigaben und
+Aktionsfolgendefinitionen sind nicht Teil des Schreibvertrags. Gerätedaten und
+aktuelle native Schaltrechte werden bei jeder geänderten Sektion erneut geprüft.
+Nicht vollständig unterstützte Bestandsbereiche bleiben serverseitig geschützt.
+CommitEditorChange bleibt der einzige lokale Übernahmepfad. Keine MQTT-Ausgabe.
+
 Der vollständige Editorabruf übernimmt den gespeicherten YAML-Text samt Revision
 und Partnerfreigaben unverändert. SaveEditorDraft synchronisiert beim reinen
 Laden keine lokale Partnerauswahl. Bei tatsächlicher Entwurfsbearbeitung wird

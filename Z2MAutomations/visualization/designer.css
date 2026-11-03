@@ -165,6 +165,22 @@ dialog::backdrop { background: #18304750; backdrop-filter: blur(2px); }
 .creation-dialog input[type="color"] { height: 42px; width: 100%; }
 .creation-dialog #create-message { color: #325a67; background: #f0f7fa; border-radius: 8px; padding: 12px; overflow-wrap: anywhere; }
 @media (max-width: 700px) { .creation-columns { grid-template-columns: minmax(0, 1fr); } .creation-dialog { padding: 18px; } .creation-dialog .dialog-actions button { width: 100%; } }
+.rule-edit-dialog .edit-section { border: 1px solid var(--line); border-radius: 9px; margin: 18px 0; padding: 15px; min-width: 0; }
+.rule-edit-dialog summary { cursor: pointer; font-weight: 600; }
+.rule-edit-dialog .edit-row { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.rule-edit-dialog .edit-row-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+.rule-edit-dialog .edit-row-fields .field { margin: 0; min-width: 0; }
+.rule-edit-dialog .edit-device-picker, .rule-edit-dialog .edit-command, .rule-edit-dialog .field-help { grid-column: 1 / -1; min-width: 0; }
+.rule-edit-dialog .edit-device-picker { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2fr); gap: 18px; }
+.rule-edit-dialog .edit-row-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 9px; margin-top: 12px; }
+.rule-edit-dialog .edit-weekdays { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.rule-edit-dialog .edit-weekdays .field { display: flex; align-items: center; gap: 5px; }
+.rule-edit-dialog .field.edit-check { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 9px; }
+.rule-edit-dialog input[type="checkbox"] { width: 20px; height: 20px; flex: 0 0 auto; }
+.rule-edit-dialog .edit-preserved, .rule-edit-dialog #edit-message { padding: 12px; border-radius: 8px; background: #f0f7fa; overflow-wrap: anywhere; }
+.module-designer .canvas-heading { flex-wrap: wrap; gap: 10px; }
+.module-designer .entry-tools { flex-wrap: wrap; }
+@media (max-width: 700px) { .rule-edit-dialog .edit-row-fields, .rule-edit-dialog .edit-device-picker { grid-template-columns: minmax(0, 1fr); } .rule-edit-dialog .edit-section { padding: 9px; } }
 dialog h2 { font-size: 20px; margin: 9px 0 23px; }
 dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .dialog-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }

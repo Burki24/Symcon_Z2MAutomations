@@ -80,9 +80,32 @@ geänderten Auswahl bleiben die Browserangaben im Dialog erhalten. Dort die
 Ansicht aktualisieren und die Angaben nochmals prüfen. Abbrechen verwirft nur
 die noch nicht hinzugefügte Browserregel.
 
-Weitere Auslöser, Bedingungen, Aktionen, Zeiten und das Bearbeiten vorhandener
-Regeln erfolgen vorerst im nativen Formular. Auch Prüfen, Übertragen, Aktivieren
-und Stoppen erfolgen dort. Das Anlegen im Browser schaltet keine Geräte. Nach 15
+Mit **„Automation bearbeiten“** ändern Sie eine links ausgewählte Regel:
+
+1. Name, Regelschalter, Auslöser, Bedingungen und Aktionen sind bereits vorbelegt.
+   Geräte, Kanäle und Werte können Sie getrennt auswählen. Uhrzeiten und
+   Sonnenzeiten sowie Wochentage und Zeitfenster lassen sich ebenfalls bearbeiten.
+2. Öffnen Sie den gewünschten Bereich. Weitere Einträge hinzufügen oder entfernen;
+   Aktionsschritte mit „Nach oben“ und „Nach unten“ anordnen. Die Wartezeit gilt
+   jeweils vor dem zugehörigen Schritt. Vorhandene Szenen und Aktionsfolgen sind
+   auswählbar; deren Definition wird dabei nicht geändert.
+3. „Änderungen in den Entwurf übernehmen“ wählen. Das ändert nur diese Regel
+   im lokalen Symcon-Entwurf. Andere Regeln und vorhandene Freigaben bleiben erhalten.
+
+Der Regelschalter im Browser betrifft ebenfalls nur den Entwurf. Er startet
+oder stoppt keine laufende Automation. Fehlen Gerätedaten oder Schaltrechte,
+bleibt der betroffene Bereich geschützt und vollständig erhalten. Andere
+Angaben, etwa der Name, können weiterhin geändert werden. Für Änderungen am
+geschützten Bereich zuerst die Gerätedaten bzw. das native Formular prüfen.
+
+Bei zwischenzeitlichen Änderungen wird nichts überschrieben: Ihre Eingaben
+bleiben im Dialog. „Neu laden und Eingaben verwerfen“ lädt nach Bestätigung den
+aktuellen Entwurf; eigene noch nicht übernommene Eingaben gehen dabei verloren.
+„Abbrechen“ verwirft nur die nicht übernommenen Eingaben dieses Dialogs.
+
+Neue Zeitregeln, Änderungen an Aktionsfolgen selbst sowie Prüfen, Übertragen,
+Aktivieren und Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
+im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen
 können. Ein Modulupdate genügt, die Z2M-Erweiterung bleibt unverändert.

@@ -1,5 +1,43 @@
 ## Partnerfreigaben bei lokaler Regelerstellung am 03.11.2026
 
+## Browserbearbeitung vorhandener Regeln am 03.11.2026 (lokal)
+
+ADR 0023: feste POST-edit-Route mit eigenem Sitzungsrecht, Kontextprüfung und
+begrenzten Wiederholungsquittungen. Gemeinsame Headerprüfung mit create;
+CommitEditorChange/SaveEditorDraft übernehmen ausschließlich lokale Änderungen.
+Keine Erweiterungsänderung. Vorher fehlende edit-Route durch den synthetischen
+Hook geprüft, danach erfolgreiche Übernahme. Bestehende Bereiche werden exakt
+kopiert; geänderte Bereiche durch native Katalog- und Rechteprüfungen validiert.
+
+Nachweise mit ausschließlich synthetischen Daten:
+
+- PHP-Hook: Name und Regelschalter, mehrere Auslöser, Uhrzeiten, Astro,
+  Bedingungen samt start_only, gemeinsame Farb-/Helligkeitsbefehle, Szene mit
+  Kanal, Aktionsfolge und Verzögerungen; andere Regeln und Freigaben erhalten.
+- Konflikte, native offene Eingaben, entzogene Aktionsrechte, alte Lese-/Erstell-
+  sitzungen, andere Herkunft, falscher Inhaltstyp, ungültige Körper, unbekannte
+  Felder, fehlende Regel und Ablauf werden ohne Entwurfsüberschreiben abgewiesen.
+  Leere Änderung schreibt nichts; Bearbeiten bei 100 Regeln bleibt möglich.
+- Hintergrund-Browser gegen lokalen PHP-Prüfserver und echten Modul-Hook:
+  komplexe Geräteregel vollständig vorbelegt; Name und Szenenwartezeit geändert,
+  übernommen und wieder geöffnet. Zeitregel mit zwei Uhrzeiten und Wochentagen
+  vorbelegt; zweite Uhrzeit und Samstag geändert und übernommen. Sonnenaufgang,
+  Koordinaten 0, negativer Versatz und Zone vorbelegt; Änderung abgebrochen und
+  ursprünglicher Versatz erhalten. Zwei lokale Commits im bereinigten deutschen
+  Debug bestätigt. Partnerfreigabe und Aktionsfolge im Ergebnis unverändert;
+  alle drei Beispielregeln bleiben ausgeschaltet.
+- Dialog mit Mausrad gescrollt: scrollTop steigt, kein horizontaler Überlauf bei
+  1280 Pixeln Fensterbreite. Keine Browserwarnungen oder Skriptfehler. Eigener
+  Prüftab und Prüfserver beendet; vorhandene Vorschau unberührt. Schmale Fenster
+  sind per CSS vorgesehen, in dieser Runde nicht gesondert praktisch geprüft.
+
+php tests/run.php einschließlich 134 JavaScript-Tests bestanden. Offizieller
+StylePHP-Check für 15 eigene JSON-Dateien und php-cs-fixer 3.95.27 im Prüfmodus
+ohne Befund. Eigene Texte UTF-8 ohne BOM mit LF; Fremdquellen unverändert.
+Keine Test- oder Produktivinstallation aktualisiert. Reale Browserabnahme nach
+Modulupdate bleibt offen. Nichts in Z2M gespeichert, aktiviert oder geschaltet.
+
+
 Die Browserprüfung im ursprünglichen Testmodul zeigte nach dem verlustfreien
 Laden noch einen gesonderten Fehler beim Hinzufügen einer Regel: Die fehlende
 lokale Partnermodul-Auswahl wurde als leere Empfangsfreigabe gespeichert. Die

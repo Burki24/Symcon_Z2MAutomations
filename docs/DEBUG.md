@@ -2,6 +2,14 @@
 
 ## Automationsdesigner
 
+POST-edit verwendet ebenfalls ProcessHookData und DebugFlowHelper. Erfolg
+meldet „Browserbearbeitung im lokalen Entwurf übernommen“ mit Regelposition,
+Eintragszahlen und Regelschalter. Eine inhaltlich unveränderte Übernahme sowie
+ein wiederholter Auftrag werden gesondert erklärt. Konflikte, fehlende Rechte
+und ungültige Angaben nennen einen sicheren deutschen Hinweis und HTTP-Status.
+Namen, Schaltwerte, genaue Sonnenkoordinaten, Topics und Zugang bleiben geschützt.
+Im Browser erfolgen beim bloßen Auswählen oder Tippen keine Debug-Schreibaufrufe.
+
 Bei lokaler Entwurfsbearbeitung ohne verfügbares Partnermodul meldet
 SaveEditorDraft: „Vorhandene Partnerfreigaben bleiben im lokalen Entwurf
 erhalten; Z2M wurde nicht verändert.“ Der Bezug nennt nur die Anzahl der

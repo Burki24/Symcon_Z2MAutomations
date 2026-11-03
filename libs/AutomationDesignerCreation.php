@@ -10,7 +10,7 @@ trait AutomationDesignerCreation
 {
     protected function DesignerRequestBody(): string
     {
-        return (string) file_get_contents('php://input', false, null, 0, 16385);
+        return (string) file_get_contents('php://input', false, null, 0, 65537);
     }
 
     private function DesignerPendingInput(): bool
@@ -36,7 +36,7 @@ trait AutomationDesignerCreation
         return hash('sha256', json_encode($parts, JSON_THROW_ON_ERROR));
     }
 
-    private function DesignerCreateBlock(): string
+    private function DesignerCreateBlock(bool $creating = true): string
     {
         $snapshot = json_decode($this->ReadAttributeString('EditorSnapshot') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
         $draft = $this->ReadEditorDraft();
@@ -47,12 +47,12 @@ trait AutomationDesignerCreation
             ($draft['scope'] ?? '') !== $this->TransportScope() || ($draft['draftChecksum'] ?? '') !== hash('sha256', $this->ReadAttributeString('YamlDraft')) => 'Der vorhandene Entwurf passt nicht zu dieser Ansicht. Bitte im nativen Formular prüfen; er wird hier nicht ersetzt.',
             $this->DesignerPendingInput()                                                                                                                      => 'Im nativen Formular gibt es offene Änderungen. Bitte diese zuerst in den Entwurf übernehmen oder zurücknehmen und danach die Ansicht aktualisieren.',
             ($state['workflow'] ?? null) !== null                                                                                                              => 'Im Modul läuft noch ein Auftrag. Bitte dessen Abschluss abwarten und die Ansicht aktualisieren.',
-            count($draft['configuration']['automations']) >= 100                                                                                               => 'Der Entwurf enthält bereits 100 Automationen. Bitte zuerst eine Regel entfernen.',
+            $creating && count($draft['configuration']['automations']) >= 100                                                                                  => 'Der Entwurf enthält bereits 100 Automationen. Bitte zuerst eine Regel entfernen.',
             default                                                                                                                                            => ''
         };
     }
 
-    private function DesignerCreateRequest(): array
+    private function DesignerWriteHeaders(): ?array
     {
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
         $url = is_string($origin) ? parse_url($origin) : false;
@@ -79,6 +79,15 @@ trait AutomationDesignerCreation
         );
         if (!$json) {
             return $this->DesignerCreateFailure(415, 'Die Eingaben konnten nicht gelesen werden. Bitte den Designer erneut öffnen.');
+        }
+        return null;
+    }
+
+    private function DesignerCreateRequest(): array
+    {
+        $failure = $this->DesignerWriteHeaders();
+        if ($failure !== null) {
+            return $failure;
         }
         $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
         return $this->WithTransportLock(function () use ($token): array
@@ -110,7 +119,7 @@ trait AutomationDesignerCreation
             $digest = hash('sha256', json_encode([$request['name'], $request['source'], $request['target']], JSON_THROW_ON_ERROR));
             foreach ($sessions[$sessionIndex]['receipts'] ?? [] as $receipt) {
                 if ($receipt['request'] === $request['requestId']) {
-                    if ($receipt['digest'] !== $digest) {
+                    if (($receipt['kind'] ?? 'create') !== 'create' || $receipt['digest'] !== $digest) {
                         return $this->DesignerCreateFailure(409, 'Dieser Auftrag wurde bereits mit anderen Angaben verwendet. Bitte die Ansicht aktualisieren.');
                     }
                     $this->DebugEvent('AKTION', 'Wiederholte Browseranfrage bestätigt; keine zweite Automation angelegt.');
@@ -142,7 +151,7 @@ trait AutomationDesignerCreation
             if (!$this->CommitEditorChange($state, $draft, 'draft_created', $rule['id'])) {
                 return $this->DesignerCreateFailure(422, 'Die Automation konnte nicht in den Entwurf übernommen werden. Bitte Größe und Angaben im nativen Formular prüfen.');
             }
-            $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'digest' => $digest, 'rule' => $rule['id']];
+            $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'create', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
             $this->SetBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
             $this->DebugEvent(
@@ -169,7 +178,7 @@ trait AutomationDesignerCreation
 
     private function DesignerCreateFailure(int $status, string $message): array
     {
-        $this->DebugEvent('FEHLER', 'Neue Browserautomation nicht übernommen; Entwurf und Z2M bleiben unverändert.', ['HTTP-Status' => $status, 'Hinweis' => $message]);
+        $this->DebugEvent('FEHLER', 'Browseränderung nicht übernommen; Entwurf und Z2M bleiben unverändert.', ['HTTP-Status' => $status, 'Hinweis' => $message]);
         return [$status, ['message' => $message]];
     }
 }

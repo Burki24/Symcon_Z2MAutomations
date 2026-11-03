@@ -16,7 +16,7 @@ class DesignerProbe extends Z2MAutomations
     public array $debug = [];
     public bool $hookAvailable = true;
     public string $requestBody = '';
-    public function Seed(?array $peers = null): void
+    public function Seed(?array $peers = null, ?array $document = null): void
     {
         $state = json_decode($this->GetBuffer('TransportState'), true);
         $properties = [];
@@ -24,10 +24,16 @@ class DesignerProbe extends Z2MAutomations
             $properties[$property] = ['property' => $property, 'type' => 'binary', 'access' => 3, 'label' => $property, 'endpoint' => '', 'values' => ['ON', 'OFF']];
         }
         $properties['action'] = array_replace($properties['action'], ['type' => 'enum', 'access' => 1, 'values' => ['single']]);
+        $properties['state_l2'] = $properties['state'];
+        $properties['state_l2']['property'] = 'state_l2';
+        $properties['level'] = ['property' => 'level', 'type' => 'numeric', 'access' => 3, 'label' => 'Synthetic level', 'endpoint' => '', 'minimum' => 0, 'maximum' => 100, 'step' => 1];
+        $properties['temperature'] = ['property' => 'temperature', 'type' => 'numeric', 'access' => 1, 'label' => 'Synthetic temperature', 'endpoint' => ''];
+        $properties['color'] = ['property' => 'color', 'type' => 'color', 'access' => 2, 'label' => 'Synthetic color', 'endpoint' => ''];
         $choices = [hash('sha256', 'choice') => ['property' => 'state', 'value' => 'ON']];
         $device = '0x0000000000000001';
         $snapshot = ['scope' => $state['scope'], 'loadedAt' => $this->clock - 60, 'devices' => [$device => ['name' => 'Synthetic lamp <script>', 'triggers' => $choices, 'actions' => $choices,
-            'numeric'                                                                                              => [], 'properties' => $properties]], 'groups' => []];
+            'numeric'                                                                                              => ['temperature' => '°C', 'level' => ''], 'properties' => $properties]], 'groups' => [],
+            'scenes' => [['key' => $device, 'endpoint' => 2, 'id' => 7, 'name' => 'Synthetic scene', 'control' => 'state_l2']]];
         $configuration = ['schema_version' => 1, 'revision' => 4, 'automations' => [
             ['id'          => 'synthetic_device', 'name' => 'Synthetic motion rule', 'enabled' => false,
                 'triggers' => [['type' => 'device', 'device' => $device, 'property' => 'action', 'operator' => 'eq', 'value' => 'single']], 'conditions' => [],
@@ -36,6 +42,7 @@ class DesignerProbe extends Z2MAutomations
                 'triggers'   => [['type' => 'time', 'at' => '18:00:00', 'timezone' => 'UTC'], ['type' => 'time', 'at' => '21:00:00', 'timezone' => 'UTC']],
                 'conditions' => [['type' => 'weekday', 'weekdays' => [1, 2, 3, 4, 5], 'timezone' => 'UTC']], 'actions' => [['type' => 'sequence', 'sequence_id' => 'shared']]]],
             'sequences' => [['id' => 'shared', 'name' => 'Synthetic shared', 'actions' => [['type' => 'toggle', 'target' => ['type' => 'device', 'id' => $device], 'property' => 'state']]]]];
+        $configuration = $document ?? $configuration;
         if ($peers !== null) $configuration['mesh_peers'] = $peers;
         $yaml = json_encode($configuration) . "\n";
         $this->WriteAttributeString('EditorSnapshot', json_encode($snapshot));
@@ -72,7 +79,16 @@ class DesignerProbe extends Z2MAutomations
     {
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
         foreach ($sessions as &$session) {
-            if ($session['hash'] === hash('sha256', $token)) unset($session['create']);
+            if ($session['hash'] === hash('sha256', $token)) unset($session['create'], $session['edit']);
+        }
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
+    public function MakeCreateOnly(string $token): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) {
+            if ($session['hash'] === hash('sha256', $token)) unset($session['edit']);
         }
         unset($session);
         $this->SetBuffer('DesignerSessions', json_encode($sessions));
@@ -163,6 +179,7 @@ $check($module->Hook('data', 'GET', $links[0])[0] === 403 && $module->Hook('data
 $other = IPS\InstanceManager::getInstanceInterface(IPS_CreateInstance($guid));
 $check($other->Hook('data', 'GET', $links[4])[0] === 403, 'Capability grants no access to another module');
 require __DIR__ . '/designer-create.inc.php';
+require __DIR__ . '/designer-edit.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');
