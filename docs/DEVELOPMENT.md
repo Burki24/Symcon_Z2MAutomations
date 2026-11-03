@@ -1,3 +1,24 @@
+## Agenda 6: Bestätigung der korrigierten Spaltenbreite am 03.11.2026
+
+Nach gemeldetem Modulupdate stimmen lokale und hochgeladene form.json im
+Hashvergleich überein; alle vier Regelschalterspalten verwenden 245 Pixel.
+Nach angekündigter Rechnerbedienung das Formular in der nativen Testkonsole
+frisch geöffnet und die Geräte- sowie Zeitübersicht mit dem Mausrad erreicht.
+Bei rund 1400 Pixel Fensterbreite ist „Im Entwurf eingeschaltet“ in beiden
+Übersichten vollständig lesbar, ebenso die übrigen Spaltentitel. Kein
+horizontaler Überlauf dieser Übersichten. Keine neue Funktionslogik geändert.
+
+Der Originalentwurf bleibt im Hashvergleich unverändert. Gespeicherter Stand,
+eine eingeschaltete Regel, Mesh und fehlerfreier Automatikbetrieb bleiben
+bestätigt. Keine Geräteabfrage zum Laden des Katalogs, keine Speicherung,
+Aktivierung, Löschung oder Schaltaktion. Die Übersichten sind weiterhin leer;
+keine zusätzliche Prüfung von Zeileninhalten oder Löschdialogen. Nur die beiden
+sichtbaren Hauptübersichten wurden nativ geprüft, nicht weitere Fensterbreiten.
+Prüftab geschlossen und vorherige Such-/Modulansicht wiederhergestellt.
+Nur Dokumentation geändert; Kodierungs- und Strukturprüfung sowie UTF-8/LF und
+git diff --check erfolgreich. Unveränderte Funktions-/Stilprüfungen nicht
+erneut ausgeführt. Kein Commit/Push.
+
 ## Agenda 6: Native Sichtprüfung am 03.11.2026
 
 Nach vorangekündigter Rechnerbedienung die vorhandene Testinstanz in der nativen

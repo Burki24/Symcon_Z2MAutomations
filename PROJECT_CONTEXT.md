@@ -514,8 +514,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
    COMPATIBILITY.md dokumentiert den belegten Stand 2.14.2-dev mit Grenzen.
    Reine Textänderungen an der deutschen Oberfläche; keine Live-Änderung.
    Anschließend native Sichtprüfung: Statusführung verständlich, Spaltentitel
-   bei 170 Pixel gekürzt. Lokal auf 245 Pixel vergrößert; nach Modulupdate
-   erneut nativ zu prüfen. Originalentwurf und Z2M-Betrieb bleiben unverändert.
+   bei 170 Pixel gekürzt. Nach Vergrößerung auf 245 Pixel und Modulupdate
+   in Geräte- und Zeitübersicht nativ vollständig lesbar. Originalentwurf
+   und Z2M-Betrieb bleiben unverändert.
    Eine breite Versionsabnahme und native Symcon-9.0-Prüfung bleiben offen.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.

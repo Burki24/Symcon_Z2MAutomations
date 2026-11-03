@@ -58,7 +58,8 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Keine Änderung am Live-System und keine neue native Bedienabnahme.
    Anschließende native Sichtprüfung in Test-Symcon bestätigt die Statusführung,
    findet aber eine gekürzte Spaltenüberschrift. Breite lokal korrigiert;
-   Modulupdate und erneute Sichtprüfung dieses Details stehen noch aus.
+   Nach Modulupdate ist der Titel mit 245 Pixel in Geräte- und Zeitübersicht
+   nativ vollständig lesbar. Entwurf und Z2M-Betrieb unverändert.
    Breitere Versions-/Geräteabnahme und native Symcon-9.0-Prüfung bleiben offen.
 
 Die Bestandsfunktionen und bisherige Praxisnachweise stehen in
