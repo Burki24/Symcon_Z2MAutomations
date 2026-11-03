@@ -1,3 +1,35 @@
+## Agenda 6: Native Sichtprüfung am 03.11.2026
+
+Nach vorangekündigter Rechnerbedienung die vorhandene Testinstanz in der nativen
+Symcon-9.1-Konsole geöffnet. Hochgeladene Formular- und Übersetzungsdatei per Hash
+mit dem vorherigen lokalen Stand abgeglichen. Keine Installation oder Aktualisierung
+auf den laufenden Systemen vorgenommen. Die erste von zwei Konsolenverbindungen
+war produktiv und wurde nicht bedient; Prüfung ausschließlich in der Testkonsole.
+
+Bestätigt: Formular öffnet ohne Fehlermeldung. Bearbeitungsstand, fehlender
+Gerätekatalog und tatsächlicher Z2M-Betrieb sind getrennt verständlich angezeigt.
+Der ursprüngliche Automatikbetrieb meldet weiterhin eine eingeschaltete Regel,
+gespeicherten Stand, Wiederanlauf und Mesh ohne Laufzeitfehler. Mausradnavigation
+zwischen Geräte- und Zeitbereich funktioniert. Die neue deutsche Spaltenüberschrift
+ist eingebunden, wird bei rund 1400 Pixel Fensterbreite mit 170 Pixel Spaltenbreite
+jedoch in beiden Übersichten abgeschnitten. Deshalb lokal auf 245 Pixel erhöht,
+auch in den beiden weiteren Regelübersichten. Bestehenden ConfigurationFormHelper
+und zentrale Breitenvorgaben geprüft; keine neue Layoutlogik.
+
+Grenzen: Der lokale Entwurf besitzt derzeit keinen geladenen Katalog; beide
+Regelübersichten sind leer. Kein Ladevorgang, kein Erstellen oder Bearbeiten,
+kein Bestätigen eines Löschdialogs und keine Änderung an gespeicherten Regeln.
+Der Löschtext ist nur im eingebundenen Formular geprüft. Die korrigierte Breite
+benötigt ein Modulupdate und erneute native Sichtprüfung; die bereits sichtbare
+Kürzung ist kein bestandener Breitennachweis.
+
+Der ursprüngliche lokale Entwurf bleibt im Hashvergleich unverändert. Der
+Prüftab wurde geschlossen. Kodierungs-/Strukturprüfung, bestehende Formular-
+Größentests, offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien und PHP CS
+Fixer im Prüfmodus erfolgreich; UTF-8 ohne BOM, LF und git diff --check sauber.
+Keine Funktionslogik geändert; unveränderte vollständige Laufzeitsuite nicht
+erneut ausgeführt. Kein Commit/Push.
+
 ## Agenda 6: Benutzerführung und Dokumentation am 03.11.2026
 
 Formulartexte und deutsche Übersetzungen, Modul-/Library-Anleitung, sichtbare

@@ -420,7 +420,7 @@
                         {
                             "name": "Enabled",
                             "caption": "Enabled",
-                            "width": "170px"
+                            "width": "245px"
                         }
                     ],
                     "values": [],
@@ -1590,7 +1590,7 @@
                         {
                             "name": "Enabled",
                             "caption": "Enabled",
-                            "width": "170px"
+                            "width": "245px"
                         }
                     ],
                     "values": [],
@@ -2761,7 +2761,7 @@
                         {
                             "name": "Enabled",
                             "caption": "Enabled",
-                            "width": "170px"
+                            "width": "245px"
                         }
                     ],
                     "values": [],
@@ -4295,7 +4295,7 @@
                         {
                             "name": "Enabled",
                             "caption": "Enabled",
-                            "width": "170px"
+                            "width": "245px"
                         }
                     ],
                     "values": [],

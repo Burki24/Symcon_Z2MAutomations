@@ -2,6 +2,10 @@
 
 ## Neu
 
+- Die Spalte „Im Entwurf eingeschaltet“ erhält mehr Platz, da der vollständige
+  Titel in der nativen Konsole mit der bisherigen Breite abgeschnitten wurde.
+  Für die angepasste Breite genügt ein Modulupdate.
+
 - Benutzeranleitung nach Einrichtung und Arbeitsablauf geordnet. Veraltete
   Hinweise zu automatischer Statusprüfung, Editorumfang und Wiederanlauf
   korrigiert; Einstellungen, Statusvariablen und Skriptaufrufe ergänzt.

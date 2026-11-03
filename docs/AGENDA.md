@@ -56,6 +56,9 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Einstellungen/Statusvariablen/Skriptaufrufe ergänzt. COMPATIBILITY.md trennt
    den belegten Stand 2.14.2-dev von Referenzziel und ungeprüften Versionen.
    Keine Änderung am Live-System und keine neue native Bedienabnahme.
+   Anschließende native Sichtprüfung in Test-Symcon bestätigt die Statusführung,
+   findet aber eine gekürzte Spaltenüberschrift. Breite lokal korrigiert;
+   Modulupdate und erneute Sichtprüfung dieses Details stehen noch aus.
    Breitere Versions-/Geräteabnahme und native Symcon-9.0-Prüfung bleiben offen.
 
 Die Bestandsfunktionen und bisherige Praxisnachweise stehen in
