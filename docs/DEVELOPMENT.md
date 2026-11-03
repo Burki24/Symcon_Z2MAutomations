@@ -1,3 +1,30 @@
+## Symcon-Header und reale Browserabnahme am 03.11.2026
+
+Die Praxisprüfung zeigte HTTP 415 bei einer gültigen JSON-Anfrage: Der native
+Symcon-WebHook stellt HTTP_CONTENT_TYPE bereit; der bisherige lokale Prüfserver
+hatte CONTENT_TYPE gesetzt. Die Korrektur akzeptiert beide Varianten und behält
+die JSON-Pflicht bei. Mehrere vorhandene, widersprüchliche Medientypen werden
+abgewiesen. Der Debug protokolliert ausschließlich Verfügbarkeit der beiden
+Header und erfolgreiche JSON-Erkennung. Regressionsfälle umfassen die native
+Variante ohne Standardheader, Groß-/Kleinschreibung mit charset, fehlenden oder
+fremden Inhaltstyp und widersprüchliche Header.
+
+Nach Zustimmung ausschließlich AutomationDesignerCreation.php im Testmodul
+aktualisiert; Syntaxprüfung erfolgreich, kein Modulreload oder Z2M-Update nötig.
+Browserprüfung in einer temporären Modulinstanz mit frisch gelesenen vorhandenen
+Regeln: getrennte Gerätesuche, Auswahl eines Mehrkanal-Tasters, Kanal L2, Ein als
+Auslöser und Umschalten als Zielaktion erfolgreich. POST und anschließender GET
+bestätigten genau eine neue ausgeschaltete Regel. Die bisherigen Regeln waren
+unverändert. Native Debugausgaben bestätigten Symcons Header, JSON-Erkennung,
+lokale Entwurfsübernahme und HTTP-Erfolg; keine Erweiterungsbefehle im Prüfintervall.
+Browser ohne Skriptfehler. Temporäre Instanz samt Statusvariablen und Prüftab
+entfernt, Debugdatei beendet. Gespeicherter und aktiver Z2M-Stand unverändert.
+
+Der bisherige Testentwurf gehörte zu einem älteren Stand. Er wurde außerhalb
+des Repositorys gesichert und bytegleich erhalten. Der Geräteabruf ergänzte nur
+den aktuellen Katalog. Die Prüfung hat diesen Entwurf bewusst nicht durch den
+gespeicherten Z2M-Stand ersetzt; dafür bleibt ein gesonderter Bedienentscheid nötig.
+
 ## Automationsdesigner: Regelerstellung am 03.11.2026
 
 ADR 0022 ergänzt den bestehenden Browserzugang um eine eng begrenzte lokale

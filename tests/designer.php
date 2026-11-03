@@ -83,7 +83,7 @@ class DesignerProbe extends Z2MAutomations
         $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] = $token;
         $_SERVER['HTTP_HOST'] ??= '127.0.0.1:3777';
         $_SERVER['HTTP_ORIGIN'] ??= 'http://127.0.0.1:3777';
-        $_SERVER['CONTENT_TYPE'] ??= 'application/json';
+        if (!isset($_SERVER['HTTP_CONTENT_TYPE'])) $_SERVER['CONTENT_TYPE'] ??= 'application/json';
         ob_start();
         try {
             $this->ProcessHookData();

@@ -2,6 +2,13 @@
 
 ## Automationsdesigner
 
+Die Inhaltsprüfung berücksichtigt HTTP_CONTENT_TYPE von Symcon und CONTENT_TYPE
+von üblichen PHP-Testservern. Nur application/json ist erlaubt, einschließlich
+einer optionalen Zeichensatzangabe. Widersprüchliche oder fremde Medientypen
+bleiben abgewiesen. SymconHeaderVorhanden, StandardHeaderVorhanden und JSONErkannt
+sind boolesche Diagnoseangaben; weder Headerwerte noch Anfrageinhalt werden
+ausgegeben. Eine spätere Ablehnung nennt weiterhin den vorhandenen HTTP-Status.
+
 Der neue POST-create-Auftrag bleibt im bestehenden ProcessHookData-Debugfluss.
 Ablehnungen nennen einen sicheren deutschen Hinweis und HTTP-Status; Erfolg
 nennt Regel-/Schrittzahlen und die ausschließlich lokale Entwurfsänderung.

@@ -26,6 +26,9 @@ Kein CORS. Ein alter Lesezugang erhält keine Schreibberechtigung. Der Token ble
 im Fragment/Header und wird weder ausgegeben noch protokolliert. Der Körper ist
 auf 16 KiB und eine feste Feldmenge begrenzt. Keine generische Modulmethodenwahl,
 YAML-Übernahme, Speicherung in Z2M oder Runtime-Aktion über diesen Endpunkt.
+Die JSON-Erkennung berücksichtigt Symcons HTTP_CONTENT_TYPE und den üblichen
+CONTENT_TYPE-Header. Sind beide mit unterschiedlichen Medientypen vorhanden,
+wird der Auftrag abgewiesen. Headerwerte werden nicht im Debug offengelegt.
 
 Unter dem bestehenden Transportlock werden der Gateway-/Topic-Kontext,
 Entwurfsbytes, Katalog und native Bearbeitung geprüft. Eine zusammengesetzte

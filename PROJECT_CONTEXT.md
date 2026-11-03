@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Browser-Regelerstellung auf dem realen Test-Symcon geprüft und einen zuvor
+  verdeckten HTTP-415-Fehler korrigiert: HTTP_CONTENT_TYPE von Symcon und der
+  Standardheader werden nun streng als JSON geprüft. Nur diese lokale PHP-Datei
+  im Testmodul aktualisiert; keine Produktions-/Z2M-Datei geändert. Auswahl und
+  ausgeschaltete Übernahme über den Browser erfolgreich; Bestandsregeln,
+  ursprünglicher Testentwurf und Z2M-Betrieb erhalten. Temporäre Instanz entfernt,
+  Debug beendet. Einzelheiten und verbliebener alter Testentwurf in DEVELOPMENT.md.
+
 - Designer Schritt 2 lokal umgesetzt (ADR 0022): „Neue Automation“ mit
   getrennt durchsuchbarer Geräte-/Kanal-/Wertauswahl für Auslöser und Aktion.
   Begrenztes POST ergänzt nur eine ausgeschaltete Regel im bestehenden Entwurf.

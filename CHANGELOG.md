@@ -2,6 +2,12 @@
 
 ## Neu
 
+- JSON-Anfragen bei der Browser-Regelerstellung auch mit Symcons
+  `HTTP_CONTENT_TYPE` erkennen. Dadurch wird die Übernahme nicht mehr fälschlich
+  mit HTTP 415 abgewiesen. Standardheader, optionale Zeichensatzangabe und
+  widersprüchliche oder fremde Inhaltstypen werden ebenfalls geprüft. Neue
+  Debugmeldung nennt nur Header-Verfügbarkeit und JSON-Erkennung.
+
 - Browserdesigner: „Neue Automation“ ergänzt eine ausgeschaltete Geräte-Regel
   im bestehenden Symcon-Entwurf. Auslöser und Zielgerät getrennt durchsuchen,
   dann Eigenschaft/Kanal und Wert wählen. Aktuelle Schaltrechte, offene native

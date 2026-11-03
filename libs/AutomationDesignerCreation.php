@@ -63,7 +63,21 @@ trait AutomationDesignerCreation
             || !in_array($_SERVER['HTTP_SEC_FETCH_SITE'] ?? 'same-origin', ['same-origin'], true)) {
             return $this->DesignerCreateFailure(403, 'Der Aufruf stammt nicht aus dieser Designeransicht. Bitte den Designer erneut im Modul öffnen.');
         }
-        if (strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'] ?? '')[0])) !== 'application/json') {
+        $contentTypes = [];
+        foreach (['HTTP_CONTENT_TYPE', 'CONTENT_TYPE'] as $header) {
+            $value = $_SERVER[$header] ?? null;
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $contentTypes[] = is_string($value) ? strtolower(trim(explode(';', $value)[0])) : '';
+        }
+        $json = $contentTypes !== [] && array_diff($contentTypes, ['application/json']) === [];
+        $this->DebugEvent(
+            'EMPFANG',
+            'Inhaltstyp der Browseranfrage geprüft; Headerwerte und Anfrageinhalt bleiben geschützt.',
+            ['SymconHeaderVorhanden' => isset($_SERVER['HTTP_CONTENT_TYPE']), 'StandardHeaderVorhanden' => isset($_SERVER['CONTENT_TYPE']), 'JSONErkannt' => $json]
+        );
+        if (!$json) {
             return $this->DesignerCreateFailure(415, 'Die Eingaben konnten nicht gelesen werden. Bitte den Designer erneut öffnen.');
         }
         $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
