@@ -18,11 +18,17 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Bewegungsmelder-Entwurf über Test-Symcon vorbereitet; ältere Originalbearbeitung
   unverändert. Anwender wünscht eine verlängerbare Nachlaufzeit und korrigiert
   die externe Helligkeitsgrenze; konkrete Werte bleiben außerhalb des Repositorys.
-  Endgültiger ausgeschalteter
-  Entwurf außerhalb des Repositorys gesichert. Gemeinsames Update, native
-  Praxisprüfung der Startbedingung und anschließende dauerhafte Aktivierung
-  stehen aus. Originalereignisse bleiben ausgeschaltet; noch keine Z2M-
-  Speicherung oder Schaltanforderung in dieser Vorbereitung.
+  Endgültiger Entwurf außerhalb des Repositorys gesichert. Anschließend nach
+  Anwenderupdate Modul-API, reales Formular-JSON und tatsächliches Zeilendialog-
+  Skript geprüft: StartOnly samt Zahlenvergleich vollständig vorbelegt,
+  Z2M-Validierung/Speicherung und bytegleiches Wiederladen erfolgreich.
+  Neue Bewegungsmelderregel auf ausdrücklichen Anwenderwunsch dauerhaft aktiv;
+  bisherige sieben Regeln und Partnerfreigabe unverändert. Gespeicherter und
+  aktiver Stand identisch, Wiederanlauf armed, kein Laufzeitfehler. Original-
+  ereignisse bleiben aus. Vorbereitungsinstanzen entfernt, eigene Aufzeichnungen
+  beendet, ursprünglicher lokaler Testentwurf unverändert. Der Anwender möchte
+  den realen Sensor-/Lichttest später bei passender Helligkeit durchführen.
+  Kein neuer Schaltversuch oder Neustart in dieser Übernahmephase.
 
 - Agenda Punkt 4 lokal umgesetzt (ADR 0018): Geräte-/Zeit-/Astro-Regeln mit
   Auswahl zum Ignorieren, Neustarten oder Zurücksetzen einer laufenden Wartezeit.

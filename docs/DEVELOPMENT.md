@@ -1,3 +1,54 @@
+## Startbedingungen: Praxis und dauerhafte Übernahme am 03.11.2026
+
+Nach ausdrücklicher Fortsetzung zunächst Modul- und Erweiterungsstände beider
+Installationen geprüft. Testmodul und gemeinsame Z2M-Erweiterung waren aktuell;
+das Produktivmodul erhielt das noch ausstehende Update durch den Anwender.
+Kein Erweiterungsupdate oder Neustart durch den Agenten. Status und lokale
+Entwürfe sowie exakten gespeicherten Inhalt außerhalb des Repositorys gesichert.
+Der ältere lokale Produktiventwurf stimmt bis auf die Revision mit dem aktuellen
+Z2M-Inhalt überein. Keine fachlichen lokalen Änderungen verworfen.
+
+In der getrennten Prüfkopie eine ausgeschaltete Bewegungsmelderregel über die
+Modul-API erstellt und von Z2M ausschließlich validieren lassen. Reales
+Formular-JSON und das tatsächlich hinterlegte Zeilendialog-Skript bestätigen
+Gerät/Eigenschaft, Zahlenvergleich, StartOnly, feste Ein-/Aus-Aktionen und
+verlängerbare Schrittwartezeit. Kein Maus-/Bildschirmtest; kein neuer Nachweis
+physischer Gerätewirkung. Derselbe Aufbau anschließend im Produktivmodul
+ergänzt, nach Anwenderwunsch mit eingeschaltetem Regelschalter. Vor dem
+Speichern strukturell geprüft: Alle sieben bisherigen Regeln einschließlich
+ihrer Aktivierungsschalter und Partnerfreigaben bleiben unverändert.
+
+Korrelierte Z2M-Validierung erfolgreich, geänderten Stand einmal gespeichert
+und automatische Statusbestätigung abgewartet. Danach Automatikbetrieb mit
+gespeicherter Wiederanlaufabsicht aktiviert. Frische Antworten bestätigen
+gespeicherte/aktive Prüfsummengleichheit, acht gespeicherte und zwei
+eingeschaltete Regeln, Mesh bereit, Wiederanlauf armed und keinen Laufzeitfehler.
+Der gespeicherte Regelstand des anderen Z2M-Systems bleibt unverändert aktiv.
+Anschließend neu aus Z2M geladen: YAML bytegleich, neue Regel im Editor
+ausgewählt, Auslöser, Bedingung und beide Aktionsschritte vollständig vorbelegt.
+
+Native Debugausgaben bestätigen lokale Übernahme, eine Startbedingung und die
+beiden Schrittwartezeiten; zeitlich begrenzte MQTT-Aufzeichnung bestätigt.
+Die vom Anwender ausgeschalteten Originalereignisse bleiben aus und bestehen
+weiter. Die gemessene Außenhelligkeit liegt oberhalb der gewünschten Schwelle.
+Der Anwender verschiebt den echten Sensor-/Lichttest bis zur passenden
+Helligkeit. Die neue Regel bleibt dauerhaft aktiv; keine Testereignisse,
+Geräteabfragen oder direkten Schaltbefehle eingespeist. Ihr realer Lauf und
+ein weiterer Neustart wurden in diesem Durchgang nicht geprüft.
+
+Abschluss: Eigene MQTT-Aufzeichnung und native Debugdateien beendet, zwei
+eigene Vorbereitungsinstanzen samt Statusvariablen entfernt. Ursprünglicher
+lokaler Testentwurf bleibt unverändert. Native Abfrageskripte mussten bei
+isolierten Modulklassen und einem Funktionsnamen korrigiert werden; diese
+Fehler der Prüfinstrumentierung haben keine Geräteaktion ausgeführt und sind
+kein nachgewiesener Modulfehler. Kein Funktionscode geändert. Rohdaten und
+Wiederherstellungsinformationen liegen ausschließlich außerhalb des Repositorys.
+
+Nur Praxisnachweis und Projektstand geändert. Kodierungs- und Strukturprüfung,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien sowie PHP CS Fixer im
+Prüfmodus erfolgreich. Unveränderte Offline-Laufzeittests nicht erneut ausgeführt.
+UTF-8 ohne BOM mit LF und git diff --check sauber; kein Commit oder Push.
+
 ## Startbedingungen und ausgeschalteter Bewegungsmelder-Entwurf am 03.11.2026
 
 Nach Anwenderwahl einer Nachlaufzeit einen getrennten, ausgeschalteten

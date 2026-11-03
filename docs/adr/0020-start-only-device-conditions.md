@@ -1,6 +1,6 @@
 # ADR 0020: Gerätebedingungen nur beim Start prüfen
 
-- Status: lokal implementiert; Praxis nach gemeinsamem Modul-/Erweiterungsupdate offen
+- Status: implementiert; Modul-/MQTT-/Speicherpraxis bestätigt, reale Sensor-/Lichtprüfung offen
 - Datum: 03.11.2026
 
 ## Kontext
@@ -41,3 +41,10 @@ abgelehnten Neustart, Einzelstart und gemischte fortlaufende Bedingungen. Die
 PHP-/JavaScript-Integration prüft native Formularserialisierung, Vorbelegung und
 Speicherung einschließlich Geräte- und Zeitbereichen sowie ungültige Flags.
 Produktive Aktivierung und reale Sensormeldungen sind separat abzunehmen.
+
+Nach gemeinsamem Update am selben Tag die Modul-API, reales Formular-JSON und
+das tatsächliche Zeilendialog-Skript geprüft. Auswahl und Vorbelegung einschließlich
+StartOnly korrekt; Empfänger validiert und speichert die neue Regel. Wiederladen
+ist bytegleich, bisherige Regeln unverändert. Dauerhafte Aktivierung einschließlich
+gespeicherter Wiederanlaufabsicht bestätigt. Keine neue Neustart- oder reale
+Sensor-/Lichtprüfung: Der Anwender verschiebt diese bis zur passenden Helligkeit.
