@@ -2,6 +2,11 @@
 
 ## Automationsdesigner
 
+Beim Laden gespeicherter Regeln bestätigt der Debug die vollständige lokale
+Übernahme einschließlich Partnerfreigaben und unverändertem YAML-Text. Er nennt
+nur Regelzahl, Revision und Anzahl der Freigaben. Das Laden synchronisiert keine
+lokale Partnerauswahl und verändert weder Speicherung noch Ausführung in Z2M.
+
 Die Inhaltsprüfung berücksichtigt HTTP_CONTENT_TYPE von Symcon und CONTENT_TYPE
 von üblichen PHP-Testservern. Nur application/json ist erlaubt, einschließlich
 einer optionalen Zeichensatzangabe. Widersprüchliche oder fremde Medientypen

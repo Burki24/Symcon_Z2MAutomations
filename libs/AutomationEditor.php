@@ -230,7 +230,7 @@ trait AutomationEditor
             $this->WriteAttributeString('EditorTarget', '');
             $draft = ['scope'  => $state['scope'], 'session' => $metadata['session'], 'baseRevision' => $metadata['storedRevision'],
                 'baseChecksum' => $metadata['checksum'], 'configuration' => json_decode(json_encode($configuration, JSON_THROW_ON_ERROR), true, 32, JSON_THROW_ON_ERROR)];
-            $this->SaveEditorDraft($draft, $yaml);
+            $this->SaveEditorDraft($draft, $yaml, false);
             $this->SetEditorSelection($this->ReadEditorDraft(), '');
         }
         $state['validation'] = null;
@@ -267,10 +267,12 @@ trait AutomationEditor
             : $this->Translate('Device data has not yet been refreshed for this connection.');
     }
 
-    private function SaveEditorDraft(array $draft, string $yaml): void
+    private function SaveEditorDraft(array $draft, string $yaml, bool $synchronizePeer = true): void
     {
         $peer = $this->PeerContext();
-        if ($peer !== null || array_key_exists('mesh_peers', $draft['configuration'])) {
+        if (!$synchronizePeer) {
+            $this->DebugEvent('AKTION', 'Gespeicherten Z2M-Stand vollständig in den lokalen Entwurf geladen. Regeln, Partnerfreigaben und YAML-Text bleiben unverändert; Z2M wurde nicht verändert.', ['Automationen' => count($draft['configuration']['automations']), 'Revision' => $draft['configuration']['revision'], 'Partnerfreigaben' => count($draft['configuration']['mesh_peers'] ?? [])]);
+        } elseif ($peer !== null || array_key_exists('mesh_peers', $draft['configuration'])) {
             $peers = $peer === null ? [] : [$peer['system']];
             if (($draft['configuration']['mesh_peers'] ?? []) !== $peers) {
                 $draft['configuration']['revision'] = $draft['baseRevision'] + 1;

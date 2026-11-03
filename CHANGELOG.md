@@ -2,6 +2,10 @@
 
 ## Neu
 
+- Gespeicherte Automationen beim Laden vollständig übernehmen, einschließlich
+  Partnerfreigaben, Revision und unverändertem YAML-Text. Ein im Symcon-Modul
+  nicht ausgewählter Partner verändert den geladenen Stand nicht mehr nebenbei.
+
 - JSON-Anfragen bei der Browser-Regelerstellung auch mit Symcons
   `HTTP_CONTENT_TYPE` erkennen. Dadurch wird die Übernahme nicht mehr fälschlich
   mit HTTP 415 abgewiesen. Standardheader, optionale Zeichensatzangabe und

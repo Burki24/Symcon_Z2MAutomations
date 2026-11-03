@@ -35,6 +35,8 @@ Für diese Funktion auch die mitgelieferte Z2M-Erweiterung aktualisieren.
 „Geräte und gespeicherte Automationen laden“ bleibt ein eigener Vorgang:
 Dieser lädt zusätzlich die gespeicherten Regeln und ersetzt nach Bestätigung
 den lokalen Entwurf. Verwenden Sie ihn nicht nur zum Aktualisieren der Geräte.
+Gespeicherte Regeln und Freigaben für ein zweites Z2M-System werden dabei
+unverändert geladen. Der Ladevorgang speichert oder aktiviert nichts in Z2M.
 
 „Automationsdesigner öffnen“ öffnet die übersichtliche Browseransicht
 dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder

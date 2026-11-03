@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Ursprünglichen Testentwurf auf Anwenderauftrag verlustfrei mit gespeichertem
+  Z2M-Stand abgeglichen. Alle bisherigen Regeln identisch enthalten, zusätzliche
+  gespeicherte Regel übernommen; beide Fassungen extern gesichert. Ladepfad
+  korrigiert: Partnerfreigaben und YAML-Bytes bleiben auch ohne lokale
+  Partnerauswahl erhalten. Regression zuerst rot, danach alle Projektprüfungen
+  grün. Nur PHP-Trait auf Test-Symcon aktualisiert; Originalmodul jetzt bytegleich
+  zum gespeicherten Stand, Designerfreigabe bestätigt. Keine Z2M-Speicherung,
+  Aktivierung oder Geräteaktion; Betrieb unverändert, Prüfkopie bereinigt.
+
 - Browser-Regelerstellung auf dem realen Test-Symcon geprüft und einen zuvor
   verdeckten HTTP-415-Fehler korrigiert: HTTP_CONTENT_TYPE von Symcon und der
   Standardheader werden nun streng als JSON geprüft. Nur diese lokale PHP-Datei

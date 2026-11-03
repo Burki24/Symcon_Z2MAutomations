@@ -1,3 +1,32 @@
+## Verlustfreier Testentwurfsabgleich am 03.11.2026
+
+Auf ausdrücklichen Auftrag den bisherigen Testentwurf mit einem getrennt
+gelesenen aktuellen Z2M-Stand verglichen. Alle bisherigen Regeln waren darin
+inhaltlich identisch enthalten; hinzugekommen war eine später gespeicherte
+Regel. Keine lokalen Regelkonflikte oder offenen Formulareingaben. Beide
+Fassungen vor dem Abgleich außerhalb des Repositorys gesichert.
+
+Dabei einen Ladefehler nachgewiesen: Eine fehlende lokale Partnerauswahl
+entfernte beim Einlesen die gespeicherte Partnerfreigabe und erhöhte die lokale
+Revision. Synthetischer Regressionstest schlug vor der Korrektur genau daran
+fehl. SaveEditorDraft synchronisiert Partner jetzt nur bei tatsächlicher
+Entwurfsbearbeitung; der reine Ladepfad erhält YAML-Bytes, Revision und Freigaben.
+Vorhandene Auswahl- und Aktionsrechte bleiben unverändert.
+
+Ausschließlich AutomationEditor.php im Testmodul aktualisiert, ohne Reload
+oder Erweiterungsupdate. Zunächst in temporärer Instanz, dann im ursprünglichen
+Testmodul den exakten YAML-Hash des gespeicherten Z2M-Stands bestätigt. Alle
+Bestandsregeln erhalten, Designerentwurf wieder aktuell und Erstellung erlaubt.
+Native Debugmeldungen bestätigen vollständige lokale Übernahme; ausschließlich
+Editor-/Statusabfragen, keine Speicherung oder Aktivierung. Gespeicherter und
+aktiver Z2M-Hash, Regelschalter und laufender Betrieb unverändert. Temporäre
+Instanz samt Statusvariablen entfernt und eigene Debugdateien beendet.
+
+Alle Projektprüfungen einschließlich 131 JavaScript-Tests, StylePHP,
+php-cs-fixer-Prüfmodus und Kodierungsprüfung bestanden. Keine erneute sichtbare
+Browserbedienung; die Designerfreigabe über GetDesignerData frisch geprüft.
+Der vorherige Vermerk zum noch ungeklärten Testentwurf ist damit erledigt.
+
 ## Symcon-Header und reale Browserabnahme am 03.11.2026
 
 Die Praxisprüfung zeigte HTTP 415 bei einer gültigen JSON-Anfrage: Der native

@@ -2,6 +2,13 @@
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
+Der vollständige Editorabruf übernimmt den gespeicherten YAML-Text samt Revision
+und Partnerfreigaben unverändert. SaveEditorDraft synchronisiert beim reinen
+Laden keine lokale Partnerauswahl. Die bestehende Synchronisierung bei einer
+tatsächlichen lokalen Entwurfsbearbeitung bleibt davon getrennt. Ein zuvor
+fremd gebundener Entwurf wird vor einem beauftragten Abgleich extern gesichert
+und regelweise mit dem gespeicherten Stand verglichen.
+
 Zusätzlich zum lesenden GET-Vertrag gibt es eine feste POST-create-Route
 (ADR 0022). Neue Sitzungen erlauben diese begrenzte Entwurfsergänzung; alte
 Lesezugänge werden nicht aufgewertet. AutomationDesignerCreation prüft
