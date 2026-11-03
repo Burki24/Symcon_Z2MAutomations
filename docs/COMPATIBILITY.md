@@ -38,8 +38,9 @@ Quellen für das Referenzziel:
 Belegt sind einzelne reale Abläufe und die in den Berichten genannten
 Bedien-/Speicherprüfungen. Offen bleiben insbesondere eine breite Geräte- und
 Gruppenauswahl, weitere Z2M-Versionen und die native Symcon-9.0-Abnahme.
-Die erneute Auslösung laufender Regeln wurde bislang im Editor/Speicher und
-offline geprüft; eine reale erneute Geräteauslösung ist noch offen.
+Die drei Varianten der erneuten Auslösung sind zusätzlich mit echten
+Uhrzeitstarts und einer realen Leuchte bestätigt. Wiederholte physische
+Geräteereignisse und weitere Bedingungskombinationen sind separat zu prüfen.
 Ein lokaler gemeinsamer Farbbefehl ist bestätigt, ein zusätzlicher realer
 Mehrfach-Farbbefehl über Mesh nicht. Daraus folgt keine allgemeine
 Geräte- oder Converter-Freigabe.

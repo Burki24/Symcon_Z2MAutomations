@@ -34,8 +34,11 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Nach gemeinsamem Update am 03.11.2026 geprüft: native Zeitregel-Auswahl und
    Übernahme, Prüfung/Speicherung/Wiederladen aller drei Werte, Geräte-Vorbelegung
    und Debug. Testregel ausgeschaltet, anschließend entfernt und ursprünglichen
-   Betrieb wiederhergestellt. Keine reale erneute Auslösung geprüft; Details
-   und Grenzen in ADR 0018 und DEVELOPMENT.md.
+   Betrieb wiederhergestellt. Anschließend alle drei Varianten mit zwei echten
+   Uhrzeitstarts und realer Leuchte geprüft: Ignorieren, neuer Lauf beim Neustart
+   und verlängerte Wartezeit bei gleicher Laufkennung bestätigt. Originalbetrieb
+   wiederhergestellt; erste abweichende Geräterückmeldung und erfolgreiche
+   Nachprüfung in DEVELOPMENT.md dokumentiert. Grenzen in ADR 0018.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle
    und Farben im Klick-Editor. Lokal umgesetzt: bis zu acht Eigenschaften eines
    Geräts als gemeinsamer Schritt, Hinzufügen/Ersetzen/Entfernen, native Farbwahl,

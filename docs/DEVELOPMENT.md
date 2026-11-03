@@ -1,3 +1,61 @@
+## Agenda 4: Reale erneute Auslösung am 03.11.2026
+
+Mit ausdrücklichem Praxisauftrag über Test-Symcon am gemeinsam genutzten
+Z2M-Empfänger geprüft. Keine Erweiterung installiert, kein Neustart und keine
+Rechnerbedienung. Originalentwurf, exakten gespeicherten YAML-Text, Regel- und
+Betriebszustand sowie rohe Lichtwerte außerhalb des Repositorys gesichert.
+Zwei temporäre Module erhalten die vorhandenen Partnerfreigaben; das
+Partnermodul bleibt inaktiv und verändert den anderen Empfänger nicht.
+
+Drei temporäre Regeln werden zusammen mit den unveränderten Originalregeln
+geprüft, gespeichert und aktiviert. Jede Regel startet zu zwei echten UTC-
+Uhrzeiten im Abstand von fünf Sekunden. Aktionen: einschalten, zwölf Sekunden
+warten, ausschalten. Kein Einzelstart und keine künstliche MQTT-Gerätemeldung;
+damit durchlaufen beide Starts die echte Zeit- und Erneuerungsverarbeitung.
+Die Varianten laufen nacheinander. Der Speichervorgang unterbricht den
+Automatikbetrieb kurz; danach läuft die ursprüngliche eingeschaltete Regel mit.
+
+| Variante | Laufzeit- und Debugnachweis | Gerätebeobachtung |
+| --- | --- | --- |
+| Ignorieren | Zweite Auslösung verworfen; kein zweiter Aktionsdurchlauf. Ausschaltübergabe zwölf Sekunden nach dem ersten Start. | Licht zunächst ein und an der ursprünglichen Ausschaltfrist wieder aus. |
+| Neu starten | Alter Lauf während Schrittwartezeit beendet; neuer Lauf wiederholt Schritt 1. Ausschaltübergabe zwölf Sekunden nach der zweiten Auslösung. | An der alten Ausschaltfrist noch ein, nach der neuen Frist aus. |
+| Wartezeit zurücksetzen | Derselbe Lauf und Schritt; genau eine Einschaltübergabe. Wartezeit erneut zwölf Sekunden; Ausschaltübergabe insgesamt 17 Sekunden nach dem ersten Start. | In gezielter Nachprüfung sowohl Gerätedaten als auch Symcon-Variable über die alte Frist hinaus ein, danach aus. |
+
+Statusmeldungen zeigen abgeschlossene Läufe ohne Fehler. Native Debugdatei und
+zeitlich begrenzter MQTT-Debugkanal ordnen Start, Erneuerungsentscheidung,
+Wartezeit und Schritte zu. Die Befehlsannahme wird weiterhin ausdrücklich nicht
+als Gerätebestätigung bezeichnet. Zusätzlich die tatsächlich empfangenen
+Lichtwerte zeitlich erfasst, ohne Variablenwerte künstlich zu setzen.
+
+Erster Verlängerungsversuch: Obwohl die Erweiterung den Ausschaltbefehl erst
+zur verlängerten Frist übergibt, meldet die Lichtvariable bereits vorher Aus.
+Ursache nicht geklärt; nicht als erfolgreicher Geräteversuch gewertet. Zunächst
+Originalbetrieb wiederhergestellt, nur Geräte-/Ereignisdaten auf Produktiv-Symcon
+lesend geprüft und anschließend ausschließlich Verlängern wiederholt. Dort
+bestätigen zeitnahe rohe Geräterückmeldungen und Symcon-Variable den vollständigen
+Ablauf. Keine fremden Ereignisse oder Geräteeinstellungen deaktiviert/geändert.
+Auch bei der Wiederherstellung die Lichtwerte erst nach frischer passender
+Rückmeldung als wiederhergestellt gewertet; eine Versandbestätigung genügt nicht.
+
+Abschluss bestätigt: ursprünglich eingeschaltetes Licht und Helligkeit wieder
+hergestellt; sieben ursprüngliche Regeln mit einer eingeschalteten Regel,
+identische aktive/gespeicherte Prüfsumme, Mesh bereit, Wiederanlauf armed und
+kein Laufzeitfehler. Original-YAML ausschließlich mit fortlaufender Revision
+bytegleich wiederhergestellt; lokaler Originalentwurf bytegleich erhalten.
+Testregeln entfernt, eigene MQTT-/Dateiaufzeichnung beendet und beide temporären
+Module samt Statusvariablen entfernt. Originalereignisse und Gerätezuordnungen
+unverändert. Keine Implementierung, Fremdquellen oder Versionsmetadaten geändert.
+
+Grenzen: reale Gerätewirkung mit erneuten Uhrzeitauslösern, keine wiederholten
+physischen Taster-/Bewegungsmeldungen, Mindestdauer oder zusätzlichen Bedingungen.
+Die erste abweichende Geräterückmeldung bleibt eine offene Beobachtung; die
+erfolgreiche Wiederholung erklärt ihre Ursache nicht.
+
+Nur Dokumentation geändert. Kodierungs- und Strukturprüfung, offizielle
+StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie sowie PHP CS
+Fixer im Prüfmodus erfolgreich. UTF-8 ohne BOM, LF und git diff --check sauber.
+Unveränderte Offline-Laufzeitsuite nicht erneut ausgeführt. Kein Commit/Push.
+
 ## Agenda 6: Bestätigung der korrigierten Spaltenbreite am 03.11.2026
 
 Nach gemeldetem Modulupdate stimmen lokale und hochgeladene form.json im

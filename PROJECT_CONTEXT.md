@@ -31,6 +31,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Ungültiger Wert wird mit betroffener Regel abgewiesen, ohne Speicheränderung.
   Keine Testausführung oder Schaltanforderung. Echte erneute Laufzeitauslösung
   hier nicht geprüft; genaue Nachweise und Grenzen in docs/DEVELOPMENT.md.
+  Im anschließenden ausdrücklich beauftragten Lauf alle drei Varianten mit
+  echten Uhrzeitstarts und realem Licht geprüft. Fünf Sekunden zwischen Starts,
+  zwölf Sekunden Schrittwartezeit: Ignorieren schaltet zur ursprünglichen Frist
+  aus, Neustart wiederholt Schritt 1 in einem neuen Lauf, Zurücksetzen verlängert
+  nur die Wartezeit im bestehenden Lauf. Eine erste abweichende Rückmeldung bei
+  Zurücksetzen ist ungeklärt; gezielte Nachprüfung mit Gerätedaten erfolgreich.
+  Testregeln/Prüfmodule entfernt, Originalregeln und lokale Bearbeitung erhalten,
+  ursprünglicher Lichtzustand und Betrieb samt Mesh/Wiederanlauf bestätigt.
 
 - Agenda Punkt 3 lokal implementiert (ADR 0017): Klick-Editor mit einer bis acht
   verschiedenen Uhrzeiten in gemeinsamer Zeitzone. Bestehende einzelne und
@@ -495,8 +503,9 @@ sie persistent und führt sie unabhängig von Symcon aus.
 1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
    Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
    Grenzen. Punkt 4 ist lokal umgesetzt; Editor-/Speicherprüfung am 03.11.2026
-   ohne Testausführung abgeschlossen. Reale erneute Auslösung bleibt als eigener
-   Praxisauftrag möglich. Punkt 5 ist lokal umgesetzt: gemeinsame Gerätebefehle
+   ohne Testausführung abgeschlossen. Danach reale erneute Uhrzeitauslösung
+   mit Geräteaktion für alle drei Varianten bestätigt; Grenzen und erste
+   abweichende Rückmeldung samt Nachprüfung in DEVELOPMENT.md. Punkt 5 ist lokal umgesetzt: gemeinsame Gerätebefehle
    und native Farben, Vorbelegung, aktuelle Schaltrechte und gemeinsame Nutzung
    in Folgen/über Systemgrenzen. Nach Update am 03.11.2026 native Erstellung und
    Bearbeitung samt RGB-Farbwahl in Test-Symcon 9.1 bestätigt. Prüfung, Speicherung,

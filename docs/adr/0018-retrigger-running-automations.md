@@ -1,7 +1,7 @@
 # ADR 0018: Erneute Auslösung einer laufenden Automation
 
-Status: lokal umgesetzt; Editor-/Speicherpraxis am 03.11.2026 bestätigt.
-Reale erneute Laufzeitauslösung in diesem Auftrag nicht geprüft.
+Status: umgesetzt; Editor-/Speicherpraxis und reale erneute Uhrzeitauslösung
+mit Geräteaktion am 03.11.2026 bestätigt.
 Datum: 03.11.2026
 
 ## Entscheidung
@@ -62,4 +62,13 @@ Kopie und atomare Ablehnung. Die PHP-/JavaScript-Speicherintegration prüft
 Erstellen, Prüfen, Speichern, Wiederladen und geänderte Auswahl. Deterministische
 Laufzeittests prüfen Timerfristen, getrennte Läufe, Bedingungen, Sperrzeit,
 laufende Übergaben, Stopp und Fehler. Grenzen und frische Gesamtprüfungen stehen
-in DEVELOPMENT.md. Kein Zugriff auf Test-/Live-System und keine Geräteaktion.
+in DEVELOPMENT.md. Die ursprüngliche Implementierungsprüfung erfolgte ohne
+Systemzugriff oder Geräteaktion. Anschließend nach ausdrücklichem Praxisauftrag
+alle drei Varianten über echte Uhrzeitauslöser an einer Leuchte geprüft:
+Ignorieren behält die Ausschaltfrist, Neustart erzeugt einen neuen Lauf und
+wiederholt Schritt 1, Verlängern erneuert die Wartezeit bei gleicher Laufkennung.
+Geräterückmeldungen bestätigen die erwarteten Zeitpunkte; für Verlängern war
+wegen einer ersten abweichenden Rückmeldung eine gezielte Nachprüfung nötig.
+Originalbetrieb und Lichtzustand wiederhergestellt. Wiederholte physische
+Geräteereignisse und Mindestdauer-/Bedingungskombinationen waren nicht Teil
+dieses realen Laufs.
