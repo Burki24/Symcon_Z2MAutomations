@@ -1,3 +1,57 @@
+## Agenda 4: Frühe Aus-Meldung und isolierte Nachprüfung am 03.11.2026
+
+Zunächst ausdrücklich nur lesend untersucht: gesicherte Testbeobachtungen,
+Archivwerte, bestehende Debugdateien sowie native Ereignis-/Aktionsmetadaten
+auf Test- und Produktiv-Symcon abgeglichen. Kein Geräte-GET, Schaltbefehl,
+Aufzeichnungsstart oder Konfigurationsauftrag in dieser Diagnosephase.
+Das Archiv bestätigt Aus etwa sechs Sekunden nach dem ersten Start; der
+MQTT-Debug der eigenen Erweiterung enthält die Ausschaltübergabe erst bei
+Sekunde 17. Die vorhandenen Geräte-/Gateway-Debugdateien decken diesen
+Zeitraum nicht ab. Eine historische Sensor- oder Senderaufzeichnung für
+den fraglichen Wechsel steht nicht zur Verfügung.
+
+Der Anwender weist auf die zusätzliche Bewegungsmeldersteuerung hin und
+deaktiviert sie selbst. Lesend gefunden: Zwei native Ereignisse am selben
+Licht reagieren auf Anwesenheit wahr beziehungsweise falsch. Beide verwenden
+die native Aktion Toggle Value für die Statusvariable des Eltern-Geräts;
+der positive Zweig besitzt zusätzlich eine Helligkeitsbedingung. Ziel und
+Aktion wurden anhand der verschachtelten nativen Aktionsmetadaten geprüft,
+nicht aus Namen geraten. Die frühere Suche ausschließlich nach expliziten
+Ziel-IDs erfasste diesen aus dem Eltern-Gerät abgeleiteten Zielpfad nicht.
+Damit ist ein konkurrierender Schaltweg belegt: Eine passende Sensormeldung
+kann ein bereits eingeschaltetes Testlicht ausschalten. Der konkrete
+historische Auftrag ist ohne passendes Senderprotokoll nicht bewiesen.
+
+Nach ausdrücklicher erneuter Testfreigabe durch den Anwender eine isolierte
+Verlängerungsprüfung durchgeführt. Aktuellen Originalentwurf, gespeicherten
+Regelstand und Lichtzustand neu gesichert. Beide Bewegungsmelder-Ereignisse
+vorher und nachher als ausgeschaltet gelesen; nicht durch den Agenten geändert.
+Eine temporäre Regel startet zu zwei echten Uhrzeiten mit fünf Sekunden Abstand:
+einschalten, zwölf Sekunden warten, ausschalten. Native Debugmeldungen zeigen
+dieselbe Laufkennung und nur eine Einschaltübergabe. Nach der zweiten Auslösung
+werden volle zwölf Sekunden abgewartet. Gerätedaten und Symcon-Variable bleiben
+über die alte Ausschaltfrist hinaus Ein und melden erst nach der verlängerten
+Frist Aus. Regellauf abgeschlossen, kein Laufzeitfehler.
+
+Die Bewegungsmeldersteuerung ist damit die wahrscheinlichste Erklärung für die
+erste Abweichung. Ein einzelner erfolgreicher isolierter Lauf beweist jedoch
+nicht rückwirkend den Verursacher der früheren Meldung; kein nachgewiesener
+Erweiterungsfehler. Das Umschalten in beiden Sensorzweigen ist insbesondere
+bei parallelen manuellen oder automatischen Befehlen zustandsabhängig.
+
+Abschluss: Testregel und temporäre Module entfernt, eigene Aufzeichnungen
+beendet, Original-YAML nur mit fortlaufender Revision wiederhergestellt und
+Originalentwurf bytegleich erhalten. Sieben ursprüngliche Regeln, eine
+eingeschaltet, gespeicherte/aktive Prüfsumme identisch, Mesh bereit,
+Wiederanlauf armed und kein Laufzeitfehler. Lichtzustand und Helligkeit
+entsprechen dem neu gesicherten Ausgangsstand. Die vom Anwender ausgeschaltete
+Bewegungsmeldersteuerung bleibt ausgeschaltet. Keine Implementierung geändert.
+
+Nur Diagnose-/Praxisnachweis dokumentiert. Kodierungs- und Strukturprüfung,
+offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien und PHP CS Fixer im
+Prüfmodus erfolgreich; UTF-8 ohne BOM, LF und git diff --check sauber.
+Unveränderte Offline-Laufzeittests nicht erneut ausgeführt. Kein Commit/Push.
+
 ## Agenda 4: Reale erneute Auslösung am 03.11.2026
 
 Mit ausdrücklichem Praxisauftrag über Test-Symcon am gemeinsam genutzten

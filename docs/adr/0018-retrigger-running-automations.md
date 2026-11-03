@@ -72,3 +72,9 @@ wegen einer ersten abweichenden Rückmeldung eine gezielte Nachprüfung nötig.
 Originalbetrieb und Lichtzustand wiederhergestellt. Wiederholte physische
 Geräteereignisse und Mindestdauer-/Bedingungskombinationen waren nicht Teil
 dieses realen Laufs.
+
+Eine spätere lesende Diagnose belegt einen zusätzlichen Bewegungsmelder-
+Schaltweg mit Umschalten in beiden Sensorzweigen. Nach Deaktivierung durch
+den Anwender bestätigt eine isolierte Verlängerungsprüfung die Gerätewirkung
+erneut. Konkurrenz ist die wahrscheinlichste Erklärung der ersten Abweichung;
+der damalige einzelne Auftrag ist mangels passender Aufzeichnung nicht bewiesen.

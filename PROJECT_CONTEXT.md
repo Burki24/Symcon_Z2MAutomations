@@ -36,9 +36,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
   zwölf Sekunden Schrittwartezeit: Ignorieren schaltet zur ursprünglichen Frist
   aus, Neustart wiederholt Schritt 1 in einem neuen Lauf, Zurücksetzen verlängert
   nur die Wartezeit im bestehenden Lauf. Eine erste abweichende Rückmeldung bei
-  Zurücksetzen ist ungeklärt; gezielte Nachprüfung mit Gerätedaten erfolgreich.
+  Zurücksetzen führte zur Diagnose einer konkurrierenden Bewegungsmeldersteuerung:
+  Beide Sensorzweige schalten dasselbe Licht um. Nach Deaktivierung durch den
+  Anwender isolierte Nachprüfung erfolgreich. Diese Konkurrenz ist die
+  wahrscheinlichste Ursache; der konkrete historische Auftrag ist nicht belegt.
   Testregeln/Prüfmodule entfernt, Originalregeln und lokale Bearbeitung erhalten,
   ursprünglicher Lichtzustand und Betrieb samt Mesh/Wiederanlauf bestätigt.
+  Die vom Anwender ausgeschalteten Bewegungsmelder-Ereignisse bleiben aus.
 
 - Agenda Punkt 3 lokal implementiert (ADR 0017): Klick-Editor mit einer bis acht
   verschiedenen Uhrzeiten in gemeinsamer Zeitzone. Bestehende einzelne und
