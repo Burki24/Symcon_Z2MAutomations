@@ -1,5 +1,21 @@
 # Debug und MQTT-Diagnose
 
+## Gemeinsame Gerätebefehle und Farben
+
+GetEditorItemForm, ConfigureEditorItem, ConfigureSequenceCall und
+ChangeEditorCommand verwenden die vorhandenen zentralen Start-/Ende-Abläufe.
+Feste deutsche Meldungen erklären Vorbelegung, gemeinsame Befehlsauswahl,
+Hinzufügen/Ersetzen/Entfernen, ungültige Werte und die rein lokale Änderung.
+Sie nennen die Anzahl der Eigenschaften und die gebundene Symcon-Variablen-ID.
+Weder Farbcodes noch Werte, kodierte Choice-Inhalte, Geräte- oder Folgennamen
+werden ausgegeben. Jede Übernahme prüft erneut die Schaltrechte aller Werte;
+ein verlorenes Recht verwirft den ganzen Schritt statt eines Teilbefehls.
+
+DebugEditorActionSteps nennt zusätzlich die Eigenschaftsanzahl eines Schritts.
+Die Ausführung bleibt eine einzelne Übergabe über den vorhandenen lokalen oder
+systemübergreifenden Lauf. Regel-/Lauf-/Schrittzuordnung und zeitlich begrenzter
+MQTT-Debugkanal bleiben unverändert; kein automatischer Aufzeichnungsstart.
+
 ## Erneute Auslösung
 
 SaveScheduledAutomation erklärt die übernommene Erneuerungsart mit festen

@@ -37,6 +37,7 @@ require_once __DIR__ . '/../libs/AutomationEditorConditions.php';
 require_once __DIR__ . '/../libs/EditorSymconVariables.php';
 require_once __DIR__ . '/../libs/EditorPropertyCatalog.php';
 require_once __DIR__ . '/../libs/EditorItemForms.php';
+require_once __DIR__ . '/../libs/EditorCommands.php';
 require_once __DIR__ . '/../libs/RemoteAutomationTargets.php';
 
 use Z2MAutomations\Z2MProtocol;
@@ -73,6 +74,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\EditorSymconVariables;
     use Z2MAutomations\EditorPropertyCatalog;
     use Z2MAutomations\EditorItemForms;
+    use Z2MAutomations\EditorCommands;
     use Z2MAutomations\RemoteAutomationTargets;
 
     public function Create(): void

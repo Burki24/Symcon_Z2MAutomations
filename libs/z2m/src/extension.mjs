@@ -169,7 +169,7 @@ export function validateYaml(yaml) {
     return {yaml, document, checksum: hash(yaml)};
 }
 
-// Only discrete exposed values enter the click editor; raw definitions stay in Z2M.
+// Bounded scalar capabilities and recognized writable colors enter the editor; raw definitions stay in Z2M.
 export function buildEditorCatalog(zigbee) {
     const candidates = [];
     let optionCount = 0, devicesSeen = 0;
@@ -186,6 +186,20 @@ export function buildEditorCatalog(zigbee) {
                 if (++visited > 128 || optionCount >= 1024) break;
                 if (!isObject(feature)) continue;
                 const channel = typeof feature.endpoint === 'string' ? feature.endpoint : endpoint;
+                // Composite children belong inside their parent payload, never at /set's top level.
+                if (feature.type === 'composite') {
+                    const members = feature.name === 'color_xy' ? ['x', 'y'] : feature.name === 'color_hs' ? ['hue', 'saturation'] : [];
+                    if (phase === 1 && members.length && typeof feature.property === 'string' && feature.property.length <= 64 && /^color(?:_[A-Za-z0-9_]+)?$/.test(feature.property)
+                        && (feature.access === undefined || (Number.isInteger(feature.access) && feature.access >= 0 && (feature.access & 2) !== 0))
+                        && Array.isArray(feature.features) && feature.features.length === 2
+                        && members.every(key => feature.features.filter(p => p?.property === key && p.type === 'numeric' && Number.isInteger(p.access) && p.access >= 0 && (p.access & 2) !== 0).length === 1)
+                        && properties.length < 64 && !properties.some(p => p.property === feature.property)) {
+                        properties.push({property: feature.property, type: 'color', access: 2, label: 'Color',
+                            endpoint: typeof channel === 'string' && /^[A-Za-z0-9_-]{1,32}$/.test(channel) ? channel : '', values: []});
+                        optionCount++;
+                    }
+                    continue;
+                }
                 walk(feature.features, depth + 1, phase, channel);
                 if (typeof feature.property !== 'string' || !/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(feature.property)
                     || ['constructor', 'prototype', '__proto__'].includes(feature.property)) continue;

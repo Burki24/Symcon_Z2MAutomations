@@ -18,6 +18,10 @@ class SyntheticZ2MDevice extends IPSModuleStrict
         $this->RegisterVariableString('action', 'Synthetic button action', [], 0);
         $this->RegisterVariableInteger('level', 'Synthetic level', [], 0);
         $this->EnableAction('level');
+        $this->RegisterVariableInteger('color', 'Synthetic color', [], 0);
+        $this->EnableAction('color');
+        $this->RegisterVariableInteger('color_temp', 'Synthetic color temperature', [], 0);
+        $this->EnableAction('color_temp');
         $this->RegisterVariableInteger('write_only', 'Synthetic write only', [], 0);
         $this->EnableAction('write_only');
         $this->RegisterVariableBoolean('display_flag', 'Synthetic display only', [], 0);

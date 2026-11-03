@@ -18,6 +18,16 @@ async function meshRequest(node, operation, fields = {}) {
     return node.messages.findLast(message => message.data.transaction === transaction).data;
 }
 
+test('a combined color command crosses the mesh as exactly one native handoff', async () => {
+    const h = await pair();
+    try {
+        const r = remoteRule('set'); r.actions[0].values = {state: 'ON', brightness: 80, color: {hex: '#547CFF'}};
+        await h.a.load([r]); await h.b.load([]); await h.a.trigger();
+        assert.equal(h.a.commands.length, 0); assert.equal(h.b.commands.length, 1);
+        assert.deepEqual(JSON.parse(h.b.commands[0].message), r.actions[0].values);
+    } finally { await h.close(); }
+});
+
 test('retrigger restart awaits a remote result and never replays an unconfirmed mesh action', async () => {
     const h = await pair();
     try {

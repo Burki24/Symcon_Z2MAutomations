@@ -35,7 +35,7 @@ trait AutomationEditorActions
 
     private function BuildEditorActions(string $steps, string &$reason, bool $allowSequences = true): ?array
     {
-        if (strlen($steps) > 8192) {
+        if (strlen($steps) > 65536) {
             return null;
         }
         try {
@@ -70,6 +70,14 @@ trait AutomationEditorActions
                 return null;
             }
             [$device, $key] = $parts;
+            if (str_starts_with($key, 'command.')) {
+                $values = $this->DecodeCommand($snapshot, $device, $key);
+                if ($values === null) {
+                    return null;
+                }
+                $actions[] = ['type' => 'set', 'target' => $this->EditorTargetIdentity($device), 'values' => $values, 'delay_seconds' => $row['Delay']];
+                continue;
+            }
             $choice = $this->FindEditorChoice($snapshot, $device, $key, 'Target');
             if ($choice === null) {
                 return null;
@@ -120,11 +128,19 @@ trait AutomationEditorActions
             }
             $values = $this->EditorActionValues($action);
             if (!in_array($action['type'] ?? '', ['set', 'toggle', 'scene'], true) || !in_array($action['target']['type'] ?? '', ['device', 'group'], true)
-                || count($values) !== 1 || !is_int($action['delay_seconds'] ?? 0)
+                || $values === [] || !is_int($action['delay_seconds'] ?? 0)
                 || ($action['delay_seconds'] ?? 0) < 0 || ($action['delay_seconds'] ?? 0) > 86400) {
                 return null;
             }
             $device = $this->EditorTargetKey($action['target']);
+            if (count($values) > 1) {
+                $key = $action['type'] === 'set' ? $this->CommandChoice($snapshot, $device, $values) : null;
+                if ($key === null) {
+                    return null;
+                }
+                $rows[] = ['Choice' => $device . ':' . $key, 'Delay' => $action['delay_seconds'] ?? 0];
+                continue;
+            }
             $property = array_key_first($values);
             if ($action['type'] === 'set' && ($values[$property] ?? null) === 'TOGGLE'
                 && $this->BuildEditorAction($device, ['property' => $property, 'value' => 'TOGGLE'])['type'] === 'toggle') {
@@ -187,7 +203,7 @@ trait AutomationEditorActions
             $this->DebugEvent(
                 'AKTION',
                 $action['type'] === 'sequence' ? 'Aufruf einer wiederverwendbaren Aktionsfolge vorbereitet; Bedingungen und Stopp gelten für den gesamten Lauf.' : ($action['type'] === 'scene' ? 'Aufruf einer vorhandenen Szene mit Wartezeit vorbereitet.' : 'Aktionsschritt mit Wartezeit vor der Ausführung vorbereitet.'),
-                ['Schritt' => $index + 1, 'VerzögerungSekunden' => $action['delay_seconds'] ?? 0, 'ZweitesSystem' => isset($action['target']['system'])]
+                ['Schritt' => $index + 1, 'VerzögerungSekunden' => $action['delay_seconds'] ?? 0, 'ZweitesSystem' => isset($action['target']['system']), 'Eigenschaften' => count($action['values'] ?? [])]
             );
         }
     }

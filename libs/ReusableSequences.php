@@ -102,12 +102,12 @@ trait ReusableSequences
         });
     }
 
-    public function ConfigureSequenceCall(string $List, string $Kind, string $SequenceID): void
+    public function ConfigureSequenceCall(string $List, string $Kind, string $SequenceID, string $Device = '', string $Choice = ''): void
     {
-        $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($List, $Kind, $SequenceID): void
+        $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($List, $Kind, $SequenceID, $Device, $Choice): void
         {
             $context = $this->EditorItemContext($List);
-            if ($context === null || $context['side'] !== 'Target' || $List === 'SequenceEditorActions' || !$this->CheckEditorArea($context['area']) || !in_array($Kind, ['device', 'sequence'], true)) {
+            if ($context === null || $context['side'] !== 'Target' || ($List === 'SequenceEditorActions' && $Kind === 'sequence') || !$this->CheckEditorArea($context['area']) || !in_array($Kind, ['device', 'sequence', 'combined'], true)) {
                 return;
             }
             $sequence = $Kind === 'sequence';
@@ -115,10 +115,37 @@ trait ReusableSequences
                 $this->UpdateFormField($field, 'visible', !$sequence);
             }
             $this->UpdateFormField('RowNumber', 'visible', false);
+            $this->UpdateFormField('RowColor', 'visible', false);
+            foreach (['RowCommandSummary', 'RowCommandAdd', 'RowCommandRemove', 'RowCommandHelp', 'RowCommandHint'] as $field) {
+                $this->UpdateFormField($field, 'visible', $Kind === 'combined');
+            }
+            $snapshot = $this->EditorSnapshot();
+            $values = [];
+            $parts = explode(':', $Choice);
+            if ($Kind === 'combined' && count($parts) === 2 && $parts[0] === $Device) {
+                $values = $this->DecodeCommand($snapshot, $Device, $parts[1]) ?? [];
+                $single = $this->FindEditorChoice($snapshot, $Device, $parts[1], 'Target');
+                if ($values === [] && $single !== null) {
+                    $values = [$single['property'] => $single['value']];
+                }
+                if ($values !== [] && $this->CommandChoice($snapshot, $Device, $values) === null) {
+                    $values = [];
+                }
+            }
+            $this->UpdateCommandSummary($snapshot, $Device, $values);
+            $this->UpdateFormField('RowProperty', 'options', json_encode($this->EditorItemProperties($snapshot, $Device, 'Target', $Kind === 'combined'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+            $this->UpdateFormField('RowProperty', 'value', '');
+            $this->UpdateFormField('RowValue', 'value', '');
+            $this->UpdateFormField('RowValue', 'options', json_encode($this->EditorItemValues($snapshot, $Device, null, 'Target'), JSON_THROW_ON_ERROR));
             $this->UpdateFormField('RowSequence', 'visible', $sequence);
             $this->UpdateFormField('RowSequence', 'options', json_encode($this->ReusableOptions(true), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             $valid = $sequence && $this->ReusableSequenceAllowed($SequenceID);
-            $this->UpdateFormField('Choice', 'value', $valid ? 'sequence:' . $SequenceID : '');
+            $commandKey = $values === [] ? null : $this->CommandChoice($snapshot, $Device, $values);
+            $encoded = $valid ? 'sequence:' . $SequenceID : ($commandKey === null ? '' : $Device . ':' . $commandKey);
+            $this->UpdateFormField('Choice', 'value', $encoded);
+            if ($encoded !== '') {
+                $this->RememberEditorListChoices('Target', [['Choice' => $encoded]], 'pending');
+            }
             $this->UpdateEditorField($List, 'columns', json_encode($this->EditorActionColumns($this->EditorSnapshot()), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             $this->DebugEvent('AKTION', 'Aktionsart im Schrittdialog gewählt; enthaltene Schaltrechte erneut geprüft.', ['WiederverwendbareFolge' => $sequence, 'FolgeVerfügbar' => $valid]);
         });

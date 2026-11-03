@@ -49,6 +49,16 @@ class EditorWorkProbe extends Z2MAutomations
     {
         return (json_decode($this->GetBuffer('TransportState'), true)['workflow'] ?? null) !== null;
     }
+    public function SeedCommandProperties(): void
+    {
+        $snapshot = json_decode($this->ReadAttributeString('EditorSnapshot'), true);
+        $properties = &$snapshot['devices']['0x0000000000000001']['properties'];
+        $properties['level'] = ['property' => 'level', 'type' => 'numeric', 'access' => 2, 'label' => 'Level', 'endpoint' => '', 'values' => [], 'minimum' => 0, 'maximum' => 100, 'step' => 5];
+        $properties['color'] = ['property' => 'color', 'type' => 'color', 'access' => 2, 'label' => 'Color', 'endpoint' => '', 'values' => []];
+        $properties['color_temp'] = ['property' => 'color_temp', 'type' => 'numeric', 'access' => 2, 'label' => 'Color temperature', 'endpoint' => '', 'values' => [], 'minimum' => 150, 'maximum' => 500];
+        $properties['temperature'] = ['property' => 'temperature', 'type' => 'numeric', 'access' => 3, 'label' => 'Read-only Symcon variable', 'endpoint' => '', 'values' => []];
+        $this->WriteAttributeString('EditorSnapshot', json_encode($snapshot, JSON_THROW_ON_ERROR));
+    }
     public function UpdateFormField(string $Field, string $Parameter, mixed $Value): bool
     {
         $this->updates[$Field][$Parameter] = $Value;
@@ -120,6 +130,10 @@ if (defined('Z2MA_CALENDAR_TEST')) {
 }
 if (defined('Z2MA_RETRIGGER_TEST')) {
     require __DIR__ . '/editor-retrigger.inc.php';
+    exit;
+}
+if (defined('Z2MA_COMMAND_TEST')) {
+    require __DIR__ . '/editor-commands.inc.php';
     exit;
 }
 $standalone = 'function Z2MA_NavigateEditor($id, $kind, $area, $target, $draft, $input) { echo $input; } '

@@ -571,7 +571,17 @@
             "Start again from the first action": "Aktionsfolge von vorn beginnen",
             "Reset the current waiting time": "Laufende Wartezeit zurücksetzen",
             "Restart begins again at the first action. Extend resets only the current waiting time; completed actions are not repeated. With no waiting time, the new trigger is ignored.": "Von vorn beginnen wiederholt die Folge ab der ersten Aktion. Wartezeit zurücksetzen startet nur die aktuelle Wartezeit erneut; erledigte Aktionen werden nicht wiederholt. Ohne laufende Wartezeit wird die neue Auslösung ignoriert.",
-            "Choose Ignore, Restart or Extend waiting time for repeated triggers.": "Bitte wählen Sie, was bei erneuter Auslösung passieren soll: ignorieren, von vorn beginnen oder die laufende Wartezeit zurücksetzen."
+            "Choose Ignore, Restart or Extend waiting time for repeated triggers.": "Bitte wählen Sie, was bei erneuter Auslösung passieren soll: ignorieren, von vorn beginnen oder die laufende Wartezeit zurücksetzen.",
+            "Several properties in one command": "Mehrere Eigenschaften gemeinsam setzen",
+            "Choose a property and value, then add or replace it. Only the properties in the list are sent together. To remove one, select its property and use Remove.": "Eigenschaft und Wert auswählen, dann hinzufügen oder ersetzen. Nur die Angaben in der Liste werden gemeinsam gesendet. Zum Entfernen die Eigenschaft auswählen und „Entfernen“ anklicken.",
+            "Add or replace property": "Eigenschaft hinzufügen oder ersetzen",
+            "Remove selected property": "Ausgewählte Eigenschaft entfernen",
+            "Command updated locally. Only the listed properties are included.": "Angaben lokal übernommen. Nur die aufgelisteten Eigenschaften gehören zu diesem Befehl.",
+            "Property not applied. Choose a permitted value; use up to 8 properties and either color or color temperature per channel.": "Eigenschaft nicht übernommen. Bitte einen zulässigen Wert wählen. Höchstens acht Eigenschaften; je Kanal entweder Farbe oder Farbtemperatur.",
+            "Properties included in this command (up to 8)": "Eigenschaften in diesem Befehl (höchstens 8)",
+            "Property type": "Art der Eigenschaft",
+            "Color": "Farbe",
+            "Set %s properties together": "%s Eigenschaften gemeinsam setzen"
         }
     }
 }

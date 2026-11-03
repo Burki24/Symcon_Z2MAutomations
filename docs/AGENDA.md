@@ -37,7 +37,12 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    Betrieb wiederhergestellt. Keine reale erneute Auslösung geprüft; Details
    und Grenzen in ADR 0018 und DEVELOPMENT.md.
 5. **Weitere Aktionen ohne YAML erstellen.** Zusammengesetzte Gerätebefehle
-   und Farben im Klick-Editor. Geplant.
+   und Farben im Klick-Editor. Lokal umgesetzt: bis zu acht Eigenschaften eines
+   Geräts als gemeinsamer Schritt, Hinzufügen/Ersetzen/Entfernen, native Farbwahl,
+   sichere Vorbelegung und aktuelle Symcon-Schaltrechte. Wiederverwendbare Folgen
+   und entfernte Geräte verwenden denselben Pfad. Nur synthetisch geprüft;
+   native Bedienung und geeignete Geräte bleiben als Praxisauftrag offen.
+   Umfang und Grenzen in ADR 0019 und DEVELOPMENT.md.
 6. **Abschluss und Dokumentation.** Benutzerführung und Dokumentation bereinigen,
    unterstützte Z2M-Versionen mit tatsächlichen Nachweisen benennen. Geplant.
 

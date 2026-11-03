@@ -2,6 +2,16 @@
 
 ## Neu
 
+- Gemeinsame Gerätebefehle im Klick-Editor: bis zu acht schaltbare Eigenschaften
+  eines Geräts in einem Schritt hinzufügen, ersetzen und entfernen. Vorbelegung
+  zeigt alle enthaltenen Werte; Farbleuchten erhalten eine native Farbauswahl.
+  Schaltrechte, Zahlenbereiche, Schrittweiten und Farbtemperatur-Konflikte werden
+  erneut geprüft. Funktioniert auch in wiederverwendbaren Folgen und mit Zielen
+  im zweiten System. Unbekannte Composite-Kinder werden nicht mehr fälschlich
+  als einzelne Schaltwerte angeboten. Verständliche deutsche Debug-Ausgaben
+  ohne Nutzwerte. Modul und Erweiterung aktualisieren und Gerätedaten neu laden.
+  Lokal mit synthetischen Daten geprüft; keine laufende Installation verändert.
+
 - Verhalten bei erneuter Auslösung im Klick-Editor: neue Auslösung ignorieren,
   die Aktionsfolge von vorn beginnen oder die laufende Wartezeit zurücksetzen.
   Vorbelegung, geschützte Formulareingaben, Kopieren, Prüfung und Speicherung

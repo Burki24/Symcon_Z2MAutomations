@@ -790,6 +790,7 @@ try {
     require __DIR__ . '/rule-execution.inc.php';
     require __DIR__ . '/reusable-sequences.inc.php';
     require __DIR__ . '/editor-calendar-integration.inc.php';
+    require __DIR__ . '/editor-commands-integration.inc.php';
     $stack = [];
     $observed = array_fill_keys(['ActivateAutomations', 'StopAutomations', 'CreateSimpleAutomation', 'FEHLER'], false);
     foreach ($module->debugMessages as [$category, $body]) {

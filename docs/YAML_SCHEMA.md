@@ -1,5 +1,29 @@
 # Automationsschema Version 1
 
+## Mehrere Eigenschaften und Farben im Klick-Editor
+
+Der vorhandene set.values-Vertrag erlaubt bereits mehrere Eigenschaften und
+verschachtelte Werte. Der Klick-Editor erzeugt daraus einen einzigen set-Schritt,
+zum Beispiel den synthetischen Wertblock:
+
+```yaml
+values:
+  state: ON
+  brightness: 80
+  color:
+    hex: '#547CFF'
+```
+
+Der Editor prüft jede Eigenschaft gegen den begrenzten Z2M-Katalog und die
+aktuellen Symcon-Schaltrechte. Seine Grenzen: höchstens acht Eigenschaften,
+maximal 1200 UTF-8-Bytes kanonischer Werte-JSON und entweder Farbe oder
+Farbtemperatur pro Kanal. Er unterstützt hex-Farben schreibbarer color_xy/
+color_hs-Exposes; andere Farbobjekte bleiben in der erweiterten Bearbeitung
+erhalten. Szenen und binäres TOGGLE werden als eigene Aktionen bearbeitet.
+Dies sind Editorgrenzen, keine neue Schemafassung. Vorhandene Runtime,
+Persistenz und Mesh reichen den vollständigen Werteblock einmal weiter;
+es gibt keine physische Atomaritätsgarantie für die Geräteumsetzung.
+
 ## Aktionen im zweiten System
 
 Optionales Dokumentfeld `mesh_peers`: bis zu acht eindeutige Basistopics,

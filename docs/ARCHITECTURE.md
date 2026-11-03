@@ -1,5 +1,24 @@
 # Architektur
 
+## Gemeinsame Gerätebefehle und native Farbauswahl
+
+EditorCommands ergänzt die bestehende Aktionszeile um eine begrenzte,
+kanonische Zusammenstellung von bis zu acht Eigenschaften. Das native Formular
+verwendet weiterhin Choice/Delay und speichert einen einzigen set-Schritt mit
+mehreren values. Geräteeigenschaften bleiben an die tatsächlichen Symcon-
+Variablen-IDs und deren aktuelle Schaltrechte gebunden, auch beim Partnerexport.
+Erweiterte oder nicht vollständig erlaubte Befehle werden nie teilweise in eine
+vereinfachte Zeile umgewandelt. Alte Einzelwertaufrufe dürfen solche Schritte
+nicht verkürzen. Wiederverwendbare Folgen nutzen denselben Pfad.
+
+Der Z2M-Katalog erkennt gezielt schreibbare color_xy/color_hs-Composites und
+exportiert deren Elterneigenschaft als Farbmetadatum. Kinder von Composites
+werden nicht als eigenständige MQTT-Eigenschaften angeboten. Native SelectColor-
+Ganzzahlen werden als verschachteltes hex-Objekt übertragen; keine eigene
+Farbraumumrechnung. Schema, Runtime und Mesh transportieren bereits solche
+Objekte und bleiben unverändert. Details und Grenzen in
+[ADR 0019](adr/0019-combined-device-commands-and-colors.md).
+
 ## Erneute Auslösung
 
 Die optionale Regelangabe retrigger wird im bestehenden Schedule-Optionsvertrag

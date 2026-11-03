@@ -16,7 +16,8 @@ trait EditorPropertyCatalog
             foreach ($device->properties as $p) {
                 if (!is_object($p) || !is_string($p->property ?? null) || preg_match('/\A[A-Za-z][A-Za-z0-9_]{0,63}\z/D', $p->property) !== 1
                     || in_array($p->property, ['constructor', 'prototype', '__proto__'], true) || isset($properties[$p->property])
-                    || !in_array($p->type ?? '', ['binary', 'enum', 'numeric'], true) || !is_int($p->access ?? null) || $p->access < 1 || $p->access > 3
+                    || !in_array($p->type ?? '', ['binary', 'enum', 'numeric', 'color'], true) || !is_int($p->access ?? null) || $p->access < 1 || $p->access > 3
+                    || (($p->type ?? '') === 'color' && ($p->access !== 2 || preg_match('/\Acolor(?:_[A-Za-z0-9_]+)?\z/D', $p->property) !== 1 || ($p->values ?? []) !== []))
                     || !is_string($p->label ?? null) || strlen($p->label) > 320 || preg_match('/[\x00-\x1f\x7f]/', $p->label)
                     || !is_string($p->endpoint ?? null) || ($p->endpoint !== '' && preg_match('/\A[A-Za-z0-9_-]{1,32}\z/D', $p->endpoint) !== 1)
                     || !is_array($p->values ?? null) || count($p->values) > 32) {
@@ -102,6 +103,10 @@ trait EditorPropertyCatalog
         $meta = $this->EditorProperties($snapshot, $device, $side)[$property] ?? null;
         if ($meta === null) {
             return false;
+        }
+        if ($meta['type'] === 'color') {
+            return $side === 'Target' && is_array($value) && array_keys($value) === ['hex'] && is_string($value['hex'])
+                && preg_match('/\A#[A-Fa-f0-9]{6}\z/D', $value['hex']) === 1;
         }
         if ($meta['type'] !== 'numeric') {
             return in_array($value, $meta['values'], true);

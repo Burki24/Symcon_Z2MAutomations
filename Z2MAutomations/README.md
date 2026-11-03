@@ -1,5 +1,47 @@
 # Z2MAutomations
 
+## Mehrere Eigenschaften gemeinsam setzen und Farben auswählen
+
+Ein Aktionsschritt kann mehrere Eigenschaften **desselben Geräts** gemeinsam
+setzen, zum Beispiel Einschalten, Helligkeit und Farbe. Wählen Sie im
+Schrittdialog **Mehrere Eigenschaften gemeinsam setzen** und das Gerät.
+Wählen Sie dann jeweils eine Eigenschaft bzw. einen Kanal und den gewünschten
+Wert. Mit **Eigenschaft hinzufügen oder ersetzen** nehmen Sie diesen Wert in
+die darunter angezeigte Zusammenstellung auf. Wiederholen Sie das für weitere
+Eigenschaften. Die Zusammenstellung zeigt, was tatsächlich übernommen wird;
+das bloße Ändern eines Wertefelds verändert sie noch nicht.
+
+Zum Ändern wählen Sie eine bereits enthaltene Eigenschaft: Ihr bisheriger Wert
+wird vorbelegt. Ändern Sie ihn und klicken Sie erneut auf **Eigenschaft hinzufügen
+oder ersetzen**. Mit **Ausgewählte Eigenschaft entfernen** entfernen Sie genau
+diese Eigenschaft. Bestätigen Sie anschließend den Schrittdialog und übernehmen
+Sie die Automation in den Entwurf. Danach wie gewohnt prüfen und in Z2M speichern.
+Die Wartezeit gilt vor dem gesamten Schritt. Der gemeinsame Befehl wird einmal
+an Z2M übergeben; daraus folgt keine Garantie, dass das Gerät alle Eigenschaften
+physisch gleichzeitig ändert.
+
+Bei geeigneten Farbleuchten erscheint für **Farbe** die native Farbauswahl.
+Sie können auch einen eigenen Schritt nur für die Farbe verwenden. Es werden
+nur Eigenschaften angeboten, die Z2M zum Schreiben bereitstellt und für die
+in Symcon eine schaltbare Variable vorhanden ist. Reine Anzeigevariablen
+bleiben für Aktionen ausgeschlossen. Fehlt eine Farbeigenschaft, laden Sie
+nach dem Erweiterungsupdate die Gerätedaten erneut. Das Gerät und sein
+Symcon-Modul müssen diese Farbeigenschaft unterstützen.
+
+Ein gemeinsamer Schritt enthält höchstens acht Eigenschaften. Farbe und
+Farbtemperatur desselben Kanals gehören in getrennte Schritte. **Umschalten**
+und Szenenaufrufe bleiben eigene Aktionen. Die Funktion steht auch in
+wiederverwendbaren Aktionsfolgen und für Geräte des ausgewählten zweiten
+Z2M-Systems zur Verfügung. Gruppen erhalten keine zusätzlich angenommenen
+Farbfähigkeiten; bei ihnen werden weiterhin nur die bekannten Eigenschaften
+angeboten. Komplexere, im Editor nicht vollständig darstellbare YAML-Befehle
+bleiben erhalten und können dort nur umbenannt oder ein-/ausgeschaltet werden.
+
+Für die Farbauswahl sind **Modul- und Erweiterungsupdate** sowie das erneute
+Laden der Gerätedaten nötig. Die Umsetzung ist zunächst lokal geprüft;
+die Bedienung in einer echten Konsole und konkrete Farbleuchten sind noch
+praktisch zu prüfen.
+
 ## Wenn eine laufende Automation erneut ausgelöst wird
 
 Unter **Wenn die laufende Automation erneut ausgelöst wird** wählen Sie:

@@ -1,3 +1,66 @@
+## Agenda 5: Gemeinsame Gerätebefehle und Farben
+
+Lokal am 03.11.2026 gemäß ADR 0019 implementiert. Vorhandene ConfigurationForm-
+und DebugFlow-Helper sowie Geräte-/Partnerrechte und der bisherige Aktionspfad
+geprüft. Fachlogik bleibt in EditorCommands; zentrale Quellen unverändert.
+Der native Dialog ergänzt den Modus „Mehrere Eigenschaften gemeinsam setzen“.
+Explizites Hinzufügen/Ersetzen/Entfernen bearbeitet eine begrenzte Zusammenstellung;
+ein Schritt erzeugt genau einen set-Befehl. Bestehende Aktionen und Folgen werden
+vollständig vorbelegt. Unbekannte oder nicht vollständig erlaubte Mehrfachwerte
+bleiben in der erweiterten Metadatenbearbeitung erhalten. Alte Einzelwertaufrufe
+können mehrere Eigenschaften nicht stillschweigend verkürzen.
+
+Die Erweiterung liest schreibbare color_xy/color_hs-Composites als Elternwerte.
+Ein zuerst roter Katalogtest zeigte die bisherige falsche Verflachung von x/y,
+hue/saturation und unbekannten Composite-Kindern. Nach Korrektur bleiben diese
+Kinder intern. Native SelectColor-Ganzzahlen werden als verschachteltes hex-
+Objekt weitergegeben. Keine eigene Farbkonvertierung, kein neuer Schema- oder
+Runtime-Vertrag. Farbtemperatur und Farbe desselben Kanals, Szenen im gemeinsamen
+Befehl und binäres TOGGLE werden abgewiesen; Gruppeneigenschaften nicht erfunden.
+
+Fokussierte PHP-Prüfung führt echte native Dialogcallbacks mit synthetischen
+Variablen aus: Erstellen, Vorbelegung, numerischen Wert ersetzen, Farbe entfernen,
+letzte Eigenschaft entfernen, Einzelfarbe und Wechsel von Einzel- zu Mehrfachwert.
+Sie prüft Anzeigevariablen, Schrittweiten, Zahlen-/Farbgrenzen, nicht unterstützte
+Strukturen, zu große Kodierungen und nachträglich entzogene Schaltrechte. Eine
+wiederverwendbare Definition lädt die exakte Farbe erneut. Zwei Gateways mit
+gleicher synthetischer IEEE und verschiedenen Topics prüfen die tatsächliche
+Partner-Variablen-ID, native Übernahme, Vorbelegung und vollständige Ablehnung
+bei Verlust eines einzelnen Schaltrechts. Debug enthält weder Choice noch
+Farbcodes oder Namen. Der Großkatalog bleibt bei 611.982 Bytes unter 750 KiB.
+Ein zusätzlicher Belastungstest fand zu lange wiederholte Beschreibungen bei
+16 gemeinsamen Befehlen. Kompakte Zeilen nennen jetzt Gerät und Anzahl; der
+Dialog zeigt weiterhin jede Eigenschaft mit Wert. Der 16-Zeilen-Test benötigt
+760.976 Bytes und bleibt unter dem bisherigen 750-KiB-Normalbudget. Ein weiterer
+Test mit 16 Befehlen nahe der erlaubten 1200-Byte-Wertegrenze belegt 850.064
+Bytes unter einem eigenen 900-KiB-Sicherheitsbudget. Dieses nutzt reservierten
+Spielraum für größere Werte und lässt mindestens 124 KiB Abstand zur bekannten
+1-MiB-Ausgabebegrenzung; das bisherige Normalbudget wurde nicht erhöht.
+
+Die vollständige PHP-/JavaScript-Integration ergänzt Erstellung, Validierung,
+Speicherung und Wiederladen eines ausgeschalteten Farbbefehls mit drei Werten;
+anschließendes Entfernen erhält die vorherigen synthetischen Regeln. Zusätzliche
+Runtime-/Mesh-Prüfungen betrachten die vollständige Übergabe als einen Schritt
+mit unveränderten typisierten Werten und einmaliger Verzögerung.
+
+Ein vollständiger Prüflauf fand den fehlenden neuen Kontext in alten Auslöser-/
+Bedingungs-Callbacks. Diese liefern jetzt ebenfalls sämtliche Argumente, damit
+die nativen Symcon-Wrapper nicht an fehlenden optionalen PHP-Parametern scheitern.
+Die Szenenregression verwendet nun ebenfalls den echten Wrapper statt einer
+lokalen Ersatzclosure. Kein MCP-, Bildschirm- oder Installationszugriff und
+keine echten Gerätebefehle. Native Bedienung (einschließlich Breite/Scrollen),
+Symcon 9.0 und tatsächliche Farbconverter bleiben praktisch zu prüfen.
+
+Abschlussnachweis: php tests/run.php erfolgreich, einschließlich der echten
+synthetischen PHP-/JavaScript-Speicherintegration und 124 JavaScript-Tests.
+Die abschließenden Kataloggrenzen (Propertylänge und nichtnegative Zugriffsbits)
+sowie Farb-/Schaltrechte wurden zusätzlich gezielt erneut geprüft. Struktur,
+zentrale Kodierungsprüfung, aktuelles generiertes Artefakt, offizielle StylePHP-
+Prüfung von 15 eigenen JSON-Dateien und PHP CS Fixer 3.95.27 im Prüfmodus
+bestehen. Neue/geänderte Texte sind UTF-8 ohne BOM mit LF; git diff --check
+sauber. Fremdquellen, zentrale Helper und Versionsmetadaten unverändert;
+kein Commit oder Push.
+
 ## Agenda Punkt 4: Erneute Auslösung einer laufenden Automation
 
 Lokal am 03.11.2026 umgesetzt gemäß ADR 0018. Vorhandene ConfigurationFormHelper-

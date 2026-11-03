@@ -496,8 +496,12 @@ sie persistent und führt sie unabhängig von Symcon aus.
    Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
    Grenzen. Punkt 4 ist lokal umgesetzt; Editor-/Speicherprüfung am 03.11.2026
    ohne Testausführung abgeschlossen. Reale erneute Auslösung bleibt als eigener
-   Praxisauftrag möglich. Nächste Implementierung ist Punkt 5: zusammengesetzte
-   Befehle und Farben im Klick-Editor.
+   Praxisauftrag möglich. Punkt 5 ist lokal umgesetzt: gemeinsame Gerätebefehle
+   und native Farben, Vorbelegung, aktuelle Schaltrechte und gemeinsame Nutzung
+   in Folgen/über Systemgrenzen. Vor einer praktischen Prüfung Modul und
+   Erweiterung aktualisieren und Gerätedaten neu laden. Kein Zugriff auf laufende
+   Installationen für diese Implementierung; native Bedienung und konkrete
+   Farbleuchten noch offen. Nächster Agendapunkt: Abschluss und Dokumentation.
 2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
    einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
 

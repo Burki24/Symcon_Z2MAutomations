@@ -81,7 +81,7 @@ trait AutomationEditorSchedule
                         return $this->RejectEditorChange($state, 'editor_times');
                     }
                 }
-                if ($rule !== null && count($rule['actions']) > 1 && $ActionSteps === '') {
+                if ($rule !== null && $ActionSteps === '' && (count($rule['actions']) > 1 || count(array_filter($rule['actions'], static fn (array $a): bool => count($a['values'] ?? []) > 1)) > 0)) {
                     return $this->RejectEditorChange($state, 'editor_actions');
                 }
                 if ($rule !== null && count(array_filter($rule['conditions'], static fn (array $c): bool => $c['type'] === 'device_value')) > 1 && $ConditionSteps === '') {
@@ -372,7 +372,7 @@ trait AutomationEditorSchedule
             return null;
         }
         $values = $this->EditorActionValues($a);
-        if (!in_array($a['type'], ['set', 'toggle', 'scene'], true) || !in_array($a['target']['type'], ['device', 'group'], true) || count($values) !== 1) {
+        if (!in_array($a['type'], ['set', 'toggle', 'scene'], true) || !in_array($a['target']['type'], ['device', 'group'], true) || $values === []) {
             return null;
         }
         $property = array_key_first($values);

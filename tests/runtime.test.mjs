@@ -13,6 +13,18 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
+test('a delayed composite set with RGB color is handed off once with every typed property intact', async () => {
+    const h = await harness();
+    try {
+        const r = rule(); r.actions[0].values = {state: 'ON', brightness: 80, color: {hex: '#547CFF'}};
+        r.actions[0].delay_seconds = 2;
+        await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true});
+        assert.equal(h.commands.length, 0); await h.clock.advance(2000);
+        assert.equal(h.commands.length, 1); assert.deepEqual(h.commands[0].data, r.actions[0].values);
+        assert.equal(h.extension.status().execution.runs[0].step, 1);
+    } finally { await h.close(); }
+});
+
 test('retrigger policies validate strictly while missing policy keeps ignore semantics', () => {
     for (const retrigger of ['ignore', 'restart', 'extend']) assert.doesNotThrow(() => validateYaml(yaml([{...rule(), retrigger}])));
     for (const retrigger of ['', 'parallel', null, true, 1, {}]) assert.throws(() => validateYaml(yaml([{...rule(), retrigger}])));

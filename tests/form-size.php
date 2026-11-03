@@ -86,4 +86,41 @@ if (strlen(json_encode($largeSelectedForm, JSON_THROW_ON_ERROR)) >= 750 * 1024) 
 if (!str_contains($largeSelectedForm, $actionRows[15]['Choice'])) {
     throw new RuntimeException('Changing another row must preserve existing selected display values.');
 }
+$compoundRows = [];
+for ($n = 0; $n < 16; $n++) {
+    $values = array_fill_keys(array_keys($devices[$firstDevice]['properties']), 'Synthetic value ' . $n);
+    ksort($values);
+    $compoundRows[] = ['Choice' => $firstDevice . ':command.' . rtrim(strtr(base64_encode(json_encode($values)), '+/', '-_'), '='), 'Delay' => $n];
+}
+if (!$module->InspectEditorActions(json_encode($compoundRows), 'edit')) {
+    throw new RuntimeException('Sixteen complete multi-property rows must remain editable.');
+}
+$compoundForm = $module->GetConfigurationForm();
+$compoundBytes = strlen(json_encode($compoundForm, JSON_THROW_ON_ERROR));
+if ($compoundBytes >= 750 * 1024 || !str_contains($compoundForm, $compoundRows[15]['Choice'])) {
+    throw new RuntimeException('Multi-property selections must retain their options within the native form budget: ' . $compoundBytes . ' bytes; final option present: ' . (str_contains($compoundForm, $compoundRows[15]['Choice']) ? 'yes' : 'no'));
+}
 echo 'Large-catalog native form budget passed: ' . $wireBytes . " bytes.\n";
+echo 'Sixteen multi-property rows within native form budget: ' . $compoundBytes . " bytes.\n";
+$largeValues = array_map(static fn (int $n): string => str_repeat('x', 277) . $n, range(0, 15));
+foreach ($devices[$firstDevice]['properties'] as &$property) {
+    $property['values'] = array_merge($property['values'], $largeValues);
+}
+unset($property);
+$module->SetSyntheticCatalog($devices);
+$compoundRows = [];
+foreach ($largeValues as $n => $value) {
+    $values = array_fill_keys(array_keys($devices[$firstDevice]['properties']), $value);
+    ksort($values);
+    $compoundRows[] = ['Choice' => $firstDevice . ':command.' . rtrim(strtr(base64_encode(json_encode($values)), '+/', '-_'), '='), 'Delay' => $n];
+}
+if (!$module->InspectEditorActions(json_encode($compoundRows), 'edit')) {
+    throw new RuntimeException('Large but permitted command values must remain editable.');
+}
+$maximumCommandBytes = strlen(json_encode($module->GetConfigurationForm(), JSON_THROW_ON_ERROR));
+// The baseline retains its 750 KiB budget. Near-limit command bodies use reserved
+// headroom but must still leave at least 124 KiB below Symcon's 1 MiB output cap.
+if ($maximumCommandBytes >= 900 * 1024) {
+    throw new RuntimeException('Large complete commands exceed the native output safety budget: ' . $maximumCommandBytes . ' bytes.');
+}
+echo 'Near-limit multi-property values below 900 KiB safety budget: ' . $maximumCommandBytes . " bytes.\n";

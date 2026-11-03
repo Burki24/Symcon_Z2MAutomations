@@ -10,6 +10,27 @@ import Extension, {validateYaml, LIMITS, buildEditorCatalog, buildEditorGroups} 
 const emptyYaml = revision => `schema_version: 1\nrevision: ${revision}\nautomations: []\n`;
 const fixtureYaml = await readFile(new URL('../libs/z2m/examples/automations.yaml', import.meta.url), 'utf8');
 
+test('color capabilities stay nested, writable and bounded instead of exporting composite children as commands', () => {
+    const [device] = buildEditorCatalog({devicesIterator: () => [{ieeeAddr: '0x0000000000000009', name: 'Synthetic RGB', isDevice: () => true,
+        exposes: () => [{type: 'light', endpoint: 'rgb', features: [
+            {type: 'composite', name: 'color_xy', property: 'color_rgb', features: [
+                {type: 'numeric', property: 'x', access: 7}, {type: 'numeric', property: 'y', access: 7}]},
+            {type: 'composite', name: 'color_hs', property: 'color_rgb', features: [
+                {type: 'numeric', property: 'hue', access: 7}, {type: 'numeric', property: 'saturation', access: 7}]},
+            {type: 'composite', name: 'color_xy', property: 'color_' + 'x'.repeat(59), features: [
+                {type: 'numeric', property: 'x', access: 7}, {type: 'numeric', property: 'y', access: 7}]},
+            {type: 'composite', name: 'color_xy', property: 'color_invalid_access', access: -1, features: [
+                {type: 'numeric', property: 'x', access: 7}, {type: 'numeric', property: 'y', access: 7}]},
+            {type: 'composite', property: 'unrecognised', access: 3, features: [{type: 'numeric', property: 'nested_secret', access: 3}]}
+        ]}]}]});
+    assert.deepEqual(device.properties, [{property: 'color_rgb', type: 'color', access: 2, label: 'Color', endpoint: 'rgb', values: []}]);
+    assert.deepEqual(device.numeric, []); assert.deepEqual(device.triggers, []); assert.deepEqual(device.actions, []);
+    const [readOnly] = buildEditorCatalog({devicesIterator: () => [{ieeeAddr: '0x000000000000000a', name: 'Synthetic sensor', isDevice: () => true,
+        exposes: () => [{type: 'numeric', property: 'temperature', access: 1}, {type: 'composite', name: 'color_xy', property: 'color', access: 1,
+            features: [{type: 'numeric', property: 'x', access: 1}, {type: 'numeric', property: 'y', access: 1}]}]}]});
+    assert.equal(readOnly.properties.some(p => p.type === 'color'), false);
+});
+
 test('click editor reserves basic state choices for later devices before filling special options', () => {
     const devices = Array.from({length: 12}, (_, i) => ({ieeeAddr: '0x' + (i + 1).toString(16).padStart(16, '0'), name: 'Synthetic rich device', isDevice: () => true,
         exposes: () => Array.from({length: 8}, (_, n) => ({property: 'special_' + n, type: 'enum', access: 7, values: Array.from({length: 32}, (_, v) => 'option_' + v)}))}));
