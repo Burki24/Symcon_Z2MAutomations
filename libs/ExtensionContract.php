@@ -97,13 +97,14 @@ final class ExtensionContract
             }
             $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
         }
-        return $storage + $runtime + $mesh + $resume + ['build'            => $data->extension_build ?? null, 'sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
+        return $storage + $runtime + $mesh + $resume + ['build'            => $data->extension_build ?? null, 'catalogVersion' => ($data->catalog_version ?? null) === 1 ? 1 : 0, 'sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
             'session'                                                      => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
     }
 
     public static function ErrorText(string $code): string
     {
         return match ($code) {
+            'catalog_unavailable'   => 'Update the bundled extension before refreshing device data separately. Your draft remains unchanged.',
             'sequence_invalid'      => 'Check the action sequence name and its 1 to 16 steps. At most 32 sequences are allowed.',
             'sequence_missing'      => 'The selected action sequence is missing or contains actions without switching permission.',
             'sequence_nested'       => 'An action sequence can contain device actions and scenes, but no other action sequence.',

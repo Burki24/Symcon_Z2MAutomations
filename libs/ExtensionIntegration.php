@@ -444,8 +444,12 @@ trait ExtensionIntegration
                 }
                 return $this->ExtensionFrame($state, $workflow['kind'], $command);
             }
-            if ($workflow['kind'] === 'editor') {
-                return $this->ExtensionFrame($state, 'editor');
+            if (in_array($workflow['kind'], ['editor', 'catalog'], true)) {
+                if ($workflow['kind'] === 'catalog' && $metadata['catalogVersion'] !== 1) {
+                    $this->FinishExtensionWorkflow($state, 'error', 'catalog_unavailable');
+                    return null;
+                }
+                return $this->ExtensionFrame($state, $workflow['kind']);
             }
             if ($workflow['kind'] === 'status' || $workflow['kind'] === 'install') {
                 if ($receipt !== null && !$this->ReceiptMatches($receipt, $metadata)) {
@@ -502,8 +506,8 @@ trait ExtensionIntegration
             $state['workflow']['verifyRuntime'] = true;
             return $this->ExtensionFrame($state, 'status');
         }
-        if ($workflow['wire'] === 'editor') {
-            $this->ReceiveEditorData($state, $payload->data, $workflow['target']);
+        if (in_array($workflow['wire'], ['editor', 'catalog'], true)) {
+            $this->ReceiveEditorData($state, $payload->data, $workflow['target'], $workflow['wire'] === 'catalog');
             return null;
         }
         if ($workflow['wire'] === 'validate') {
@@ -735,6 +739,7 @@ trait ExtensionIntegration
             'run_stopped'        => 'The selected run was stopped. Other automations are unchanged.',
             'runs_ready'         => 'Individual run status refreshed.',
             'editor_loaded'      => 'Devices and stored automations loaded. Choose source and target.',
+            'catalog_loaded'     => 'Device data refreshed. Drafts and open inputs are unchanged. Refresh the browser view to see the new device data.',
             'draft_created'      => 'Automation added to the draft. Validate, store and activate it next.',
             'rule_selected'      => 'Automation selected. Changes affect the local draft only.',
             'draft_copied'       => 'A disabled copy was added to the draft and opened for editing. Z2M is unchanged.',

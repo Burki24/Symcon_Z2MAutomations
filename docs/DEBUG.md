@@ -2,6 +2,12 @@
 
 ## Lesender Automationsdesigner
 
+RefreshDeviceCatalog protokolliert den reinen Geräteabruf, korrelierte Phasen,
+Erfolg mit Geräte-/Gruppen-/Szenenzahlen sowie Ablehnungen. Meldungen erklären,
+dass Entwürfe, offene Eingaben und Betrieb erhalten bleiben. Der erfolgreiche
+Zeitstempel wird erst mit dem vollständig geprüften Katalog gespeichert;
+Fehler aktualisieren ihn nicht. Keine Gerätenamen oder Nutzdaten im Debug.
+
 OpenAutomationDesigner, GetDesignerData und ProcessHookData verwenden den
 bestehenden DebugFlowHelper mit Start und Ende. Deutsche Ablaufmeldungen
 erklären den befristeten Lesezugang, Mengen vorhandener Geräte/Regeln/Folgen,

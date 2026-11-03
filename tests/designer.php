@@ -25,8 +25,8 @@ class DesignerProbe extends Z2MAutomations
         $properties['action'] = array_replace($properties['action'], ['type' => 'enum', 'access' => 1, 'values' => ['single']]);
         $choices = [hash('sha256', 'choice') => ['property' => 'state', 'value' => 'ON']];
         $device = '0x0000000000000001';
-        $snapshot = ['scope' => $state['scope'], 'devices' => [$device => ['name' => 'Synthetic lamp <script>', 'triggers' => $choices, 'actions' => $choices,
-            'numeric'                                                             => [], 'properties' => $properties]], 'groups' => []];
+        $snapshot = ['scope' => $state['scope'], 'loadedAt' => $this->clock - 60, 'devices' => [$device => ['name' => 'Synthetic lamp <script>', 'triggers' => $choices, 'actions' => $choices,
+            'numeric'                                                                                              => [], 'properties' => $properties]], 'groups' => []];
         $configuration = ['schema_version' => 1, 'revision' => 4, 'automations' => [
             ['id'          => 'synthetic_device', 'name' => 'Synthetic motion rule', 'enabled' => false,
                 'triggers' => [['type' => 'device', 'device' => $device, 'property' => 'action', 'operator' => 'eq', 'value' => 'single']], 'conditions' => [],
@@ -114,6 +114,7 @@ $before = $module->Fingerprint();
 $check($module->EarlyReceive() === '' && $module->Fingerprint() === $before, 'Queued MQTT before property initialization cannot touch configuration or transport');
 $data = json_decode($module->GetDesignerData(), true);
 $check($data['contractVersion'] === 1 && $data['mode'] === 'read' && $data['draftAvailable'] && $data['catalogAvailable'], 'Read-only contract uses scoped existing caches');
+$check($data['catalogLoadedAt'] === $module->clock - 60, 'Catalog time is the last successful MQTT refresh, not the browser read time');
 $check(count($data['configuration']['automations']) === 2 && count($data['configuration']['sequences']) === 1 && $data['configuration']['automations'][0]['actions'][0]['delay_seconds'] === 5, 'Existing definitions and delay survive export');
 $check($data['openFormEdits'] && !str_contains(json_encode($data), 'not-exported'), 'Pending native input is flagged but not exported or overwritten');
 $properties = array_column($data['devices'][0]['properties'], null, 'id');
@@ -146,7 +147,7 @@ $changedScope = json_decode($module->GetDesignerData(), true);
 $check($changedScope['module']['baseTopic'] === 'synthetic/z2m', 'Pending configuration is not mistaken for applied gateway scope');
 IPS_ApplyChanges($id);
 $applied = json_decode($module->GetDesignerData(), true);
-$check(!$applied['draftAvailable'] && !$applied['catalogAvailable'] && $module->Hook('data', 'GET', $links[4])[0] === 403, 'ApplyChanges invalidates old-topic caches and sessions');
+$check(!$applied['draftAvailable'] && !$applied['catalogAvailable'] && $applied['catalogLoadedAt'] === null && $module->Hook('data', 'GET', $links[4])[0] === 403, 'ApplyChanges invalidates old-topic caches, their timestamps and sessions');
 $module->hookAvailable = false;
 $check($module->OpenAutomationDesigner() === '', 'Failed hook registration returns no broken URL');
 $debug = implode("\n", $module->debug);

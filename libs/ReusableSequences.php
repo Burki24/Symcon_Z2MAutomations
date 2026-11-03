@@ -180,7 +180,7 @@ trait ReusableSequences
     private function ReusableOptions(bool $callsOnly = false): array
     {
         $options = [['caption' => $this->Translate($callsOnly ? 'Choose a reusable action sequence' : 'Create a new action sequence'), 'value' => '']];
-        foreach ($this->ReadEditorDraft()['configuration']['sequences'] ?? [] as $sequence) {
+        foreach ($this->ReadEditorDraft(true)['configuration']['sequences'] ?? [] as $sequence) {
             if (!$callsOnly || $this->ReusableSequenceAllowed($sequence['id'])) {
                 $options[] = ['caption' => $sequence['name'], 'value' => $sequence['id']];
             }
@@ -195,7 +195,7 @@ trait ReusableSequences
 
     private function ReusableFormUpdates(): array
     {
-        $draft = $this->ReadEditorDraft();
+        $draft = $this->ReadEditorDraft(true);
         $selected = $this->ReusableSelection();
         $id = ($selected['checksum'] ?? '') === ($draft['draftChecksum'] ?? null) ? ($selected['id'] ?? '') : '';
         $sequence = $id === '' ? null : $this->ReusableSequence($id);

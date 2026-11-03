@@ -53,6 +53,35 @@ class ObservedAutomationModule extends Z2MAutomations
     {
         return json_decode($this->GetBuffer('RuntimeDebug') ?: '[]', true, 16, JSON_THROW_ON_ERROR);
     }
+
+    public function CatalogProtectedState(): array
+    {
+        $values = [];
+        foreach (['YamlDraft', 'EditorDraft', 'EditorSource', 'EditorTarget', 'EditorSelection', 'ExecutionRule', 'SequenceSelection', 'EditorCondition', 'EditorConditionProperty', 'EditorModes'] as $name) {
+            $values[$name] = $this->ReadAttributeString($name);
+        }
+        foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation', 'RuntimeDebug'] as $name) {
+            $values[$name] = $this->GetBuffer($name);
+        }
+        return $values;
+    }
+
+    public function CatalogSnapshot(): string
+    {
+        return $this->ReadAttributeString('EditorSnapshot');
+    }
+
+    public function ReplaceCatalogDraft(string $text): void
+    {
+        $this->WriteAttributeString('EditorDraft', $text);
+    }
+
+    public function RestoreCatalogWork(array $values): void
+    {
+        foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation', 'RuntimeDebug'] as $name) {
+            $this->SetBuffer($name, $values[$name]);
+        }
+    }
     public function ClearSyntheticImportCatalog(): void
     {
         $this->WriteAttributeString('EditorSnapshot', '');
@@ -216,6 +245,7 @@ try {
     $check(!empty($fields['InstallButton']['confirm']) && !empty($fields['StoreButton']['confirm']), 'Mutating form actions require explicit confirmation');
     $check($module->RequestExtensionStatus() !== '' && $state()['operation']['status'] === 'status_received', 'Explicit receiver refresh works');
     $check($module->LoadAutomationEditor() !== '' && $state()['operation']['status'] === 'editor_loaded', 'Editor loads real receiver catalog and stored configuration');
+    require __DIR__ . '/catalog-refresh.inc.php';
     $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
     $topNames = array_column(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'], 'name');
     $check(!in_array('EditorDetails', $topNames, true) && isset($fields['DeviceEditorName'], $fields['TimeEditorName']), 'Each trigger section owns its editing fields without a shared top-level editor');

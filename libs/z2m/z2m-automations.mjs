@@ -1,5 +1,5 @@
 // Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.
-export const EXTENSION_BUILD = '0a07ddc3b4bb2226045906e661d190a4f6bd966dde89df4f186771029b3e1301';
+export const EXTENSION_BUILD = '4d6cda17434819e331927b17515470f9d7f427a192f9b874b28e671228e00722';
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -1346,7 +1346,7 @@ export default class Z2MAutomationsExtension {
     }
 
     status() {
-        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', extension_build: EXTENSION_BUILD, debug_version: 1,
+        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', extension_build: EXTENSION_BUILD, debug_version: 1, catalog_version: 1,
             resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),
@@ -1545,7 +1545,7 @@ export default class Z2MAutomationsExtension {
             }
             return;
         }
-        if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor', 'run_once', 'stop_rule'].includes(operation)) return;
+        if (!['validate', 'store', 'get', 'status', 'activate', 'deactivate', 'editor', 'catalog', 'run_once', 'stop_rule'].includes(operation)) return;
         this.runtime.log('START', 'Erweiterungsauftrag empfangen.', {Auftrag: operation});
         try { await this.handleRequest(operation, event); }
         finally { this.runtime.log('ENDE', 'Erweiterungsauftrag beendet; Ergebnis siehe Antwort.', {Auftrag: operation}); }
@@ -1616,11 +1616,12 @@ export default class Z2MAutomationsExtension {
                     }
                     data = this.executionStatus();
                 }
-                if (operation === 'editor') {
+                if (operation === 'editor' || operation === 'catalog') {
                     const devices = buildEditorCatalog(this.zigbee), groups = buildEditorGroups(this.zigbee);
                     const scenes = buildEditorScenes(this.zigbee, devices, groups);
-                    data = {...this.status(), editor_version: 1, devices, groups, scenes, yaml: this.store.current?.yaml ?? null,
-                        configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}};
+                    data = {...this.status(), devices, groups, scenes, ...(operation === 'catalog' ? {} : {
+                        editor_version: 1, yaml: this.store.current?.yaml ?? null,
+                        configuration: this.store.current?.document ?? {schema_version: 1, revision: 0, automations: []}})};
                     this.runtime.log('AKTION', 'Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet.', {Szenen: scenes.length});
                 }
                 if (operation === 'validate') {

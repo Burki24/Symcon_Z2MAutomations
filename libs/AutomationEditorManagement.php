@@ -101,10 +101,11 @@ trait AutomationEditorManagement
         }));
     }
 
-    private function ReadEditorDraft(): ?array
+    private function ReadEditorDraft(bool $currentScopeOnly = false): ?array
     {
         $text = $this->ReadAttributeString('EditorDraft');
-        return $text === '' ? null : json_decode($text, true, 32, JSON_THROW_ON_ERROR);
+        $draft = $text === '' ? null : json_decode($text, true, 32, JSON_THROW_ON_ERROR);
+        return $currentScopeOnly && ($draft['scope'] ?? '') !== $this->TransportScope() ? null : $draft;
     }
 
     private function EditorContextError(array $state, ?array $draft, string $currentDraft, bool $checkDraft, bool $requireReceiver = true): string

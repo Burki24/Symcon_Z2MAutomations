@@ -62,6 +62,14 @@ Regelnamen, Werte, Nutzdaten oder Zugangslinks.
 
 ## Folgen und Grenzen
 
+Ergänzung: Der native Modulbutton RefreshDeviceCatalog verwendet inzwischen
+eine getrennte status/catalog-Abfrage ohne Entwurfsübernahme. Dies erweitert
+den GET-Browserzugang nicht: „Ansicht aktualisieren“ liest weiterhin nur Caches.
+Die neue optionale Antwortangabe catalogLoadedAt bezeichnet den erfolgreichen
+Katalogabruf dieses Moduls, nicht die letzte Browseranzeige oder Messwerterfassung.
+Damit kann auch bei einem unpassenden alten Entwurf der Katalog gefahrlos
+erneuert werden. Partnerdaten werden im jeweils zuständigen Modul aktualisiert.
+
 - Kein zweiter Regel- oder YAML-Speicher, keine neue Z2M-Operation und keine
   Laufzeitänderung. Ein Modulupdate genügt; kein Erweiterungsupdate erforderlich.
 - Die erste lesende HTML-Oberfläche ist deutsch. Eine vollständige lokalisierte

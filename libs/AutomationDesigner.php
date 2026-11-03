@@ -128,7 +128,7 @@ trait AutomationDesigner
         }
         $data = ['contractVersion' => 1, 'mode' => 'read', 'module' => ['id' => $this->InstanceID, 'name' => IPS_GetName($this->InstanceID),
             'baseTopic'                                                      => $this->ReadPropertyString('BaseTopic'), 'gateway' => $this->GetParentID()], 'readAt' => $this->Now(),
-            'catalogAvailable' => $snapshot !== [], 'draftAvailable' => $configuration !== null,
+            'catalogAvailable' => $snapshot !== [], 'catalogLoadedAt' => $snapshot['loadedAt'] ?? null, 'draftAvailable' => $configuration !== null,
             'draftMismatch'    => $draft !== null && !$draftCurrent, 'openFormEdits' => $openFormEdits, 'configuration' => $configuration, 'devices' => $devices,
             'status'           => ['confirmed' => ($state['runtimeConfirmed'] ?? false) === true, 'mqttConnected' => ($state['mqttConnected'] ?? false) === true,
                 'executing'                    => ($extension['executing'] ?? false) === true, 'storedRevision' => $extension['storedRevision'] ?? 0,

@@ -1,3 +1,36 @@
+## Automationsdesigner: getrennter Geräteabruf am 03.11.2026
+
+RefreshDeviceCatalog verwendet den bestehenden Workflow mit status/catalog.
+Die eigene Erweiterung liefert nur Katalog und Status; der gemeinsame Parser
+übernimmt erst den vollständig geprüften Snapshot mit erfolgreicher Abrufzeit.
+Keine Entwurfs- oder Laufzeitübernahme und keine Erweiterung des GET-Zugangs.
+Der alte editor-Abruf bleibt als bewusstes Laden gespeicherter Regeln erhalten.
+Passende zentrale Helper geprüft: DebugFlowHelper, ConfigurationFormHelper,
+VisualizationAssetHelper und HttpResponseHelper werden unverändert verwendet;
+der Z2M-Katalogvertrag bleibt fachlich lokal.
+
+Synthetische Nachweise über PHP, natives MQTT-Envelope und erzeugtes Artefakt:
+reiner Abruf ohne store/activate/deactivate; bytegleiche Entwürfe, Auswahl,
+EditorWork-Puffer und Aufzeichnungsfrist; erhaltene detaillierte Prüfungsfehler;
+fehlerhafte Antwort erhält alten Katalog samt Zeitstempel; ältere Erweiterung
+meldet Updatebedarf. Auch ein fremder alter Entwurf verhindert den Abruf nicht
+und wird danach weder im Browser noch in der nativen Regelübersicht als aktuell
+ausgegeben. JavaScript prüft die unveränderte aktivierte Laufzeit zusätzlich.
+
+Lokale Browser-Sichtprüfung mit ausschließlich synthetischen Daten: Zeitstempel,
+Auswahl nach „Ansicht aktualisieren“, fehlender Entwurf und Scrollen durch 50
+Geräte geprüft. Temporären Prüftab und Server anschließend geschlossen; die
+bestehende Offline-Vorschau auf Port 7405 bleibt erhalten. Keine MCP-Installation,
+kein Erweiterungsupdate und keine Geräteaktion in Test oder Produktion. Der
+neue native Abrufbutton und reale MQTT-Debugausgaben sind nach dem gemeinsamen
+Modul-/Erweiterungsupdate noch praktisch abzunehmen.
+
+Abschlussprüfungen: php tests/run.php einschließlich PHP-/JavaScript-Integration
+und 128 JavaScript-Tests erfolgreich. Struktur, zentrale Kodierungsprüfung,
+offizielle StylePHP-Prüfung für 15 eigene JSON-Dateien, php-cs-fixer im Prüfmodus
+(0/79), Extension-Buildabgleich sowie UTF-8 ohne BOM/LF und git diff --check
+erfolgreich. Keine eingebundenen Fremdquellen geändert.
+
 ## Automationsdesigner: lesende Anbindung am 03.11.2026
 
 Den bestätigten Entwurf als ersten Integrationsschritt an vorhandene Moduldaten

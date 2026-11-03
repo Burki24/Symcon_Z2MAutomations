@@ -8,6 +8,12 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Getrennter Geräteabruf lokal ergänzt: RefreshDeviceCatalog fragt status/catalog
+  korreliert ab, übernimmt nur geprüfte Geräte/Gruppen/Szenen und loadedAt.
+  Native Eingaben, Entwürfe und Laufzeit bleiben erhalten. Neuer Modulbutton,
+  Zeitstempel im lesenden Designer, Updatehinweis bei älterer Erweiterung.
+  Modul und Erweiterung dafür gemeinsam aktualisieren; Praxisprüfung offen.
+
 - Designer Schritt 1 lesend angebunden (ADR 0021): Formularbutton öffnet den
   instanzbezogenen Browserzugang. Vorhandene Regeln/Folgen und Katalogdaten aus
   passendem TransportScope, keine MQTT-/Speicher-/Geräteaktion. Kurzlebige,

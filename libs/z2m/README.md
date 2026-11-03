@@ -1,5 +1,12 @@
 # Eigene Zigbee2MQTT-Erweiterung
 
+Der reine Geräteabruf `request/catalog` liefert Status, `catalog_version: 1`
+sowie den begrenzten Geräte-, Gruppen- und Szenenkatalog. Er enthält weder
+YAML noch gespeicherte Regeln und verändert weder Speicher noch Laufzeit.
+Der Modulbutton „Nur Gerätedaten aktualisieren“ nutzt diesen Abruf nach einer
+korrelierten Statusprüfung. `request/editor` lädt weiterhin zusätzlich den
+gespeicherten Regelstand; beide verwenden dieselbe Katalogerzeugung.
+
 Die optionale Regelangabe `retrigger` steuert erneute Auslösungen während einer
 laufenden Folge: ignorieren, serialisiert von vorn beginnen oder nur die aktuelle
 Wartezeit zurücksetzen. Laufende Übergaben werden abgewartet; unsichere Ergebnisse

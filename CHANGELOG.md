@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Gerätedaten getrennt von gespeicherten Automationen aktualisieren: Der neue
+  Modulbutton liest Geräte, Kanäle, Gruppen und Szenen aus Z2M, ohne Entwürfe,
+  offene Formulareingaben oder den Automatikbetrieb zu ersetzen. Native Anzeige
+  und Browserdesigner nennen die letzte erfolgreiche Geräteaktualisierung.
+  Aktionsrechte werden weiterhin anhand der Symcon-Variablen geprüft. Dafür
+  müssen Modul und mitgelieferte Z2M-Erweiterung aktualisiert werden.
+
 - Erster lesender Automationsdesigner aus dem Modul: vorhandene Regeln,
   Aktionsfolgen, Geräte, Kanäle und Szenen im Browser ansehen. Bedingungen,
   Wartezeiten und systemübergreifende Ziele werden mit den vorhandenen Daten

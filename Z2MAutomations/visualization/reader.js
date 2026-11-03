@@ -217,7 +217,11 @@
             $('#runtime-status').textContent = data.status.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision}` : 'Betrieb noch nicht bestätigt';
             $('#draft-status').className = 'status-chip';
             const notices = [`${data.module.name} · Topic ${data.module.baseTopic} · Stand aus dem Modul, keine Live-Prüfung.`];
-            if (!data.catalogAvailable) notices.push('Gerätedaten fehlen für diese Verbindung. Im nativen Modul prüfen; hier werden keine Daten nachgeladen oder Entwürfe ersetzt.');
+            const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
+                ? new Date(data.catalogLoadedAt * 1000).toLocaleString('de-DE') : null;
+            notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
+            if (!data.catalogAvailable) notices.push('Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
+            if (!data.draftAvailable && !data.draftMismatch) notices.push('Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
             if (data.draftMismatch) notices.push('Der YAML-Entwurf weicht vom geladenen Editorstand ab. Bitte im nativen Formular prüfen; hier wird nichts ersetzt.');
             if (data.openFormEdits) notices.push('Im nativen Formular gibt es noch nicht in den Entwurf übernommene Eingaben. Diese sind hier noch nicht enthalten und bleiben erhalten.');
             $('#issues').hidden = data.catalogAvailable && data.draftAvailable && !data.openFormEdits;

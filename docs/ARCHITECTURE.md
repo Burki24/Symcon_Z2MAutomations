@@ -2,6 +2,18 @@
 
 ## Lesende Anbindung des Automationsdesigners
 
+Ein getrennter nativer RefreshDeviceCatalog-Aufruf nutzt die korrelierte
+status/catalog-Workflowkette. catalog liefert denselben begrenzten Geräte-,
+Gruppen- und Szenenkatalog wie editor, aber keine YAML und keine Konfiguration.
+Der gemeinsam geprüfte Parser schreibt erst nach vollständiger Validierung
+EditorSnapshot samt loadedAt. Kein SaveEditorDraft, kein Zurücksetzen von
+EditorWork, Auswahl oder Prüfungsdetails. catalog_version im Status verhindert
+Anfragen an ältere Erweiterungen. Der GET-Browservertrag bleibt lesend;
+catalogLoadedAt bezeichnet den letzten erfolgreichen Katalogabruf dieses Moduls.
+Native Regel- und Folgenübersichten zeigen nach einem reinen Geräteabruf keinen
+erhaltenen Entwurf einer anderen Verbindung als aktuell an; dessen Bytes und
+ursprüngliche Eingabepuffer bleiben erhalten.
+
 AutomationDesigner ergänzt OpenAutomationDesigner/GetDesignerData und einen
 flüchtigen, instanzbezogenen GET-WebHook. Der Designer zeigt nur bereits
 vorhandene, zum aktuellen TransportScope passende Editor-/Katalogdaten.

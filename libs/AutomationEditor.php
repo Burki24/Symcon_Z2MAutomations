@@ -23,6 +23,15 @@ trait AutomationEditor
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->StartExtensionWorkflow('editor'));
     }
 
+    public function RefreshDeviceCatalog(): string
+    {
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): string
+        {
+            $this->DebugEvent('AKTION', 'Nur Gerätedaten aus Z2M anfordern; Entwürfe, offene Eingaben und laufende Automationen bleiben erhalten.');
+            return $this->StartExtensionWorkflow('catalog');
+        });
+    }
+
     public function SelectEditorDevice(string $Side, string $Device, string $Area = ''): void
     {
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Side, $Device, $Area): void
@@ -113,15 +122,15 @@ trait AutomationEditor
         });
     }
 
-    private function ReceiveEditorData(array &$state, stdClass $data, array $target): void
+    private function ReceiveEditorData(array &$state, stdClass $data, array $target, bool $catalogOnly = false): void
     {
         $metadata = ExtensionContract::Status($data);
         $configuration = $data->configuration ?? null;
-        if ($metadata === null || $metadata !== $target || ($data->editor_version ?? null) !== 1 || !is_array($data->devices ?? null)
-            || count($data->devices) > 256 || !$configuration instanceof stdClass || ($configuration->schema_version ?? null) !== 1
+        if ($metadata === null || $metadata !== $target || ($data->{$catalogOnly ? 'catalog_version' : 'editor_version'} ?? null) !== 1 || !is_array($data->devices ?? null)
+            || count($data->devices) > 256 || (!$catalogOnly && (!$configuration instanceof stdClass || ($configuration->schema_version ?? null) !== 1
             || ($configuration->revision ?? null) !== $metadata['storedRevision'] || !is_array($configuration->automations ?? null)
             || SequencePlan::Error(json_decode(json_encode($configuration, JSON_THROW_ON_ERROR), true, 32, JSON_THROW_ON_ERROR)) !== ''
-            || count($configuration->automations) !== $metadata['automationCount'] || !in_array($metadata['storage'], ['ok', 'empty'], true)) {
+            || count($configuration->automations) !== $metadata['automationCount'] || !in_array($metadata['storage'], ['ok', 'empty'], true)))) {
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
         }
@@ -178,6 +187,16 @@ trait AutomationEditor
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
         }
+        if ($catalogOnly) {
+            $this->WriteEditorCatalog($state['scope'], $devices, $groups, $scenes);
+            $this->DebugEvent(
+                'EMPFANG',
+                'Gerätedaten erfolgreich aktualisiert. Vorhandene Entwürfe und offene Eingaben bleiben unverändert; die Browseransicht kann jetzt aktualisiert werden.',
+                ['Geräte' => count($devices), 'Gruppen' => count($groups), 'Szenen' => count($scenes)]
+            );
+            $this->FinishExtensionWorkflow($state, 'catalog_loaded');
+            return;
+        }
         // JSON is a valid YAML document; the authoritative schema check stays in Z2M.
         $yaml = $metadata['storedRevision'] === 0
             ? json_encode($configuration, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n"
@@ -195,7 +214,7 @@ trait AutomationEditor
             $this->FinishExtensionWorkflow($state, 'error', 'editor_changed');
             return;
         }
-        $this->WriteAttributeString('EditorSnapshot', json_encode(['scope' => $state['scope'], 'devices' => $devices, 'groups' => $groups, 'scenes' => $scenes], JSON_THROW_ON_ERROR));
+        $this->WriteEditorCatalog($state['scope'], $devices, $groups, $scenes);
         if ($preserved !== null) {
             // Only renew the receiver session. Keep YAML bytes, rules and current selection.
             $preserved['session'] = $metadata['session'];
@@ -226,6 +245,21 @@ trait AutomationEditor
         }
         $this->DebugEvent('EMPFANG', 'Gerätekatalog übernommen; Aktionsziele anhand aktiver Symcon-Aktionen geprüft.', ['Geräte' => count($devices), 'Gruppen' => count($groups), 'Szenen' => count($scenes), 'Automationen' => $metadata['automationCount'], 'LesbareEigenschaften' => $readable, 'SchaltbareEigenschaften' => $writable]);
         $this->FinishExtensionWorkflow($state, 'editor_loaded');
+    }
+
+    private function WriteEditorCatalog(string $scope, array $devices, array $groups, array $scenes): void
+    {
+        $this->WriteAttributeString('EditorSnapshot', json_encode(['scope' => $scope, 'devices' => $devices, 'groups' => $groups, 'scenes' => $scenes, 'loadedAt' => $this->Now()], JSON_THROW_ON_ERROR));
+        $this->UpdateFormField('CatalogRefreshInfo', 'caption', $this->CatalogRefreshText());
+    }
+
+    private function CatalogRefreshText(): string
+    {
+        $raw = $this->ReadAttributeString('EditorSnapshot');
+        $snapshot = $raw === '' ? [] : json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
+        $loadedAt = ($snapshot['scope'] ?? '') === $this->TransportScope() ? ($snapshot['loadedAt'] ?? null) : null;
+        return is_int($loadedAt) ? sprintf($this->Translate('Device data last refreshed: %s'), date('d.m.Y H:i:s', $loadedAt))
+            : $this->Translate('Device data has not yet been refreshed for this connection.');
     }
 
     private function SaveEditorDraft(array $draft, string $yaml): void
@@ -328,15 +362,17 @@ trait AutomationEditor
         if (($snapshot['scope'] ?? null) !== $state['scope']) {
             $snapshot = [];
         }
+        $draft = $snapshot === [] ? null : $this->ReadEditorDraft(true);
         foreach ($this->EditorFormFields($form['actions']) as &$field) {
+            if (($field['name'] ?? '') === 'CatalogRefreshInfo') {
+                $field['caption'] = $this->CatalogRefreshText();
+            }
             if (($field['name'] ?? '') === 'EditorRules' && $snapshot !== []) {
-                $draft = $this->ReadAttributeString('EditorDraft');
-                $field['values'] = $draft === '' ? [] : $this->EditorRuleRows(json_decode($draft, true, 32, JSON_THROW_ON_ERROR));
+                $field['values'] = $draft === null ? [] : $this->EditorRuleRows($draft);
             }
             if (($field['name'] ?? '') === 'EditorPreview') {
-                $draft = $this->ReadAttributeString('EditorDraft');
-                if ($draft !== '' && $snapshot !== []) {
-                    $configuration = json_decode($draft, true, 32, JSON_THROW_ON_ERROR)['configuration'];
+                if ($draft !== null) {
+                    $configuration = $draft['configuration'];
                     $field['caption'] = sprintf($this->Translate('Draft contains %d automations. Z2M is unchanged until storing.'), count($configuration['automations']));
                 }
             }
@@ -351,7 +387,6 @@ trait AutomationEditor
             }
         }
         unset($field);
-        $draft = $snapshot === [] ? null : $this->ReadEditorDraft();
         $selection = $this->EditorSelectionFields($draft);
         foreach ($this->EditorFormFields($form['actions']) as &$field) {
             $name = $field['name'] ?? '';

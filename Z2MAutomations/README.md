@@ -22,6 +22,20 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 
 ## Automationsdesigner im Browser: zunächst nur ansehen
 
+Im nativen Modul steht „Nur Gerätedaten aktualisieren“ bereit. Damit lesen Sie
+Geräte, Kanäle, Gruppen und Szenen aus Z2M neu ein. Symcon ergänzt die Zuordnung
+zu seinen Variablen: Sensoren bleiben für Auslöser und Bedingungen verfügbar;
+Aktionen setzen eine tatsächlich schaltbare Symcon-Variable voraus. Entwürfe,
+offene Eingaben und laufende Automationen bleiben erhalten. Danach im Browser
+„Ansicht aktualisieren“ wählen. Die letzte erfolgreiche Geräteaktualisierung
+wird im Modul und im Browser angezeigt; sie gilt für diese Z2M-Verbindung.
+Bei einem zweiten System dessen Gerätedaten im zugehörigen Modul aktualisieren.
+Für diese Funktion auch die mitgelieferte Z2M-Erweiterung aktualisieren.
+
+„Geräte und gespeicherte Automationen laden“ bleibt ein eigener Vorgang:
+Dieser lädt zusätzlich die gespeicherten Regeln und ersetzt nach Bestätigung
+den lokalen Entwurf. Verwenden Sie ihn nicht nur zum Aktualisieren der Geräte.
+
 „Automationsdesigner öffnen (nur lesen)“ öffnet die übersichtliche Browseransicht
 dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder
 „Geräte & Kanäle“ auswählen. In der Mitte einen Baustein anklicken; rechts

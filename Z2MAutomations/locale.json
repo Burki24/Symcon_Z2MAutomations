@@ -586,7 +586,13 @@
             "Only at start: this condition must match before a new run. Later actions and extending a running wait do not check it again. A restart checks it again. Use this for brightness so the delayed Off action still runs when it gets brighter.": "Nur beim Start: Diese Bedingung muss vor einem neuen Ablauf erfüllt sein. Danach werden die Aktionen und das Verlängern der Wartezeit davon nicht mehr blockiert. Beim Neustart des Ablaufs wird sie erneut geprüft. Das eignet sich für Helligkeit: Das Licht wird nach der Wartezeit auch dann ausgeschaltet, wenn es inzwischen heller ist.",
             "Automation designer": "Automationsdesigner",
             "View existing automations, sequences and device properties in the browser. Read-only module data; no storage, activation or device commands.": "Vorhandene Automationen, Aktionsfolgen und Geräteeigenschaften im Browser ansehen. Nur Daten aus dem Modul; kein Speichern, Aktivieren oder Schalten.",
-            "Open automation designer (read-only)": "Automationsdesigner öffnen (nur lesen)"
+            "Open automation designer (read-only)": "Automationsdesigner öffnen (nur lesen)",
+            "Refresh device data only": "Nur Gerätedaten aktualisieren",
+            "Reads devices, channels and scenes from Z2M. Existing drafts and open inputs are kept. Then refresh the browser view.": "Liest Geräte, Kanäle und Szenen aus Z2M. Vorhandene Entwürfe und offene Eingaben bleiben erhalten. Anschließend die Browseransicht aktualisieren.",
+            "Device data has not yet been refreshed for this connection.": "Die Gerätedaten wurden für diese Verbindung noch nicht aktualisiert.",
+            "Device data last refreshed: %s": "Gerätedaten zuletzt aktualisiert: %s",
+            "Device data refreshed. Drafts and open inputs are unchanged. Refresh the browser view to see the new device data.": "Gerätedaten aktualisiert. Entwürfe und offene Eingaben sind unverändert. Mit „Ansicht aktualisieren“ werden die neuen Gerätedaten im Browser angezeigt.",
+            "Update the bundled extension before refreshing device data separately. Your draft remains unchanged.": "Bitte zuerst die mitgelieferte Erweiterung aktualisieren. Danach können die Gerätedaten einzeln geladen werden. Ihr Entwurf bleibt unverändert."
         }
     }
 }

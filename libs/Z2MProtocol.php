@@ -17,7 +17,7 @@ final class Z2MProtocol
         'symcon/automations/response/validate', 'symcon/automations/response/store',
         'symcon/automations/response/activate', 'symcon/automations/response/deactivate', 'symcon/automations/response/editor',
         'symcon/automations/debug', 'symcon/automations/response/debug', 'symcon/automations/runs',
-        'symcon/automations/response/run_once', 'symcon/automations/response/stop_rule'];
+        'symcon/automations/response/run_once', 'symcon/automations/response/stop_rule', 'symcon/automations/response/catalog'];
     public const MAX_PAYLOAD_BYTES = 1048576;
     // Valid JSON data-flow envelopes are never empty; no lookaround required.
     public const BLOCK_RECEIVE_FILTER = '^$';

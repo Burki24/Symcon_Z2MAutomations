@@ -134,9 +134,10 @@ async function harness(options = {}) {
         messages.push({topic, payload: JSON.parse(payload), options: publishOptions});
     }};
     const eventBus = {onMQTTMessage: (_owner, listener) => { handler = listener; }, removeListeners: () => { handler = undefined; }};
+    if (options.zigbee) Object.assign(eventBus, {onPublishEntityState: () => {}, emitMQTTMessage: () => { throw new Error('Unexpected device command'); }});
     const settings = {get: () => ({mqtt: {base_topic: 'synthetic/z2m'}})};
     const logger = {error: text => logs.push(text), warning: text => logs.push(text), debug: text => logs.push(text)};
-    const extension = new Extension(null, mqtt, null, null, eventBus, null, null, null, settings, logger, {directory, io: options.io});
+    const extension = new Extension(options.zigbee ?? null, mqtt, null, null, eventBus, null, null, null, settings, logger, {directory, io: options.io});
     await extension.start();
     const session = messages.at(-1)?.payload.session ?? extension.status().session;
     let sequence = 0;
@@ -154,6 +155,26 @@ async function harness(options = {}) {
             if (remove) await rm(directory, {recursive: true, force: true});
         }};
 }
+
+test('catalog refresh returns only device metadata and leaves stored automations and runtime untouched', async () => {
+    const h = await harness({zigbee: {resolveEntity: () => null, devicesIterator: () => [].values(), groupsIterator: () => [].values()}});
+    try {
+        assert.equal((await h.store(emptyYaml(1), 0)).status, 'ok');
+        const status = (await h.request('status')).data;
+        assert.equal((await h.request('activate', {session: h.session, expected_revision: 1, checksum: status.checksum, activation_token: status.activation_token})).status, 'ok');
+        assert.equal(h.extension.status().executing, true);
+        const before = h.extension.status();
+        const response = await h.request('catalog');
+        assert.equal(response?.status, 'ok');
+        assert.equal(response.data.catalog_version, 1);
+        assert.ok(Array.isArray(response.data.devices));
+        assert.ok(Array.isArray(response.data.groups));
+        assert.ok(Array.isArray(response.data.scenes));
+        assert.equal(Object.hasOwn(response.data, 'yaml'), false);
+        assert.equal(Object.hasOwn(response.data, 'configuration'), false);
+        assert.deepEqual(h.extension.status(), before);
+    } finally { await h.close(); }
+});
 
 test('fresh status reports the build identity of the actually loaded extension', async () => {
     const artifact = await readFile(new URL('../libs/z2m/z2m-automations.mjs', import.meta.url), 'utf8');
