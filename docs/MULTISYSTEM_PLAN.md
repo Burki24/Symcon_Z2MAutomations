@@ -1,7 +1,15 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: 04.11.2026. Planungsauftrag; noch keine Implementierung oder Migration.
+Stand: 04.11.2026. Zielplan mit erster lokaler Vertragsgrundlage; keine Migration.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
+
+Fortschritt: Die lokale Grundlage von Schritt 1 ist inzwischen implementiert:
+SystemContract und die rein lesenden Metadatenfunktionen GetSystemMigrationSource
+und PreviewSystemMigration. Prüfungen mit synthetischen Quellen für 1/2/8 Systeme
+sind vorhanden. Der folgende Zielplan beschreibt weiterhin den gesamten Umbau.
+Archivexport, persistente Registrierung/Rollenmarker, Besitzerwechsel,
+Verbindungsmodul und Übernahmeoberfläche sind noch nicht umgesetzt. Die Metadaten-
+vorschau ist keine Sicherung, keine aktuelle Rechteprüfung und keine Migration.
 
 ## 1. Ziel und verbindliche Grenzen
 

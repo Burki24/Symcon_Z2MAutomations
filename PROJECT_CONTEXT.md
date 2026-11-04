@@ -8,14 +8,24 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 1 des Mehrsystemumbaus lokal begonnen: SystemContract v1 mit stabilen
+  System-/Entitätsschlüsseln, höchstens acht Einträgen, explizitem Besitzer und
+  Generation. Rollen werden nur klassifiziert, keine Marker gesetzt. Neue
+  Verbindungsmodulidentität und Präfix Z2MC reserviert; Modul noch nicht angelegt.
+  GetSystemMigrationSource und PreviewSystemMigration lesen ausschließlich
+  Metadaten ausgewählter Bestandsinstanzen. Keine Migration/Archive, Registrierung,
+  Besitzerübergabe, neue Oberfläche oder MQTT-Ausgabe. Synthetische 1/2/8-System-
+  Prüfungen einschließlich gemeinsamer/getrennter Parents, Konflikte und Erhalt
+  aller Quellbytes bestehen. Nächster Schritt: Z2MConnection auf diesen Verträgen.
+
 - Zielarchitektur für die nächste Arbeit festgelegt (ADR 0026,
   docs/MULTISYSTEM_PLAN.md): eine zentrale Automationsverwaltung, bis zu acht
   Z2M-Verbindungsmodule mit vorhandenen nativen MQTT-Parents. Getrennte Dokumente,
   Betriebsfreigaben und Laufzeiten je System; keine Zusammenführung der YAML.
   Übernahme mit Vorschau, bytegleicher Sicherung, Erhalt von IDs/Bindungen/
   Partnerfreigaben, Konfliktschutz, einem schreibenden Besitzer und Rückweg.
-  Noch keine Implementierung oder Systemänderung. Nächster Schritt: Systemmodell,
-  reine Bestandsvorschau und synthetische Übernahmeverträge für 1/2/8 Systeme.
+  Gesamtumbau noch nicht abgeschlossen; bisher nur lokale Vertrags-/Vorschau-
+  grundlage. Noch keine Test-/Live-Systemänderung oder Datenübernahme.
 
 - Wiederverwendbare Aktionsfolgen im Browser erstellen und bearbeiten (ADR 0025):
   gemeinsame Aktionsfelder mit Vorbelegung, Geräte-/Kanal-/Wertsuche, Szenen,

@@ -20,6 +20,28 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
+## Bestandsprüfung für die zentrale Verwaltung
+
+Die geplante zentrale Verwaltung für mehrere Z2M-Systeme wird schrittweise
+vorbereitet. Bisher gibt es dafür nur eine **lesende Bestandsvorschau über
+Modulfunktionen**, noch keinen Übernahmebutton und keine automatische Migration:
+
+- `Z2MA_PreviewSystemMigration(InstanceID, SourceInstanceIDs)` prüft eine
+  ausdrücklich ausgewählte Liste von einer bis acht bisherigen Automationsinstanzen.
+  Der zweite Parameter ist eine JSON-Liste von Instanz-IDs.
+- Der Bericht nennt pro Quelle Verbindung, Basistopic, Regel-/Folgenanzahl,
+  lokale Änderungen und Konflikte. Offene Formulareingaben oder eine Abweichung
+  zwischen YAML und Editorstand werden erhalten und als Problem angezeigt.
+- „Für weitere Prüfung bereit“ bedeutet keine Übernahme- oder Betriebsfreigabe.
+  `canApply` bleibt immer `false`. Es wird nichts angelegt, umgehängt, gespeichert
+  oder aktiviert und keine MQTT-Anfrage ausgelöst. Der normale Editor arbeitet
+  weiterhin je Z2M-System wie bisher.
+
+`Z2MA_GetSystemMigrationSource(InstanceID)` liefert dafür nur begrenzte Metadaten
+und Prüfsummen. Es exportiert keine YAML, offenen Eingaben oder Sitzungskennungen
+und ersetzt keine Sicherung. Nach einem Modulupdate mit den neuen öffentlichen
+Funktionen ist deren erneute Registrierung in Symcon erforderlich.
+
 ## Automationsdesigner im Browser
 
 Im nativen Modul steht „Nur Gerätedaten aktualisieren“ bereit. Damit lesen Sie

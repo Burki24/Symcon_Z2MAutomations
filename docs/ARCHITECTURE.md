@@ -7,8 +7,12 @@ mit bis zu acht Z2MConnection-Modulen. Jedes System behält Dokument, Revision
 und Laufzeit; die Übernahme vorhandener Entwürfe und Bindungen erfolgt ausdrücklich
 mit Sicherung, Vorschau, Besitzerwechsel und lokalem Rückweg. Der
 [konkrete Umbauplan](MULTISYSTEM_PLAN.md) enthält Modulgrenzen, Identitäten,
-Arbeitsfolge und Prüfmatrix. Noch nicht implementiert; die folgenden Abschnitte
-beschreiben weiterhin den derzeitigen Stand. Kein Test-/Live-Umbau durch dieses ADR.
+Arbeitsfolge und Prüfmatrix. Der Gesamtumbau ist noch nicht implementiert.
+Die lokale Grundlage besteht aus SystemContract v1, SystemMigrationInspection
+und SystemMigrationPreview: explizite System-/Besitzer-/Generationsbindung und
+rein lesende Bestandsberichte für ausgewählte Quellen. Weder Registrierung noch
+persistenter Besitzerwechsel werden bereits ausgeführt. Bestehende Modulrollen,
+Datenflussmetadaten, Entwürfe und Runtime bleiben unverändert.
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 

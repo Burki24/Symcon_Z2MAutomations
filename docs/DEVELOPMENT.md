@@ -1,3 +1,46 @@
+## Erste Mehrsystem-Verträge lokal geprüft am 04.11.2026
+
+Schritt 1 aus ADR 0026: SystemContract v1 definiert stabile UUID-Systemkennungen,
+systemgebundene Entitätsschlüssel, maximale Systemzahl, Besitzer-/Generationsbindung
+und Rollenklassifikation. Z2MConnection-GUID und vierstelliges Präfix sind reserviert;
+keine zusätzliche Modulinstanz oder Rolle wird bereits angelegt oder migriert.
+Vorhandene Parent-/Datenfluss-/Debughelper und PersistentJsonCacheHelper geprüft.
+Eine neue Cacheintegration ist für diese rein lesende Stufe nicht erforderlich.
+
+GetSystemMigrationSource liest bekannte Attribute und Eingabepuffer unter der
+lokalen Transportsperre. Hash und Metadaten werden ohne Sitzungen, YAML oder
+Roh-Eingaben exportiert. PreviewSystemMigration liest ausschließlich ausgewählte,
+typgeprüfte Quellen; der Gesamtaufruf hält keine verschachtelte Quellsperre.
+Es gibt kein RefreshState, Formularladen, Anlegen, Umhängen oder MQTT-Senden.
+Die Bereitschaft gilt nur für weitere Prüfung, niemals als canApply-Freigabe.
+Aktuelle Variablenrechte, tatsächliche Migration und persistente Besitzübergabe
+werden erst in späteren Schritten nachgewiesen.
+
+tests/multisystem.php verwendet synthetische echte Modulinstanzen an den
+vorhandenen nativen MQTT-Fixtures. Ein, zwei und acht Quellen an gemeinsamem
+Parent sowie zwei getrennte Parents geprüft; neunte Quelle, Dopplungen, fremder
+Modultyp, defekte/abweichende Metadaten, unbekanntes Schema, offene Eingaben und
+nicht ausgewählter Partner werden geschützt abgewiesen. Gleiche Topics bleiben
+auch auf verschiedenen Parents ein Konflikt. Noch nie gespeicherte lokale
+Entwürfe mit Basisrevision null bleiben prüfbar. Wiederholte Vorschauen ergeben
+denselben Bericht. Quellattribute, YAML, Freigaben, lokale Kennungen, Eingaben und
+Transportspeicher bleiben identisch; beide MQTT-Fixtures erhalten keine Pakete.
+Debugausgaben enthalten sichere Entscheidungen und keine privaten Fixturewerte.
+
+Ein früher Prüfversuch verglich zusätzlich Debugmeldungen aus der Fixture-
+Einrichtung und schlug deshalb am Datenschutzcheck fehl. Die Messung auf den
+eigentlichen Vorschauaufruf begrenzt. Ein weiterer Fixturewechsel benötigte
+zuerst das native Disconnect vor Connect; nur den Testaufbau korrigiert.
+Keine Änderung oder Abnahme in Test-/Live-Symcon und kein Acht-System-Praxisnachweis.
+
+php tests/run.php einschließlich der neuen PHP-Vertragsprüfung und 137
+JavaScript-Tests bestanden. Nach zusätzlichen Fixture-/Fingerprint-Fällen die
+gezielte Mehrsystemprüfung erneut erfolgreich ausgeführt. Struktur-/Kodierungs-
+prüfung, aktuelles Erweiterungsartefakt und Formatprüfungen ebenfalls grün.
+Die bisherigen Modulmetadaten, automatischen Startpfade, zentralen Helper und
+das Z2M-Artefakt bleiben unverändert. Der spätere native Assistent sowie eine
+echte Test-Symcon-Abnahme sind nicht Bestandteil dieser lokalen Stufe.
+
 ## Wiederverwendbare Browserfolgen lokal geprüft am 04.11.2026
 
 ADR 0025 ergänzt den bestehenden Browser-Aktionseditor um Definitionen. Relevante

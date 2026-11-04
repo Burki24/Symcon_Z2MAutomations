@@ -1,5 +1,17 @@
 # Debug und MQTT-Diagnose
 
+## Lesende Mehrsystem-Vorschau
+
+GetSystemMigrationSource und PreviewSystemMigration verwenden TraceModuleCall
+und damit den kanonischen DebugFlowHelper. Die Quellen werden einzeln und ohne
+übergreifende Transportsperre gelesen. Meldungen erklären Nur-Leseprüfung,
+Quellanzahl, Regel-/Folgenanzahl und konkrete Konflikte wie offene Eingaben,
+abweichende YAML oder doppelte Topics. Als Bezug erscheinen nur die ausgewählte
+Quellinstanz und sichere Zählwerte; keine Namen, Topics, Roh-YAML, Arbeitskopien,
+Auswahl-/Empfängertoken oder vollständigen Antworten. Ergebnisse werden durch den
+Helper lediglich als geschützter Text mit Byteanzahl beschrieben. Es werden
+keine Empfängeranfragen, Statusaktualisierungen oder Migrationen ausgelöst.
+
 ## Automationsdesigner
 
 Bei POST-create nennt der Erfolg die Auslöserart Geräteereignis, Uhrzeit oder

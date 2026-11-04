@@ -9,6 +9,12 @@
 
 ## Neu
 
+- Erste Grundlage der zentralen Verwaltung: versionierter Systemvertrag für
+  bis zu acht Systeme und lesende Bestandsvorschau über ausgewählte vorhandene
+  Automationsinstanzen. Konflikte, offene Eingaben und abweichende Entwürfe
+  werden verständlich gemeldet. Keine Anlage, Übernahme, Verbindungsänderung
+  oder MQTT-Ausgabe; native Debugmeldungen erklären die Prüfung ohne Nutzdaten.
+
 - Browserdesigner: Wiederverwendbare Aktionsfolgen erstellen und bearbeiten.
   Schritte mit Geräte-, Kanal-, Wert- und Szenenauswahl werden vorbelegt;
   Wartezeiten, Hinzufügen, Entfernen und Umsortieren sind direkt bearbeitbar.

@@ -1,7 +1,8 @@
 # ADR 0026: Zentrale Verwaltung und Z2M-Verbindungen
 
 - Datum: 04.11.2026
-- Status: Zielarchitektur beschlossen; Umsetzung und Migration ausstehend
+- Status: Zielarchitektur beschlossen; lokale Vertrags-/Vorschaugrundlage vorhanden,
+  Gesamtumbau und Migration ausstehend
 - Präzisiert die künftige Aufteilung aus ADR 0002 und 0009; bestehendes Verhalten
   bleibt bis zur geprüften Umsetzung gültig.
 

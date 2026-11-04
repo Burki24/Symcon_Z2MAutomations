@@ -10,6 +10,7 @@ require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/helper/VisualizationAssetHelper.php';
 require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
 require_once __DIR__ . '/../libs/AutomationDesigner.php';
+require_once __DIR__ . '/../libs/SystemMigrationInspection.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/RuleExecution.php';
@@ -55,6 +56,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\VisualizationAssetHelper;
     use Burki24\SymconModuleHelper\HttpResponseHelper;
     use Z2MAutomations\AutomationDesigner;
+    use Z2MAutomations\SystemMigrationInspection;
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\RuntimeDebug;
     use Z2MAutomations\RuleExecution;
