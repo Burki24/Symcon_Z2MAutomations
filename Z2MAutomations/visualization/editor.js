@@ -3,10 +3,9 @@ import {creationDevices, creationProperties, creationValue, requestIdentity} fro
 
 const copy = value => structuredClone(value);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const editableFields = ['name', 'enabled', 'retrigger', 'triggers', 'conditions', 'actions'];
-export function ruleChanges(original, working) {
-    return Object.fromEntries(editableFields.filter(key => !same(original[key], working[key])).map(key => [key, copy(working[key])]));
-}
+const changedFields = (original, working, fields) => Object.fromEntries(fields.filter(key => !same(original[key], working[key])).map(key => [key, copy(working[key])]));
+export const ruleChanges = (original, working) => changedFields(original, working, ['name', 'enabled', 'retrigger', 'triggers', 'conditions', 'actions']);
+export const sequenceChanges = (original, working) => changedFields(original, working, ['name', 'actions']);
 export function targetDevice(data, target) {
     return data.devices.find(device => device.target.type === target?.type && device.target.id === target?.id && (device.target.system ?? '') === (target?.system ?? ''));
 }
@@ -19,16 +18,18 @@ const kinds = {triggers: {device: 'Geräteereignis', time: 'Uhrzeit', sun: 'Sonn
 const dayNames = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const valueLabel = value => typeof value === 'boolean' ? (value ? 'Ja / erkannt' : 'Nein / nicht erkannt') : ({ON: 'Ein', OFF: 'Aus', TOGGLE: 'Umschalten'}[value] ?? String(value ?? 'Ohne Wert'));
 
-export function installEditing({getData, getRule, reload, onEdited, summaries}) {
+export function installEditing({getData, getRule, reload, onEdited, onSequenceSaved, summaries}) {
     const editButton = document.createElement('button');
     editButton.id = 'edit-automation-button'; editButton.textContent = 'Automation bearbeiten';
     document.querySelector('.entry-tools').prepend(editButton);
+    const sequenceButton = document.createElement('button'); sequenceButton.id = 'new-sequence-button'; sequenceButton.textContent = '+ Neue Aktionsfolge';
+    document.querySelector('.toolbar').prepend(sequenceButton);
     const dialog = document.createElement('dialog');
     dialog.id = 'edit-dialog'; dialog.className = 'creation-dialog rule-edit-dialog'; dialog.setAttribute('aria-labelledby', 'edit-title');
-    dialog.innerHTML = '<form id="edit-form"><span class="eyebrow">VORHANDENE AUTOMATION</span><h2 id="edit-title">Automation bearbeiten</h2><p>Änderungen betreffen nur den lokalen Symcon-Entwurf. Laufende Automationen und Z2M bleiben unverändert.</p><div id="edit-fields"></div><p id="edit-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" id="edit-reload">Neu laden und Eingaben verwerfen</button><button type="button" id="edit-cancel">Abbrechen</button><button type="submit" id="edit-submit" class="primary">Änderungen in den Entwurf übernehmen</button></div></form>';
+    dialog.innerHTML = '<form id="edit-form"><span class="eyebrow">VORHANDENE AUTOMATION</span><h2 id="edit-title">Automation bearbeiten</h2><p>Änderungen betreffen nur den lokalen Symcon-Entwurf. Laufende Automationen und Z2M bleiben unverändert.</p><p id="edit-usage" hidden></p><div id="edit-fields"></div><p id="edit-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" id="edit-reload">Neu laden und Eingaben verwerfen</button><button type="button" id="edit-cancel">Abbrechen</button><button type="submit" id="edit-submit" class="primary">Änderungen in den Entwurf übernehmen</button></div></form>';
     document.body.append(dialog);
     const $ = name => dialog.querySelector('#edit-' + name);
-    let original; let working; let context; let requestId; let busy = false; let serial = 0;
+    let original; let working; let context; let requestId; let busy = false; let serial = 0; let sequenceMode = false; let creatingSequence = false;
     const hint = text => { $('message').textContent = text; };
     const node = (tag, text, className) => { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; if (className) element.className = className; return element; };
     function field(parent, label, value, set, options = {}) {
@@ -113,7 +114,7 @@ export function installEditing({getData, getRule, reload, onEdited, summaries}) 
         const device = targetDevice(getData(), item.target);
         devicePicker(parent, 'target', device, selected => {
             item.target = selected ? copy(selected.target) : {type: 'device', id: ''};
-            if (item.type === 'set') item.values = {};
+            if (item.type === 'set') item.values = {'': undefined};
             else if (item.type === 'toggle') item.property = '';
             else { delete item.scene_id; delete item.endpoint; }
         });
@@ -152,18 +153,22 @@ export function installEditing({getData, getRule, reload, onEdited, summaries}) 
         if (type === 'weekday') return {type, weekdays: [1, 2, 3, 4, 5], timezone: 'Europe/Berlin'};
         if (type === 'time_window') return {type, after: '18:00:00', before: '06:00:00', timezone: 'Europe/Berlin'};
         if (type === 'sequence') return {type, sequence_id: '', delay_seconds: 0};
-        return {type, target: {type: 'device', id: ''}, delay_seconds: 0, ...(type === 'set' ? {values: {}} : type === 'toggle' ? {property: ''} : {})};
+        return {type, target: {type: 'device', id: ''}, delay_seconds: 0, ...(type === 'set' ? {values: {'': undefined}} : type === 'toggle' ? {property: ''} : {})};
     }
     function renderFields() {
         const scroll = dialog.scrollTop;
         const expanded = new Map([...dialog.querySelectorAll('details[data-section]')].map(element => [element.dataset.section, element.open]));
         serial = 0; const root = $('fields'); root.replaceChildren();
-        field(root, 'Name der Automation', working.name, value => { working.name = value; }, {maxLength: 120});
-        check(root, 'Regel im Entwurf eingeschaltet (ändert nicht den laufenden Betrieb)', working, 'enabled');
-        field(root, 'Bei erneuter Auslösung', working.retrigger ?? 'ignore', value => { working.retrigger = value; }, {choices: Object.entries({ignore: 'Ignorieren', restart: 'Von vorn beginnen', extend: 'Laufende Wartezeit zurücksetzen'})});
-        for (const [section, title] of [['triggers', '1. Wenn – Auslöser (ODER)'], ['conditions', '2. Nur wenn – Bedingungen (UND)'], ['actions', '3. Dann – Aktionen in dieser Reihenfolge']]) {
+        field(root, sequenceMode ? 'Name der Aktionsfolge' : 'Name der Automation', working.name, value => { working.name = value; }, {maxLength: 120});
+        if (!sequenceMode) {
+            check(root, 'Regel im Entwurf eingeschaltet (ändert nicht den laufenden Betrieb)', working, 'enabled');
+            field(root, 'Bei erneuter Auslösung', working.retrigger ?? 'ignore', value => { working.retrigger = value; }, {choices: Object.entries({ignore: 'Ignorieren', restart: 'Von vorn beginnen', extend: 'Laufende Wartezeit zurücksetzen'})});
+        }
+        const sections = sequenceMode ? [['actions', '1. Aktionen in dieser Reihenfolge']] : [['triggers', '1. Wenn – Auslöser (ODER)'], ['conditions', '2. Nur wenn – Bedingungen (UND)'], ['actions', '3. Dann – Aktionen in dieser Reihenfolge']];
+        for (const [section, title] of sections) {
+            const itemKinds = sequenceMode ? Object.fromEntries(Object.entries(kinds.actions).filter(([type]) => type !== 'sequence')) : kinds[section];
             const details = node('details', undefined, 'edit-section'); details.dataset.section = section; details.open = expanded.get(section) ?? true; details.append(node('summary', title)); root.append(details);
-            const allowed = getData().editSections?.[original.id]?.[section] === true;
+            const allowed = sequenceMode ? creatingSequence || getData().sequenceSections?.[original.id] === true : getData().editSections?.[original.id]?.[section] === true;
             if (!allowed) {
                 details.append(node('p', 'Dieser Bereich bleibt unverändert erhalten. Gerätedaten oder Schaltrechte fehlen, oder die Angaben können hier nicht vollständig bearbeitet werden. Bitte bei Bedarf im nativen Formular prüfen.', 'edit-preserved'));
                 for (const item of working[section]) details.append(node('p', summaries[section](item), 'field-help'));
@@ -180,7 +185,7 @@ export function installEditing({getData, getRule, reload, onEdited, summaries}) 
                     }
                     if (item.timezone && replacement.timezone) replacement.timezone = item.timezone;
                     working[section][index] = replacement; renderFields();
-                }, {choices: Object.entries(kinds[section])});
+                }, {choices: Object.entries(itemKinds)});
                 if (item.type === 'device' || item.type === 'device_value') sourceFields(controls, item);
                 else if (item.type === 'time') { time(controls, 'Uhrzeit', item, 'at'); zone(controls, item); }
                 else if (item.type === 'sun') {
@@ -196,40 +201,66 @@ export function installEditing({getData, getRule, reload, onEdited, summaries}) 
                 }, index + delta < 0 || index + delta >= working[section].length);
                 button(tools, 'Eintrag entfernen', () => { working[section].splice(index, 1); renderFields(); }, section !== 'conditions' && working[section].length === 1);
             });
-            const tools = node('div', undefined, 'edit-row-tools'); details.append(tools); let type = Object.keys(kinds[section])[0];
-            field(tools, 'Art des neuen Eintrags', type, value => { type = value; }, {choices: Object.entries(kinds[section])});
+            const tools = node('div', undefined, 'edit-row-tools'); details.append(tools); let type = Object.keys(itemKinds)[0];
+            field(tools, 'Art des neuen Eintrags', type, value => { type = value; }, {choices: Object.entries(itemKinds)});
             button(tools, 'Eintrag hinzufügen', () => { working[section].push(newItem(section, type)); renderFields(); }, working[section].length >= (section === 'triggers' ? 8 : 16));
         }
         dialog.scrollTop = scroll;
     }
-    function open(rule) {
-        original = copy(rule); delete original.kind; working = copy(original); context = getData().createContext; requestId = requestIdentity();
-        renderFields(); hint(getData().editNotice || 'Alle Angaben sind vorbelegt. Erst „Änderungen in den Entwurf übernehmen“ ändert den lokalen Entwurf.');
-        $('submit').disabled = !getData().editAllowed;
+    const canSave = () => sequenceMode ? (creatingSequence ? getData()?.sequenceCreateAllowed : getData()?.sequenceAllowed) : getData()?.editAllowed;
+    const changes = () => sequenceMode ? sequenceChanges(original, working) : ruleChanges(original, working);
+    function open(entry, sequence = entry.kind === 'sequence', creating = false) {
+        sequenceMode = sequence; creatingSequence = creating;
+        original = copy(entry); delete original.kind; working = copy(original);
+        if (creatingSequence) working.actions = [newItem('actions', 'set')];
+        context = getData().createContext; requestId = requestIdentity();
+        $('title').textContent = sequenceMode ? (creatingSequence ? 'Neue Aktionsfolge' : 'Aktionsfolge bearbeiten') : 'Automation bearbeiten';
+        dialog.querySelector('.eyebrow').textContent = sequenceMode ? 'WIEDERVERWENDBARE AKTIONSFOLGE' : 'VORHANDENE AUTOMATION';
+        $('usage').hidden = !sequenceMode;
+        const usage = (getData().configuration?.automations ?? []).filter(rule => rule.actions.some(action => action.type === 'sequence' && action.sequence_id === original.id)).length;
+        $('usage').textContent = usage ? `${usage === 1 ? 'Eine Automation verwendet' : `${usage} Automationen verwenden`} diese Folge. Änderungen gelten nach der Übertragung für ${usage === 1 ? 'diese Regel' : 'alle diese Regeln'}.`
+            : 'Diese Folge wird noch von keiner Automation verwendet. Nach dem Anlegen können Sie sie als Aktion in einer Automation auswählen. Folgen dürfen keine weitere Folge aufrufen.';
+        renderFields(); hint((sequenceMode ? getData().sequenceNotice : getData().editNotice) || (creatingSequence
+            ? 'Bitte einen Namen und die gewünschten Schritte eintragen. Erst das Übernehmen ändert den lokalen Entwurf.'
+            : 'Alle Angaben sind vorbelegt. Erst das Übernehmen ändert den lokalen Entwurf.'));
+        $('submit').textContent = creatingSequence ? 'Aktionsfolge in den Entwurf übernehmen' : 'Änderungen in den Entwurf übernehmen';
+        $('submit').disabled = !canSave();
         if (!dialog.open) dialog.showModal(); $('fields').querySelector('input')?.focus();
     }
-    editButton.addEventListener('click', () => { const rule = getRule(); if (rule?.triggers) open(rule); });
+    editButton.addEventListener('click', () => { const entry = getRule(); if (entry?.triggers || entry?.kind === 'sequence') open(entry); });
+    sequenceButton.addEventListener('click', () => { if (getData()?.sequenceCreateAllowed) open({id: '', name: '', actions: []}, true, true); });
     $('cancel').addEventListener('click', () => { if (!busy) dialog.close(); });
     dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
     $('reload').addEventListener('click', async () => {
-        if (busy || (Object.keys(ruleChanges(original, working)).length && !confirm('Eigene Eingaben verwerfen und den aktuellen lokalen Entwurf laden?'))) return;
-        if (await reload()) { const rule = getData().configuration?.automations.find(entry => entry.id === original.id); if (rule) open(rule); else { hint('Diese Automation wurde inzwischen entfernt. Bitte den Dialog schließen.'); $('submit').disabled = true; } }
+        if (busy || (Object.keys(changes()).length && !confirm('Eigene Eingaben verwerfen und den aktuellen lokalen Entwurf laden?'))) return;
+        if (await reload()) {
+            if (creatingSequence) { open({id: '', name: '', actions: []}, true, true); return; }
+            const entry = (sequenceMode ? getData().configuration?.sequences : getData().configuration?.automations)?.find(item => item.id === original.id);
+            if (entry) open(entry, sequenceMode); else { hint('Dieser Eintrag wurde inzwischen entfernt. Bitte den Dialog schließen.'); $('submit').disabled = true; }
+        }
         else hint('Die Ansicht konnte nicht geladen werden. Ihre Eingaben bleiben erhalten.');
     });
     $('form').addEventListener('submit', async event => {
-        event.preventDefault(); if (busy || !getData().editAllowed) return;
-        const payload = {requestId, context, ruleId: original.id, changes: ruleChanges(original, working)};
+        event.preventDefault(); if (busy || !canSave()) return;
+        const payload = {requestId, context, [sequenceMode ? 'sequenceId' : 'ruleId']: original.id, changes: changes()};
         const controls = [...dialog.querySelectorAll('button, input, select')].map(element => [element, element.disabled]);
         busy = true; for (const [element] of controls) element.disabled = true; hint('Änderungen werden geprüft und nur im lokalen Entwurf übernommen …');
         const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 15000);
         try {
-            const endpoint = new URL('edit', location.href); endpoint.hash = '';
+            const endpoint = new URL(sequenceMode ? 'sequence' : 'edit', location.href); endpoint.hash = '';
             const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1)}, body: JSON.stringify(payload), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
             const text = await response.text(); if (text.length > 4096) throw new Error('transport'); const result = JSON.parse(text);
             if (!response.ok) { hint(result.message || 'Die Änderung konnte nicht übernommen werden. Ihre Eingaben bleiben erhalten.'); return; }
-            dialog.close(); await onEdited(result.ruleId);
+            dialog.close(); if (sequenceMode) await onSequenceSaved(result.sequenceId); else await onEdited(result.ruleId);
         } catch { hint('Keine Bestätigung vom Modul erhalten. Ihre Eingaben bleiben erhalten. Derselbe unveränderte Auftrag kann erneut gesendet werden.'); }
         finally { clearTimeout(timer); busy = false; for (const [element, disabled] of controls) element.disabled = disabled; }
     });
-    return {refresh() { editButton.disabled = !getRule()?.triggers || !getData()?.editAllowed; editButton.title = getData()?.editNotice || 'Ausgewählte Automation im lokalen Entwurf bearbeiten'; }};
+    return {refresh() {
+        const sequence = getRule()?.kind === 'sequence';
+        editButton.textContent = sequence ? 'Aktionsfolge bearbeiten' : 'Automation bearbeiten';
+        editButton.disabled = sequence ? !getData()?.sequenceAllowed : !getRule()?.triggers || !getData()?.editAllowed;
+        editButton.title = (sequence ? getData()?.sequenceNotice : getData()?.editNotice) || 'Ausgewählten Eintrag im lokalen Entwurf bearbeiten';
+        sequenceButton.disabled = !getData()?.sequenceCreateAllowed;
+        sequenceButton.title = getData()?.sequenceNotice || (!getData()?.sequenceCreateAllowed ? 'Höchstens 32 Aktionsfolgen; vorhandene Folgen bleiben bearbeitbar.' : 'Neue Aktionsfolge im lokalen Entwurf anlegen');
+    }};
 }

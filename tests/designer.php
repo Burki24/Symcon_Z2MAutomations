@@ -79,7 +79,7 @@ class DesignerProbe extends Z2MAutomations
     {
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
         foreach ($sessions as &$session) {
-            if ($session['hash'] === hash('sha256', $token)) unset($session['create'], $session['edit']);
+            if ($session['hash'] === hash('sha256', $token)) unset($session['create'], $session['edit'], $session['sequences']);
         }
         unset($session);
         $this->SetBuffer('DesignerSessions', json_encode($sessions));
@@ -89,6 +89,15 @@ class DesignerProbe extends Z2MAutomations
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
         foreach ($sessions as &$session) {
             if ($session['hash'] === hash('sha256', $token)) unset($session['edit']);
+        }
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
+    public function MakeRuleOnly(string $token): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) {
+            if ($session['hash'] === hash('sha256', $token)) unset($session['sequences']);
         }
         unset($session);
         $this->SetBuffer('DesignerSessions', json_encode($sessions));
@@ -181,6 +190,7 @@ $check($other->Hook('data', 'GET', $links[4])[0] === 403, 'Capability grants no 
 require __DIR__ . '/designer-create.inc.php';
 require __DIR__ . '/designer-schedule.inc.php';
 require __DIR__ . '/designer-edit.inc.php';
+require __DIR__ . '/designer-sequence.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');

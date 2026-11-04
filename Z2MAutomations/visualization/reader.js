@@ -25,7 +25,7 @@ import {installEditing} from './editor.js';
     $('.toolbar').setAttribute('aria-label', 'Modulansicht und neue Automation');
     $('.preview-label').textContent = 'ENTWURF';
     $('.preview-notice strong').textContent = 'Automationen im lokalen Entwurf';
-    $('.preview-notice > span:last-child').textContent = 'Regeln hier erstellen und bearbeiten. Änderungen betreffen nur den Symcon-Entwurf. Übertragen und Aktivieren weiterhin im nativen Formular.';
+    $('.preview-notice > span:last-child').textContent = 'Automationen und Aktionsfolgen hier erstellen und bearbeiten. Änderungen betreffen nur den Symcon-Entwurf. Übertragen und Aktivieren weiterhin im nativen Formular.';
     $('#validate-button').innerHTML = icon('check') + 'Ansicht aktualisieren';
     $('#validate-button').removeAttribute('data-action');
     ['#save-button', '#activate-button', '#stop-button', '.toolbar-divider', '.navigation-footer', '.activity', '#new-dialog', '#confirm-dialog'].forEach(selector => $(selector).remove());
@@ -34,7 +34,7 @@ import {installEditing} from './editor.js';
     detailsButton.setAttribute('aria-label', 'Details der ausgewählten Regel anzeigen');
     detailsButton.title = 'Regeldetails';
     $('#selection-hint').textContent = 'Baustein anklicken → Details ansehen';
-    $('.canvas-footer > span:last-child').textContent = 'Regeln hier erstellen und bearbeiten · Z2M bleibt unverändert';
+    $('.canvas-footer > span:last-child').textContent = 'Automationen und Aktionsfolgen bearbeiten · Z2M bleibt unverändert';
     $('#draft-status').textContent = 'Moduldaten werden geladen …';
     $('#runtime-status').textContent = 'Betrieb noch nicht gelesen';
     $('#flow').innerHTML = '';
@@ -172,7 +172,7 @@ import {installEditing} from './editor.js';
             }
         }
         $('#inspector-title').textContent = title;
-        $('#inspector-subtitle').textContent = category === 'catalog' ? 'Gerätedaten zur Auswahl in Automationen.' : entry?.kind === 'sequence' ? 'Aktionsfolgen werden weiterhin im nativen Formular bearbeitet.' : 'Bausteindetails anzeigen. Für Änderungen „Automation bearbeiten“ wählen.';
+        $('#inspector-subtitle').textContent = category === 'catalog' ? 'Gerätedaten zur Auswahl in Automationen.' : entry?.kind === 'sequence' ? 'Für Änderungen „Aktionsfolge bearbeiten“ wählen. Verwendende Regeln nutzen danach dieselbe Folge.' : 'Bausteindetails anzeigen. Für Änderungen „Automation bearbeiten“ wählen.';
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
@@ -197,7 +197,7 @@ import {installEditing} from './editor.js';
     $('#search').addEventListener('input', renderNavigation);
     $('#validate-button').addEventListener('click', load);
 
-    async function load(preferredRule = '') {
+    async function load(preferredRule = '', preferredSequence = '') {
         if (busy) return false;
         busy = true; $('#validate-button').disabled = true;
         message('Vorhandene Moduldaten werden gelesen. Es wird keine Z2M-Abfrage gestartet.');
@@ -233,6 +233,8 @@ import {installEditing} from './editor.js';
             message(notices[0]);
             if (typeof preferredRule === 'string' && data.configuration?.automations.some(rule => rule.id === preferredRule)) {
                 category = entries().find(entry => entry.id === preferredRule && entry.kind !== 'sequence').kind; selected = 'rule:' + preferredRule; selectedPart = null; $('#search').value = '';
+            } else if (preferredSequence && data.configuration?.sequences?.some(sequence => sequence.id === preferredSequence)) {
+                category = 'sequence'; selected = 'sequence:' + preferredSequence; selectedPart = null; $('#search').value = '';
             } else if (!current()) {
                 const first = entries().find(entry => entry.kind === category) ?? entries()[0];
                 if (category !== 'catalog' && first) category = first.kind;
@@ -257,6 +259,10 @@ import {installEditing} from './editor.js';
         const refreshed = await load(ruleId);
         message(refreshed ? 'Änderung im lokalen Symcon-Entwurf übernommen. In Z2M wurde nichts gespeichert oder aktiviert.'
             : 'Die Änderung wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
+    }, onSequenceSaved: async sequenceId => {
+        const refreshed = await load('', sequenceId);
+        message(refreshed ? 'Aktionsfolge im lokalen Symcon-Entwurf übernommen. Verwenden Sie sie als Aktion einer Automation; Prüfen und Übertragen weiterhin im nativen Formular.'
+            : 'Die Aktionsfolge wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
     }});
     render();
     load();

@@ -2,6 +2,17 @@
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
+ADR 0025 ergänzt AutomationDesignerSequences und die feste POST-sequence-Route.
+Neue Sitzungen erhalten dafür eine eigene sequences-Berechtigung. Definitionen
+werden mit dem vorhandenen Aktionseditor erstellt und bearbeitet; verschachtelte
+Folgenaufrufe sind ausgeschlossen. Änderungen enthalten nur name und actions.
+Identitäten erzeugt bzw. erhält der Server. Aktuelle Schaltrechte und der gesamte
+SequencePlan werden vor der Übernahme geprüft, einschließlich Schrittgrenzen
+verwendender Automationen. Bestehende nicht bearbeitbare Schritte bleiben bei
+reiner Namensänderung erhalten. Ursprung, Zugang, Kontext, 64-KiB-Grenze,
+native Eingaben und Wiederholungsquittungen schützen denselben lokalen Commitpfad.
+Automationsregeln und Partnerfreigaben bleiben erhalten. Kein MQTT-Schreibpfad.
+
 ADR 0024 erweitert die vorhandene POST-create-Route um feste Uhrzeiten und
 Sonnenzeiten. Zeitquellen enthalten eine begrenzte Zeitenliste und eine Zeitzone;
 Sonnenquellen verwenden die vorhandenen Schemafelder. ClockEditorRows und
@@ -16,7 +27,7 @@ ADR 0023 ergänzt die feste POST-edit-Route und AutomationDesignerEditing.
 Neue Zugänge besitzen eine eigene edit-Berechtigung; alte Lese-/Erstellzugänge
 werden nicht aufgewertet. Eine vorhandene Regel wird verlustfrei kopiert und
 nur um ausdrücklich geänderte Felder ergänzt. Identität, Partnerfreigaben und
-Aktionsfolgendefinitionen sind nicht Teil des Schreibvertrags. Gerätedaten und
+Aktionsfolgendefinitionen sind nicht Teil dieses Regel-Schreibvertrags. Gerätedaten und
 aktuelle native Schaltrechte werden bei jeder geänderten Sektion erneut geprüft.
 Nicht vollständig unterstützte Bestandsbereiche bleiben serverseitig geschützt.
 CommitEditorChange bleibt der einzige lokale Übernahmepfad. Keine MQTT-Ausgabe.

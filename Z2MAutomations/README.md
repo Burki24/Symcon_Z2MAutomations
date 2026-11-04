@@ -119,8 +119,27 @@ bleiben im Dialog. „Neu laden und Eingaben verwerfen“ lädt nach Bestätigun
 aktuellen Entwurf; eigene noch nicht übernommene Eingaben gehen dabei verloren.
 „Abbrechen“ verwirft nur die nicht übernommenen Eingaben dieses Dialogs.
 
-Änderungen an Aktionsfolgen selbst sowie Prüfen, Übertragen, Aktivieren und
-Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
+Mit **„+ Neue Aktionsfolge“** legen Sie einen Ablauf an, den mehrere Automationen
+verwenden können. Namen eingeben, Gerät suchen, Kanal und Wert wählen und bei
+Bedarf weitere Schritte ergänzen. Auch Umschalten, vorhandene Szenen und Geräte
+eines eingerichteten Partners sind auswählbar. Die Wartezeit gilt jeweils vor
+dem Schritt. Mit „Nach oben“, „Nach unten“ und „Eintrag entfernen“ ordnen Sie
+den Ablauf. Anschließend **„Aktionsfolge in den Entwurf übernehmen“** wählen.
+
+Vorhandene Folgen links unter **„Aktionsfolgen“** auswählen und mit
+**„Aktionsfolge bearbeiten“** öffnen. Alle Schritte werden vorbelegt. Eine
+Meldung nennt, wie viele Automationen diese Folge verwenden: Änderungen gelten
+nach dem Übertragen für alle diese Regeln. Die Definition behält ihre Kennung;
+die Verweise in den Automationen bleiben erhalten. Eine Folge kann bis zu
+16 Schritte enthalten und keine weitere Folge aufrufen. Insgesamt sind bis zu
+32 Folgen möglich. Würde eine verwendende Automation durch die Änderung mehr
+als 16 Schritte ausführen, wird die Änderung abgelehnt und der Entwurf erhalten.
+
+Zum Verwenden eine Automation bearbeiten und bei den Aktionen
+**„Aktionsfolge aufrufen“** sowie die gewünschte Folge wählen. Reine Folgen
+haben keinen eigenen Auslöser und keinen Regelschalter.
+
+Prüfen, Übertragen, Aktivieren und Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
 im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen

@@ -1,3 +1,44 @@
+## Wiederverwendbare Browserfolgen lokal geprüft am 04.11.2026
+
+ADR 0025 ergänzt den bestehenden Browser-Aktionseditor um Definitionen. Relevante
+zentrale HTTP-, Asset- und Debughelper geprüft; diese bleiben unverändert.
+Der fachliche Folgenvertrag und die lokalen Entwurfsprüfungen bleiben librarylokal.
+
+Hooktests prüfen Anlegen und Bearbeiten, exakte Werte und Reihenfolge, Szenen,
+Kanäle, Namen, Wartezeiten, fehlende Schaltrechte und geschützte Bestandsbereiche.
+Aufrufer und Partnerfreigaben bleiben erhalten. Kontextwechsel und offene native
+Eingaben blockieren Übernahme. Eigene Berechtigung, alte Sitzungen, fremder Ursprung,
+POST-Pflicht, 64-KiB-Grenze, unbekannte Identität und Wiederholungsquittungen geprüft.
+32 Definitionen erlauben weiterhin Bearbeitung, aber keine weitere Anlage.
+Erweiterte Schrittgrenzen und kombinierte Wartezeiten verwendender Regeln werden
+vor jeder Entwurfsänderung geprüft; die Meldung nennt bei Aktionsfehlern die
+Schrittnummer. Keine MQTT-Ausgabe; bereinigte deutsche Debugtexte bestätigt.
+
+Lokaler PHP-Prüfserver mit synthetischen Modul-/Gerätestubs, ohne Symcon-Zugang:
+vorhandene Folge einschließlich Name, Kanal und Wartezeit vorgefüllt geöffnet
+und geändert. Neue Folge per Gerätesuche, Kanal und Wert erstellt, zweiten
+Schritt mit fünf Sekunden Pause ergänzt. Szenenschritt ausgewählt, nach oben
+verschoben und wieder entfernt; die übrigen Werte blieben erhalten. Übernommen,
+erneut geöffnet und beide Schritte vollständig vorbelegt bestätigt. Negative
+Wartezeit durch Browservalidierung abgewiesen; Abbrechen erhielt den Entwurf.
+Neue Definition anschließend als Aktion einer vorhandenen ausgeschalteten Regel
+ausgewählt und übernommen. Verweis, Regelschalter, sonstige Regeln und Freigaben
+erhalten. Beim erneuten Öffnen der Folge nennt der Hinweis genau einen Verwender.
+
+Bei 1280 Pixeln kein horizontaler Überlauf des Dialogs. Mausrad scrollt über
+beide Schritte bis zu den erreichbaren Übernahme-/Abbruchschaltflächen.
+Browserkonsole ohne Fehler/Warnungen. Prüfserver und eigener Hintergrundtab
+beendet; synthetische Belege außerhalb des Repositorys. Keine installierten
+Test-/Live-Dateien oder Z2M-Daten verändert, keine Gerätebefehle.
+
+php tests/run.php einschließlich 137 JavaScript-Tests bestanden. Nach der
+abschließenden Präzisierung der Fehlermeldungen Designer-Hooktests erneut
+erfolgreich. Struktur, zentrale Kodierungsprüfung, Artefaktvergleich, offizielle
+StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie und PHP CS Fixer
+3.95.27 im Prüfmodus erfolgreich. Fremdquellen und Erweiterungsartefakt unverändert.
+Eine echte Browserabnahme in der Testinstallation bleibt nach Modulupdate offen;
+ein Erweiterungsupdate ist nicht erforderlich.
+
 ## Uhrzeit-/Sonnenerstellung im Testmodul am 04.11.2026
 
 Nach dem vom Anwender ausgeführten Modulupdate den echten Browserdesigner im

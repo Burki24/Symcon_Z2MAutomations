@@ -21,13 +21,13 @@ trait AutomationDesignerEditing
         return $result;
     }
 
-    private function DesignerEditAccess(mixed $token): bool
+    private function DesignerWriteAccess(mixed $token, string $permission): bool
     {
         if (!$this->DesignerTokenAllowed($token)) {
             return false;
         }
         foreach ($this->DesignerSessions() as $session) {
-            if (hash_equals($session['hash'], hash('sha256', $token)) && ($session['edit'] ?? false)) {
+            if (hash_equals($session['hash'], hash('sha256', $token)) && ($session[$permission] ?? false)) {
                 return true;
             }
         }
@@ -43,7 +43,7 @@ trait AutomationDesignerEditing
         $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
         return $this->WithTransportLock(function () use ($token): array
         {
-            if (!$this->DesignerEditAccess($token)) {
+            if (!$this->DesignerWriteAccess($token, 'edit')) {
                 return $this->DesignerCreateFailure(403, 'Der Bearbeitungszugang fehlt oder ist abgelaufen. Bitte den Designer erneut im Modul öffnen.');
             }
             $text = $this->DesignerRequestBody();
@@ -117,7 +117,7 @@ trait AutomationDesignerEditing
             }
             $changed = $rule !== $original;
             $state = $this->RefreshState();
-            if ($state['scope'] !== $draft['scope'] || !$this->DesignerEditAccess($token)) {
+            if ($state['scope'] !== $draft['scope'] || !$this->DesignerWriteAccess($token, 'edit')) {
                 return $this->DesignerCreateFailure(409, 'Die Verbindung oder der Zugang wurde geändert. Bitte den Designer erneut im Modul öffnen.');
             }
             if ($changed) {

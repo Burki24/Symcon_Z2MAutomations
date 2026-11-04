@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Wiederverwendbare Aktionsfolgen im Browser erstellen und bearbeiten (ADR 0025):
+  gemeinsame Aktionsfelder mit Vorbelegung, Geräte-/Kanal-/Wertsuche, Szenen,
+  Reihenfolge und Wartezeiten. Eigene begrenzte POST-sequence-Berechtigung;
+  aktuelle Schaltrechte und expandierte Grenzen aller Verwender werden geprüft.
+  Vorhandene Regeln und Partnerfreigaben bleiben erhalten. Lokale synthetische
+  Browserprüfung einschließlich Übernahme, erneutem Öffnen, Verweis einer
+  deaktivierten Regel und Mausradbedienung erfolgreich. Keine Test-/Live- oder
+  Z2M-Dateien geändert. Nach Modulupdate echte Testabnahme noch offen;
+  Erweiterungsupdate nicht erforderlich.
+
 - Uhrzeit-/Sonnenerstellung am 04.11.2026 im ursprünglichen Testmodul geprüft:
   zwei Uhrzeiten, Sonnenaufgang mit negativem und Sonnenuntergang mit positivem
   Versatz ausgeschaltet angelegt und erneut vorgefüllt geöffnet. Validierungs-

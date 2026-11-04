@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ruleChanges, targetDevice, valueIndex} from '../Z2MAutomations/visualization/editor.js';
+import {ruleChanges, sequenceChanges, targetDevice, valueIndex} from '../Z2MAutomations/visualization/editor.js';
+
+test('sequence editing submits only changed name and actions without mutating callers or original typed values', () => {
+    const original = {id: 'shared', name: 'Shared', actions: [{type: 'set', values: {state: 'OFF', level: 0}, delay_seconds: 5}]};
+    const working = structuredClone(original);
+    assert.deepEqual(sequenceChanges(original, working), {});
+    working.name = 'Renamed'; working.id = 'ignored'; working.enabled = true;
+    assert.deepEqual(sequenceChanges(original, working), {name: 'Renamed'});
+    working.actions[0].delay_seconds = 0;
+    const changes = sequenceChanges(original, working);
+    assert.deepEqual(changes.actions[0].values, {state: 'OFF', level: 0});
+    changes.actions[0].values.level = 50;
+    assert.equal(working.actions[0].values.level, 0);
+    assert.equal(original.actions[0].delay_seconds, 5);
+});
 
 test('editing starts with a lossless clone and submits only explicit changed fields', () => {
     const original = {id: 'synthetic', name: 'Original', enabled: false, triggers: [{type: 'time', at: '00:00:00', timezone: 'UTC'}],

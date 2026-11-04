@@ -213,6 +213,14 @@ Status- und Formulareinstiege behalten ihre zentralen Start-/Ende-Abläufe.
 
 ## Wiederverwendbare Aktionsfolgen
 
+Auch der Browserpfad verwendet den vorhandenen DebugFlowHelper über den
+Modul-Hook und CommitEditorChange. Er meldet neue oder bearbeitete Definition,
+unveränderte Bestätigung, wiederholten Auftrag sowie abgewiesene Eingaben oder
+Kontextkonflikte mit deutschen festen Texten. Bei Erfolg nennt der Bezug nur
+Neuanlage, Schrittzahl und Anzahl verwendender Automationen. Die Meldung
+bestätigt ausdrücklich den lokalen Entwurf und den Erhalt der Regeln und
+Partnerfreigaben. Keine Namen, Kanäle, Werte, Definitionen oder Zugangstoken.
+
 Auswahl, Übernahme, Schrittbearbeitung und Löschsperre verwenden die zentralen
 Start-/Ende-Abläufe und feste deutsche Fachmeldungen. Protokolliert werden
 Schritt- und Verwendungsanzahl sowie das Ergebnis der Berechtigungsprüfung.

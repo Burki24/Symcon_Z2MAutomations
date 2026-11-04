@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Browserdesigner: Wiederverwendbare Aktionsfolgen erstellen und bearbeiten.
+  Schritte mit Geräte-, Kanal-, Wert- und Szenenauswahl werden vorbelegt;
+  Wartezeiten, Hinzufügen, Entfernen und Umsortieren sind direkt bearbeitbar.
+  Der Hinweis auf verwendende Automationen und die gemeinsame Schrittprüfung
+  schützen bestehende Regeln. Die Übernahme erhält Partnerfreigaben und ändert
+  nur den lokalen Entwurf. Bereinigte deutsche Debugmeldungen erklären das Ergebnis.
+
 - Browserdesigner: „Neue Automation“ bietet jetzt auch bis zu acht Uhrzeiten
   sowie Sonnenaufgang oder Sonnenuntergang mit Standort, Zeitzone und Zeitversatz.
   Doppelte bzw. ungültige Zeiten werden abgewiesen. Alle Regeln beginnen
