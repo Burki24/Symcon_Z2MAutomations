@@ -1,3 +1,48 @@
+## Uhrzeit-/Sonnenerstellung im Testmodul am 04.11.2026
+
+Nach dem vom Anwender ausgeführten Modulupdate den echten Browserdesigner im
+ursprünglichen Testmodul über einen eigenen Hintergrundtab geprüft. Geladener
+Quellstand stimmt mit dem lokalen Erstellhandler überein. Acht Bestandsregeln,
+passende Gerätedaten und keine offenen nativen Eingaben; lokaler YAML-Entwurf
+vor der Prüfung identisch zum gespeicherten Z2M-Stand. Ausgangsdaten außerhalb
+des Repositorys gesichert.
+
+- Uhrzeitregel mit zwei Zeiten und expliziter Zeitzone über „Neue Automation“
+  ausgeschaltet übernommen. Zuvor identische Zeiten verständlich abgewiesen.
+  Beim erneuten Öffnen alle Zeiten, Zonen, Zielkanal, Wert und Regelschalter
+  korrekt vorbelegt; Originalregeln und Partnerfreigabe unverändert.
+- Sonnenaufgang mit numerischen Nullkoordinaten und negativem Versatz sowie
+  Sonnenuntergang mit synthetischem Standort und positivem Versatz ausgeschaltet
+  übernommen. Beim Öffnen zum Bearbeiten Ereignis, Koordinaten, Vorzeichen,
+  Minutenwert, Zone und ausgeschalteter Zustand mit den Entwurfsdaten verglichen.
+- Browservalidierung verhindert Breitengrad oberhalb der Grenze, Versatz unterhalb
+  der Grenze und Bruchteile einer Minute. Eingaben bleiben erhalten; nach Korrektur
+  erfolgreiche Übernahme. Drei temporäre Regeln zusätzlich, keine Bestandsänderung.
+- Der echte Z2M-Empfänger hat den vollständigen Prüfentwurf per validate bestätigt.
+  Keine Speicherung oder Aktivierung. Gespeicherte/aktive Prüfsumme, Revision,
+  Zahl aktiver Regeln und Wiederanlauferlaubnis blieben unverändert.
+- Native Datei-Debugaufzeichnung bestätigt Uhrzeitanzahl, beide Sonnenereignisse
+  und die exakten Vorzeichen der Minutenversätze. Keine Standortkoordinaten,
+  Regelnamen oder Tokens in den Erstellmeldungen. Nur validate und lesender
+  Editorabruf als Erweiterungsaufträge im Prüfintervall; kein store/activate.
+  Kein Gerätebefehl. Mausrad bedient den langen Dialog, bei 1280 Pixeln kein
+  horizontaler Überlauf. Keine Browserwarnungen oder Skriptfehler.
+
+Der erste Wiederherstellungsaufruf der Prüfinstrumentierung griff auf einen
+falschen Sicherungsschlüssel zu. Die Schutzprüfung brach vor dem Ladeaufruf ab;
+kein Modulfehler und keine weitere Entwurfsänderung. Den Prüfaufruf korrigiert,
+die unveränderte Ausgangsbasis erneut geprüft und den gespeicherten Editorstand
+lesend geladen. Danach YAML bytegleich zur Sicherung und vollständige Konfiguration
+identisch: acht Regeln, unveränderte Regelschalter und Freigaben. Gespeicherter
+und aktiver Z2M-Stand identisch zur Ausgangsmessung; Modulstatus aktiv. Browser
+aktualisiert und das Entfernen aller temporären Regeln bestätigt.
+
+Prüftab geschlossen und eigene Debugdatei-Aufzeichnung beendet. Bestehende
+Benutzertabs erhalten. Keine Modul-/Erweiterungsdateien auf einem System geändert;
+keine Codekorrektur erforderlich. Reale zeit-/astrogesteuerte Ausführung war
+nicht Teil dieses Auftrags. Für den ausschließlich ergänzten Prüfnachweis
+Kodierung, Struktur und Diff geprüft; keine erneute vollständige Programmsuite.
+
 ## Neue Uhrzeit- und Sonnenregeln im Browser am 04.11.2026 (lokal)
 
 ADR 0024 erweitert ausschließlich den Moduldesigner und seine lokale

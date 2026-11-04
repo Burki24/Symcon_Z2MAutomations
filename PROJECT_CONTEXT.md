@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Uhrzeit-/Sonnenerstellung am 04.11.2026 im ursprünglichen Testmodul geprüft:
+  zwei Uhrzeiten, Sonnenaufgang mit negativem und Sonnenuntergang mit positivem
+  Versatz ausgeschaltet angelegt und erneut vorgefüllt geöffnet. Validierungs-
+  grenzen und Debug bestätigt; Z2M hat den Prüfentwurf nur validiert. Danach
+  Originalentwurf bytegleich hergestellt, Regeln/Freigaben und gespeicherter/
+  aktiver Z2M-Stand erhalten. Keine Codekorrektur oder weitere Aktualisierung nötig.
+
 - Zeit- und Sonnenregeln direkt im Browser erstellen (ADR 0024): bis zu acht
   Uhrzeiten oder Sonnenauf-/untergang mit Standort, Zeitzone und ganzzahligem
   Versatz. Native Validierung, Aktionsrechte und gemeinsamer Regel-/Commitpfad;
