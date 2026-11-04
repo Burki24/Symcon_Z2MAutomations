@@ -212,7 +212,7 @@ trait WorkspaceSetup
         $job['error'] = '';
         $this->WriteWorkspaceSetup($job);
         $this->DebugEvent('AKTION', 'Direkte Einrichtung lokal zurückgenommen. Spätere Entwurfsänderungen bleiben privat gesichert. Andere Systeme und der Z2M-Betrieb bleiben erhalten.', ['Systembezug' => $job['binding']['systemId']]);
-        $this->ReloadForm();
+        $this->RequestWorkspaceFormReload();
     }
 
     private function SyncWorkspaceSetup(): void
@@ -321,7 +321,7 @@ trait WorkspaceSetup
         $job['error'] = '';
         $this->WriteWorkspaceSetup($job);
         $this->DebugEvent('AKTION', 'Direkte Einrichtung abgeschlossen. Verbindung gehört dieser Zentrale; gespeicherte Regeln und Partnerfreigaben liegen unverändert im lokalen Entwurf. Keine Z2M-Schreibanfrage.', ['Systembezug' => $job['binding']['systemId']]);
-        $this->ReloadForm();
+        $this->RequestWorkspaceFormReload();
     }
 
     private function CheckWorkspaceSetupTarget(array $record): void

@@ -26,6 +26,8 @@ class SetupManagerProbe extends Z2MAutomations
 {
     public static string $storage;
     public array $debug = [];
+    public array $reloadedForms = [];
+    public bool $failReload = false;
     public string $failAt = '';
     public function Raw(string $name): string
     {
@@ -49,6 +51,30 @@ class SetupManagerProbe extends Z2MAutomations
     protected function LoadConfigurationForm(): array
     {
         return json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true);
+    }
+    protected function ReloadForm(): bool
+    {
+        if ($this->failReload) {
+            $this->failReload = false;
+            throw new RuntimeException('PRIVATE_RELOAD_FAILURE');
+        }
+        // The kernel rebuilds the form in a separate entry, not on this PHP object's stack.
+        $free = IPS_SemaphoreEnter('Z2MA.Owner.' . $this->InstanceID, 0);
+        if ($free) IPS_SemaphoreLeave('Z2MA.Owner.' . $this->InstanceID);
+        $fresh = new self($this->InstanceID);
+        $status = IPS_GetInstance($this->InstanceID)['InstanceStatus'];
+        IPS\InstanceManager::setStatus($this->InstanceID, 101);
+        try {
+            $fresh->Create();
+        } finally {
+            IPS\InstanceManager::setStatus($this->InstanceID, $status);
+        }
+        $fresh->ApplyPersistence($this->GetPersistence());
+        $form = json_decode($fresh->GetConfigurationForm(), true, 64, JSON_THROW_ON_ERROR);
+        $this->reloadedForms[] = ['unlocked' => $free, 'usable' => $form['actions'] !== []];
+        unset($fresh);
+        gc_collect_cycles();
+        return true;
     }
     protected function SendDebug(string $Message, string $Data, int $Format): bool
     {
@@ -184,6 +210,8 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
         $check(!$decode($manager->GetWorkspaceTransferStatus($systemID))['transfer']['canValidate'], 'Preview is not an implicit permission to transfer.');
         $confirmed = $decode($manager->ConfirmWorkspaceSetup($operation));
         $check($confirmed['ok'] && $confirmed['setup']['phase'] === 'complete', 'Direct setup completes without a legacy instance: ' . json_encode($confirmed));
+        $reloaded = end($manager->reloadedForms);
+        $check($reloaded !== false && $reloaded['unlocked'] && $reloaded['usable'], 'Automatic setup form rebuild must run after the owner lock is released and show the central controls.');
         $after = $detail($systemID);
         $document = $after['data']['document'];
         $check($after['binding']['sourceInstance'] === 0 && $document !== null, 'No artificial source instance or missing document.');
@@ -207,6 +235,8 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $lastID = $last['systemId'];
     $rollback = $decode($manager->RollbackWorkspaceSetup(end($operations)));
     $check($rollback['ok'] && $rollback['setup']['phase'] === 'rolled_back', 'A local return path is available before external storage: ' . json_encode($rollback));
+    $reloaded = end($manager->reloadedForms);
+    $check($reloaded['unlocked'] && $reloaded['usable'], 'The local return also rebuilds the usable form outside the ownership lock.');
     $check($detail($lastID)['data'] === $before[$lastID]['data'], 'Return restores only the target local data.');
     foreach (array_slice($overview['systems'], 0, -1) as $system) $check($detail($system['systemId'])['data']['document'] !== null, 'Return preserves other owned systems.');
 
@@ -260,6 +290,47 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $check($status()['setup']['phase'] === 'error' && $detail($lastID)['data'] === $beforeSecond['data'], 'Rejected data cannot change drafts or owners.');
     $cancel();
     $changeReply = null;
+
+    // An asynchronous reply completes through the timer, just like the real installation.
+    $read = $begin();
+    $drop = 'status';
+    $reloadCount = count($manager->reloadedForms);
+    $check($decode($manager->ConfirmWorkspaceSetup($read['setup']['operation']))['setup']['phase'] === 'verifying'
+        && count($manager->reloadedForms) === $reloadCount, 'Pending verification does not publish a premature form.');
+    $parent = $parents[$last['binding']['mqttParent']];
+    $packet = end($parent->sent);
+    $parent->publish(str_replace('/request/', '/response/', $packet['Topic']), ['protocol_version' => 1,
+        'transaction'                                                                              => $packet['Payload']['transaction'], 'status' => 'ok', 'data' => $receivers[$topic]]);
+    $drop = '';
+    $sentBeforeRefresh = $sent();
+    $manager->RefreshWorkspaceSetup();
+    $reloaded = end($manager->reloadedForms);
+    $check(
+        $status()['setup']['phase'] === 'complete' && count($manager->reloadedForms) === $reloadCount + 1
+        && $reloaded['unlocked'] && $reloaded['usable'] && $sent() === $sentBeforeRefresh,
+        'Timer completion rebuilds one usable form after releasing the lock, without another MQTT request.'
+    );
+    $check($decode($manager->RollbackWorkspaceSetup($read['setup']['operation']))['ok'], 'Restore the asynchronous setup locally.');
+
+    // Reopening a form can itself finish an interrupted local commit; do not reload it recursively.
+    $read = $begin();
+    $manager->failAt = 'published';
+    $decode($manager->ConfirmWorkspaceSetup($read['setup']['operation']));
+    $reloadCount = count($manager->reloadedForms);
+    $form = $decode($manager->GetConfigurationForm());
+    $check(
+        $form['actions'] !== [] && $status()['setup']['phase'] === 'complete' && count($manager->reloadedForms) === $reloadCount,
+        'A rebuilding form displays the recovered state directly, without another reload loop.'
+    );
+    $check($decode($manager->RollbackWorkspaceSetup($read['setup']['operation']))['ok'], 'Restore the recovered setup locally.');
+
+    $read = $begin();
+    $manager->failReload = true;
+    $check($decode($manager->ConfirmWorkspaceSetup($read['setup']['operation']))['setup']['phase'] === 'complete'
+        && $detail($lastID)['data']['document']['yaml'] === $documents[$topic]['yaml'], 'A native form reload failure cannot undo or misreport a completed setup.');
+    $check(str_contains(implode(' ', $manager->debug), 'Das Formular konnte nicht aktualisiert werden.')
+        && !str_contains(implode(' ', $manager->debug), 'PRIVATE_RELOAD_FAILURE'), 'Reload failure debug explains recovery without exposing exception contents.');
+    $check($decode($manager->RollbackWorkspaceSetup($read['setup']['operation']))['ok'], 'Restore setup after a failed display update.');
 
     $read = $begin();
     $manager = $restart($managerID);

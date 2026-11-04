@@ -2,6 +2,12 @@
 
 ## Korrigiert
 
+- Nach der lokalen Übernahme einer Z2M-Verbindung wird das Formular erst nach
+  Abschluss des laufenden Aufrufs neu aufgebaut. Dadurch erscheint keine falsche
+  Sperrmeldung mehr. Dieselbe Aktualisierung gilt für Rückweg, Systemauswahl und
+  Prüfstatus. Deutsche Debugmeldungen erklären Vormerkung und Freigabe; ein
+  Anzeigefehler macht eine erfolgreiche Übernahme nicht rückgängig.
+
 - Der Browserdesigner bleibt beim parallelen Laden seiner Dateien nicht mehr
   im leeren Startzustand stehen. Nur ausdrücklich erlaubte Dateiaufrufe warten
   bis zu fünf Sekunden auf einen laufenden Aufruf; Besitzer- und Schreibschutz

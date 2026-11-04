@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Automatischer Formularneuaufbau der Zentrale
+
+Formularaktualisierungen erklären zunächst ihre Vormerkung im laufenden Aufruf.
+Nach Freigabe der Instanzsperre folgt die Übergabe an Symcon. Mehrere Vormerkungen
+werden zusammengefasst; ein bereits laufender Formularaufbau liefert den aktuellen
+Stand direkt. Besitzer- und Schreibschutz werden dafür nicht umgangen. Schlägt
+nur die Anzeigeaktualisierung fehl, nennt Debug das erneute Öffnen als nächsten
+Schritt. Der abgeschlossene Vorgang bleibt erhalten; keine automatische
+Wiederholung, weitere Z2M-Anfrage oder Ausgabe beliebiger Exception-Texte.
+
 ## Browserstart
 
 Der Browser lädt HTML, CSS und JavaScript parallel. Nur GET-Aufrufe aus der

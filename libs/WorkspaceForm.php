@@ -33,7 +33,7 @@ trait WorkspaceForm
                 $result = json_decode($this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
             }
             $this->UpdateFormField('WorkspaceNotice', 'caption', $result['ok'] ? 'Systemzuordnung übernommen. Die Entwürfe bleiben getrennt; Z2M wurde nicht verändert.' : $result['message']);
-            if ($result['ok']) $this->ReloadForm();
+            if ($result['ok']) $this->RequestWorkspaceFormReload();
             return $result['ok'];
         });
     }
@@ -50,7 +50,7 @@ trait WorkspaceForm
                 }
                 $result = json_decode($this->SelectWorkspaceSystem($SystemID, WorkspaceState::Fingerprint($this->ReadWorkspace()), bin2hex(random_bytes(16))), true, 16, JSON_THROW_ON_ERROR);
                 if (!$result['ok']) throw new RuntimeException($result['error']);
-                $this->ReloadForm();
+                $this->RequestWorkspaceFormReload();
                 return true;
             } catch (Throwable $exception) {
                 $result = json_decode($this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
@@ -68,7 +68,7 @@ trait WorkspaceForm
         {
             $result = json_decode($this->RefreshWorkspaceCatalog($SystemID, $Generation, $Fingerprint, bin2hex(random_bytes(16))), true, 16, JSON_THROW_ON_ERROR);
             $this->UpdateFormField('WorkspaceNotice', 'caption', $result['ok'] ? 'Bestätigte Gerätedaten eingelesen. Entwurf erhalten.' : $result['message']);
-            if ($result['ok']) $this->ReloadForm();
+            if ($result['ok']) $this->RequestWorkspaceFormReload();
             return $result['ok'];
         });
     }

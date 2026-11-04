@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Formularneuaufbau nach direkter Übernahme lokal korrigiert: Die sofortige
+  Besitzersperre blockierte den getrennten nativen Formularabruf aus ReloadForm.
+  Zentrale Formularaktualisierungen werden jetzt im laufenden Eintritt
+  zusammengefasst und erst nach dessen Sperrfreigabe übergeben. Bereits laufende
+  Formularaufbauten benötigen keinen weiteren Reload. Fehler der Anzeige ändern
+  kein erfolgreiches Übernahmeergebnis. Regression mit getrennten Stubobjekten,
+  synchroner/asynchroner Bestätigung, lokalem Rückweg und Commitfortsetzung im
+  Formular; erneute native Abnahme nach Modulupdate offen. Keine Test-/Live-
+  Änderung und kein Erweiterungsupdate.
+
 - Direkte Einrichtung lokal implementiert: native Vorschau aus vorhandenem
   Z2M-editor/status ohne alte Einzelinstanzen, private geprüfte Sicherung,
   ausdrückliche Bestätigung und exklusiver lokaler Verbindungsclaim. YAML, IDs,

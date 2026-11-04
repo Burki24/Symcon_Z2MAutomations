@@ -3979,3 +3979,39 @@ hineinkopiert oder verändert. PHP CS Fixer 3.95.27 im Prüfmodus: 0 von 122 Dat
 mit Änderungen. Alle 27 geänderten eigenen Dateien UTF-8 ohne BOM mit LF;
 git diff --check ohne Befund. Native sichtbare Bedienung und echte Z2M-
 Ersteinrichtung bleiben nach einem ausdrücklich beauftragten Testupdate offen.
+
+## Formularneuaufbau nach direkter Übernahme am 04.11.2026
+
+Die Testabnahme zeigte nach erfolgreicher Übernahme eine falsche Besitzersperre
+im automatisch aufgebauten Formular. ReloadForm wurde noch innerhalb der
+Besitzersperre des schreibenden Aufrufs ausgelöst. Der getrennte Kernelabruf
+GetConfigurationForm konnte diese Sperre nicht betreten. Ein späteres Öffnen
+funktionierte, weil der erste Aufruf inzwischen beendet war.
+
+RequestWorkspaceFormReload merkt zentrale Aktualisierungen nur im aktuellen
+PHP-Eintritt vor. Erst der äußerste Aufruf gibt die Instanzsperre frei und
+übergibt genau einen Neuaufbau an Symcon. Setup, lokaler Rückweg, Systemwahl,
+Katalogübernahme und Prüfstatus nutzen denselben Weg. Kein neuer Timer, kein
+persistenter Auftrag, keine Ausnahme von Besitzer- oder Schreibprüfungen.
+GetConfigurationForm kann einen unterbrochenen lokalen Commit fortsetzen und
+den fertigen Stand direkt liefern; dabei entfällt ein rekursiver Neuaufbau.
+Fehler der Anzeigeaktualisierung werden bereinigt erklärt und verändern weder
+den erfolgreichen Rückgabewert noch den bereits gespeicherten lokalen Stand.
+
+Die vorhandene Setup-Integration bildet ReloadForm jetzt durch einen getrennten
+Stubkontext mit tatsächlichem Besitzersemaphor und aktuellem persistiertem Stand
+nach. Der Regressionstest schlug vor der Korrektur wegen der gesperrten Anzeige
+fehl. Geprüft sind 1/2/8 Systeme, synchrone Bestätigung und asynchrone Antwort mit
+Statustimer, lokaler Rückweg, Wiederaufnahme beim Formularöffnen ohne Reloadschleife
+sowie ein gestörter nativer Reload. Daten und MQTT-Aufträge bleiben erhalten;
+die Anzeige erzeugt keine weiteren Z2M-Anfragen. Fremdquellen und zentrale
+Helper bleiben unverändert. Reale erneute Abnahme nach Modulupdate noch offen;
+keine Test-/Produktivinstallation oder Z2M-Erweiterung in diesem Auftrag geändert.
+
+Abschließender Prüfnachweis: php tests/run.php erfolgreich, einschließlich der
+Setup-Regression und 147 JavaScript-Tests. Struktur und zentrale Kodierungsprüfung
+bestanden. Offizieller StylePHP-Check der 18 eigenen JSON-Dateien in isolierter
+Kopie erfolgreich; Fremdquellen unverändert ausgeschlossen. PHP CS Fixer 3.95.27
+im Prüfmodus ohne Befund für 122 Dateien. Alle neun geänderten eigenen Dateien
+UTF-8 ohne BOM mit LF; git diff --check ohne Befund. Erneute native Testabnahme
+nach Modulupdate bleibt offen; ein Erweiterungsupdate ist nicht erforderlich.

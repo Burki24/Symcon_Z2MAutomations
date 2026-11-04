@@ -13,6 +13,7 @@ require_once __DIR__ . '/SystemContract.php';
 trait SystemOwnership
 {
     private bool $ownershipEntry = false;
+    private bool $workspaceFormReloadRequested = false;
     private ?array $workspaceEditorContext = null;
 
     public function GetSystemOwnership(): string
@@ -83,7 +84,32 @@ trait SystemOwnership
             return $callback();
         } finally {
             $this->ownershipEntry = $nested;
-            if (!$nested && !$receive) IPS_SemaphoreLeave($lock);
+            if (!$nested && !$receive) {
+                IPS_SemaphoreLeave($lock);
+                $this->FinishWorkspaceFormReload($function);
+            }
+        }
+    }
+
+    private function RequestWorkspaceFormReload(): void
+    {
+        if (!$this->workspaceFormReloadRequested) $this->DebugEvent('AKTION', 'Formularaktualisierung vorgemerkt. Erst den laufenden Aufruf abschließen und die Instanzsperre freigeben; danach die Anzeige neu aufbauen.');
+        $this->workspaceFormReloadRequested = true;
+    }
+
+    private function FinishWorkspaceFormReload(string $function): void
+    {
+        if (!$this->workspaceFormReloadRequested) return;
+        $this->workspaceFormReloadRequested = false;
+        if ($function === 'GetConfigurationForm') {
+            $this->DebugEvent('AKTION', 'Der laufende Formularaufbau enthält bereits den aktuellen Stand. Kein weiterer Neuaufbau erforderlich.');
+            return;
+        }
+        try {
+            $this->DebugEvent('AKTION', 'Instanzsperre freigegeben. Die vorgemerkte Formularaktualisierung wird jetzt an Symcon übergeben; Entwürfe und Z2M bleiben unverändert.');
+            if (!$this->ReloadForm()) $this->DebugEvent('FEHLER', 'Symcon hat die Formularaktualisierung nicht bestätigt. Bitte das Formular erneut öffnen; der abgeschlossene Vorgang bleibt erhalten.');
+        } catch (Throwable $exception) {
+            $this->DebugEvent('FEHLER', 'Das Formular konnte nicht aktualisiert werden. Bitte erneut öffnen; der abgeschlossene Vorgang bleibt erhalten.', ['Ausnahmeklasse' => get_class($exception)]);
         }
     }
 

@@ -187,7 +187,7 @@ trait WorkspaceTransfer
         if ($changedBase) {
             $state = $this->ReadWorkspace();
             $this->DebugEvent('AKTION', 'Bestätigte Speicherrevision als neue Bearbeitungsbasis übernommen. YAML, Regeln und offene Eingaben bleiben erhalten; keine Aktivierung.', ['Systembezug' => $system]);
-            if ($state['selectedSystem'] === $system && !WorkspaceState::Dirty($state['systems'][$system])) $this->ReloadForm();
+            if ($state['selectedSystem'] === $system && !WorkspaceState::Dirty($state['systems'][$system])) $this->RequestWorkspaceFormReload();
         }
     }
 
