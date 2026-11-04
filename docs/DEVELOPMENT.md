@@ -3759,3 +3759,37 @@ Struktur, zentrale Kodierungsprüfung, offizieller StylePHP-Check der 18 eigenen
 JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus (112 Dateien)
 und git diff --check ohne Befund. Entwicklung auf dev, kein Commit oder Push
 durch den Agenten; kanonische Helper und Fremdquellen unverändert.
+
+## Vorhandene Verbindungen per Häkchen zuordnen am 04.11.2026
+
+Das zentrale Formular ermittelt vorhandene Z2MConnection-Instanzen unabhängig
+von ihrer Darstellung als Gerät. Es zeigt Namen und Instanz-ID, Basistopic und
+MQTT-Zuordnung. Neue Systeme werden nur nach Häkchenauswahl und ausdrücklicher
+Bestätigung zugeordnet. Vorhandene Zuordnungen bleiben angehakt und geschützt;
+fehlende Verbindungen bleiben sichtbar. Fremde Besitzer und ungültige
+Verbindungen werden verständlich gekennzeichnet und zur Auswahl gesperrt.
+
+Die Bestätigung prüft die dargestellten Verbindungsidentitäten und Besitzer
+erneut. Ein zwischenzeitlicher Wechsel verlangt ein erneutes Öffnen des
+Formulars. Entwürfe, MQTT-Parents, Besitzer und Z2M bleiben unverändert. Beim
+erneuten Bestätigen bereits übernommener Systeme bleibt auch deren ursprüngliche
+Quellinstanz erhalten; andernfalls scheiterte die bisherige Bindungsprüfung.
+Die vorhandenen zentralen Formular-/Parenthelper wurden vorab geprüft;
+Entdeckung und Systemzuordnung bleiben wegen ihrer Fachlogik librarylokal.
+
+tests/workspace-connections.php prüft mit synthetischen Instanzen automatische
+Entdeckung, Namen/Topics/Parents, native Listenspeicherung und den tatsächlich
+generierten Callback mit Objektzeilen. Hinzu kommen leere und zu große Auswahl,
+Besitzerwechsel, veraltetes Formular, ungültige und gelöschte Verbindungen sowie
+unveränderte Entwürfe und ausbleibender MQTT-Versand. tests/migration.php prüft
+das erneute Bestätigen übernommener Systeme einschließlich Herkunft und Besitz.
+Deutsche Debugmeldungen erklären Entdeckung, Auswahl und Ablehnung ohne
+Gerätenamen, Dokumentinhalt oder Zugangsdaten auszugeben.
+
+php tests/run.php einschließlich 141 JavaScript-Tests erfolgreich. Zusätzlich
+Struktur, zentrale Kodierungsprüfung, offizieller StylePHP-Check der 18 eigenen
+JSON-Dateien in isolierter Kopie, PHP CS Fixer im Prüfmodus (113 Dateien) und
+git diff --check ohne Befund. Kanonische Helper und Fremdquellen unverändert.
+Keine Installation aktualisiert und keine Z2M-Aktion ausgeführt. Die Darstellung
+und Bedienung in der nativen Konsole bleiben nach Modulupdate und erneutem
+Öffnen des Formulars zu prüfen; ein Erweiterungsupdate ist nicht erforderlich.

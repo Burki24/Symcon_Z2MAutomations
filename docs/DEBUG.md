@@ -647,6 +647,13 @@ vollständige Ablaufhistorie und bestätigt keine physische Gerätewirkung.
 
 ## Gemeinsame Systemauswahl
 
+Die automatische Verbindungsliste meldet Anzahl gefundener, bereits zugeordneter
+und nicht verfügbarer Verbindungen. Die ausdrückliche Übernahme nennt Anzahl
+und IDs der angehakten Instanzen. Nicht auswählbare Verbindungen und geänderte
+Auswahldaten führen zu erklärten Abbrüchen. Anzeigenamen, Topics, MQTT-Konfiguration
+und Entwurfsinhalte werden dabei nicht ausgegeben. Es wird keine MQTT-Anfrage
+gesendet. Ein erneutes Öffnen liest die aktuelle lokale Instanzliste.
+
 GetCompatibleParents meldet den Anlegeweg ohne eigene MQTT-Schnittstelle und
 verweist auf die spätere Zuordnung der Z2M-Verbindungsinstanzen. Dieser reine
 SDK-Metadatenaufruf bleibt auch während einer Übernahmesperre verfügbar. Er

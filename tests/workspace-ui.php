@@ -261,7 +261,7 @@ IPS_DisconnectInstance($connections[7]);
 $check($manager->ChooseWorkspaceSystem($systems[7], $overview()['fingerprint'], $b, 1, $detail($b)['fingerprint'], ''), 'An unavailable system can still be selected for reading');
 $offline = $decode($manager->GetDesignerData());
 $check(!$offline['catalogAvailable'] && $offline['configuration']['automations'][0]['name'] === 'Synthetic rule 7', 'Unavailable connection preserves its displayed document');
-$check(str_contains($manager->GetConfigurationForm(), 'Zuordnung prüfen'), 'Unavailable native system has a clear connection notice');
+$check(str_contains($manager->GetConfigurationForm(), 'MQTT-Zuordnung, Basistopic und Besitzer prüfen'), 'Unavailable native system has a clear connection notice');
 $check($detail($systems[7])['data'] === $beforeOffline, 'Reading unavailable system never replaces its document');
 IPS_ConnectInstance($connections[7], $parentID);
 $check($manager->ChooseWorkspaceSystem($a, $overview()['fingerprint'], $systems[7], 1, $detail($systems[7])['fingerprint'], ''), 'Another system remains usable');

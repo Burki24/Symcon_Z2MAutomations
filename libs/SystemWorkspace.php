@@ -59,6 +59,7 @@ trait SystemWorkspace
                         $id = $binding['systemId'];
                         if (isset($state['systems'][$id])) {
                             $prior = $state['systems'][$id];
+                            $binding['sourceInstance'] = $prior['binding']['sourceInstance'];
                             if ($prior['binding'] !== $binding) {
                                 if ($binding['generation'] <= $prior['binding']['generation']) throw new RuntimeException('binding_changed');
                                 if (WorkspaceState::Dirty($prior)) throw new RuntimeException('open_input');

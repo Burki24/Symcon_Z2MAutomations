@@ -159,6 +159,23 @@ foreach ([1, 2, 8] as $count) {
     $check($manager->GetCompatibleParents() === '{}', 'Owned manager still declares no native parent requirement');
     $check(str_contains($manager->GetConfigurationForm(), 'WorkspaceSystem'), 'Committed manager can open the system-bound native editor');
     $check(isset($decode($manager->GetDesignerData())['workspaceContext']), 'Committed owner can read its system-bound browser model');
+    $connectionFields = static function (array $items) use (&$connectionFields): array
+    {
+        $fields = [];
+        foreach ($items as $field) {
+            if (isset($field['name'])) $fields[$field['name']] = $field;
+            $fields += $connectionFields($field['items'] ?? []);
+        }
+        return $fields;
+    };
+    $setup = $connectionFields($decode($manager->GetConfigurationForm())['actions']);
+    $check($manager->ApplyWorkspaceConnections(json_encode(array_column($rows, 'connectionInstance')), $setup['WorkspaceFingerprint']['value'], $setup['WorkspaceCandidatesFingerprint']['value']), 'Prechecked migrated connections can be confirmed without losing their source identity');
+    $confirmedSystems = $decode($manager->Raw('SystemWorkspace'))['systems'];
+    foreach ($state['systems'] as $systemID => $record) {
+        $record['name'] = IPS_GetName($record['binding']['connectionInstance']);
+        $check($confirmedSystems[$systemID] === $record, 'Confirming checked systems preserves migrated drafts, origins and owner epochs while displaying the connection name');
+    }
+    $state = $decode($manager->Raw('SystemWorkspace'));
     foreach ($state['systems'] as $systemID => $record) {
         $id = $record['binding']['sourceInstance'];
         $source = IPS\InstanceManager::getInstanceInterface($id);

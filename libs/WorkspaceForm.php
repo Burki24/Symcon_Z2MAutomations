@@ -9,11 +9,29 @@ use Throwable;
 
 trait WorkspaceForm
 {
-    public function ApplyWorkspaceConnections(string $Connections, string $Fingerprint): bool
+    public function ApplyWorkspaceConnections(string $Connections, string $Fingerprint, string $CandidatesFingerprint): bool
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Connections, $Fingerprint): bool
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Connections, $Fingerprint, $CandidatesFingerprint): bool
         {
-            $result = json_decode($this->ConfigureWorkspace($Connections, $Fingerprint, bin2hex(random_bytes(16))), true, 16, JSON_THROW_ON_ERROR);
+            try {
+                $ids = $this->DecodeWorkspaceInput($Connections, 1024);
+                if (!array_is_list($ids)) throw new RuntimeException('invalid_request');
+                if ($ids === []) throw new RuntimeException('no_connections_selected');
+                $choices = $this->WorkspaceConnectionChoices($this->ReadWorkspace());
+                if (!hash_equals($choices['fingerprint'], $CandidatesFingerprint)) throw new RuntimeException('connection_selection_changed');
+                foreach ($ids as $id) {
+                    if (!is_int($id)) throw new RuntimeException('invalid_request');
+                    $error = $choices['availability'][$id] ?? 'connection_unavailable';
+                    if ($error !== '') {
+                        $this->DebugEvent('FEHLER', 'Angehakte Verbindung nicht zugeordnet. Vorhandene Entwürfe bleiben erhalten.', ['Verbindung' => $id, 'Grund' => $error]);
+                        throw new RuntimeException($error);
+                    }
+                }
+                $this->DebugEvent('EMPFANG', 'Angehakte Z2M-Verbindungen erneut geprüft. Nur die bestätigte Auswahl wird lokal zugeordnet.', ['Ausgewählt' => count($ids), 'Verbindungen' => $ids]);
+                $result = json_decode($this->ConfigureWorkspace($Connections, $Fingerprint, bin2hex(random_bytes(16))), true, 16, JSON_THROW_ON_ERROR);
+            } catch (Throwable $exception) {
+                $result = json_decode($this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
+            }
             $this->UpdateFormField('WorkspaceNotice', 'caption', $result['ok'] ? 'Systemzuordnung übernommen. Die Entwürfe bleiben getrennt; Z2M wurde nicht verändert.' : $result['message']);
             if ($result['ok']) $this->ReloadForm();
             return $result['ok'];
@@ -54,33 +72,93 @@ trait WorkspaceForm
             return $result['ok'];
         });
     }
+
+    /** Installation-local discovery; no transport request or implicit assignment. */
+    private function WorkspaceConnectionChoices(array $state): array
+    {
+        $configured = [];
+        foreach ($state['systems'] as $record) $configured[$record['binding']['connectionInstance']] = $record;
+        $found = IPS_GetInstanceListByModuleID(SystemContract::CONNECTION_MODULE);
+        $ids = array_values(array_unique(array_merge($found, array_keys($configured))));
+        sort($ids, SORT_NUMERIC);
+        $rows = $identities = $availability = [];
+        foreach ($ids as $id) {
+            $assigned = isset($configured[$id]);
+            $exists = false;
+            $binding = null;
+            $name = $configured[$id]['name'] ?? 'Verbindung nicht mehr vorhanden';
+            $topic = $configured[$id]['binding']['baseTopic'] ?? '';
+            $mqtt = 'Keine MQTT-Schnittstelle zugeordnet';
+            try {
+                $exists = in_array($id, $found, true) && IPS_InstanceExists($id);
+                if ($exists) {
+                    $name = IPS_GetName($id);
+                    $topic = IPS_GetProperty($id, 'BaseTopic');
+                    $parent = IPS_GetInstance($id)['ConnectionID'];
+                    if ($parent > 0 && IPS_InstanceExists($parent)) $mqtt = IPS_GetName($parent) . ' (#' . $parent . ')';
+                    $binding = $this->WorkspaceConnectionBinding($id);
+                }
+            } catch (Throwable) {
+                $exists = false;
+            }
+            $owner = null;
+            $error = $binding === null ? 'connection_unavailable' : '';
+            try {
+                if ($exists) $owner = json_decode(Z2MC_GetSystemOwnership($id), true, 16, JSON_THROW_ON_ERROR);
+                if ($exists && !is_array($owner)) throw new RuntimeException('connection_unavailable');
+                if (($owner['owner'] ?? $this->InstanceID) !== $this->InstanceID) $error = 'connection_owned';
+                elseif ($binding !== null && !$this->WorkspaceConnectionCurrent($binding)) $error = 'binding_changed';
+            } catch (Throwable) {
+                $error = 'connection_unavailable';
+            }
+            $availability[$id] = $error;
+            $identities[] = [$id, $binding, $owner, $error];
+            $status = match (true) {
+                !$exists                      => 'Gespeicherte Verbindung fehlt. Zuordnung bleibt erhalten.',
+                $error === 'connection_owned' => 'Bereits einer anderen Zentrale zugeordnet.',
+                $error !== ''                 => 'MQTT-Zuordnung, Basistopic und Besitzer prüfen.',
+                $assigned                     => 'Bereits zugeordnet; bleibt erhalten.',
+                default                       => 'Verfügbar – zum Zuordnen anhaken.'
+            };
+            $rows[] = ['Connection' => $id, 'Use' => $assigned, 'Name' => $name . ' (#' . $id . ')', 'Topic' => $topic,
+                'MQTT'              => $mqtt, 'Status' => $status, 'editable' => !$assigned && $error === ''];
+        }
+        $this->DebugEvent(
+            'AKTION',
+            'Vorhandene Z2M-Verbindungen für die Häkchenauswahl gelesen. Keine automatische Zuordnung und keine MQTT-Anfrage.',
+            ['Gefunden' => count($found), 'BereitsZugeordnet' => count($configured), 'NichtVerfügbar' => count(array_filter($availability, static fn (string $error): bool => $error !== ''))]
+        );
+        return ['rows' => $rows, 'availability' => $availability, 'fingerprint' => WorkspaceState::Fingerprint($identities)];
+    }
     private function WorkspaceConfigurationForm(): string
     {
         $state = $this->ReadWorkspace();
         $overview = json_decode($this->WorkspaceOverview($state), true, 32, JSON_THROW_ON_ERROR);
-        $rows = [];
+        $choices = $this->WorkspaceConnectionChoices($state);
+        $rows = $choices['rows'];
         $options = [];
         foreach ($overview['systems'] ?? [] as $system) {
             $binding = $system['binding'];
-            $rows[] = ['Connection' => $binding['connectionInstance'], 'System' => $system['name'], 'Topic' => $binding['baseTopic'],
-                'Status'            => !$system['connectionCurrent'] ? 'Zuordnung prüfen' : (!$system['confirmed'] ? 'Noch nicht bestätigt' : ($system['online'] ? 'Erreichbar' : 'Nicht erreichbar')),
-                'Stored'            => $system['storedRevision'] ?? 0, 'Active' => $system['activeRevision'] ?? 0];
             $options[] = ['caption' => $system['name'] . ' · ' . $binding['baseTopic'], 'value' => $binding['systemId']];
         }
         $rootFingerprint = WorkspaceState::Fingerprint($state);
         $actions = [
             ['type' => 'ExpansionPanel', 'caption' => 'Z2M-Systeme', 'expanded' => true, 'items' => [
-                ['type' => 'Label', 'caption' => 'Bis zu acht vorhandene Z2M-Verbindungen zuordnen. Jedes System behält seinen eigenen Entwurf. Diese Zuordnung übernimmt keine bisherigen Automationen.'],
-                ['type'       => 'List', 'name' => 'WorkspaceConnections', 'rowCount' => 8, 'values' => $rows, 'add' => true, 'delete' => true,
-                    'columns' => [['name' => 'Connection', 'caption' => 'Z2M-Verbindung', 'width' => '220px', 'add' => 0, 'edit' => ['type' => 'SelectInstance', 'moduleID' => SystemContract::CONNECTION_MODULE]],
-                        ['name' => 'System', 'caption' => 'Name', 'width' => 'auto'], ['name'                => 'Topic', 'caption' => 'Basistopic', 'width' => '150px'],
-                        ['name' => 'Status', 'caption' => 'Letzte Bestätigung', 'width' => '180px'], ['name' => 'Stored', 'caption' => 'Gespeichert', 'width' => '100px'], ['name' => 'Active', 'caption' => 'Aktiv', 'width' => '80px']]],
-                ['type' => 'Button', 'caption' => 'Systemzuordnung übernehmen', 'onClick' => 'Z2MA_ApplyWorkspaceConnections($id, json_encode(array_column($WorkspaceConnections, "Connection")), $WorkspaceFingerprint);']]],
+                ['type' => 'Label', 'caption' => 'Vorhandene Verbindungen werden automatisch angezeigt. Gewünschte Systeme unter „Verwenden“ anhaken und anschließend die Systemzuordnung übernehmen. Höchstens acht Systeme; vorhandene Entwürfe werden dadurch nicht übernommen. Bereits zugeordnete Systeme bleiben angehakt und geschützt.'],
+                ['type'       => 'List', 'name' => 'WorkspaceConnections', 'rowCount' => 8, 'values' => $rows, 'add' => false, 'delete' => false,
+                    'columns' => [['name' => 'Use', 'caption' => 'Verwenden', 'width' => '90px', 'save' => true, 'edit' => ['type' => 'CheckBox']],
+                        ['name' => 'Connection', 'caption' => 'Instanz-ID', 'width' => '80px', 'visible' => false, 'save' => true],
+                        ['name' => 'Name', 'caption' => 'Z2M-Verbindung', 'width' => 'auto'], ['name'  => 'Topic', 'caption' => 'Basistopic', 'width' => '140px'],
+                        ['name' => 'MQTT', 'caption' => 'MQTT-Zuordnung', 'width' => '220px'], ['name' => 'Status', 'caption' => 'Zuordnung', 'width' => '230px']]],
+                ['type' => 'Label', 'caption' => $rows === [] ? 'Keine Z2M-Verbindung gefunden. Bitte zuerst eine Instanz „Zigbee2MQTT Verbindung“ anlegen und deren MQTT-Schnittstelle und Basistopic einrichten.' : 'Neue Verbindungen erscheinen nach erneutem Öffnen dieses Formulars. Die Anzeige fragt Z2M nicht ab.'],
+                ['type'       => 'Button', 'name' => 'WorkspaceApplyConnections', 'caption' => 'Systemzuordnung übernehmen', 'enabled' => $rows !== [],
+                    'onClick' => '$connectionRows = $WorkspaceConnections instanceof \Traversable ? iterator_to_array($WorkspaceConnections) : (array) $WorkspaceConnections; Z2MA_ApplyWorkspaceConnections($id, json_encode(array_column(array_filter($connectionRows, static fn ($row) => (((array) $row)["Use"] ?? false) === true), "Connection")), $WorkspaceFingerprint, $WorkspaceCandidatesFingerprint);']]],
+            ['type' => 'ValidationTextBox', 'name' => 'WorkspaceCandidatesFingerprint', 'value' => $choices['fingerprint'], 'visible' => false],
             ['type' => 'ValidationTextBox', 'name' => 'WorkspaceFingerprint', 'value' => $rootFingerprint, 'visible' => false],
             ['type' => 'Label', 'name' => 'WorkspaceNotice', 'caption' => 'System auswählen und dessen lokalen Entwurf bearbeiten. Z2M wird durch die Bearbeitung nicht verändert.']
         ];
         if ($state['systems'] === []) {
-            $actions[] = ['type' => 'Label', 'caption' => 'Noch kein System zugeordnet. Bitte zuerst vorhandene Z2M-Verbindungen eintragen. Vorhandene Einzelentwürfe können über den gesicherten Übernahmeablauf übernommen werden.'];
+            $actions[] = ['type' => 'Label', 'caption' => 'Noch kein System zugeordnet. Bitte oben die gewünschten Verbindungen anhaken und die Systemzuordnung übernehmen. Vorhandene Einzelentwürfe bleiben bis zur gesicherten Übernahme erhalten.'];
             return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);
         }
         $id = $state['selectedSystem'];
@@ -121,7 +199,7 @@ trait WorkspaceForm
             array_push($actions, ...$editing);
         }
         $actions[] = ['type' => 'Label', 'caption' => 'Prüfen, Speichern, Aktivieren und Stopp werden im nächsten Schritt systemgebunden angebunden. Diese Oberfläche ändert ausschließlich lokale Entwürfe.'];
-        $this->DebugEvent('AKTION', 'Gemeinsames Formular mit eindeutig ausgewähltem Systementwurf aufgebaut. Kein Gatewaywechsel und keine Übertragung.', ['Systembezug' => $id, 'Systeme' => count($rows)]);
+        $this->DebugEvent('AKTION', 'Gemeinsames Formular mit eindeutig ausgewähltem Systementwurf aufgebaut. Kein Gatewaywechsel und keine Übertragung.', ['Systembezug' => $id, 'Systeme' => count($options)]);
         return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);
     }
 

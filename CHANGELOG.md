@@ -17,6 +17,14 @@
 
 ## Neu
 
+- Vorhandene Z2M-Verbindungen werden in der Zentrale automatisch mit Name,
+  Instanz-ID, Basistopic und MQTT-Zuordnung angezeigt und per Häkchen ausgewählt.
+  Die Auswahl wird erst ausdrücklich übernommen. Bereits zugeordnete Systeme
+  bleiben geschützt angehakt; fremd zugeordnete oder unvollständige Verbindungen
+  sind mit verständlichem Hinweis gesperrt. Veraltete Auswahlen werden abgewiesen.
+  Deutsche Debug-Ausgaben erklären Erkennung und Übernahme ohne MQTT-Anfrage.
+  Erneutes Bestätigen migrierter Systeme erhält deren Herkunft und Entwürfe.
+
 - Gemeinsame Systemauswahl im nativen Formular und Browserdesigner für bis zu
   acht Z2M-Systeme. Regeln und Aktionsfolgen werden im jeweiligen lokalen Entwurf
   erstellt und bearbeitet. Vorbelegung, offene Eingaben und Partnerfreigaben

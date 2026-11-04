@@ -30,8 +30,10 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
    **Zigbee2MQTT Automationszentrale** suchen. Das ist das Modul Z2MAutomations.
 3. Die Instanz beispielsweise **Z2M-Automationszentrale** nennen und anlegen.
    Es wird kein MQTT-Client oder -Server als Schnittstelle ausgewählt.
-4. Im Formular erscheint **Z2M-Systeme**. Dort die vorhandenen
-   **Zigbee2MQTT Verbindung**-Instanzen eintragen, höchstens acht.
+4. Im Formular erscheint **Z2M-Systeme**. Vorhandene **Zigbee2MQTT Verbindung**-
+   Instanzen werden dort automatisch mit Name, Instanz-ID, Basistopic und ihrer
+   MQTT-Zuordnung angezeigt. Die gewünschten Zeilen unter **Verwenden** anhaken,
+   höchstens acht Systeme.
 5. **Systemzuordnung übernehmen** wählen. Anschließend steht die gemeinsame
    Systemauswahl zur Verfügung. Dieser Schritt kopiert noch keine Automationen.
 
@@ -44,6 +46,17 @@ Vorhandene Automationsinstanzen bleiben bis zur ausdrücklichen
 Zentrale und das Zuordnen ihrer Verbindungen übernehmen weder Entwürfe noch
 Besitzer und verändern keine Automationen in Z2M. Die Zentrale und die
 Z2M-Verbindungen sind die beiden unterschiedlichen Module dieser Library.
+
+Die Anzeige allein ordnet nichts zu. Bereits zugeordnete Systeme sind angehakt
+und gegen versehentliches Entfernen geschützt. Verbindungen einer anderen
+Zentrale und unvollständig eingerichtete Verbindungen werden mit einem Hinweis
+angezeigt und können nicht neu ausgewählt werden. Fehlt eine zuvor zugeordnete
+Instanz, bleibt ihre Zeile erhalten; ihr Entwurf wird nicht gelöscht.
+
+Neue Verbindungsinstanzen erscheinen nach erneutem Öffnen des Formulars. Hat
+sich zwischen Anzeige und Übernehmen eine Verbindung oder ihr Besitzer geändert,
+wird die Auswahl nicht gespeichert. Das Formular neu öffnen und die Angaben
+erneut prüfen. Die Liste liest lokale Instanzdaten und sendet keine MQTT-Anfrage.
 
 ## Bestandsprüfung für die zentrale Verwaltung
 
@@ -91,8 +104,9 @@ beschrieben. Eine tatsächliche Umstellung zuerst auf Test gesondert prüfen.
 
 ## Lokaler Arbeitsbereich für mehrere Systeme
 
-Im nativen Formular ordnen Sie unter **Z2M-Systeme** bis zu acht vorhandene
-Z2M-Verbindungen zu. Unter **Entwurf dieses Systems bearbeiten** wählen Sie das
+Im nativen Formular wählen Sie unter **Z2M-Systeme** bis zu acht automatisch
+gefundene Z2M-Verbindungen per Häkchen aus und übernehmen die Auswahl ausdrücklich.
+Unter **Entwurf dieses Systems bearbeiten** wählen Sie das
 System für die Bearbeitung. Dieselbe Auswahl finden Sie oben im Browserdesigner.
 Regeln und Aktionsfolgen werden ausschließlich im Entwurf des angezeigten Systems
 erstellt und bearbeitet. Die Felder werden aus diesem Entwurf vorbelegt.

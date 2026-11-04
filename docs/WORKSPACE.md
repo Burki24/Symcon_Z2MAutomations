@@ -8,6 +8,23 @@ Eine neue zentrale Z2M-Steuerung ist noch nicht implementiert.
 
 ## Gemeinsame Bearbeitung
 
+Das native Formular ermittelt vorhandene Verbindungsinstanzen ausschließlich
+anhand der Z2MConnection-Modul-GUID. Es verwendet keine Splitter-/Parent-Suche
+und keinen Objektpicker. Die Liste zeigt Name/ID, Topic und native MQTT-Zuordnung.
+Nur die Checkbox ist bearbeitbar; bereits konfigurierte Zeilen bleiben geschützt
+angehakt. Fehlende gespeicherte Instanzen bleiben als gesperrte Zeilen sichtbar.
+Fremde Besitzer, ungültige Zuordnungen und unlesbare Metadaten sperren nur die
+betroffene Auswahlzeile. Das Anzeigen oder Anhaken löst keine Registrierung aus.
+
+ApplyWorkspaceConnections erhält ausgewählte IDs, Workspace-Fingerabdruck und
+einen Fingerabdruck der erkannten Identitäten und Besitzer. Dieser wird vor
+dem Übernehmen frisch geprüft; flüchtige Laufzeitwerte und Anzeigenamen sind
+kein Teil davon. Eine Änderung verwirft den Auftrag mit verständlichem Hinweis.
+Danach prüft ConfigureWorkspace weiterhin Modultyp, Elterninstanz, Topic,
+Generationen, Besitzer und acht-Systeme-Grenze. Die ursprüngliche sourceInstance
+eines migrierten Eintrags wird bei Bestätigung derselben Verbindung erhalten.
+Es findet keine neue Besitzerübernahme oder implizite Löschung statt.
+
 WorkspaceForm stellt die native Systemliste und den lokalen Editor bereit.
 WorkspaceDesigner ergänzt die Systemwahl im Browser. WorkspaceEditorContext
 verwendet die vorhandenen Editorvalidatoren mit expliziten Speicherzugriffen

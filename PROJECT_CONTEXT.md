@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Die Systemeinrichtung findet Z2MConnection-Instanzen jetzt automatisch.
+  Native Liste mit Name/ID, Topic und MQTT-Parent/ID; Checkboxauswahl ersetzt den
+  Objektpicker. Öffnen schreibt keine Zuordnung. Übernehmen prüft Auswahl,
+  aktuellen Verbindungsstand, Besitzer, acht-Systeme-Grenze und bisherige Daten.
+  Vorhandene Systeme bleiben angehakt, fremde/ungültige Zeilen sind gesperrt.
+  Ein eigener Auswahldigest verhindert Übernahmen nach einer Verbindungsänderung.
+  Herkunft migrierter Einträge bleibt bei erneuter Zuordnung erhalten.
+  Keine Test-/Live-Aktualisierung oder Änderung des Z2M-Artefakts.
+
 - Anlegeweg der Zentrale korrigiert: Alias „Zigbee2MQTT Automationszentrale“
   und explizites SDK-GetCompatibleParents mit {}. Der native Instanzassistent
   darf keine eigene MQTT-Schnittstelle fordern. Datenflussmetadaten bleiben
