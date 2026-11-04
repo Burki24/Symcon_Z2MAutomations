@@ -16,6 +16,9 @@ trait AutomationDesigner
     use AutomationDesignerCreation;
     use AutomationDesignerEditing;
     use AutomationDesignerSequences;
+    private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'startup.js' => 'application/javascript',
+        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript'];
+
     public function OpenAutomationDesigner(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(function (): string
@@ -49,7 +52,7 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'reader.js' => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
+            $types = self::DESIGNER_ASSETS + ['select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
@@ -102,7 +105,7 @@ trait AutomationDesigner
                     $body = str_replace(
                         ['defer src="designer.js"', "connect-src 'none'", '<body>', 'VORSCHAU', 'Klickbarer Oberflächenentwurf',
                             'Beispieldaten · keine Verbindung zu Symcon oder Z2M · Änderungen gelten nur in diesem Fenster.'],
-                        ['type="module" src="reader.js"', "connect-src 'self'", '<body class="module-designer">', 'ENTWURF', 'Modulansicht mit Regelerstellung',
+                        ['defer src="startup.js"', "connect-src 'self'", '<body class="module-designer">', 'ENTWURF', 'Modulansicht mit Regelerstellung',
                             'Neue Regeln werden ausgeschaltet im Symcon-Entwurf ergänzt. Übertragen und Aktivieren weiterhin im nativen Formular.'],
                         $body
                     );
@@ -113,6 +116,15 @@ trait AutomationDesigner
                 $this->DesignerResponse(503, 'text/plain', 'Die Ansicht konnte nicht geladen werden. Bitte Moduldateien und Debug prüfen.');
             }
         });
+    }
+
+    /** Only immutable, explicitly allowed GET files may wait behind another entry. */
+    private function DesignerAssetRequest(): bool
+    {
+        $prefix = '/hook/' . $this->DesignerHookName() . '/';
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        return ($_SERVER['REQUEST_METHOD'] ?? '') === 'GET' && str_starts_with($uri, $prefix)
+            && isset(self::DESIGNER_ASSETS[substr($uri, strlen($prefix))]);
     }
 
     private function DesignerData(): string

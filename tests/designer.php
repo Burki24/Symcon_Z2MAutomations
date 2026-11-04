@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/designer-lock.inc.php';
 require __DIR__ . '/stubs/autoload.php';
 IPS\Kernel::reset();
 $root = dirname(__DIR__);
@@ -177,7 +178,26 @@ $check($module->Hook('data')[0] === 403 && $module->Hook('data', 'GET', str_repe
 $check($module->Hook('data', 'POST', $token)[0] === 405 && $module->Hook('data?token=' . $token)[0] === 404 && $module->Hook('../module.php')[0] === 404, 'No writes, query tokens or arbitrary files');
 $check($module->Hook('data', 'GET', $token)[0] === 200, 'Valid capability reads module data');
 $page = $module->Hook('index.html');
-$check($page[0] === 200 && str_contains($page[1], 'src="reader.js"') && !str_contains($page[1], 'src="designer.js"') && !str_contains($page[1], $token), 'Shell contains no example script, private bootstrap or token');
+$lockScenario = \Z2MAutomations\DesignerLockScenario::class;
+foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'workspace.js', 'designer.css'] as $asset) {
+    $lockScenario::$lock = 'Z2MA.Owner.' . $id;
+    $lockScenario::$release = true;
+    $lockScenario::$waits = [];
+    $check($module->Hook($asset)[0] === 200, 'Parallel designer assets wait for a short competing owner entry: ' . $asset);
+    $check($lockScenario::$waits[0] === 0 && count($lockScenario::$waits) === 2 && $lockScenario::$waits[1] > 0 && $lockScenario::$waits[1] <= 5000, 'Asset waiting is bounded and only happens on contention.');
+}
+foreach (['data', 'devices', 'create', 'edit', 'sequence', 'select-system', 'index.html?other=1', '../module.php'] as $asset) {
+    $lockScenario::$lock = 'Z2MA.Owner.' . $id;
+    $lockScenario::$waits = [];
+    $check($module->Hook($asset)[0] === 409 && $lockScenario::$waits === [0], 'Data, writes and unknown paths keep their immediate entry fence: ' . $asset);
+}
+$lockScenario::$lock = 'Z2MA.Owner.' . $id;
+$lockScenario::$release = false;
+$check($module->Hook('reader.js')[0] === 409, 'A permanently occupied entry remains protected after the asset deadline.');
+$lockScenario::$lock = '';
+$lockScenario::$release = true;
+$check($module->Fingerprint() === $before, 'Contended asset reads and rejected operations preserve all drafts and runtime state.');
+$check($page[0] === 200 && str_contains($page[1], 'defer src="startup.js"') && !str_contains($page[1], 'src="designer.js"') && !str_contains($page[1], $token), 'Shell contains a recoverable loader but no example script or token');
 $check($module->Hook('designer.js')[0] === 404 && $module->Hook('reader.js')[0] === 200 && $module->Hook('designer.css')[0] === 200, 'Explicitly permitted read-only assets only');
 $check($module->Fingerprint() === $before, 'All reads leave input, draft and runtime transport byte-identical');
 $module->clock += 901;

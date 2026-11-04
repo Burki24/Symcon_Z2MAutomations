@@ -3793,3 +3793,53 @@ git diff --check ohne Befund. Kanonische Helper und Fremdquellen unverändert.
 Keine Installation aktualisiert und keine Z2M-Aktion ausgeführt. Die Darstellung
 und Bedienung in der nativen Konsole bleiben nach Modulupdate und erneutem
 Öffnen des Formulars zu prüfen; ein Erweiterungsupdate ist nicht erforderlich.
+
+## Browserstart und sichtbarer Systemwechsel am 04.11.2026
+
+Die sichtbare Testabnahme fand einen Fehler vor dem Datenabruf: Mehrere
+gleichzeitig angeforderte ES-Moduldateien wurden durch die sofort ablehnende
+Besitzersperre mit HTTP 409 abgewiesen. Sequentielle Einzelabfragen waren
+erfolgreich und belegten diesen Browserstart deshalb nicht. Ein isolierter
+Modulimport und parallele echte HTTP-Abfragen grenzten den Fehler ein; die
+Anzahl der Anfragen beziehungsweise Katalogdaten war nicht die Ursache.
+
+Nur GET-Dateien der festen Designer-Positivliste warten nach belegter Sperre
+höchstens 5000 ms. Danach folgen dieselben Besitzer- und Übernahmeprüfungen.
+Datenabfragen, Änderungen, fremde Pfade und HTTP-Methoden erhalten keine neue
+Warteberechtigung. Der kleine klassische Startloader importiert reader.js und
+zeigt bei einem Importfehler eine deutsche Meldung mit ausdrücklichem Neuladen.
+Er gibt keine Browserfehler, URLs oder Tokens aus und startet keine Wiederholung
+von Schreibaufträgen. Debug erklärt Wartezeit und erfolgreiche Freigabe über
+den kanonischen DebugFlowHelper. HTTP-/Asset-/Debughelper vor Umsetzung geprüft
+und unverändert verwendet; die fachliche Besitzersperre bleibt librarylokal.
+
+tests/designer.php bildet konkurrierende Eintrittskontexte über eine lokale
+Semaphore-Fixture nach. Die neue Regression schlug vor der Korrektur mit HTTP
+409 beim Laden von index.html fehl. Danach bestehen feste Dateiliste,
+begrenztes Warten, permanente Belegung, unveränderte sofortige Daten-/Schreib-
+sperren und unveränderte Entwurfs-/Laufzeitdaten. tests/designer-startup.test.mjs
+prüft Modulimport, gesperrte alte Laufzeitbuttons, verständlichen Fehler,
+Geheimnisschutz und Neuladen ausschließlich nach Bedienaktion.
+
+Auf der Testinstallation mit Symcon 9.1 unter Windows nur die beiden betroffenen
+PHP-Traits und startup.js nach Dateisicherung aktualisiert. Kein Bibliotheksreload,
+Erweiterungsupdate oder Neustart. Sechs gleichzeitig geladene echte Dateien
+lieferten danach HTTP 200 und exakt die lokalen Dateiinhalte. Die sichtbare
+Browserprüfung erfolgte direkt am Symcon-WebHook, ohne Diagnoserelay: vollständiger
+Start, Systemwechsel in beide Richtungen, passende Geräte und Gruppen,
+Vorbelegung von Gerät/Kanal/Wert und ausgeschalteter Regel, Namensänderungen
+in zwei getrennten lokalen Entwürfen und Erhalt nach erneutem Wechsel.
+Native Debug-Ausgaben bestätigen jeweils den richtigen Systembezug.
+
+Vorherige Entwurfsdaten und Auswahl gesichert und nach der Prüfung exakt
+wiederhergestellt. Bindungen, gespeicherte und aktive Z2M-Revisionen sowie
+bestätigte Laufzustände sind unverändert. Kein Schalten, Speichern oder
+Aktivieren in Z2M. Diagnoserelay beendet, temporäre Prüfansichten geschlossen
+und Debug-Dateiaufzeichnung beendet. Kein Produktionszugriff. Native Abnahme
+unter Symcon 9.0 wird durch die Prüfung unter 9.1 nicht ersetzt.
+
+php tests/run.php einschließlich 143 JavaScript-Tests erfolgreich. Separat
+Struktur und zentrale Kodierungsprüfung, offizieller StylePHP-Check der 18
+eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer im Prüfmodus (114 Dateien)
+und git diff --check erfolgreich. Fremdquellen und Erweiterungsartefakt
+unverändert; Entwicklung auf dev, kein Commit oder Push durch den Agenten.

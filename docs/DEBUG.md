@@ -1,5 +1,17 @@
 # Debug und MQTT-Diagnose
 
+## Browserstart
+
+Der Browser lädt HTML, CSS und JavaScript parallel. Nur GET-Aufrufe aus der
+festen Dateiliste dürfen nach einer belegten Besitzersperre höchstens fünf
+Sekunden warten. Debug erklärt Beginn der Wartezeit, erfolgreiche Freigabe und
+Fristablauf. Anschließend bleiben Besitzer- und Übernahmeprüfung unverändert.
+Datenabfragen, Schreibaufträge, fremde Pfade und andere HTTP-Methoden erhalten
+keine neue Wartefreigabe. Der kanonische DebugFlowHelper protokolliert weiterhin
+START und ENDE. Browserfehler und Zugriffstoken werden nicht an Debug übergeben.
+Der kleine Startloader meldet einen fehlgeschlagenen Modulimport verständlich
+und bietet ein ausdrückliches Neuladen statt einer automatischen Wiederholung.
+
 ## Sicherung und Besitzerwechsel
 
 Die Übernahmevorschau erklärt, ob sie den Bestand dieser Instanz direkt liest

@@ -221,6 +221,10 @@ dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder
 erscheinen seine Angaben. Auch Bedingungen, Wartezeiten, Szenen, gemeinsame
 Gerätebefehle und Ziele des zweiten Systems werden dargestellt.
 
+Die Designerdateien werden beim Öffnen automatisch geladen. Scheitert der Start,
+erscheint eine Fehlermeldung mit „Designer neu laden“. Damit versuchen Sie das
+Öffnen erneut; vorhandene Entwürfe und laufende Automationen bleiben erhalten.
+
 Die Ansicht zeigt die bereits im Modul vorhandenen Daten.
 „Ansicht aktualisieren“ liest sie erneut aus dem Modul. Es fragt keine Geräte
 oder Z2M ab und ersetzt keine Entwürfe. Der angezeigte Betrieb ist der zuletzt

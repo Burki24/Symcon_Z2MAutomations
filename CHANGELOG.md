@@ -2,6 +2,12 @@
 
 ## Korrigiert
 
+- Der Browserdesigner bleibt beim parallelen Laden seiner Dateien nicht mehr
+  im leeren Startzustand stehen. Nur ausdrücklich erlaubte Dateiaufrufe warten
+  bis zu fünf Sekunden auf einen laufenden Aufruf; Besitzer- und Schreibschutz
+  bleiben erhalten. Bei einem fehlgeschlagenen Start erscheint eine verständliche
+  Meldung mit „Designer neu laden“. Debug erklärt Wartezeit und Freigabe.
+
 - Die neue Automationszentrale lässt sich ohne eigenen MQTT-Client oder -Server
   anlegen. Der native Instanzassistent erhält dafür eine ausdrückliche
   SDK-Angabe ohne Parent-Anforderung. Die Auswahl heißt nun eindeutig

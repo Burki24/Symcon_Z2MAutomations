@@ -8,6 +8,17 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Browserstart korrigiert: Die sofortige Besitzersperre wies gleichzeitig
+  geladene JavaScript-Dateien mit HTTP 409 ab. Nur feste statische GET-Dateien
+  warten nun begrenzt bis 5000 ms; alle Besitzerprüfungen bleiben erhalten.
+  startup.js lädt reader.js mit sichtbarer Fehlerbehandlung und ausdrücklichem
+  Neuladen. Kein Rohfehler/Token in der Meldung. Regression prüft Konkurrenz,
+  Fristablauf, unveränderte Schreibsperren und Loader-Erfolg/-Fehler.
+  Auf der Testinstallation korrigiert und im echten Browser sichtbar geprüft:
+  beide Systemkataloge, vorbelegte ausgeschaltete Regeln und getrennte lokale
+  Änderungen nach Hin-/Zurückwechsel. Testentwürfe und Auswahl wiederhergestellt;
+  bestätigte Z2M-Revisionen und Laufzustände unverändert. Live nicht geändert.
+
 - Die Systemeinrichtung findet Z2MConnection-Instanzen jetzt automatisch.
   Native Liste mit Name/ID, Topic und MQTT-Parent/ID; Checkboxauswahl ersetzt den
   Objektpicker. Öffnen schreibt keine Zuordnung. Übernehmen prüft Auswahl,
