@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Zielarchitektur für die nächste Arbeit festgelegt (ADR 0026,
+  docs/MULTISYSTEM_PLAN.md): eine zentrale Automationsverwaltung, bis zu acht
+  Z2M-Verbindungsmodule mit vorhandenen nativen MQTT-Parents. Getrennte Dokumente,
+  Betriebsfreigaben und Laufzeiten je System; keine Zusammenführung der YAML.
+  Übernahme mit Vorschau, bytegleicher Sicherung, Erhalt von IDs/Bindungen/
+  Partnerfreigaben, Konfliktschutz, einem schreibenden Besitzer und Rückweg.
+  Noch keine Implementierung oder Systemänderung. Nächster Schritt: Systemmodell,
+  reine Bestandsvorschau und synthetische Übernahmeverträge für 1/2/8 Systeme.
+
 - Wiederverwendbare Aktionsfolgen im Browser erstellen und bearbeiten (ADR 0025):
   gemeinsame Aktionsfelder mit Vorbelegung, Geräte-/Kanal-/Wertsuche, Szenen,
   Reihenfolge und Wartezeiten. Eigene begrenzte POST-sequence-Berechtigung;

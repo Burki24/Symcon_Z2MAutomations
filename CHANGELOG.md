@@ -1,5 +1,12 @@
 # Unveröffentlicht
 
+## Planung
+
+- Zielarchitektur und Übernahmeplan für eine zentrale Automationsinstanz mit
+  bis zu acht Z2M-Verbindungsmodulen dokumentiert. Enthält Sicherung, Erhalt
+  vorhandener Entwürfe und Zuordnungen, Konfliktbehandlung, Rückweg und
+  Prüfmatrix. Noch keine Änderung am Modulverhalten oder an einer Installation.
+
 ## Neu
 
 - Browserdesigner: Wiederverwendbare Aktionsfolgen erstellen und bearbeiten.

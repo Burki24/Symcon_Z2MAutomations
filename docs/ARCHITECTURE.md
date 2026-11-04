@@ -1,5 +1,15 @@
 # Architektur
 
+## Geplanter Umbau auf mehrere Systeme
+
+ADR 0026 beschreibt die beschlossene Zielarchitektur: eine zentrale Verwaltung
+mit bis zu acht Z2MConnection-Modulen. Jedes System behält Dokument, Revision
+und Laufzeit; die Übernahme vorhandener Entwürfe und Bindungen erfolgt ausdrücklich
+mit Sicherung, Vorschau, Besitzerwechsel und lokalem Rückweg. Der
+[konkrete Umbauplan](MULTISYSTEM_PLAN.md) enthält Modulgrenzen, Identitäten,
+Arbeitsfolge und Prüfmatrix. Noch nicht implementiert; die folgenden Abschnitte
+beschreiben weiterhin den derzeitigen Stand. Kein Test-/Live-Umbau durch dieses ADR.
+
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
 ADR 0025 ergänzt AutomationDesignerSequences und die feste POST-sequence-Route.
