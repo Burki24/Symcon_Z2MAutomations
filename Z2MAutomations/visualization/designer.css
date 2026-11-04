@@ -161,6 +161,9 @@ dialog::backdrop { background: #18304750; backdrop-filter: blur(2px); }
 .creation-side legend { font-weight: 600; padding: 0 7px; font-size: 13px; }
 .creation-side select[size] { height: 160px; padding: 4px; }
 .creation-side select[size] option { padding: 7px; overflow-wrap: anywhere; }
+.creation-time-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 12px; }
+.creation-time-row .field { flex: 1; min-width: 0; margin: 0; }
+.creation-time-row button { flex: 0 0 auto; }
 .creation-dialog .dialog-actions { flex-wrap: wrap; }
 .creation-dialog input[type="color"] { height: 42px; width: 100%; }
 .creation-dialog #create-message { color: #325a67; background: #f0f7fa; border-radius: 8px; padding: 12px; overflow-wrap: anywhere; }

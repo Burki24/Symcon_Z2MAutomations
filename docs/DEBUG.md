@@ -2,6 +2,14 @@
 
 ## Automationsdesigner
 
+Bei POST-create nennt der Erfolg die Auslöserart Geräteereignis, Uhrzeit oder
+Sonnenzeit und die tatsächliche Zahl der Auslöser. Für Sonnenzeiten kommen
+Sonnenaufgang/Sonnenuntergang und der ganzzahlige ZeitversatzMinuten hinzu:
+negative Werte bedeuten früher, positive später. Koordinaten, Uhrzeiten,
+Zeitzonen, Namen, Zielwerte und Zugriff bleiben geschützt. Fehler bei Uhrzeiten,
+Standort oder Versatz nennen einen sicheren Hinweis; der Entwurf bleibt erhalten.
+Die bloße Auswahl einer Art oder das Tippen sendet keine Debug-Anfrage.
+
 POST-edit verwendet ebenfalls ProcessHookData und DebugFlowHelper. Erfolg
 meldet „Browserbearbeitung im lokalen Entwurf übernommen“ mit Regelposition,
 Eintragszahlen und Regelschalter. Eine inhaltlich unveränderte Übernahme sowie

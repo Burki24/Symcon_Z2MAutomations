@@ -97,7 +97,7 @@ trait AutomationDesignerCreation
             }
             $text = $this->DesignerRequestBody();
             if (strlen($text) > 16384) {
-                return $this->DesignerCreateFailure(413, 'Die Eingaben sind zu umfangreich. Bitte eine einfache Regel mit einem Auslöser und einer Aktion anlegen.');
+                return $this->DesignerCreateFailure(413, 'Die Eingaben sind zu umfangreich. Bitte höchstens acht Uhrzeiten und eine Aktion anlegen.');
             }
             try {
                 $request = json_decode($text, true, 8, JSON_THROW_ON_ERROR);
@@ -134,15 +134,20 @@ trait AutomationDesignerCreation
                 return $this->DesignerCreateFailure(409, $blocked);
             }
             $snapshot = $this->EditorSnapshot();
-            $source = $request['source'];
             $target = $request['target'];
-            if (!$this->DesignerChoiceAllowed($snapshot, $source, 'Source') || !$this->DesignerChoiceAllowed($snapshot, $target, 'Target')
-                || !$this->ValidEditorName(trim($request['name']))
-                || !$this->EditorComparisonAllowed($snapshot, $source['device'], $source, $source['operator'] ?? null)) {
-                return $this->DesignerCreateFailure(422, 'Bitte Name, Gerät, Kanal und Wert prüfen. Als Ziel sind nur aktuell schaltbare Variablen erlaubt.');
+            if (!$this->ValidEditorName(trim($request['name']))) {
+                return $this->DesignerCreateFailure(422, 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.');
+            }
+            $reason = '';
+            $triggers = $this->DesignerCreationTriggers($snapshot, $request['source'], $reason);
+            if ($triggers === null) {
+                return $this->DesignerCreateFailure(422, $reason);
+            }
+            if (!$this->DesignerChoiceAllowed($snapshot, $target, 'Target')) {
+                return $this->DesignerCreateFailure(422, 'Bitte Zielgerät, Kanal und Wert prüfen. Als Ziel sind nur aktuell schaltbare Variablen erlaubt.');
             }
             $draft = $this->ReadEditorDraft();
-            $rule = $this->SimpleEditorRule(trim($request['name']), $source['device'], $source, $target['device'], $target, false, $source['operator']);
+            $rule = $this->NewEditorRule(trim($request['name']), false, $triggers, [$this->BuildEditorAction($target['device'], $target)]);
             $draft['configuration']['automations'][] = $rule;
             $state = $this->RefreshState();
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerTokenAllowed($token, true)) {
@@ -157,10 +162,43 @@ trait AutomationDesignerCreation
             $this->DebugEvent(
                 'AKTION',
                 'Neue Automation aus der Browserauswahl ausgeschaltet im lokalen Entwurf ergänzt. Bestehende Regeln erhalten; keine Übertragung oder Aktivierung.',
-                ['Automationen' => count($draft['configuration']['automations']), 'Auslöser' => 1, 'Aktionen' => 1]
+                ['Automationen'   => count($draft['configuration']['automations']), 'Auslöser' => count($triggers), 'Aktionen' => 1,
+                    'Auslöserart' => ['device' => 'Geräteereignis', 'time' => 'Uhrzeit', 'sun' => 'Sonnenzeit'][$triggers[0]['type']]]
+                + ($triggers[0]['type'] === 'sun' ? ['Sonnenereignis' => $triggers[0]['event'] === 'sunrise' ? 'Sonnenaufgang' : 'Sonnenuntergang', 'ZeitversatzMinuten' => $triggers[0]['offset_minutes']] : [])
             );
             return [200, ['ruleId' => $rule['id'], 'message' => 'Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen, Übertragen und Aktivieren erfolgen weiterhin im nativen Formular.']];
         });
+    }
+
+    private function DesignerCreationTriggers(array $snapshot, mixed $source, string &$reason): ?array
+    {
+        $reason = 'Bitte auslösendes Gerät, Kanal, Vergleich und Wert prüfen.';
+        if (!is_array($source)) {
+            return null;
+        }
+        if (!array_key_exists('type', $source)) {
+            return $this->DesignerChoiceAllowed($snapshot, $source, 'Source')
+                && $this->EditorComparisonAllowed($snapshot, $source['device'], $source, $source['operator'] ?? null)
+                ? [['type' => 'device', 'device' => $source['device'], 'property' => $source['property'], 'operator' => $source['operator'], 'value' => $source['value']]] : null;
+        }
+        if ($source['type'] === 'time') {
+            $reason = 'Bitte eine bis acht unterschiedliche Uhrzeiten und eine gültige Zeitzone auswählen.';
+            if (count($source) !== 3 || array_diff(array_keys($source), ['type', 'times', 'timezone']) !== []
+                || !is_array($source['times'] ?? null) || !array_is_list($source['times']) || count($source['times']) < 1 || count($source['times']) > 8
+                || !is_string($source['timezone'] ?? null) || array_filter($source['times'], static fn (mixed $time): bool => !is_string($time)) !== []) {
+                return null;
+            }
+            $triggers = array_map(static fn (string $time): array => ['type' => 'time', 'at' => $time, 'timezone' => $source['timezone']], $source['times']);
+            $rows = $this->ClockEditorRows($triggers);
+            return $rows === null ? null : array_map(static fn (array $row): array => ['type' => 'time', 'at' => $row['At'], 'timezone' => $source['timezone']], $rows);
+        }
+        if ($source['type'] === 'sun') {
+            $reason = 'Bitte Sonnenaufgang oder Sonnenuntergang, Standort, Zeitzone und einen ganzen Zeitversatz zwischen -720 und 720 Minuten angeben. Negative Werte bedeuten früher, positive später.';
+            return array_diff(array_keys($source), ['type', 'event', 'latitude', 'longitude', 'offset_minutes', 'timezone']) === []
+                && $this->SolarEditorFields($source) !== null ? [$source] : null;
+        }
+        $reason = 'Bitte Geräteereignis, Uhrzeit oder Sonnenzeit als Auslöser wählen.';
+        return null;
     }
 
     private function DesignerChoiceAllowed(array $snapshot, mixed $choice, string $side): bool

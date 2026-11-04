@@ -2,6 +2,12 @@
 
 ## Neu
 
+- Browserdesigner: „Neue Automation“ bietet jetzt auch bis zu acht Uhrzeiten
+  sowie Sonnenaufgang oder Sonnenuntergang mit Standort, Zeitzone und Zeitversatz.
+  Doppelte bzw. ungültige Zeiten werden abgewiesen. Alle Regeln beginnen
+  ausgeschaltet im lokalen Entwurf; Debugmeldungen erklären Auslöserart und
+  Sonnenzeitversatz, ohne Standortkoordinaten auszugeben.
+
 - Browserdesigner: Vorhandene Automationen direkt bearbeiten. Geräte-, Zeit-
   und Astroauslöser, Bedingungen, Aktionsschritte und Wartezeiten werden
   vorbelegt. Aktuelle Rechte und zwischenzeitliche Änderungen werden geprüft;

@@ -122,9 +122,18 @@ trait AutomationEditor
 
     private function SimpleEditorRule(string $name, string $source, array $trigger, string $target, array $action, bool $enabled, string $operator = 'eq'): array
     {
-        return ['id'     => 'rule_' . bin2hex(random_bytes(8)), 'name' => $name, 'enabled' => $enabled,
-            'triggers'   => [['type' => 'device', 'device' => $source, 'property' => $trigger['property'], 'operator' => $operator, 'value' => $trigger['value']]],
-            'conditions' => [], 'actions' => [$this->BuildEditorAction($target, $action)]];
+        return $this->NewEditorRule(
+            $name,
+            $enabled,
+            [['type' => 'device', 'device' => $source, 'property' => $trigger['property'], 'operator' => $operator, 'value' => $trigger['value']]],
+            [$this->BuildEditorAction($target, $action)]
+        );
+    }
+
+    private function NewEditorRule(string $name, bool $enabled, array $triggers, array $actions): array
+    {
+        return ['id'   => 'rule_' . bin2hex(random_bytes(8)), 'name' => $name, 'enabled' => $enabled,
+            'triggers' => $triggers, 'conditions' => [], 'actions' => $actions];
     }
 
     private function ReceiveEditorData(array &$state, stdClass $data, array $target, bool $catalogOnly = false): void

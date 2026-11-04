@@ -2,6 +2,16 @@
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
+ADR 0024 erweitert die vorhandene POST-create-Route um feste Uhrzeiten und
+Sonnenzeiten. Zeitquellen enthalten eine begrenzte Zeitenliste und eine Zeitzone;
+Sonnenquellen verwenden die vorhandenen Schemafelder. ClockEditorRows und
+SolarEditorFields prüfen und normalisieren wie im nativen Editor. NewEditorRule
+bildet den gemeinsamen Regelrahmen für native einfache Erstellung und Browser;
+BuildEditorAction sowie CommitEditorChange bleiben unverändert für Ziele und
+lokale Übernahme zuständig. Neue Regeln sind stets ausgeschaltet. Der lesende
+Export ergänzt nur die vom PHP-Zielsystem akzeptierten Zeitzonen. Kein neuer
+Erweiterungsbefehl, keine Sonnenberechnung im Browser und kein Standortdienst.
+
 ADR 0023 ergänzt die feste POST-edit-Route und AutomationDesignerEditing.
 Neue Zugänge besitzen eine eigene edit-Berechtigung; alte Lese-/Erstellzugänge
 werden nicht aufgewertet. Eine vorhandene Regel wird verlustfrei kopiert und

@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Zeit- und Sonnenregeln direkt im Browser erstellen (ADR 0024): bis zu acht
+  Uhrzeiten oder Sonnenauf-/untergang mit Standort, Zeitzone und ganzzahligem
+  Versatz. Native Validierung, Aktionsrechte und gemeinsamer Regel-/Commitpfad;
+  ausgeschaltete Übernahme erhält Bestandsregeln, Folgen und Partnerfreigaben.
+  Lokale synthetische Browserprüfung einschließlich erneuter Vorbelegung grün;
+  Projektlauf einschließlich 136 JavaScript-Tests bestanden. Keine installierten
+  Modul- oder Z2M-Dateien geändert. Reale Abnahme nach Modulupdate steht aus;
+  ein Erweiterungsupdate ist hierfür nicht nötig.
+
 - Browserbearbeitung nach Modulupdate am 04.11.2026 im ursprünglichen Testmodul
   praktisch geprüft: Geräte- und Zeitregel vorgefüllt, lokal geändert und wieder
   geöffnet; ungültiges Zeitfenster ohne Entwurfsänderung abgewiesen. Deutsche

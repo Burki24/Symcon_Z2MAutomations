@@ -1,3 +1,43 @@
+## Neue Uhrzeit- und Sonnenregeln im Browser am 04.11.2026 (lokal)
+
+ADR 0024 erweitert ausschließlich den Moduldesigner und seine lokale
+Entwurfserstellung. Vorhandene HTTP-/Asset-/DebugFlow-Helper geprüft und
+unverändert eingebunden. Keine neue Bibliothek, kein Standortdienst, keine
+Erweiterungsänderung. Der neue Hooktest schlug zunächst an der fehlenden
+Uhrzeitquelle fehl; danach wurden Quellen über native Kalender-/Astroprüfungen
+an den gemeinsamen Regel-/Commitpfad angebunden.
+
+Nachweise mit ausschließlich synthetischen Daten:
+
+- Hook: mehrere Uhrzeiten mit Sekunden-Normalisierung, Sonnenaufgang mit
+  negativen und Sonnenuntergang mit positiven Minutenversätzen, echte numerische
+  Nullkoordinaten und typisierte Ziele. Neue Regeln stets ausgeschaltet;
+  andere Regeln, Folgen und Partnerfreigaben erhalten. Keine MQTT-Pakete.
+- Fehlende/falsche Typen, unbekannte Quellfelder, Zeitzonen, Grenzen,
+  doppelte normalisierte Zeiten und mehr als acht Uhrzeiten abgewiesen.
+  Veralteter Kontext und entzogene Zielrechte erhalten den Entwurf unverändert.
+  Wiederholtes Senden einer erfolgreichen Uhrzeitregel legt kein Duplikat an.
+- Hintergrundbrowser gegen lokalen PHP-Server mit echtem Hook und Symcon-Stubs:
+  zwei Uhrzeiten angelegt, Dublette vorher verständlich abgewiesen. Sonnenaufgang
+  mit negativem und Sonnenuntergang mit positivem Versatz angelegt. Alle drei
+  Regeln zum Bearbeiten geöffnet und Zeiten, Ereignis, Standort, Zone, Vorzeichen,
+  Zielkanal und ausgeschalteten Zustand mit dem gespeicherten Prüfstand verglichen.
+  Ein Wechsel der Auslöserart und ein reiner Ansichtsrefresh erhalten Eingaben;
+  beim nächsten neuen Dialog ist Europe/Berlin wieder vorbelegt.
+- Deutscher Debug bestätigt Uhrzeitanzahl und beide Sonnenereignisse samt
+  Minutenversatz. Koordinaten, Namen und Tokens fehlen in diesen Meldungen.
+  Originalregeln, Folge und Freigabe erhalten; MQTT-Differenz durchgehend null.
+  Keine Browserfehler oder Warnungen. Mausrad bewegt den langen Dialog; bei
+  1280 Pixeln Fensterbreite kein horizontaler Überlauf. Schmale Fenster nicht
+  gesondert praktisch geprüft. Eigener Prüftab und PHP-Server nach Prüfung beendet.
+
+php tests/run.php einschließlich 136 JavaScript-Tests und nativer PHP-/JavaScript-
+Integration erfolgreich; ergänzte Koordinaten-Debugprüfung nochmals fokussiert
+bestanden. Struktur, Kodierung, offizieller StylePHP-Check eigener JSON-Dateien
+und php-cs-fixer im Prüfmodus grün. Eigene Texte UTF-8 ohne BOM mit LF.
+Keine Test-/Produktivinstallation angesprochen oder aktualisiert; keine Speicherung,
+Aktivierung oder Geräteaktion in Z2M. Reale Prüfung nach Modulupdate steht aus.
+
 ## Browserbearbeitung im ursprünglichen Testmodul am 04.11.2026
 
 Nach dem vom Anwender ausgeführten Modulupdate die echte Browseransicht im

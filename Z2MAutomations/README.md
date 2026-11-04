@@ -59,16 +59,32 @@ angezeigt oder überschrieben. Bitte den vorhandenen Entwurf zuerst im nativen
 Formular prüfen. Noch nicht übernommene Formulareingaben bleiben dort erhalten
 und werden in der Browseransicht lediglich als ausstehend gemeldet.
 
-Mit **„Neue Automation“** legen Sie eine einfache geräteausgelöste Regel an:
+Mit **„Neue Automation“** legen Sie Geräte-, Zeit- oder Sonnenregeln an:
 
-1. Einen verständlichen Namen eintragen.
-2. Das auslösende Gerät suchen und auswählen. Danach Eigenschaft/Kanal,
-   Vergleich und auslösenden Wert wählen. Lesbare Sensoren sind erlaubt.
-3. Das Zielgerät suchen und auswählen. Danach den zu schaltenden Kanal und
+1. Einen verständlichen Namen eintragen und die **Auslöserart** wählen.
+2. Bei **Geräteereignis** das auslösende Gerät suchen und auswählen. Danach
+   Eigenschaft/Kanal, Vergleich und auslösenden Wert wählen. Lesbare Sensoren
+   sind erlaubt.
+3. Bei **Uhrzeit** eine bis acht unterschiedliche Uhrzeiten eintragen. Jede
+   Uhrzeit kann dieselbe Regel starten. „Uhrzeit hinzufügen“ ergänzt eine Zeile;
+   „Entfernen“ löscht sie. Die Zeitzone gilt für alle eingetragenen Uhrzeiten.
+4. Bei **Sonnenaufgang / Sonnenuntergang** das Sonnenereignis, Breitengrad und
+   Längengrad des Standorts in Dezimalgrad sowie die Zeitzone angeben. Der
+   **Zeitversatz** gilt in ganzen Minuten: 0 zur Sonnenzeit, -30 eine halbe Stunde
+   vorher, 30 eine halbe Stunde danach. Möglich sind bis zu zwölf Stunden davor
+   oder danach. Eine Ortung oder Standortabfrage findet nicht statt.
+5. Das Zielgerät suchen und auswählen. Danach den zu schaltenden Kanal und
    gewünschten Wert wählen. Angeboten werden nur schaltbare Eigenschaften.
    Ein vorhandenes zweites Z2M-System erscheint bei seinen Zielgeräten.
-4. „Ausgeschaltet zum Entwurf hinzufügen“ wählen. Die neue Regel erscheint
-   im Ablauf und bleibt ausgeschaltet; vorhandene Regeln bleiben erhalten.
+6. „Ausgeschaltet zum Entwurf hinzufügen“ wählen. Die neue Regel erscheint
+   im passenden Bereich und bleibt ausgeschaltet; vorhandene Regeln bleiben erhalten.
+
+Zeit- und Sonnenregeln gelten zunächst täglich. Als Zeitzone ist Europe/Berlin
+vorbelegt; bitte die zum Standort passende Zone auswählen. Z2M berechnet die
+Sonnenzeiten selbstständig. Verpasste Zeiten werden nicht nachgeholt. Wochentage,
+Bedingungen und weitere Aktionsschritte lassen sich nach dem Anlegen über
+„Automation bearbeiten“ ergänzen. Fehlende Angaben, doppelte Uhrzeiten und
+ungültige Werte verhindern die Übernahme; die Eingaben bleiben im Dialog.
 
 Die Erstellung benötigt passende Gerätedaten und einen geladenen Entwurf.
 Fehlt dieser, zuerst im nativen Formular „Geräte und gespeicherte Automationen
@@ -103,8 +119,8 @@ bleiben im Dialog. „Neu laden und Eingaben verwerfen“ lädt nach Bestätigun
 aktuellen Entwurf; eigene noch nicht übernommene Eingaben gehen dabei verloren.
 „Abbrechen“ verwirft nur die nicht übernommenen Eingaben dieses Dialogs.
 
-Neue Zeitregeln, Änderungen an Aktionsfolgen selbst sowie Prüfen, Übertragen,
-Aktivieren und Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
+Änderungen an Aktionsfolgen selbst sowie Prüfen, Übertragen, Aktivieren und
+Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
 im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen

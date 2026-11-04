@@ -139,6 +139,7 @@ trait AutomationDesigner
             'status'           => ['confirmed' => ($state['runtimeConfirmed'] ?? false) === true, 'mqttConnected' => ($state['mqttConnected'] ?? false) === true,
                 'executing'                    => ($extension['executing'] ?? false) === true, 'storedRevision' => $extension['storedRevision'] ?? 0,
                 'activeRevision'               => $extension['activeRevision'] ?? 0, 'enabledCount' => $extension['enabledCount'] ?? 0],
+            'timezones'     => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
             'createContext' => $this->DesignerCreateContext(), 'createAllowed' => $this->DesignerCreateBlock() === '',
             'createNotice'  => $this->DesignerCreateBlock(), 'editAllowed' => $this->DesignerCreateBlock(false) === '', 'editNotice' => $this->DesignerCreateBlock(false),
             'editSections'  => $this->DesignerEditableSections($configuration)];

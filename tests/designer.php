@@ -179,6 +179,7 @@ $check($module->Hook('data', 'GET', $links[0])[0] === 403 && $module->Hook('data
 $other = IPS\InstanceManager::getInstanceInterface(IPS_CreateInstance($guid));
 $check($other->Hook('data', 'GET', $links[4])[0] === 403, 'Capability grants no access to another module');
 require __DIR__ . '/designer-create.inc.php';
+require __DIR__ . '/designer-schedule.inc.php';
 require __DIR__ . '/designer-edit.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
