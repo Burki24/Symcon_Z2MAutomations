@@ -1114,7 +1114,7 @@ Alle Variablen sind ausschließlich lesbar und besitzen keine Schaltaktion.
 | MQTTConnected | Boolean | Anbindung aktiviert, Konfiguration gültig und MQTT-Gateway aktiv |
 | BridgeOnline | Boolean | Zusätzlich hat Z2M den Zustand online gemeldet |
 | Z2MVersion | String | Gemeldete Z2M-Version; leer bis zur ersten gültigen Information |
-| ExtensionInstalled | Boolean | z2m-automations.mjs in der empfangenen Erweiterungsliste gefunden |
+| ExtensionInstalled | Boolean | z2m-automations.mjs in der Erweiterungsliste gefunden, Upload bestätigt oder bereiter Empfänger durch passende Statusantwort bestätigt |
 | HealthStatus | String | Noch nicht geprüft, Antwort ausstehend, funktionsfähig, nicht funktionsfähig, Fehler, Zeitüberschreitung oder abgebrochen |
 | ExtensionReady | Boolean | Empfängerprotokoll und Version durch eine frische passende Antwort bestätigt |
 | StoredRevision | Integer | Zuletzt gemeldete Speicherrevision; 0 auch bei noch unbekanntem Zustand |

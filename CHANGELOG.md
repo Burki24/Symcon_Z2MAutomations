@@ -192,6 +192,13 @@
 
 ## Fehlerkorrekturen
 
+- Z2M-Verbindung: Ein bestätigter bereiter Empfänger wird auch ohne zuvor
+  empfangene Erweiterungsliste als „Installiert“ angezeigt. Vorhandene bestätigte
+  Zustände berichtigen die Anzeige ohne neue MQTT-Anfrage. Die Verbindungsprüfung
+  zeigt „Funktionsfähig“ und die übrigen Prüfzustände auf Deutsch. Native
+  Debugmeldungen erklären Bestätigung, Anzeigekorrektur und fehlgeschlagene Prüfungen.
+  Ein Modulupdate genügt; kein Erweiterungsupdate erforderlich.
+
 - „Änderungen verwerfen und wechseln“ funktioniert auch im nativen Popup.
   Dessen Felder werden jetzt beim Formularaufbau berücksichtigt, der Button
   erhält die vollständige Erfassung und der Bestätigungswert bleibt beim

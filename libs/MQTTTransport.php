@@ -139,8 +139,7 @@ trait MQTTTransport
         {
             return $this->WithTransportLock(function (): string
             {
-                $state = $this->RefreshState();
-                $this->SaveState($state);
+                $state = $this->SaveState($this->RefreshState());
                 unset($state['scope'], $state['pending'], $state['workflow']);
                 unset($state['validationDetails']['names']);
                 if ($state['extension'] !== null) {
@@ -254,6 +253,14 @@ trait MQTTTransport
         $notify = $state['pending']['notify'] ?? false;
         $state['pending'] = null;
         $state['health'] = $result;
+        $message = match ($result) {
+            'healthy'   => 'Verbindungsprüfung erfolgreich: Zigbee2MQTT ist erreichbar und meldet keine Probleme.',
+            'unhealthy' => 'Zigbee2MQTT antwortet, meldet aber ein Problem. Status und Zigbee2MQTT-Protokoll prüfen.',
+            'timeout'   => 'Verbindungsprüfung ohne passende Antwort beendet. MQTT-Verbindung und Basistopic prüfen.',
+            'cancelled' => 'Verbindungsprüfung wegen geänderter Verbindung oder Einstellungen abgebrochen. Bei Bedarf erneut prüfen.',
+            default     => 'Verbindungsprüfung fehlgeschlagen. MQTT-Verbindung und Zigbee2MQTT-Status prüfen.'
+        };
+        $this->DebugEvent($result === 'healthy' ? 'AKTION' : 'FEHLER', $message, ['Ergebnis' => $result]);
         if ($notify) {
             $this->NotifyHealthCheck($result);
         }
@@ -328,9 +335,13 @@ trait MQTTTransport
         return $this->RefreshExtensionWorkflow($state);
     }
 
-    private function SaveState(array $state): void
+    private function SaveState(array $state): array
     {
         $state['bridgeOnline'] = $state['mqttConnected'] && $state['bridgeState'] === 'online';
+        if (!$state['extensionInstalled'] && $state['extensionConfirmed'] && ($state['extension']['ready'] ?? false)) {
+            $state['extensionInstalled'] = true;
+            $this->DebugEvent('AKTION', 'Bestätigter Empfängerstatus belegt die installierte Z2M-Erweiterung; Installationsanzeige berichtigt.');
+        }
         $this->BeforeTransportSave($state);
         $this->SetBuffer('TransportState', json_encode($state, JSON_THROW_ON_ERROR));
         $this->SetValue('MQTTConnected', $state['mqttConnected']);
@@ -349,6 +360,7 @@ trait MQTTTransport
         $status = !$this->ReadPropertyBoolean('Active') ? 104 : (!$this->ValidConfiguration() ? 200 : (!$state['mqttConnected'] ? 201 : (!$state['bridgeOnline'] ? 202 : 102)));
         $this->SetStatus($status);
         $this->DebugEvent('AKTION', 'Transportstatus und Anzeigevariablen aktualisiert.', ['Gateway' => $this->GetParentID(), 'Aktiviert' => $this->ReadPropertyBoolean('Active'), 'KonfigurationGültig' => $this->ValidConfiguration(), 'Basistopic' => $this->ReadPropertyString('BaseTopic'), 'MQTTVerbunden' => $state['mqttConnected'], 'Z2MZustand' => $state['bridgeState'], 'Gesundheitsprüfung' => $state['health'], 'ExternesJavaScript' => $state['externalJS'], 'ErweiterungInstalliert' => $state['extensionInstalled'], 'Statuscode' => $status]);
+        return $state;
     }
 
     private function WithTransportLock(callable $callback): mixed

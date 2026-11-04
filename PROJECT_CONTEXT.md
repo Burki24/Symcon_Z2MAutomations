@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Statusanzeigen der neuen Verbindung lokal korrigiert: Der gemeinsame
+  MQTT-Transport erkennt einen bestätigten bereiten Empfänger als installiert,
+  auch ohne Erweiterungsliste. Bereits bestätigter Cache wird beim Lesen lokal
+  berichtigt; öffentliche Statusantwort und Variablen stimmen überein. Fehlende
+  deutsche Prüfzustände ergänzt, insbesondere Healthy → Funktionsfähig. Native
+  Debugmeldungen erklären Korrektur und Prüfergebnis. Neue Regression prüft auch
+  Retain, falsche Transaktion, ungültiges Protokoll, Entfernung und Topicwechsel.
+  Kein Erweiterungsupdate und keine Änderung an Test-/Live-Installationen.
+
 - Schritt 2 lokal implementiert: Z2MConnection mit Präfix Z2MC verwendet ein
   vorhandenes natives MQTT-Gateway je System. Gemeinsame Traits MQTTTransport,
   ExtensionTransport und DeviceCatalog statt zweitem Transport. Health samt

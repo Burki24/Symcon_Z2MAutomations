@@ -3526,3 +3526,30 @@ nicht angefasst. Native Konsolenabnahme des neuen Bausteins sowie reale
 Mehrbroker-/Acht-System-Praxis bleiben offen; keine Datenübernahme oder Änderung
 vorhandener Modulrollen. Nächster Umsetzungsschritt ist der lokale zentrale
 Arbeitsbereich, noch kein Installations- oder Migrationsauftrag.
+
+## Verbindungsstatusanzeigen lokal korrigiert am 04.11.2026
+
+Die gezielte Regression tests/connection-status.php scheiterte zunächst an
+fehlendem deutschen Initialstatus. Nach Ergänzung der fehlenden Übersetzungen
+scheiterte sie am weiterhin falschen Installationsstatus trotz passender
+bestätigter Empfängerantwort. Im gemeinsamen MQTTTransport wird diese Bestätigung
+nun beim Speichern der lokalen Anzeige als Installationsnachweis berücksichtigt.
+GetTransportState liefert denselben normalisierten Zustand wie Cache und Variable,
+auch beim Berichtigen bereits vorhandener Bestätigungen nach einem Modulupdate.
+Es wird keine zusätzliche Anfrage zur Anzeigeberichtigung gesendet.
+
+Die Regression verwendet den wirklichen deutschen Modulkatalog anstelle der
+Identitätsübersetzung der Fremdstubs und prüft die tatsächlich geschriebenen
+Statusvariablen: Initialzustand, laufende Prüfung, Erfolg, gemeldetes Problem,
+Fehler, Zeitablauf und Abbruch. Retained, unpassende Transaktion und ungültiges
+Protokoll bestätigen keine Installation. Explizite Entfernung und Topicwechsel
+verwerfen die zugehörige Bestätigung; unverändertes Lesen wiederholt die
+Korrekturmeldung nicht. Deutsche native Debugmeldungen für Prüfergebnis und
+Installationserkennung geprüft. Zentrale Helper geprüft und unverändert genutzt.
+
+php tests/run.php einschließlich der neuen Regression und 137 JavaScript-Tests,
+Struktur und zentrale Kodierungsprüfung erfolgreich. Offizielle StylePHP-Prüfung
+der 18 eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus,
+git diff --check sowie UTF-8 ohne BOM mit LF bestanden. Keine Änderung an Helpern,
+Fremdstubs, Z2M-Quellen oder Erweiterungsartefakt. Test-/Live-System nicht angefasst;
+native Praxisprüfung nach Modulupdate steht aus. Kein Erweiterungsupdate nötig.

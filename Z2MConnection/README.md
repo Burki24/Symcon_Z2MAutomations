@@ -78,8 +78,8 @@ Alle Variablen dienen der Anzeige und sind nicht schaltbar.
 | MQTTConnected | Boolean / keine | Native MQTT-Anbindung aktiv und verbunden. |
 | BridgeOnline | Boolean / keine | Z2M hat online gemeldet oder die Verbindungsprüfung beantwortet. |
 | Z2MVersion | String / keine | Zuletzt empfangene Z2M-Version der aktuellen Verbindung. |
-| ExtensionInstalled | Boolean / keine | Erweiterung in der Z2M-Liste erkannt oder Upload bestätigt. |
-| HealthStatus | String / keine | Ergebnis der Verbindungsprüfung, einschließlich ausstehender Antwort und Zeitablauf. |
+| ExtensionInstalled | Boolean / keine | Erweiterung in der Z2M-Liste erkannt, Upload bestätigt oder bereiter Empfänger durch passende Statusantwort bestätigt. |
+| HealthStatus | String / keine | Ergebnis der Verbindungsprüfung, zum Beispiel „Funktionsfähig“, „Antwort von Z2M steht noch aus“ oder „Keine rechtzeitige Antwort“. |
 | ExtensionReady | Boolean / keine | Empfänger durch passende frische Antwort bestätigt. |
 | StoredRevision | Integer / keine | Bestätigte gespeicherte Revision; 0 bedeutet leer oder nicht bestätigt. |
 | OperationStatus | String / keine | Laufender oder zuletzt abgeschlossener Erweiterungsauftrag. |

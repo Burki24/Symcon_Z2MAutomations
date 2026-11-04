@@ -11,6 +11,20 @@ Systembezug ist die erzeugte UUID, Transportbezug der native Parent und das
 Basistopic; die tatsächlichen Nutzdaten bleiben geschützt. Fehler durch falsches
 Topic, unpassende Transaktion, Retain und abgelaufene Fristen bestätigen nichts.
 
+Der gemeinsame MQTT-Transport berichtigt „Erweiterung installiert“, wenn ein
+bestätigter bereiter Empfänger vorliegt. Er meldet einmalig „Bestätigter
+Empfängerstatus belegt die installierte Z2M-Erweiterung; Installationsanzeige
+berichtigt.“ Das gilt auch für bereits bestätigten lokalen Zustand nach einem
+Modulupdate und sendet keine weitere Anfrage. Reine Statusbeobachtungen ohne
+passende Antwort reichen nicht aus. Entfernung und Zuordnungswechsel verwerfen
+weiterhin die zugehörige Bestätigung. Die lokale Statusabfrage liefert denselben
+berichtigten Zustand wie Cache und Anzeigevariablen.
+
+FinishHealthCheck erklärt Erfolg, gemeldetes Problem, fehlende Antwort, Abbruch
+und Fehler in festen deutschen Meldungen. Technische Ergebniswerte wie healthy
+bleiben im Protokoll erhalten; die Statusvariable verwendet die Modulübersetzung,
+bei Deutsch insbesondere „Funktionsfähig“. Keine neuen Diagnoseanfragen.
+
 Die zeitlich begrenzte Ablaufaufzeichnung nutzt denselben RuntimeDebug-Vertrag
 wie bisher und besitzt je Verbindung eine eigene Lease. Bei mehreren Systemen
 deren Debugfenster getrennt öffnen; Regellauf und Aktionsschritt dienen weiterhin
