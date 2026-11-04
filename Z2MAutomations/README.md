@@ -160,9 +160,9 @@ Bearbeitung. Im Browser schließen Sie zuerst den offenen Bearbeitungsdialog.
 Andere Systeme behalten ihre Entwürfe; vorhandene Partnerfreigaben bleiben erhalten.
 Bei einer veralteten Ansicht laden Sie diese erneut, bevor Sie Änderungen übernehmen.
 
-Die gemeinsame Oberfläche kann den Entwurf des ausgewählten Systems jetzt
-prüfen und übertragen. **Aktivieren und Stopp sind in der Zentrale noch nicht
-verfügbar.** Die neue Systemauswahl benutzt keine bisherigen MQTT-Bedienbuttons.
+Die gemeinsame Oberfläche kann den Entwurf des ausgewählten Systems prüfen,
+übertragen und dessen gespeicherte Automationen ausdrücklich starten oder stoppen.
+Jeder Bedienauftrag gilt genau für das ausgewählte Z2M-System.
 
 ### Einen Systementwurf prüfen und übertragen
 
@@ -194,6 +194,48 @@ können unabhängig geprüft werden.
 Nach einer möglichen Speicherung in Z2M ist der rein lokale Übernahme-Rückweg
 gesperrt: Er könnte die geänderte Z2M-Datei nicht wiederherstellen. Ein betrieblicher
 Rückweg muss dann gesondert mit dem tatsächlichen Z2M-Stand geplant werden.
+
+### Gespeicherte Automationen eines Systems steuern
+
+Im nativen Formular heißt der Bereich **Gespeicherte Automationen dieses Systems
+steuern**, im Designer **Betrieb steuern**. Der Name des Systems beziehungsweise
+sein Basistopic steht direkt dabei.
+
+1. Das gewünschte System auswählen. Bei unbekanntem Betrieb **Betriebsstatus in
+   Z2M aktualisieren** wählen. Das fragt ausdrücklich dieses Z2M-System ab.
+2. **Nach einem Z2M-Neustart automatisch wieder starten** nach Wunsch einstellen.
+   Im Designer heißt dieselbe Option **Automatikbetrieb nach einem Z2M-Neustart
+   wieder aufnehmen**. Sie wird mit der nächsten Aktivierung in Z2M gespeichert.
+3. **Automatik dieses Systems aktivieren** wählen; im Designer **Gespeicherte
+   Automationen aktivieren**. Alle im gespeicherten Stand eingeschalteten Regeln
+   werden bereit. Der lokale Entwurf muss dem gespeicherten Stand entsprechen.
+   Offene Bearbeitungen zuerst übernehmen, prüfen und speichern.
+4. Auf die Bestätigung warten. Erst eine zusätzliche frische Z2M-Statusantwort
+   bestätigt Aktivierung und Wiederanlaufeinstellung. Symcon wird danach für die
+   Ausführung nicht mehr benötigt.
+5. **Automatik dieses Systems stoppen** beziehungsweise **Alle Automationen
+   dieses Systems stoppen** beendet den Automatikbetrieb und die laufenden
+   Abläufe dieses Systems. Ein bewusster Stopp bleibt nach Z2M-Neustart wirksam.
+   Stoppen ist auch bei offenen Entwurfsänderungen möglich.
+
+Für einen einzelnen Test unter **Eine gespeicherte Automation auswählen** die
+Regel wählen. **Einmal mit Bedingungen starten** (im nativen Formular
+**Ausgewählte Automation einmal starten**) prüft ihre Bedingungen und führt
+ihre Aktionsfolge einmal aus. Das geht auch bei ausgeschalteter Regel. Die Regel
+wird dabei nicht dauerhaft eingeschaltet, der Automatikbetrieb bleibt unverändert.
+Die Anzeige unterscheidet laufend, abgeschlossen, wegen einer Bedingung nicht
+ausgeführt, fehlgeschlagen und gestoppt. **Nur diesen Lauf stoppen** betrifft
+genau den angezeigten Lauf. Hat inzwischen ein neuer Lauf begonnen, wird der
+alte Stoppauftrag abgelehnt. Bereits gesendete Gerätebefehle werden nicht
+rückgängig gemacht; „abgeschlossen“ bestätigt keine gesonderte Gerätewirkung.
+
+Bei ausbleibender Antwort steht ausdrücklich noch keine Bestätigung fest.
+Das Modul wiederholt keine Start-/Stoppbefehle. Den Betriebsstatus prüfen und
+erst danach bewusst neu entscheiden. Die laufende Anzeige liest vorhandene
+Rückmeldungen; ihr Aktualisieren sendet keine weiteren Schaltbefehle.
+Entwürfe, Partnerfreigaben und andere Systeme bleiben unverändert. Nach einem
+beauftragten Betriebswechsel ist der rein lokale Übernahme-Rückweg gesperrt,
+weil er den tatsächlichen Z2M-Betrieb nicht zurücksetzen könnte.
 
 Das Eintragen einer Z2M-Verbindung erzeugt einen leeren lokalen Dokumentplatz.
 Es kopiert keine vorhandenen Automationen und erteilt keine Empfangsfreigaben.

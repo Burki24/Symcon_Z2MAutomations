@@ -426,9 +426,7 @@ trait ExtensionIntegration
 
     private function RuntimeMatches(array $metadata, array $target, bool $active): bool
     {
-        return $metadata['ready'] && $metadata['runtimeVersion'] === 1 && $metadata['session'] === $target['session']
-            && $metadata['executing'] === $active && (!$active || ($metadata['activeRevision'] === $target['storedRevision']
-                && $metadata['activeChecksum'] === $target['checksum']));
+        return RuntimeControlProtocol::RuntimeMatches($metadata, $target, $active);
     }
 
     private function SaveExtensionState(array $state): void

@@ -8,6 +8,7 @@ use stdClass;
 use Throwable;
 
 require_once __DIR__ . '/DraftTransferProtocol.php';
+require_once __DIR__ . '/RuntimeControlProtocol.php';
 
 trait ExtensionTransport
 {
@@ -59,6 +60,10 @@ trait ExtensionTransport
             {
                 if ($this->TransportOwnershipBlocked()) return false;
                 $state = $this->RefreshState();
+                if (method_exists($this, 'RuntimeFrameAllowed') && !$this->RuntimeFrameAllowed($state)) {
+                    $this->SaveState($state);
+                    return false;
+                }
                 if (method_exists($this, 'WorkspaceSnapshotFrameAllowed') && !$this->WorkspaceSnapshotFrameAllowed($state)) {
                     $this->SaveState($state);
                     return false;
@@ -68,7 +73,7 @@ trait ExtensionTransport
                     return false;
                 }
                 $this->SaveState($state);
-                $readProbe = ($state['workflow']['kind'] ?? '') === 'setup_read' && ($state['workflow']['wire'] ?? '') === 'status';
+                $readProbe = (($state['workflow']['kind'] ?? '') === 'setup_read' || isset($state['workflow']['runtimeRequest'])) && ($state['workflow']['wire'] ?? '') === 'status';
                 $valid = $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || $readProbe || ($state['workflow']['kind'] ?? '') === 'deactivate')
                     && ($state['workflow']['transaction'] ?? null) === $frame['transaction'];
                 if ($valid) {

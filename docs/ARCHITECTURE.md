@@ -422,8 +422,8 @@ Ergebnisse. Das Dokument bleibt ausschließlich im zentralen Arbeitsbereich;
 keine zweite Editor- oder MQTT-Vertragsschicht wird eingeführt. Der reine
 DraftTransferProtocol bündelt vorhandene Session-/Revisions-/Prüfsummenprüfungen
 für Einzelbetrieb und Zentrale. Native Formulare und Designer benutzen dieselbe
-Auftragsfunktion. Prüfung und Speicherung sind umgesetzt; Aktivierung, Stopp und
-Einzellauf verbleiben als weiterer Teil von Schritt 6. Details: docs/WORKSPACE.md.
+Auftragsfunktion. Prüfung und Speicherung sowie die getrennte Betriebssteuerung
+sind umgesetzt. Details: docs/WORKSPACE.md und ADR 0028.
 Das Z2M-Artefakt und der Erweiterungsvertrag bleiben unverändert.
 
 ## Direkte Ersteinrichtung
@@ -436,3 +436,15 @@ Migration und direkte Einrichtung gemeinsam; beide verlangen ihre jeweilige
 journalgebundene Freigabe. Vorhandene Entwürfe werden nicht ersetzt. Persistenter
 lokaler Commit und Rückweg sichern Abbruchfälle. Runtime und Erweiterungsartefakt
 bleiben unverändert.
+
+## Zentrale Betriebssteuerung
+
+WorkspaceRuntime, WorkspaceRuntimeForm und ConnectionRuntimeControl ergänzen
+die ausdrückliche Laufzeitsteuerung je System (ADR 0028). Native Oberfläche und
+Designer verwenden dieselben journalgebundenen Aufträge. RuntimeControlProtocol
+bündelt vorhandene Status-/Laufverträge, ohne neue Engine oder MQTT-Verbindung.
+Vorbefehlsstatus, einmalige Freigabe und Abschlussstatus bleiben beim zugeordneten
+Verbindungsmodul. Reine Autoritätsrückfragen sind lokal und rufen die gesperrte
+Verbindung nicht erneut auf. Einzellauf und Automatikbetrieb sind getrennt;
+Entwürfe werden durch Betriebsaufträge nicht geschrieben. Fehlende Antworten
+werden sichtbar, niemals durch automatisches Wiederholen ersetzt.

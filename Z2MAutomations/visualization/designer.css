@@ -211,3 +211,7 @@ dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .transfer-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
 .transfer-actions button { padding: 10px 14px; border: 1px solid #cad6e3; border-radius: 7px; background: #f7fafc; color: #283551; cursor: pointer; }
 .transfer-actions button:disabled { opacity: .5; cursor: default; }
+.system-runtime label { display: block; margin: 12px 0; }
+.system-runtime input[type="checkbox"] { width: auto; margin-right: 6px; }
+.system-runtime select { display: block; width: min(100%, 620px); margin-top: 7px; padding: 9px; border: 1px solid #cad6e3; border-radius: 7px; background: #fff; }
+.system-runtime p { overflow-wrap: anywhere; }

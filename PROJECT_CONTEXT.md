@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Zentrale Betriebssteuerung lokal ergänzt: Aktivierung mit wählbarem Wiederanlauf,
+  globaler Stopp, bedingungsgeprüfter Einzelstart und Stopp genau eines Laufs je
+  System im nativen Formular und Browserdesigner. Eigene dauerhafte Aufträge,
+  frische Statusbestätigung, Sitzungs-/Revisionsbezug, keine automatischen
+  Wiederholungen. Ausschalten bleibt bei offenen Eingaben möglich. Regeln,
+  Partnerfreigaben und Entwürfe werden nicht geändert. Offline geprüft mit
+  1/2/8 Systemen und dem tatsächlich erzeugten JavaScript an einem synthetischen
+  Z2M-Peer. Keine Test-/Live-Installation geändert; Praxisabnahme nach Modulupdate
+  offen. Erweiterungsartefakt unverändert. Details: ADR 0028 und docs/WORKSPACE.md.
+
 - Formularneuaufbau nach direkter Übernahme lokal korrigiert: Die sofortige
   Besitzersperre blockierte den getrennten nativen Formularabruf aus ReloadForm.
   Zentrale Formularaktualisierungen werden jetzt im laufenden Eintritt
@@ -36,7 +46,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   frische Speicherstatusbestätigung und keine automatischen Wiederholungen.
   Detaillierte Ablehnungen bleiben bis zur nächsten Prüfung erhalten. Möglicher
   externer Schreibvorgang sperrt den rein lokalen Übernahme-Rückweg. Keine
-  Aktivierung oder Laufzeitsteuerung ergänzt, kein Test-/Live-Update und kein
+  implizite Aktivierung durch Speichern. Die inzwischen ergänzte ausdrückliche
+  Betriebssteuerung ist oben beschrieben. Kein Test-/Live-Update und kein
   Erweiterungsbuild geändert. Native/Browser-Praxisabnahme nach Update offen.
 
 - Browserstart korrigiert: Die sofortige Besitzersperre wies gleichzeitig

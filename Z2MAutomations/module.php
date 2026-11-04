@@ -17,6 +17,8 @@ require_once __DIR__ . '/../libs/WorkspaceForm.php';
 require_once __DIR__ . '/../libs/WorkspaceDesigner.php';
 require_once __DIR__ . '/../libs/WorkspaceTransfer.php';
 require_once __DIR__ . '/../libs/WorkspaceSetup.php';
+require_once __DIR__ . '/../libs/WorkspaceRuntime.php';
+require_once __DIR__ . '/../libs/WorkspaceRuntimeForm.php';
 require_once __DIR__ . '/../libs/SystemMigration.php';
 require_once __DIR__ . '/../libs/SystemOwnership.php';
 require_once __DIR__ . '/../libs/MQTTTransport.php';
@@ -72,6 +74,8 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\WorkspaceDesigner;
     use Z2MAutomations\WorkspaceTransfer;
     use Z2MAutomations\WorkspaceSetup;
+    use Z2MAutomations\WorkspaceRuntime;
+    use Z2MAutomations\WorkspaceRuntimeForm;
     use Z2MAutomations\SystemMigration;
     use Z2MAutomations\SystemOwnership;
     use Z2MAutomations\MQTTTransport;
@@ -119,6 +123,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('SystemWorkspace', '');
             $this->RegisterAttributeString('WorkspaceTransfers', '');
             $this->RegisterAttributeString('WorkspaceSetup', '');
+            $this->RegisterAttributeString('WorkspaceRuntime', '');
             $this->RegisterAttributeString('SystemOwnership', '');
             $this->RegisterAttributeString('MigrationSourceWork', '');
             $this->RegisterAttributeString('YamlDraft', '');
@@ -142,6 +147,9 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterTimer('StatusRefresh', 0, 'Z2MA_RefreshStatus($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceTransferRefresh', 0, 'Z2MA_RefreshWorkspaceTransfers($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceSetupRefresh', 0, 'Z2MA_RefreshWorkspaceSetup($_IPS[\'TARGET\']);');
+            $this->RegisterTimer('WorkspaceRuntimeRefresh', 0, 'Z2MA_RefreshWorkspaceRuntime($_IPS[\'TARGET\']);');
+            $this->RegisterVariableString('RuntimeSystem', 'Gewähltes Z2M-System für Betriebssteuerung', $this->TextPresentation(), 230);
+            $this->RegisterVariableString('RuntimeStatus', 'Betriebssteuerung und Einzelstart', $this->TextPresentation(), 240);
             $this->RegisterVariableString('TransferSystem', 'Gewähltes Z2M-System für Prüfung und Übertragung', $this->TextPresentation(), 200);
             $this->RegisterVariableString('TransferStatus', 'Prüfung und Übertragung', $this->TextPresentation(), 210);
             $this->RegisterVariableString('TransferError', 'Einzelheiten zur Entwurfsprüfung', $this->TextPresentation(), 220);

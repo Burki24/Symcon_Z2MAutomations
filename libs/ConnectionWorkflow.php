@@ -64,6 +64,10 @@ trait ConnectionWorkflow
 
     private function ReceiveExtensionMessage(array &$state, string $suffix, mixed $payload, bool $retained): ?array
     {
+        if ($suffix === ExtensionContract::PREFIX . 'runs') {
+            if (!$retained) $this->AcceptConnectionRuns($state, $payload);
+            return null;
+        }
         if ($suffix === ExtensionContract::PREFIX . 'status') {
             $metadata = ExtensionContract::Status($payload);
             if ($metadata !== null) $this->ObserveExtensionStatus($state, $metadata);
@@ -73,6 +77,7 @@ trait ConnectionWorkflow
         $workflow = $state['workflow'];
         if (isset($workflow['setupRequest'])) return $this->ReceiveWorkspaceSnapshot($state, $payload);
         if (isset($workflow['workspaceRequest'])) return $this->ReceiveDraftTransfer($state, $payload);
+        if (isset($workflow['runtimeRequest'])) return $this->ReceiveRuntimeControl($state, $payload);
         if (($payload->status ?? null) !== 'ok' || !($payload->data ?? null) instanceof stdClass) {
             $code = $workflow['wire'] === 'install' ? 'installation_failed' : ($payload->error->code ?? 'invalid_response');
             if (!is_string($code) || !in_array($code, array_merge(ExtensionContract::ERROR_CODES, ['installation_failed', 'invalid_response']), true)) $code = 'invalid_response';
@@ -98,6 +103,7 @@ trait ConnectionWorkflow
             $state['extension'] = $metadata;
             $state['extensionConfirmed'] = true;
             $state['runtimeConfirmed'] = $metadata['runtimeVersion'] === 1;
+            $this->AcceptConnectionRuns($state, $payload->data->execution ?? null);
             if ($workflow['kind'] === 'catalog') {
                 if ($metadata['catalogVersion'] !== 1) {
                     $this->FinishExtensionWorkflow($state, 'error', 'catalog_unavailable');
@@ -130,6 +136,8 @@ trait ConnectionWorkflow
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        $this->FinishRuntimeControl($state, $status, $error);
+        if ($error !== '' && isset($state['workflow']['runtimeRequest']) && in_array($state['workflow']['kind'], ['activate', 'deactivate'], true)) $state['runtimeConfirmed'] = false;
         $this->FinishDraftTransfer($state, $status, $error);
         $this->FinishWorkspaceSnapshot($state, $status, $error);
         $this->DebugEvent(

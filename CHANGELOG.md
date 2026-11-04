@@ -1,5 +1,20 @@
 # Unveröffentlicht
 
+## Zentrale Betriebssteuerung
+
+- Gespeicherte Automationen je Z2M-System im nativen Formular und Browserdesigner
+  aktivieren oder stoppen. Ein Wiederanlauf nach Z2M-Neustart ist wählbar.
+  Aktivierung und Stopp werden erst nach einer zusätzlichen Statusantwort als
+  bestätigt angezeigt. Speichern startet weiterhin keine Automation.
+- Einzelne gespeicherte Regeln einmal mit Bedingungsprüfung starten und genau
+  ihren aktuellen Lauf stoppen. Entwürfe, Regelfreigaben und andere Systeme
+  bleiben erhalten. Auch ausgeschaltete Regeln lassen sich einmal testen.
+- Deutsche Status- und Debugmeldungen erklären Ziel, ausstehende Bestätigung,
+  Bedingungsablehnung und Abbruch. Nach Zeitüberschreitung oder Neustart wird
+  kein Auftrag wiederholt. Ein möglicher Betriebsauftrag sperrt den rein lokalen
+  Übernahme-Rückweg. Reale Testabnahme nach Modulupdate noch offen;
+  Erweiterungsupdate nicht erforderlich.
+
 ## Korrigiert
 
 - Nach der lokalen Übernahme einer Z2M-Verbindung wird das Formular erst nach

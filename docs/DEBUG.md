@@ -734,3 +734,18 @@ CancelWorkspaceSnapshot beendet nur den passenden eigenen Leseauftrag; die
 Meldung grenzt dies vom Stopp laufender Automationen ab. Commit und Rückweg
 melden ausschließlich lokale Wirkung. Kein Schritt sendet store, activate,
 deactivate, Neustarts oder Gerätebefehle.
+
+## Zentrale Betriebssteuerung
+
+Alle öffentlichen Runtime-Einstiege beider Module verwenden TraceModuleCall und
+DebugFlowHelper. Deutsche Meldungen erklären System-UUID, Verbindung, Auftrag,
+ausstehende Bestätigung, Abschluss und feste Fehlerursache. Einzelregeln erscheinen
+im Debug nur mit gehashtem Bezug. Weder Regelnamen noch YAML, Aktionswerte,
+Aktivierungstoken oder Empfängersitzung werden ausgegeben.
+
+Die Verbindung erklärt zuerst die reine Statusprüfung, dann den ausdrücklichen
+Befehl und die erforderliche Abschlussbestätigung. Laufmeldungen nennen begrenzte
+Anzahl und Folgenummer. Timeout, geänderte Zuordnung, Neustart und Verlust des
+flüchtigen Workflows lösen keinen erneuten Versand aus. Der Benutzer wird zur
+Statusprüfung aufgefordert. Statusvariablen erklären separat Automatikbetrieb
+und Einzelstart; ein abgeschlossener Lauf behauptet keine bestätigte Gerätewirkung.

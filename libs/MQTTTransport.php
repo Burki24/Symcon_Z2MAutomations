@@ -140,15 +140,7 @@ trait MQTTTransport
         {
             return $this->WithTransportLock(function (): string
             {
-                $state = $this->SaveState($this->RefreshState());
-                unset($state['scope'], $state['pending'], $state['workflow']);
-                unset($state['validationDetails']['names']);
-                if ($state['extension'] !== null) {
-                    unset($state['extension']['session']);
-                }
-                if ($state['validation'] !== null) {
-                    unset($state['validation']['session'], $state['validation']['previousChecksum']);
-                }
+                $state = $this->PublicTransportState($this->SaveState($this->RefreshState()));
                 return json_encode($state, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             });
         });
@@ -178,6 +170,18 @@ trait MQTTTransport
     protected function Now(): int
     {
         return time();
+    }
+
+    private function PublicTransportState(array $state, bool $sessionProof = false): array
+    {
+        unset($state['scope'], $state['pending'], $state['workflow'], $state['validationDetails']['names']);
+        if ($state['extension'] !== null) {
+            if ($sessionProof) $state['extension']['session'] = hash('sha256', $state['extension']['session']);
+            else unset($state['extension']['session']);
+        }
+        if ($sessionProof && $state['execution'] !== null) $state['execution']['session'] = hash('sha256', $state['execution']['session']);
+        if ($state['validation'] !== null) unset($state['validation']['session'], $state['validation']['previousChecksum']);
+        return $state;
     }
 
     private function RequestHealthCheck(bool $RefreshExtension, bool $Notify): string

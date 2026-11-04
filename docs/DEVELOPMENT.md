@@ -4015,3 +4015,41 @@ Kopie erfolgreich; Fremdquellen unverändert ausgeschlossen. PHP CS Fixer 3.95.2
 im Prüfmodus ohne Befund für 122 Dateien. Alle neun geänderten eigenen Dateien
 UTF-8 ohne BOM mit LF; git diff --check ohne Befund. Erneute native Testabnahme
 nach Modulupdate bleibt offen; ein Erweiterungsupdate ist nicht erforderlich.
+
+## Zentrale Betriebssteuerung lokal geprüft am 04.11.2026
+
+ADR 0028 ergänzt systemgebundene Aktivierung, globalen Stopp, Einzelstart und
+gezielten Laufstopp im nativen Formular und Designer. Vorhandene Parent-,
+Datenfluss-, Formular- und Debughelper geprüft und weiterverwendet. Protokoll,
+Auftragsjournal und Z2M-Freigabe bleiben librarylokal. Keine neue Engine,
+Verbindung, Maskierungslogik oder Erweiterungsdatei. Die reine Autoritätsabfrage
+ruft die bereits gesperrte Verbindung nicht erneut auf.
+
+tests/workspace-runtime.php prüft Kernel-Fixtures und MQTT-Workflows für
+1/2/8 Systeme mit gemeinsamen/getrennten Brokern, unveränderten Dokumenten,
+gleichen Regelkennungen, frischem Abschlussstatus, verlorenem Workflow,
+geänderter Sitzung, Doppelaufruf und veraltetem gezieltem Stopp. Bestätigungen
+und reine Cacheabfragen können keinen Auftrag erneut senden. Generierte native
+Callback-Skripte und die authentifizierten Browserrouten werden ausgeführt.
+Reine Statusabfrage erhält den lokalen Rückweg; möglicher Betriebseingriff
+sperrt ihn. Native Statusvariablen folgen dem ausgewählten System.
+
+Der vorhandene Node-Peer verwendet zusätzlich das tatsächliche unveränderte
+Erweiterungsartefakt mit synthetischen Geräten. Bestätigt sind Aktivierung samt
+Wiederanlaufeinstellung, globaler Stopp, Einzelstart einer ausgeschalteten Regel,
+Abbruch vor einem verzögerten Gerätebefehl und Ablehnung wegen einer Bedingung.
+Keine Gerätebefehle ausgeführt. Browserprüfungen decken Zielbindung, ausdrückliche
+Bestätigung, lesendes Polling, sichere Namensanzeige und verspätete Antworten ab.
+
+Reale Abnahme nach Modulupdate in nativer Testkonsole und Designer bleibt offen.
+Keine Test-/Produktivinstallation, Besitzer, reale Regel oder Z2M-Erweiterung
+wurde für diese Implementierung verändert. Die bisherigen Nachweise tatsächlich
+geprüfter Z2M-Versionen werden durch synthetische Tests nicht erweitert.
+
+Prüfnachweis: Gesamtsuite php tests/run.php erfolgreich, einschließlich 150
+JavaScript-Tests und realem Erweiterungs-Peer. Abschließende Runtime- und
+Setup-Regression ebenfalls erfolgreich. Struktur und zentrale Kodierungsprüfung
+bestanden. Offizieller StylePHP-Check aller 18 eigenen JSON-Dateien in isolierter
+Kopie erfolgreich. PHP CS Fixer 3.95.27 im Prüfmodus ohne Befund für 128 Dateien.
+npm run check:extension bestätigt das unveränderte Artefakt. Fremdquellen
+unverändert, eigene Änderungen UTF-8 ohne BOM/LF; git diff --check ohne Befund.

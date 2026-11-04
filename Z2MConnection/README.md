@@ -170,3 +170,20 @@ der Zentrale. Der begrenzte private Rückgabestand ist kein zweiter bearbeitbare
 Entwurf. Sitzungsdaten, YAML und Kataloginhalte werden nicht ins Debug geschrieben.
 Die vorhandene Anbindung und ihre Passwörter werden durch die Einrichtung nicht
 umgestellt.
+
+## Betriebsaufträge der Zentrale
+
+Die zuständige Zentrale kann gespeicherte Automationen aktivieren oder stoppen
+und einzelne Regeln einmal starten oder gezielt stoppen. Die Verbindung führt
+die bestehenden Z2M-Befehle aus; sie bearbeitet keinen eigenen Entwurf.
+Aktivierung und globaler Stopp benötigen nach der Antwort eine weitere frische
+Statusbestätigung. Einzelne Laufmeldungen bleiben an System und Laufkennung
+gebunden. Bei verlorenen Antworten wird kein Befehl wiederholt.
+
+`Z2MC_RequestRuntimeControl(InstanceID, Owner, OperationID)` benötigt einen
+vorbereiteten Auftrag der tatsächlich zuständigen Zentrale.
+`Z2MC_GetRuntimeControlResult(InstanceID, Owner, OperationID)` liest nur dessen
+dauerhaftes Ergebnis. Der Besitzerwert allein erteilt keine Berechtigung.
+`GetConnectionInfo` liefert den Sitzungsbezug als SHA-256-Vergleichswert,
+keinen Aktivierungstoken. Deutsche Status- und Debugmeldungen erklären die
+Bestätigung und Fehler; Namen, YAML und Aktionswerte erscheinen nicht im Debug.

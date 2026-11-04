@@ -26,7 +26,7 @@ trait SystemMigration
         'binding_changed'       => 'Die MQTT-Verbindung, das Basistopic oder die Verbindungsgeneration wurde geändert. Bitte die Zuordnung prüfen.',
         'manager_not_empty'     => 'Bitte eine eigene zentrale Verwaltungsinstanz ohne bisherigen Einzelentwurf verwenden. Vorhandene Entwürfe werden nicht ersetzt.',
         'migration_interrupted' => 'Die lokale Übernahme wurde unterbrochen. Bitte denselben Vorgang fortsetzen oder den gesicherten Rückweg wählen. Z2M wurde nicht verändert.',
-        'z2m_write_started'     => 'Für diese Übernahme läuft eine Übertragung nach Z2M oder es wurde bereits ein Stand gesendet. Der lokale Rückweg stellt den Z2M-Betrieb nicht wieder her. Bitte zuerst den tatsächlichen Z2M-Stand prüfen und eine gesonderte Wiederherstellung planen.',
+        'z2m_write_started'     => 'Für dieses System wurde eine Speicherung oder Betriebssteuerung beauftragt. Der lokale Rückweg stellt den Z2M-Betrieb nicht wieder her. Bitte zuerst den tatsächlichen Z2M-Stand prüfen und eine gesonderte Wiederherstellung planen.',
         'rollback_conflict'     => 'Die bisherige Quelle wurde nach der Übernahme verändert. Der Rückweg bleibt gesperrt, damit keine Änderungen verloren gehen. Sicherung und zentraler Stand bleiben erhalten.'
     ];
 

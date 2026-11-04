@@ -205,6 +205,9 @@ auch nach späteren Aufträgen als extern beschrieben markiert.
 
 `RollbackSystemMigration` weist den lokalen Rückweg dann mit
 `z2m_write_started` ab, bevor Quellen, Besitzer oder Dokumente verändert werden.
+Dies gilt inzwischen auch nach Annahme eines zentralen Start-/Stoppauftrags:
+Seine mögliche Änderung des Betriebs oder Wiederanlaufwunsches lässt sich nicht
+lokal zurücknehmen. Eine reine Betriebsstatusabfrage sperrt den Rückweg nicht.
 Das gilt auch bei verlorener Speicherantwort. Ein lokaler Rollback würde den
 geänderten Empfängerstand nicht zurücksetzen. Zunächst den tatsächlichen
 Z2M-Stand sichern und einen eigenen betrieblichen Rückweg planen. Ein eindeutig

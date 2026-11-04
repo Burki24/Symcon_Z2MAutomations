@@ -221,7 +221,12 @@ trait WorkspaceForm
                 'confirm' => 'Geprüften Entwurf für „' . $record['binding']['baseTopic'] . '“ in Z2M speichern? Bei Änderungen stoppt dort der bisherige Automatikbetrieb. Es wird keine Automation aktiviert.',
                 'onClick' => sprintf($callback, '"store"')],
             ['type' => 'Button', 'caption' => 'Übertragungsstatus aktualisieren', 'onClick' => 'Z2MA_GetWorkspaceTransferStatus($id, ' . $source . ');'],
-            ['type' => 'Label', 'caption' => 'Jeder Entwurf wird getrennt geprüft und gespeichert. Speichern ersetzt nur die Automationsdatei dieses Systems und stoppt dort bei Änderungen die bisherige Ausführung. Aktivieren und Stopp sind in der Zentrale noch nicht verfügbar.']]];
+            ['type' => 'Label', 'caption' => 'Jeder Entwurf wird getrennt geprüft und gespeichert. Speichern ersetzt nur die Automationsdatei dieses Systems und stoppt dort bei Änderungen die bisherige Ausführung. Zum Starten anschließend den Automatikbetrieb dieses Systems aktivieren.']]];
+        $runtime = $this->WorkspaceRuntimeView($record);
+        $runtimePanel = $this->WorkspaceRuntimePanel($record, $runtime);
+        $this->FillWorkspaceRuntimePanel($runtimePanel, $record, $runtime);
+        $actions[] = $runtimePanel;
+        $this->UpdateWorkspaceRuntimeDisplay($id, $runtime);
         $this->UpdateWorkspaceTransferDisplay($id, $transfer);
         $this->DebugEvent('AKTION', 'Gemeinsames Formular mit eindeutig ausgewähltem Systementwurf aufgebaut. Kein Gatewaywechsel und keine Übertragung.', ['Systembezug' => $id, 'Systeme' => count($options)]);
         return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);

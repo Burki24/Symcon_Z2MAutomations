@@ -20,8 +20,10 @@ require_once __DIR__ . '/../libs/RuntimeDebug.php';
 require_once __DIR__ . '/../libs/ConnectionWorkflow.php';
 require_once __DIR__ . '/../libs/ConnectionDraftTransfer.php';
 require_once __DIR__ . '/../libs/ConnectionWorkspaceSetup.php';
+require_once __DIR__ . '/../libs/ConnectionRuntimeControl.php';
 
 use Z2MAutomations\ExtensionContract;
+use Z2MAutomations\RuntimeControlProtocol;
 use Z2MAutomations\SystemContract;
 use Z2MAutomations\Z2MProtocol;
 
@@ -41,6 +43,7 @@ class Z2MConnection extends IPSModuleStrict
     use Z2MAutomations\ConnectionWorkflow;
     use Z2MAutomations\ConnectionDraftTransfer;
     use Z2MAutomations\ConnectionWorkspaceSetup;
+    use Z2MAutomations\ConnectionRuntimeControl;
 
     public function Create(): void
     {
@@ -62,6 +65,7 @@ class Z2MConnection extends IPSModuleStrict
             $this->RegisterAttributeString('ConnectionCatalog', '');
             $this->RegisterAttributeString('ConnectionDraftTransfers', '');
             $this->RegisterAttributeString('ConnectionWorkspaceSnapshot', '');
+            $this->RegisterAttributeString('ConnectionRuntimeControls', '');
             $this->RegisterTimer('RequestTimeout', 0, 'Z2MC_ExpireRequest($_IPS[\'TARGET\']);');
             $this->RegisterTimer('RuntimeDebugExpiry', 0, 'Z2MC_ExpireRuntimeDebug($_IPS[\'TARGET\']);');
             $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -146,7 +150,7 @@ class Z2MConnection extends IPSModuleStrict
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): string
         {
-            $state = json_decode($this->GetTransportState(), true, 32, JSON_THROW_ON_ERROR);
+            $state = $this->WithTransportLock(fn (): array => $this->PublicTransportState($this->SaveState($this->RefreshState()), true));
             return json_encode(['version' => SystemContract::VERSION, 'systemId' => $this->ReadPropertyString('SystemID'),
                 'generation'              => $this->ReadPropertyInteger('Generation'), 'mqttParent' => $this->GetParentID(),
                 'baseTopic'               => $this->ReadPropertyString('BaseTopic'), 'state' => $state], JSON_THROW_ON_ERROR);
@@ -202,7 +206,7 @@ class Z2MConnection extends IPSModuleStrict
         $this->SetValue('StoredRevision', $ready ? $state['extension']['storedRevision'] : 0);
         $this->SetValue('ExecutionActive', $ready && $state['runtimeConfirmed'] && $state['extension']['executing']);
         $this->SetValue('OperationStatus', $this->ConnectionOperationText($state));
-        $this->SetValue('LastError', $this->Translate(ExtensionContract::ErrorText($state['lastError'])));
+        $this->SetValue('LastError', $this->ConnectionErrorText($state['lastError']));
         $this->UpdateExtensionBuildInfo($state);
         foreach ($this->ConnectionFormValues($state) as $field => $values) {
             foreach ($values as $key => $value) $this->UpdateFormField($field, $key, $value);
@@ -214,7 +218,7 @@ class Z2MConnection extends IPSModuleStrict
         $values = [];
         foreach ($this->ExtensionBuildInfo($state)['fields'] as $name => $caption) $values[$name] = ['caption' => $caption];
         $values['ConnectionOperationInfo'] = ['caption' => $this->ConnectionOperationText($state)];
-        $values['ConnectionErrorInfo'] = ['caption' => $this->Translate(ExtensionContract::ErrorText($state['lastError']))];
+        $values['ConnectionErrorInfo'] = ['caption' => $this->ConnectionErrorText($state['lastError'])];
         $values['ConnectionCatalogInfo'] = ['caption' => $this->Translate($this->CurrentConnectionCatalog($state) === null
             ? 'Device data are not yet confirmed for this connection. Choose Refresh device data.' : 'Device data loaded. Existing drafts and running automations are unchanged.')];
         $values['RuntimeDebugInfo'] = ['caption' => $this->RuntimeDebugText()];
@@ -224,6 +228,16 @@ class Z2MConnection extends IPSModuleStrict
 
     private function ConnectionOperationText(array $state): string
     {
+        if ($state['workflow'] === null && $state['lastError'] === '') {
+            $runtimeText = match ($state['operation']['status']) {
+                'activated'   => 'Aktivierung und Wiederanlaufeinstellung durch frischen Z2M-Status bestätigt.',
+                'stopped'     => 'Stopp des Automatikbetriebs durch frischen Z2M-Status bestätigt.',
+                'run_started' => 'Einzelstart bestätigt. Bedingungen und aktuellen Laufstatus in der Zentrale prüfen.',
+                'run_stopped' => 'Der ausgewählte einzelne Lauf wurde gestoppt.',
+                default       => ''
+            };
+            if ($runtimeText !== '') return $runtimeText;
+        }
         return $this->Translate(match (true) {
             $state['workflow'] !== null                         => 'Waiting for confirmation from Zigbee2MQTT.',
             $state['lastError'] !== ''                          => 'Request unsuccessful. See the explanation below.',
@@ -232,6 +246,11 @@ class Z2MConnection extends IPSModuleStrict
             $state['operation']['status'] === 'status_received' => 'Extension status confirmed.',
             default                                             => 'No request pending.'
         });
+    }
+
+    private function ConnectionErrorText(string $error): string
+    {
+        return RuntimeControlProtocol::MESSAGES[$error] ?? $this->Translate(ExtensionContract::ErrorText($error));
     }
 
     private function CurrentConnectionCatalog(array $state): ?array

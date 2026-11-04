@@ -390,5 +390,8 @@ Validierungsdetails, Speicherbestätigung und Ausfallzustände; keine Aktivierun
 Die abgeschlossene gesicherte Übernahme ist Voraussetzung für Schreibrechte.
 Synthetische Integration prüft 1/2/8 Systeme, gemeinsame/getrennte Broker,
 Teilfehler, stale replies, Neustart ohne Wiederholung und lokale Rückwegsperre
-nach möglichem externem Schreiben. Zentrale Aktivierung, Stopp, Einzelsteuerung
-und deren Praxisabnahme sind weiterhin offen. Keine Installation aktualisiert.
+nach möglichem externem Schreiben. Zentrale Aktivierung, Stopp und Einzelsteuerung
+sind inzwischen ebenfalls lokal implementiert (ADR 0028). Zusätzliche Offline-
+Integration mit dem echten Erweiterungsartefakt prüft Aktivierung, Wiederanlauf-
+Freigabe, globalen/gezielten Stopp und Bedingungsablehnung. Native und Browser-
+Praxisabnahme dieser Betriebsbuttons bleiben offen. Keine Installation aktualisiert.

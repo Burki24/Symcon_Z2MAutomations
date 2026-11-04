@@ -1,10 +1,11 @@
-# Lokaler zentraler Arbeitsbereich
+# Zentraler Arbeitsbereich und Systemsteuerung
 
 Schritt 3 von [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 Diese Stufe stellt Datenhaltung und lokale Modulfunktionen bereit. Schritt 5
 bindet inzwischen native Oberfläche und Browserdesigner an diese Daten an. Schritt 4 ergänzt
 inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION.md).
-Eine neue zentrale Z2M-Steuerung ist noch nicht implementiert.
+Prüfung, Speicherung und die ausdrückliche Betriebssteuerung je System sind
+inzwischen angebunden; siehe die entsprechenden Abschnitte unten.
 
 ## Gemeinsame Bearbeitung
 
@@ -225,7 +226,7 @@ Zuordnung allein beansprucht keinen Besitzer.
 lokalen Verbindungsresultate. Sie senden keine MQTT-Anfrage. Der kurze Timer läuft
 nur bei ausstehenden Aufträgen. Der Designer liest währenddessen begrenzt den
 lokalen Status; nach Ablauf kann der Benutzer ihn ausdrücklich erneut lesen.
-Aktivierung, Stopp und Einzellauf sind hier nicht implementiert.
+Aktivierung, Stopp und Einzellauf verwenden den getrennten Betriebsauftrag unten.
 
 Die Zentrale hält je System das letzte Ergebnis in `WorkspaceTransfers` und die
 letzten 32 Auftragsquittungen. Die Verbindung hält die letzten 32 Ergebnisse in
@@ -325,3 +326,44 @@ Verwerfen und Rückweg. Beim Öffnen werden nur vorhandene lokale Rückmeldungen
 verarbeitet. Der Designer verweist auf diesen Einrichtungsbereich. Eine reale
 Abnahme nach Modulupdate bleibt gesondert erforderlich; ein Erweiterungsupdate
 ist für das vorhandene editor/status-Protokoll nicht erforderlich.
+
+## Betriebssteuerung je System
+
+WorkspaceRuntime hält Betriebsaufträge getrennt vom Dokument und den Prüf-/
+Speicheraufträgen. Native Oberfläche und Designer verwenden denselben Einstieg:
+`RequestWorkspaceRuntime(SystemID, Generation, Fingerprint, Action, RuleID, RunID,
+ResumeAfterRestart, OperationID, RuntimeContext)` mit Präfix Z2MA. Action ist
+status, activate, deactivate, run_once oder stop_rule. Nur Einzelaufträge enthalten
+RuleID, nur stop_rule enthält RunID. OperationID ist eine neue 32-stellige
+Hexkennung. Wiederholung derselben angenommenen Anfrage sendet nicht erneut.
+
+GetWorkspaceRuntimeStatus(SystemID) und RefreshWorkspaceRuntime lesen lokale
+Resultate und vorhandene Verbindungssichten. Der Timer läuft nur bei ausstehenden
+Aufträgen oder bekannten laufenden Regeln. Die ausdrücklich ausgewählte Action
+status fragt dagegen Z2M frisch ab. Startaufträge benötigen den passenden
+gespeicherten Dokumentstand und aktuelle Aktionsrechte; globales Stoppen bleibt
+auch bei offenen Eingaben möglich.
+
+ConnectionRuntimeControl verlangt die journalgebundene Freigabe der aktuellen
+Zentrale. Bindung und Besitzer werden vor jeder Phase geprüft. Sitzungen erscheinen
+zentral nur als SHA-256-Vergleichswert; Aktivierungstoken verlassen den Verbindungs-
+workflow nicht. Aktivierung und globaler Stopp verwenden status → Befehl → status.
+Erst die letzte Antwort bestätigt den Betrieb und beim Aktivieren die übergebene
+Wiederanlaufoption. Einzelaufträge verwenden ExecutionContract-Snapshots mit
+monotoner Folgenummer. Ein Stopp betrifft nur die angegebene aktuelle Lauf-UUID.
+
+WorkspaceRuntime hält je System den letzten Auftrag und höchstens 32 Quittungen
+(maximal 1 MiB). ConnectionRuntimeControls hält höchstens 32 Ergebnisse (maximal
+256 KiB). Workflowverlust oder Fristablauf wird sichtbar gemeldet, niemals erneut
+gesendet. Ein möglicher Betriebswechsel sperrt die Besitzer-Epoche vor Delegation
+dauerhaft gegen einen rein lokalen Rückweg. Statusabfragen tun das nicht.
+
+Der Designer erlaubt runtime nur als gleichursprünglichen JSON-POST mit gültiger
+zeitbegrenzter Betriebsfreigabe. runtime-status ist ein lesender GET auf den
+Modulcache. Automatisches Nachlesen endet nach zwei Minuten. Fremde/veraltete
+Systemantworten werden verworfen. Die readonly Variablen RuntimeSystem und
+RuntimeStatus zeigen gewähltes System und bestätigten oder unbekannten Betrieb.
+Entwürfe, offene Eingaben, Auswahl und Partnerfreigaben bleiben erhalten.
+Kein Betriebsauftrag installiert eine Erweiterung oder prüft/speichert YAML.
+Z2M bleibt Laufzeitbesitzer. Einzelstart prüft Bedingungen auch bei ausgeschalteter
+Regel, ohne dauerhafte Regelfreigabe. Siehe ADR 0028.

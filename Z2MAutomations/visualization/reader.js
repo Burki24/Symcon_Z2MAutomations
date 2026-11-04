@@ -3,6 +3,7 @@ import {installCreation} from './creator.js';
 import {installEditing} from './editor.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
+import {installRuntime} from './runtime.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -29,7 +30,7 @@ import {installTransfers} from './transfer.js';
     $('.toolbar').setAttribute('aria-label', 'Modulansicht und neue Automation');
     $('.preview-label').textContent = 'ENTWURF';
     $('.preview-notice strong').textContent = 'Automationen im lokalen Entwurf';
-    $('.preview-notice > span:last-child').textContent = 'Automationen und Aktionsfolgen hier erstellen und bearbeiten. Änderungen betreffen nur den Symcon-Entwurf. Übertragen und Aktivieren weiterhin im nativen Formular.';
+    $('.preview-notice > span:last-child').textContent = 'Automationen und Aktionsfolgen bearbeiten. Entwürfe werden erst mit den jeweiligen Systembuttons an Z2M übertragen oder gestartet.';
     $('#validate-button').innerHTML = icon('check') + 'Ansicht aktualisieren';
     $('#validate-button').removeAttribute('data-action');
     ['#save-button', '#activate-button', '#stop-button', '.toolbar-divider', '.navigation-footer', '.activity', '#new-dialog', '#confirm-dialog'].forEach(selector => $(selector).remove());
@@ -71,6 +72,10 @@ import {installTransfers} from './transfer.js';
         if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
     }});
     const updateTransfers = installTransfers({getData: () => data, reload: () => load(), isLoading: () => busy, message});
+    const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});
+    function renderRuntimeStatus() {
+        $('#runtime-status').textContent = data?.status?.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision ?? '—'}` : 'Betrieb noch nicht bestätigt';
+    }
 
     function triggerSummary(trigger) {
         if (trigger.type === 'device') return `${sourceName(trigger.device)} · ${propertyName(sourceDevice(trigger.device), trigger.property)} ${compare[trigger.operator] ?? trigger.operator} ${displayValue(sourceDevice(trigger.device), trigger.property, trigger.value)}`;
@@ -237,7 +242,7 @@ import {installTransfers} from './transfer.js';
             $('.canvas-footer > span:last-child').textContent = data.workspace ? 'Lokale Entwürfe bearbeiten · Übertragung nur nach Bestätigung' : 'Automationen und Aktionsfolgen bearbeiten · Z2M bleibt unverändert';
             document.title = `${data.module.name} · Automationsdesigner · Entwurf`;
             $('#draft-status').textContent = data.draftAvailable ? `Lokaler Entwurf · Revision ${data.configuration.revision}` : 'Kein passender Editorentwurf geladen';
-            $('#runtime-status').textContent = data.status.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision}` : 'Betrieb noch nicht bestätigt';
+            renderRuntimeStatus();
             $('#draft-status').className = 'status-chip';
             const notices = [`${data.module.name} · Topic ${data.module.baseTopic} · Stand aus dem Modul, keine Live-Prüfung.`];
             const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
@@ -268,7 +273,7 @@ import {installTransfers} from './transfer.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); }
     }
     installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
         const refreshed = await load(ruleId);
