@@ -12,6 +12,9 @@ require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
 require_once __DIR__ . '/../libs/AutomationDesigner.php';
 require_once __DIR__ . '/../libs/SystemMigrationInspection.php';
 require_once __DIR__ . '/../libs/SystemWorkspace.php';
+require_once __DIR__ . '/../libs/WorkspaceEditorContext.php';
+require_once __DIR__ . '/../libs/WorkspaceForm.php';
+require_once __DIR__ . '/../libs/WorkspaceDesigner.php';
 require_once __DIR__ . '/../libs/SystemMigration.php';
 require_once __DIR__ . '/../libs/SystemOwnership.php';
 require_once __DIR__ . '/../libs/MQTTTransport.php';
@@ -62,6 +65,9 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\AutomationDesigner;
     use Z2MAutomations\SystemMigrationInspection;
     use Z2MAutomations\SystemWorkspace;
+    use Z2MAutomations\WorkspaceEditorContext;
+    use Z2MAutomations\WorkspaceForm;
+    use Z2MAutomations\WorkspaceDesigner;
     use Z2MAutomations\SystemMigration;
     use Z2MAutomations\SystemOwnership;
     use Z2MAutomations\MQTTTransport;
@@ -174,6 +180,12 @@ class Z2MAutomations extends IPSModuleStrict
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function ()
         {
+            try {
+                if ($this->WorkspaceMode() || ($this->ReadAttributeString('EditorDraft') === '' && $this->ReadAttributeString('YamlDraft') === '' && $this->GetParentID() === 0)) return $this->WorkspaceConfigurationForm();
+            } catch (\Throwable $exception) {
+                $failure = json_decode($this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
+                return $this->EncodeConfigurationForm(['elements' => [['type' => 'Label', 'caption' => $failure['message']]], 'actions' => []]);
+            }
             $form = $this->LoadConfigurationForm();
             $state = $this->WithTransportLock(function (): array
             {
@@ -278,6 +290,7 @@ class Z2MAutomations extends IPSModuleStrict
 
     private function TransportScope(): string
     {
+        if ($this->workspaceEditorContext !== null) return $this->workspaceEditorContext['scope'];
         $context = [$this->GetParentID(), $this->ReadPropertyString('BaseTopic'), $this->ReadPropertyBoolean('Active'), $this->ReadPropertyInteger('RequestTimeout')];
         if ($this->ReadPropertyInteger('PeerModuleID') !== 0) {
             $context[] = $this->PeerContext();

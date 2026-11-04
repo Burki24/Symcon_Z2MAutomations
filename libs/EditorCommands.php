@@ -39,14 +39,14 @@ trait EditorCommands
             }
             $key = $valid && $values !== [] ? $this->CommandChoice($snapshot, $Device, $values) : null;
             $valid = $valid && ($key !== null || ($Remove && $values === []));
-            $this->UpdateFormField('RowCommandHint', 'caption', $this->Translate($valid ? 'Command updated locally. Only the listed properties are included.' : 'Property not applied. Choose a permitted value; use up to 8 properties and either color or color temperature per channel.'));
+            $this->UpdateEditorFormField('RowCommandHint', 'caption', $this->Translate($valid ? 'Command updated locally. Only the listed properties are included.' : 'Property not applied. Choose a permitted value; use up to 8 properties and either color or color temperature per channel.'));
             $binding = $meta === null ? null : $this->EditorActionVariable($snapshot, $Device, $meta['property']);
             $this->DebugEvent($valid ? 'AKTION' : 'FEHLER', $valid ? 'Eigenschaften des Aktionsschritts lokal geändert; kein Gerätebefehl gesendet.' : 'Eigenschaft nicht übernommen; Schaltrecht, Wert oder gemeinsame Befehlsgrenze ungültig.', ['Entfernen' => $Remove, 'Eigenschaften' => count($values ?? []), 'Schaltvariable' => $binding['id'] ?? 0]);
             if (!$valid) {
                 return false;
             }
             $encoded = $key === null ? '' : $Device . ':' . $key;
-            $this->UpdateFormField('Choice', 'value', $encoded);
+            $this->UpdateEditorFormField('Choice', 'value', $encoded);
             $this->UpdateCommandSummary($snapshot, $Device, $values);
             $this->RememberEditorListChoices('Target', $encoded === '' ? [] : [['Choice' => $encoded]], 'pending');
             $this->UpdateEditorField($List, 'columns', json_encode($this->EditorActionColumns($snapshot, [], $List !== 'SequenceEditorActions'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
@@ -99,6 +99,6 @@ trait EditorCommands
 
     private function UpdateCommandSummary(array $snapshot, string $device, array $values): void
     {
-        $this->UpdateFormField('RowCommandSummary', 'values', json_encode($this->CommandSummary($snapshot, $device, $values), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+        $this->UpdateEditorFormField('RowCommandSummary', 'values', json_encode($this->CommandSummary($snapshot, $device, $values), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
     }
 }

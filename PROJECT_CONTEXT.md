@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 5 lokal ergänzt: gemeinsame Systemauswahl im nativen Formular und
+  Browserdesigner, lokale Bearbeitung je System, Vorbelegung, persistente offene
+  Eingaben und expliziter Schutz vor falschem Speicherziel. Keine zusätzliche
+  Rückwärtskompatibilitätsschicht. Native dynamische Listen und Browser-CRUD
+  nutzen denselben Editor; Aktionsrechte und Partnerfreigaben bleiben erhalten.
+  Große Browserkataloge werden seitenweise gelesen. Zentrale systemgebundene
+  Prüfung, Speicherung und Laufzeitsteuerung folgen erst in Schritt 6.
+  Kein Test-/Live-Update und keine Übernahme oder MQTT-Aktion in diesem Auftrag.
+
 - Selbstsperre der Übernahmevorschau lokal korrigiert: Die eigene ausgewählte
   Quelle wird direkt im laufenden Aufruf gelesen. Andere Quellen verwenden
   weiterhin die geschützte Modulschnittstelle. Regression bildet deren getrennten
@@ -24,8 +33,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Änderungen werden vor dem Rückweg zusätzlich gesichert. Alte Zugänge und
   Empfängerfreigaben werden nicht übertragen. Synthetische Abbruch-/Wiederanlauf-
   und Konfliktprüfungen; keine Test-/Live-Änderung und keine MQTT-Ausgabe.
-  Gemeinsame Bedienoberfläche ist der nächste Schritt, danach zentrale
-  systemgebundene Betriebsaufträge. Siehe docs/MIGRATION.md.
+  Gemeinsame Bedienoberfläche ist inzwischen lokal ergänzt; danach folgen
+  zentrale systemgebundene Betriebsaufträge. Siehe docs/MIGRATION.md.
 
 - Schritt 3 lokal implementiert: versioniertes WorkspaceState und SystemWorkspace
   in Z2MAutomations, eigenes persistentes Attribut. Explizite Verbindungsliste,

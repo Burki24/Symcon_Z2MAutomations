@@ -15,10 +15,10 @@ trait AutomationEditorSolar
                 $this->DebugEvent('FEHLER', 'Astro-Auswahl abgelehnt; einen unterstützten Zeit-Auslöser wählen.');
                 return;
             }
-            $text = $this->ReadAttributeString('EditorModes');
+            $text = $this->ReadEditorAttribute('EditorModes');
             $modes = $text === '' ? [] : json_decode($text, true, 8, JSON_THROW_ON_ERROR);
             $modes['EditorTimeMode'] = $Mode;
-            $this->WriteAttributeString('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
+            $this->WriteEditorAttribute('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
             $this->ConfigureEditorSchedule('time', $modes['EditorWindow'] ?? false, $modes['EditorConditionType'] ?? 'none', $Area);
             $this->DebugEvent('AKTION', 'Zeit-Auswahl im Editor angepasst; Standortdaten bleiben geschützt.', ['Auswahl' => $Mode]);
         });

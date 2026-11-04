@@ -644,3 +644,19 @@ Z2M-Katalog ergänzt Anfrage, einmaligen Start und gezielten Stopp. Die bestehen
 zeitlich begrenzte Aufzeichnung liefert Bedingungen, Wartezeiten und Schritte
 mit denselben Laufbezügen auch über Mesh. Laufstatus allein enthält keine
 vollständige Ablaufhistorie und bestätigt keine physische Gerätewirkung.
+
+## Gemeinsame Systemauswahl
+
+ApplyWorkspaceConnections, ChooseWorkspaceSystem, ReadWorkspaceCatalog und
+WorkspaceEditorAction verwenden den kanonischen DebugFlowHelper über
+TraceModuleCall. Lesende Übersicht, native Bearbeitung und Browserzugriffe
+nennen Systembezug, Generation und Art des Zugriffs. Eine tatsächliche Änderung
+im Systementwurf wird von einem Aufruf ohne Entwurfsänderung unterschieden.
+Konflikte erklären, dass die Ansicht neu geladen werden muss und vorhandene
+Eingaben nicht in ein anderes System geschrieben werden. Systemwahl und
+Kataloglesen senden keine MQTT-Nachrichten.
+
+Protokolliert werden keine YAML-Inhalte, Namen, Formularwerte, Browserzugänge
+oder Auswahltoken. Lokale Sichtbarkeit und Änderungsbestätigung bedeuten keine
+Übertragung oder Aktivierung in Z2M. Die zentrale Laufzeitsteuerung wird erst im
+nächsten Ausbauschritt angebunden.

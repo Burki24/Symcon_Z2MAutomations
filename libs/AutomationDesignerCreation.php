@@ -16,7 +16,7 @@ trait AutomationDesignerCreation
     private function DesignerPendingInput(): bool
     {
         foreach (['rule', 'sequence'] as $kind) {
-            $work = json_decode($this->GetBuffer('EditorWork.' . $kind) ?: '[]', true, 16, JSON_THROW_ON_ERROR);
+            $work = json_decode($this->ReadEditorBuffer('EditorWork.' . $kind) ?: '[]', true, 16, JSON_THROW_ON_ERROR);
             if (($work['dirty'] ?? false) && ($work['context']['scope'] ?? '') === $this->TransportScope()) {
                 return true;
             }
@@ -28,23 +28,25 @@ trait AutomationDesignerCreation
     {
         $parts = [$this->TransportScope()];
         foreach (['YamlDraft', 'EditorDraft', 'EditorSnapshot', 'EditorSelection', 'SequenceSelection'] as $attribute) {
-            $parts[] = $this->ReadAttributeString($attribute);
+            $value = $this->ReadEditorAttribute($attribute);
+            $parts[] = $this->workspaceEditorContext === null ? $value : hash('sha256', $value);
         }
         foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation'] as $buffer) {
-            $parts[] = $this->GetBuffer($buffer);
+            $parts[] = $this->ReadEditorBuffer($buffer);
         }
         return hash('sha256', json_encode($parts, JSON_THROW_ON_ERROR));
     }
 
     private function DesignerCreateBlock(bool $creating = true): string
     {
-        $snapshot = json_decode($this->ReadAttributeString('EditorSnapshot') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
+        if ($this->workspaceEditorContext !== null && $creating && !$this->workspaceEditorContext['catalogAvailable']) return 'Bitte die Gerätedaten an dieser Z2M-Verbindung bestätigen und im nativen Systembereich einlesen. Vorhandene Entwürfe bleiben erhalten.';
+        $snapshot = $this->workspaceEditorContext['snapshot'] ?? json_decode($this->ReadEditorAttribute('EditorSnapshot') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
         $draft = $this->ReadEditorDraft();
-        $state = json_decode($this->GetBuffer('TransportState') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
+        $state = json_decode($this->ReadEditorBuffer('TransportState') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
         return match (true) {
             ($snapshot['scope'] ?? '') !== $this->TransportScope()                                                                                             => 'Bitte im nativen Modul „Nur Gerätedaten aktualisieren“ wählen und diese Ansicht aktualisieren.',
-            $draft === null                                                                                                                                    => 'Bitte zuerst im nativen Modul „Geräte und gespeicherte Automationen laden“ wählen. Danach hier die Ansicht aktualisieren.',
-            ($draft['scope'] ?? '') !== $this->TransportScope() || ($draft['draftChecksum'] ?? '') !== hash('sha256', $this->ReadAttributeString('YamlDraft')) => 'Der vorhandene Entwurf passt nicht zu dieser Ansicht. Bitte im nativen Formular prüfen; er wird hier nicht ersetzt.',
+            $draft === null                                                                                                                                    => $this->workspaceEditorContext !== null ? 'Für dieses System fehlt noch ein lokaler Entwurf. Bitte einen vorhandenen Entwurf über den gesicherten Übernahmeablauf zuordnen und die Ansicht aktualisieren.' : 'Bitte zuerst im nativen Modul „Geräte und gespeicherte Automationen laden“ wählen. Danach hier die Ansicht aktualisieren.',
+            ($draft['scope'] ?? '') !== $this->TransportScope() || ($draft['draftChecksum'] ?? '') !== hash('sha256', $this->ReadEditorAttribute('YamlDraft')) => 'Der vorhandene Entwurf passt nicht zu dieser Ansicht. Bitte im nativen Formular prüfen; er wird hier nicht ersetzt.',
             $this->DesignerPendingInput()                                                                                                                      => 'Im nativen Formular gibt es offene Änderungen. Bitte diese zuerst in den Entwurf übernehmen oder zurücknehmen und danach die Ansicht aktualisieren.',
             ($state['workflow'] ?? null) !== null                                                                                                              => 'Im Modul läuft noch ein Auftrag. Bitte dessen Abschluss abwarten und die Ansicht aktualisieren.',
             $creating && count($draft['configuration']['automations']) >= 100                                                                                  => 'Der Entwurf enthält bereits 100 Automationen. Bitte zuerst eine Regel entfernen.',
@@ -158,7 +160,7 @@ trait AutomationDesignerCreation
             }
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'create', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
-            $this->SetBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
             $this->DebugEvent(
                 'AKTION',
                 'Neue Automation aus der Browserauswahl ausgeschaltet im lokalen Entwurf ergänzt. Bestehende Regeln erhalten; keine Übertragung oder Aktivierung.',
@@ -166,7 +168,7 @@ trait AutomationDesignerCreation
                     'Auslöserart' => ['device' => 'Geräteereignis', 'time' => 'Uhrzeit', 'sun' => 'Sonnenzeit'][$triggers[0]['type']]]
                 + ($triggers[0]['type'] === 'sun' ? ['Sonnenereignis' => $triggers[0]['event'] === 'sunrise' ? 'Sonnenaufgang' : 'Sonnenuntergang', 'ZeitversatzMinuten' => $triggers[0]['offset_minutes']] : [])
             );
-            return [200, ['ruleId' => $rule['id'], 'message' => 'Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen, Übertragen und Aktivieren erfolgen weiterhin im nativen Formular.']];
+            return [200, ['ruleId' => $rule['id'], 'message' => $this->workspaceEditorContext !== null ? 'Automation ausgeschaltet im gewählten Systementwurf ergänzt. In Z2M wurde nichts geändert.' : 'Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen, Übertragen und Aktivieren erfolgen weiterhin im nativen Formular.']];
         });
     }
 

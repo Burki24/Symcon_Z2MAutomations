@@ -111,35 +111,35 @@ trait EditorItemForms
             $commandParts = explode(':', $Choice);
             $command = $Change !== 'device' && count($commandParts) === 2 && $commandParts[0] === $Device ? $this->DecodeCommand($snapshot, $Device, $commandParts[1]) : null;
             if ($combined && $Change === 'device') {
-                $this->UpdateFormField('Choice', 'value', '');
+                $this->UpdateEditorFormField('Choice', 'value', '');
                 $this->UpdateCommandSummary($snapshot, $Device, []);
             }
             if ($Change === 'device') {
                 $Property = '';
-                $this->UpdateFormField('RowProperty', 'options', json_encode($this->EditorItemProperties($snapshot, $Device, $context['side'], $combined), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
-                $this->UpdateFormField('RowProperty', 'value', '');
+                $this->UpdateEditorFormField('RowProperty', 'options', json_encode($this->EditorItemProperties($snapshot, $Device, $context['side'], $combined), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                $this->UpdateEditorFormField('RowProperty', 'value', '');
             }
             $meta = $this->EditorItemProperty($snapshot, $Device, $Property, $context['side']);
             $numeric = ($meta['type'] ?? '') === 'numeric';
             $color = ($meta['type'] ?? '') === 'color';
             $choice = null;
             if ($context['side'] === 'Source') {
-                $this->UpdateFormField('Compare', 'options', json_encode($this->EditorComparisonOptions($numeric ? 'numeric' : 'state'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                $this->UpdateEditorFormField('Compare', 'options', json_encode($this->EditorComparisonOptions($numeric ? 'numeric' : 'state'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                 if (in_array($Change, ['device', 'property'], true)) {
                     $Compare = 'eq';
-                    $this->UpdateFormField('Compare', 'value', 'eq');
+                    $this->UpdateEditorFormField('Compare', 'value', 'eq');
                 }
             }
             if (in_array($Change, ['device', 'property'], true)) {
-                $this->UpdateFormField('RowValue', 'options', json_encode($this->EditorItemValues($snapshot, $Device, $meta, $context['side'], $combined), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
-                $this->UpdateFormField('RowValue', 'value', '');
+                $this->UpdateEditorFormField('RowValue', 'options', json_encode($this->EditorItemValues($snapshot, $Device, $meta, $context['side'], $combined), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                $this->UpdateEditorFormField('RowValue', 'value', '');
                 $number = max(($context['side'] === 'Target' ? ($meta['minimum'] ?? -PHP_FLOAT_MAX) : -PHP_FLOAT_MAX), min(($context['side'] === 'Target' ? ($meta['maximum'] ?? PHP_FLOAT_MAX) : PHP_FLOAT_MAX), 0));
-                $this->UpdateFormField('RowNumber', 'value', $number);
+                $this->UpdateEditorFormField('RowNumber', 'value', $number);
                 // Reset bounds when switching between different numeric properties.
-                $this->UpdateFormField('RowNumber', 'minimum', ($context['side'] === 'Target' ? ($meta['minimum'] ?? -PHP_FLOAT_MAX) : -PHP_FLOAT_MAX));
-                $this->UpdateFormField('RowNumber', 'maximum', ($context['side'] === 'Target' ? ($meta['maximum'] ?? PHP_FLOAT_MAX) : PHP_FLOAT_MAX));
+                $this->UpdateEditorFormField('RowNumber', 'minimum', ($context['side'] === 'Target' ? ($meta['minimum'] ?? -PHP_FLOAT_MAX) : -PHP_FLOAT_MAX));
+                $this->UpdateEditorFormField('RowNumber', 'maximum', ($context['side'] === 'Target' ? ($meta['maximum'] ?? PHP_FLOAT_MAX) : PHP_FLOAT_MAX));
                 if ($color) {
-                    $this->UpdateFormField('RowColor', 'value', 0);
+                    $this->UpdateEditorFormField('RowColor', 'value', 0);
                     $key = $this->EditorValueKey($snapshot, $Device, $meta['property'], ['hex' => '#000000'], 'Target');
                     $choice = $key === null ? null : $Device . ':' . $key;
                 } elseif ($numeric) {
@@ -161,24 +161,24 @@ trait EditorItemForms
             if ($context['side'] === 'Source' && !in_array($Compare, array_column($this->EditorComparisonOptions($numeric ? 'numeric' : 'state'), 'value'), true)) {
                 $choice = null;
             }
-            $this->UpdateFormField('RowValue', 'visible', !$numeric && !$color);
+            $this->UpdateEditorFormField('RowValue', 'visible', !$numeric && !$color);
             if ($context['side'] === 'Target') {
-                $this->UpdateFormField('RowColor', 'visible', $color);
-                $this->UpdateFormField('RowType', 'value', $meta['type'] ?? '');
+                $this->UpdateEditorFormField('RowColor', 'visible', $color);
+                $this->UpdateEditorFormField('RowType', 'value', $meta['type'] ?? '');
             }
-            $this->UpdateFormField('RowValue', 'caption', $this->Translate(isset($meta['sceneEndpoint']) ? 'Scene' : 'Value'));
-            $this->UpdateFormField('RowNumber', 'visible', $numeric);
+            $this->UpdateEditorFormField('RowValue', 'caption', $this->Translate(isset($meta['sceneEndpoint']) ? 'Scene' : 'Value'));
+            $this->UpdateEditorFormField('RowNumber', 'visible', $numeric);
             if ($combined) {
-                $this->UpdateFormField('Choice', 'value', $command === null ? '' : $Choice);
+                $this->UpdateEditorFormField('Choice', 'value', $command === null ? '' : $Choice);
                 $this->UpdateCommandSummary($snapshot, $Device, $command ?? []);
                 if ($Change === 'property' && $meta !== null && array_key_exists($meta['property'], $command ?? [])) {
                     $saved = $command[$meta['property']];
                     $field = $color ? 'RowColor' : ($numeric ? 'RowNumber' : 'RowValue');
                     $value = $color ? hexdec(substr($saved['hex'], 1)) : ($numeric ? $saved : $this->EditorValueKey($snapshot, $Device, $meta['property'], $saved, 'Target'));
-                    $this->UpdateFormField($field, 'value', $value);
+                    $this->UpdateEditorFormField($field, 'value', $value);
                 }
             } else {
-                $this->UpdateFormField('Choice', 'value', $choice ?? '');
+                $this->UpdateEditorFormField('Choice', 'value', $choice ?? '');
             }
             if ($choice !== null && !$combined) {
                 $bucket = $context['duration'] === '' ? 'Condition' : $context['side'];
@@ -250,7 +250,7 @@ trait EditorItemForms
 
     private function RememberEditorListChoices(string $bucket, array $rows, string $origin = 'selection'): array
     {
-        $saved = $this->GetBuffer('EditorRowChoices');
+        $saved = $this->ReadEditorBuffer('EditorRowChoices');
         $saved = $saved === '' ? [] : json_decode($saved, true, 16, JSON_THROW_ON_ERROR);
         // This is a short-lived display cache, not the device catalog or rule storage.
         if (array_is_list($saved)) {
@@ -259,7 +259,7 @@ trait EditorItemForms
         if ($rows !== [] || $origin === 'current') {
             $saved[$bucket][$origin] = array_slice(array_column($rows, 'Choice'), 0, $origin === 'pending' ? 1 : ($bucket === 'Source' ? 8 : 16));
         }
-        $this->SetBuffer('EditorRowChoices', json_encode($saved, JSON_THROW_ON_ERROR));
+        $this->WriteEditorBuffer('EditorRowChoices', json_encode($saved, JSON_THROW_ON_ERROR));
         return array_values(array_unique(array_merge($saved[$bucket]['selection'] ?? [], $saved[$bucket]['current'] ?? [], $saved[$bucket]['pending'] ?? [])));
     }
 

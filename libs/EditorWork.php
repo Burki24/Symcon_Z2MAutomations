@@ -35,10 +35,10 @@ trait EditorWork
                 }
                 if ($this->EditorWorkDirty($Kind)) {
                     $token = bin2hex(random_bytes(16));
-                    $this->SetBuffer('EditorNavigation', json_encode(['token' => $token, 'kind' => $Kind, 'area' => $Area, 'id' => $ID,
-                        'context'                                             => $context, 'draft' => hash('sha256', $CurrentDraft), 'work' => $this->GetBuffer('EditorWork.' . $Kind)], JSON_THROW_ON_ERROR));
-                    $this->UpdateFormField('EditorNavigationToken', 'value', $token);
-                    $this->UpdateFormField('EditorNavigationPopup', 'visible', true);
+                    $this->WriteEditorBuffer('EditorNavigation', json_encode(['token' => $token, 'kind' => $Kind, 'area' => $Area, 'id' => $ID,
+                        'context'                                                     => $context, 'draft' => hash('sha256', $CurrentDraft), 'work' => $this->ReadEditorBuffer('EditorWork.' . $Kind)], JSON_THROW_ON_ERROR));
+                    $this->UpdateEditorFormField('EditorNavigationToken', 'value', $token);
+                    $this->UpdateEditorFormField('EditorNavigationPopup', 'visible', true);
                     $this->RestoreEditorSelectors();
                     $this->DebugEvent('AKTION', 'Wechsel angehalten: Formular enthält noch nicht übernommene Änderungen. Weiterbearbeiten oder ausdrücklich verwerfen.', ['Bearbeitung' => $Kind === 'rule' ? 'Automation' : 'Aktionsfolge']);
                     return false;
@@ -59,30 +59,30 @@ trait EditorWork
         {
             $next = $this->WithTransportLock(function () use ($Token, $Input): ?array
             {
-                $text = $this->GetBuffer('EditorNavigation');
+                $text = $this->ReadEditorBuffer('EditorNavigation');
                 $pending = $text === '' ? null : json_decode($text, true, 16, JSON_THROW_ON_ERROR);
                 $remembered = $this->RememberEditorInput($Input, false, false);
                 $reason = match (true) {
-                    !$remembered                                                                  => 'Formulareingaben sind nicht mehr aktuell.',
-                    $pending === null                                                             => 'Es wartet kein bestätigbarer Wechsel.',
-                    $Token === ''                                                                 => 'Der Bestätigungswert fehlt im Formular.',
-                    $pending['token'] !== $Token                                                  => 'Die Bestätigung gehört zu einem anderen Wechsel.',
-                    $pending['context'] !== $this->EditorWorkContext($pending['kind'])            => 'Die bearbeitete Auswahl hat sich geändert.',
-                    $pending['draft'] !== hash('sha256', $this->ReadAttributeString('YamlDraft')) => 'Der lokale Entwurf hat sich geändert.',
-                    $pending['work'] !== $this->GetBuffer('EditorWork.' . $pending['kind'])       => 'Die erfassten Formulareingaben haben sich geändert.',
-                    default                                                                       => ''
+                    !$remembered                                                                         => 'Formulareingaben sind nicht mehr aktuell.',
+                    $pending === null                                                                    => 'Es wartet kein bestätigbarer Wechsel.',
+                    $Token === ''                                                                        => 'Der Bestätigungswert fehlt im Formular.',
+                    $pending['token'] !== $Token                                                         => 'Die Bestätigung gehört zu einem anderen Wechsel.',
+                    $pending['context'] !== $this->EditorWorkContext($pending['kind'])                   => 'Die bearbeitete Auswahl hat sich geändert.',
+                    $pending['draft'] !== hash('sha256', $this->ReadEditorAttribute('YamlDraft'))        => 'Der lokale Entwurf hat sich geändert.',
+                    $pending['work'] !== $this->ReadEditorBuffer('EditorWork.' . $pending['kind'])       => 'Die erfassten Formulareingaben haben sich geändert.',
+                    default                                                                              => ''
                 };
                 if ($reason !== '') {
                     $this->DebugEvent('FEHLER', 'Veraltete Bestätigung verworfen; Eingaben bleiben erhalten. Gewünschte Automation erneut auswählen.', ['Grund' => $reason]);
                     return null;
                 }
-                $this->SetBuffer('EditorNavigation', '');
-                $this->SetBuffer('EditorWork.' . $pending['kind'], '');
-                $this->UpdateFormField('EditorNavigationPopup', 'visible', false);
+                $this->WriteEditorBuffer('EditorNavigation', '');
+                $this->WriteEditorBuffer('EditorWork.' . $pending['kind'], '');
+                $this->UpdateEditorFormField('EditorNavigationPopup', 'visible', false);
                 $this->DebugEvent('AKTION', 'Nicht übernommene Formularänderungen nach ausdrücklicher Bestätigung verworfen; Entwurf und Z2M bleiben unverändert.', ['Bearbeitung' => $pending['kind'] === 'rule' ? 'Automation' : 'Aktionsfolge']);
                 return $pending;
             });
-            return $next !== null && $this->PerformEditorNavigation($next['kind'], $next['area'], $next['id'], $this->ReadAttributeString('YamlDraft'));
+            return $next !== null && $this->PerformEditorNavigation($next['kind'], $next['area'], $next['id'], $this->ReadEditorAttribute('YamlDraft'));
         });
     }
 
@@ -92,7 +92,7 @@ trait EditorWork
         {
             $ready = $this->RememberEditorInput($Input, false) && !$this->EditorWorkDirty('rule') && !$this->EditorWorkDirty('sequence');
             if (!$ready) {
-                $this->UpdateFormField('EditorWorkPopup', 'visible', true);
+                $this->UpdateEditorFormField('EditorWorkPopup', 'visible', true);
                 $this->DebugEvent('AKTION', 'Bedienauftrag angehalten: Änderungen zuerst in den Entwurf übernehmen. Keine Übertragung und keine Aktivierung.');
             }
             return $ready;
@@ -103,7 +103,7 @@ trait EditorWork
     {
         $ok = $kind === 'sequence' ? $this->SelectReusableSequence($id, $draft, true) : $this->SelectAutomation($id, $draft, true, $area === 'advanced' ? 'device' : $area);
         if ($ok) {
-            $this->SetBuffer('EditorWork.' . $kind, '');
+            $this->WriteEditorBuffer('EditorWork.' . $kind, '');
             $this->UpdateEditorWorkStatus($this->RefreshState());
         }
         return $ok;
@@ -171,8 +171,8 @@ trait EditorWork
                 $uncertain = $unsettled && $kind === (str_starts_with($values['_deleted'] ?? '', 'Sequence') ? 'sequence' : 'rule');
                 $dirty = $actual !== $base || $uncertain;
                 $prior = $this->EditorWorkDirty($kind);
-                $this->SetBuffer('EditorWork.' . $kind, json_encode(['context' => $context, 'input' => $actual, 'dirty' => $dirty,
-                    'unsettled'                                                => $uncertain ? ($values['_deleted'] ?? '') : ''], JSON_THROW_ON_ERROR));
+                $this->WriteEditorBuffer('EditorWork.' . $kind, json_encode(['context' => $context, 'input' => $actual, 'dirty' => $dirty,
+                    'unsettled'                                                        => $uncertain ? ($values['_deleted'] ?? '') : ''], JSON_THROW_ON_ERROR));
                 if ($dirty !== $prior) {
                     $this->DebugEvent('AKTION', $dirty ? 'Formular geändert; Angaben sind noch nicht im Entwurf und noch nicht in Z2M.' : 'Formulareingaben entsprechen wieder dem Entwurf.', ['Bearbeitung' => $kind === 'rule' ? 'Automation' : 'Aktionsfolge']);
                 }
@@ -182,7 +182,7 @@ trait EditorWork
             return false;
         }
         if ($invalidate) {
-            $this->SetBuffer('EditorNavigation', '');
+            $this->WriteEditorBuffer('EditorNavigation', '');
         }
         $this->UpdateEditorWorkStatus($this->RefreshState());
         return true;
@@ -203,7 +203,7 @@ trait EditorWork
 
     private function EditorWorkDirty(string $kind): bool
     {
-        $text = $this->GetBuffer('EditorWork.' . $kind);
+        $text = $this->ReadEditorBuffer('EditorWork.' . $kind);
         $work = $text === '' ? [] : json_decode($text, true, 16, JSON_THROW_ON_ERROR);
         return ($work['dirty'] ?? false) && ($work['context']['scope'] ?? '') === $this->RefreshState()['scope'] && ($work['context'] ?? null) === $this->EditorWorkContext($kind);
     }
@@ -212,9 +212,9 @@ trait EditorWork
     {
         $context = $this->EditorWorkContext('rule');
         foreach (['device' => 'EditorDeviceRule', 'time' => 'EditorTimeRule', 'advanced' => 'EditorAdvancedRule'] as $area => $name) {
-            $this->UpdateFormField($name, 'value', $context['area'] === $area ? $context['id'] : '');
+            $this->UpdateEditorFormField($name, 'value', $context['area'] === $area ? $context['id'] : '');
         }
-        $this->UpdateFormField('SequenceEditorID', 'value', $this->EditorWorkContext('sequence')['id']);
+        $this->UpdateEditorFormField('SequenceEditorID', 'value', $this->EditorWorkContext('sequence')['id']);
     }
 
     private function EditorWorkLabels(array $state): array
@@ -235,8 +235,8 @@ trait EditorWork
     private function UpdateEditorWorkStatus(array $state): void
     {
         foreach ($this->EditorWorkLabels($state) as $name => $text) {
-            $this->UpdateFormField($name, 'caption', $this->Translate($text));
+            $this->UpdateEditorFormField($name, 'caption', $this->Translate($text));
         }
-        $this->UpdateFormField('SequenceWorkID', 'value', $this->EditorWorkContext('sequence')['id']);
+        $this->UpdateEditorFormField('SequenceWorkID', 'value', $this->EditorWorkContext('sequence')['id']);
     }
 }

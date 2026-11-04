@@ -15,7 +15,7 @@ trait AutomationOverview
             if (!in_array($Area, ['device', 'time', 'advanced'], true) || !in_array($Enabled, ['all', 'enabled', 'disabled'], true)
                 || strlen($Query) > 640 || preg_match('//u', $Query) !== 1 || preg_match_all('/./us', $Query) > 160) {
                 if (in_array($Area, ['device', 'time', 'advanced'], true)) {
-                    $this->UpdateFormField('Editor' . ucfirst($Area) . 'Results', 'caption', $this->Translate('Search was not applied. Use at most 160 characters and choose a listed filter.'));
+                    $this->UpdateEditorFormField('Editor' . ucfirst($Area) . 'Results', 'caption', $this->Translate('Search was not applied. Use at most 160 characters and choose a listed filter.'));
                 }
                 $this->DebugEvent('FEHLER', 'Suchfilter abgelehnt: Bereich, Regelschalter oder Suchlänge ist ungültig. Entwurf und Eingaben bleiben erhalten.');
                 return false;
@@ -23,7 +23,7 @@ trait AutomationOverview
             $query = preg_replace('/\s+/u', ' ', trim($Query));
             $filters = $this->AutomationOverviewFilters();
             $filters[$Area] = ['query' => $query, 'enabled' => $Enabled];
-            $this->SetBuffer('AutomationOverviewFilters', json_encode(['scope' => $this->RefreshState()['scope'], 'areas' => $filters], JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('AutomationOverviewFilters', json_encode(['scope' => $this->RefreshState()['scope'], 'areas' => $filters], JSON_THROW_ON_ERROR));
             $draft = $this->ReadEditorDraft();
             if (($draft['scope'] ?? null) !== $this->RefreshState()['scope']) {
                 $draft = null;
@@ -80,7 +80,7 @@ trait AutomationOverview
             $type = $this->EditorRuleType($copy);
             $filters = $this->AutomationOverviewFilters();
             unset($filters[$type]);
-            $this->SetBuffer('AutomationOverviewFilters', json_encode(['scope' => $state['scope'], 'areas' => $filters], JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('AutomationOverviewFilters', json_encode(['scope' => $state['scope'], 'areas' => $filters], JSON_THROW_ON_ERROR));
             $this->RefreshAutomationSections($this->ReadEditorDraft());
             $this->DebugEvent('AKTION', 'Automation als ausgeschaltete Kopie im lokalen Entwurf angelegt und zur Bearbeitung geöffnet. Suchfilter dieses Bereichs zurückgesetzt; Z2M bleibt unverändert.', [
                 'Bereich'  => $this->EditorTypeLabel($type), 'Automationen' => count($draft['configuration']['automations']),
@@ -105,7 +105,7 @@ trait AutomationOverview
 
     private function AutomationOverviewFilters(): array
     {
-        $text = $this->GetBuffer('AutomationOverviewFilters');
+        $text = $this->ReadEditorBuffer('AutomationOverviewFilters');
         $filters = $text === '' ? [] : json_decode($text, true, 8, JSON_THROW_ON_ERROR);
         return ($filters['scope'] ?? null) === $this->RefreshState()['scope'] ? $filters['areas'] : [];
     }
@@ -184,7 +184,7 @@ trait AutomationOverview
     {
         foreach ($fields as $name => $properties) {
             foreach ($properties as $key => $value) {
-                $this->UpdateFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value);
+                $this->UpdateEditorFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value);
             }
         }
     }

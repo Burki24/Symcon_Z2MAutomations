@@ -1,24 +1,18 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: 04.11.2026. Schritte 1 bis 3 lokal vorhanden; keine Migration.
+Stand: 04.11.2026. Schritte 1 bis 5 lokal implementiert; keine Live-Umstellung.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 
-Fortschritt: Die lokale Grundlage von Schritt 1 ist inzwischen implementiert:
-SystemContract und die rein lesenden Metadatenfunktionen GetSystemMigrationSource
-und PreviewSystemMigration. Prüfungen mit synthetischen Quellen für 1/2/8 Systeme
-sind vorhanden. Der folgende Zielplan beschreibt weiterhin den gesamten Umbau.
-Schritt 2 ergänzt Z2MConnection mit dem bestehenden nativen MQTT-Datenfluss,
-Status/Health, Installation, Katalogabruf und zeitlich begrenztem Debugkanal.
-Transport und Katalogparser sind gemeinsam mit dem Bestandsmodul genutzt.
-Acht synthetische Verbindungen sind lokal geprüft; native Konsolen-/Brokerpraxis
-für diesen neuen Baustein steht noch aus. Archivexport, persistente Registrierung/
-Rollenmarker, Besitzerwechsel und Übernahmeoberfläche sind noch nicht umgesetzt.
-Schritt 3 ergänzt den versionierten lokalen Arbeitsbereich mit Systemliste,
-getrennten Dokumenten, Bearbeitungskontexten, Katalogen und nativen Bindungen.
-Quittungen, Konfliktschutz, gerichtete Freigaben und aktuelle Rechte sind lokal
-geprüft; gemeinsamer Editor und Migration sind weiterhin offen. Details und
-Grenzen stehen in [WORKSPACE.md](WORKSPACE.md). Die Metadaten-
-vorschau ist keine Sicherung, keine aktuelle Rechteprüfung und keine Migration.
+Die lokale Grundlage enthält SystemContract, lesende Bestandsvorschau,
+Z2MConnection, getrennte Arbeitsbereiche sowie ausdrückliche Sicherung,
+Übernahme und Rückweg. Schritt 5 ergänzt die gemeinsame Systemauswahl und lokale
+Bearbeitung im nativen Formular und Browserdesigner. Synthetische Prüfungen
+umfassen bis zu acht Systeme, große Kataloge, offene Eingaben, Konflikte,
+Besitzerwechsel und Rücknahme. Native Praxisprüfungen ersetzen diese Tests nicht.
+
+Die zentrale systemgebundene Prüfung, Übertragung und Laufzeitsteuerung folgen
+in Schritt 6. Ein Update führt weder eine Übernahme noch Z2M-Aufträge aus.
+Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
 
 ## 1. Ziel und verbindliche Grenzen
 

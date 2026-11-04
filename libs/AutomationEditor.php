@@ -14,12 +14,12 @@ trait AutomationEditor
 
     public function ValidateAutomationDraft(): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->ValidateYaml($this->ReadAttributeString('YamlDraft')));
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->ValidateYaml($this->ReadEditorAttribute('YamlDraft')));
     }
 
     public function StoreAutomationDraft(): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->StoreYaml($this->ReadAttributeString('YamlDraft')));
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->StoreYaml($this->ReadEditorAttribute('YamlDraft')));
     }
 
     public function LoadAutomationEditor(): string
@@ -51,11 +51,11 @@ trait AutomationEditor
             if (!isset($snapshot['devices'][$Device])) {
                 $Device = '';
             }
-            $this->WriteAttributeString('Editor' . $Side, $Device);
+            $this->WriteEditorAttribute('Editor' . $Side, $Device);
             $this->UpdateEditorField('Editor' . $Side . 'Choice', 'options', json_encode($this->EditorChoices($snapshot, $Device, $Side), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             $this->UpdateEditorField('Editor' . $Side . 'Choice', 'value', '');
             if ($Side === 'Condition') {
-                $this->WriteAttributeString('EditorConditionProperty', '');
+                $this->WriteEditorAttribute('EditorConditionProperty', '');
                 $this->UpdateEditorField('EditorConditionProperty', 'options', json_encode($this->ConditionPropertyOptions($snapshot, $Device), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                 $this->UpdateEditorField('EditorConditionProperty', 'value', '');
                 $this->UpdateEditorField('EditorConditionChoice', 'options', json_encode($this->EditorItemValues($snapshot, $Device, null, 'Source'), JSON_THROW_ON_ERROR));
@@ -180,7 +180,7 @@ trait AutomationEditor
         $preserved = ($state['workflow']['preserveDraft'] ?? false) ? $this->ReadEditorDraft() : null;
         if ($preserved !== null && ($preserved['scope'] !== $state['scope']
             || $preserved['baseRevision'] !== $metadata['storedRevision'] || $preserved['baseChecksum'] !== $metadata['checksum']
-            || $preserved['draftChecksum'] !== hash('sha256', $this->ReadAttributeString('YamlDraft')))) {
+            || $preserved['draftChecksum'] !== hash('sha256', $this->ReadEditorAttribute('YamlDraft')))) {
             $this->DebugEvent('FEHLER', 'Gerätedaten nicht übernommen: Entwurf und gespeicherter Z2M-Stand passen nicht zusammen. Vorhandener Entwurf bleibt unverändert.');
             $this->FinishExtensionWorkflow($state, 'error', 'editor_changed');
             return;
@@ -189,11 +189,11 @@ trait AutomationEditor
         if ($preserved !== null) {
             // Only renew the receiver session. Keep YAML bytes, rules and current selection.
             $preserved['session'] = $metadata['session'];
-            $this->WriteAttributeString('EditorDraft', json_encode($preserved, JSON_THROW_ON_ERROR));
+            $this->WriteEditorAttribute('EditorDraft', json_encode($preserved, JSON_THROW_ON_ERROR));
             $this->DebugEvent('AKTION', 'Gerätedaten aktualisiert; vorhandener Entwurf einschließlich ungespeicherter Regeln unverändert erhalten.', ['Automationen' => count($preserved['configuration']['automations'])]);
         } else {
-            $this->WriteAttributeString('EditorSource', '');
-            $this->WriteAttributeString('EditorTarget', '');
+            $this->WriteEditorAttribute('EditorSource', '');
+            $this->WriteEditorAttribute('EditorTarget', '');
             $draft = ['scope'  => $state['scope'], 'session' => $metadata['session'], 'baseRevision' => $metadata['storedRevision'],
                 'baseChecksum' => $metadata['checksum'], 'configuration' => json_decode(json_encode($configuration, JSON_THROW_ON_ERROR), true, 32, JSON_THROW_ON_ERROR)];
             $this->SaveEditorDraft($draft, $yaml, false);
@@ -220,13 +220,13 @@ trait AutomationEditor
 
     private function WriteEditorCatalog(string $scope, array $devices, array $groups, array $scenes): void
     {
-        $this->WriteAttributeString('EditorSnapshot', json_encode(['scope' => $scope, 'devices' => $devices, 'groups' => $groups, 'scenes' => $scenes, 'loadedAt' => $this->Now()], JSON_THROW_ON_ERROR));
-        $this->UpdateFormField('CatalogRefreshInfo', 'caption', $this->CatalogRefreshText());
+        $this->WriteEditorAttribute('EditorSnapshot', json_encode(['scope' => $scope, 'devices' => $devices, 'groups' => $groups, 'scenes' => $scenes, 'loadedAt' => $this->Now()], JSON_THROW_ON_ERROR));
+        $this->UpdateEditorFormField('CatalogRefreshInfo', 'caption', $this->CatalogRefreshText());
     }
 
     private function CatalogRefreshText(): string
     {
-        $raw = $this->ReadAttributeString('EditorSnapshot');
+        $raw = $this->ReadEditorAttribute('EditorSnapshot');
         $snapshot = $raw === '' ? [] : json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
         $loadedAt = ($snapshot['scope'] ?? '') === $this->TransportScope() ? ($snapshot['loadedAt'] ?? null) : null;
         return is_int($loadedAt) ? sprintf($this->Translate('Device data last refreshed: %s'), date('d.m.Y H:i:s', $loadedAt))
@@ -235,7 +235,7 @@ trait AutomationEditor
 
     private function SaveEditorDraft(array $draft, string $yaml, bool $synchronizePeer = true): void
     {
-        $peer = $this->PeerContext();
+        $peer = $this->workspaceEditorContext === null ? $this->PeerContext() : null;
         if (!$synchronizePeer) {
             $this->DebugEvent('AKTION', 'Gespeicherten Z2M-Stand vollständig in den lokalen Entwurf geladen. Regeln, Partnerfreigaben und YAML-Text bleiben unverändert; Z2M wurde nicht verändert.', ['Automationen' => count($draft['configuration']['automations']), 'Revision' => $draft['configuration']['revision'], 'Partnerfreigaben' => count($draft['configuration']['mesh_peers'] ?? [])]);
         } elseif ($peer === null) {
@@ -252,8 +252,8 @@ trait AutomationEditor
             }
         }
         $draft['draftChecksum'] = hash('sha256', $yaml);
-        $this->WriteAttributeString('EditorDraft', json_encode($draft, JSON_THROW_ON_ERROR));
-        $this->WriteAttributeString('YamlDraft', $yaml);
+        $this->WriteEditorAttribute('EditorDraft', json_encode($draft, JSON_THROW_ON_ERROR));
+        $this->WriteEditorAttribute('YamlDraft', $yaml);
         $this->UpdateEditorField('YamlInput', 'value', $yaml);
         $this->UpdateEditorField('EditorPreview', 'caption', sprintf($this->Translate('Draft contains %d automations. Z2M is unchanged until storing.'), count($draft['configuration']['automations'])));
         $this->UpdateEditorField('EditorRules', 'values', json_encode($this->EditorRuleRows($draft), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
@@ -264,12 +264,13 @@ trait AutomationEditor
 
     private function EditorSnapshot(): array
     {
+        if ($this->workspaceEditorContext !== null) return $this->workspaceEditorContext['snapshot'];
         return $this->AddRemoteTargets($this->LocalEditorSnapshot());
     }
 
     private function LocalEditorSnapshot(): array
     {
-        $json = $this->ReadAttributeString('EditorSnapshot');
+        $json = $this->ReadEditorAttribute('EditorSnapshot');
         return $json === '' ? [] : $this->FilterEditorActions($this->AddEditorScenes($this->AddEditorGroupTargets(json_decode($json, true, 32, JSON_THROW_ON_ERROR))));
     }
 
@@ -352,7 +353,7 @@ trait AutomationEditor
                 }
             }
             foreach (['Source', 'Target'] as $side) {
-                $selected = $this->ReadAttributeString('Editor' . $side);
+                $selected = $this->ReadEditorAttribute('Editor' . $side);
                 if (($field['name'] ?? '') === 'Editor' . $side) {
                     $field['options'] = $this->EditorDevices($snapshot, $side);
                     $field['value'] = isset($snapshot['devices'][$selected]) ? $selected : '';

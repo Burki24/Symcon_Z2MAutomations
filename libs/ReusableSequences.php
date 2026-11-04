@@ -112,12 +112,12 @@ trait ReusableSequences
             }
             $sequence = $Kind === 'sequence';
             foreach (['RowDevice', 'RowProperty', 'RowValue'] as $field) {
-                $this->UpdateFormField($field, 'visible', !$sequence);
+                $this->UpdateEditorFormField($field, 'visible', !$sequence);
             }
-            $this->UpdateFormField('RowNumber', 'visible', false);
-            $this->UpdateFormField('RowColor', 'visible', false);
+            $this->UpdateEditorFormField('RowNumber', 'visible', false);
+            $this->UpdateEditorFormField('RowColor', 'visible', false);
             foreach (['RowCommandSummary', 'RowCommandAdd', 'RowCommandRemove', 'RowCommandHelp', 'RowCommandHint'] as $field) {
-                $this->UpdateFormField($field, 'visible', $Kind === 'combined');
+                $this->UpdateEditorFormField($field, 'visible', $Kind === 'combined');
             }
             $snapshot = $this->EditorSnapshot();
             $values = [];
@@ -133,16 +133,16 @@ trait ReusableSequences
                 }
             }
             $this->UpdateCommandSummary($snapshot, $Device, $values);
-            $this->UpdateFormField('RowProperty', 'options', json_encode($this->EditorItemProperties($snapshot, $Device, 'Target', $Kind === 'combined'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
-            $this->UpdateFormField('RowProperty', 'value', '');
-            $this->UpdateFormField('RowValue', 'value', '');
-            $this->UpdateFormField('RowValue', 'options', json_encode($this->EditorItemValues($snapshot, $Device, null, 'Target'), JSON_THROW_ON_ERROR));
-            $this->UpdateFormField('RowSequence', 'visible', $sequence);
-            $this->UpdateFormField('RowSequence', 'options', json_encode($this->ReusableOptions(true), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+            $this->UpdateEditorFormField('RowProperty', 'options', json_encode($this->EditorItemProperties($snapshot, $Device, 'Target', $Kind === 'combined'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+            $this->UpdateEditorFormField('RowProperty', 'value', '');
+            $this->UpdateEditorFormField('RowValue', 'value', '');
+            $this->UpdateEditorFormField('RowValue', 'options', json_encode($this->EditorItemValues($snapshot, $Device, null, 'Target'), JSON_THROW_ON_ERROR));
+            $this->UpdateEditorFormField('RowSequence', 'visible', $sequence);
+            $this->UpdateEditorFormField('RowSequence', 'options', json_encode($this->ReusableOptions(true), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             $valid = $sequence && $this->ReusableSequenceAllowed($SequenceID);
             $commandKey = $values === [] ? null : $this->CommandChoice($snapshot, $Device, $values);
             $encoded = $valid ? 'sequence:' . $SequenceID : ($commandKey === null ? '' : $Device . ':' . $commandKey);
-            $this->UpdateFormField('Choice', 'value', $encoded);
+            $this->UpdateEditorFormField('Choice', 'value', $encoded);
             if ($encoded !== '') {
                 $this->RememberEditorListChoices('Target', [['Choice' => $encoded]], 'pending');
             }
@@ -153,12 +153,12 @@ trait ReusableSequences
 
     private function ReusableSelection(): array
     {
-        return json_decode($this->ReadAttributeString('SequenceSelection') ?: '[]', true, 8, JSON_THROW_ON_ERROR);
+        return json_decode($this->ReadEditorAttribute('SequenceSelection') ?: '[]', true, 8, JSON_THROW_ON_ERROR);
     }
 
     private function RememberReusableSelection(string $id, array $draft): void
     {
-        $this->WriteAttributeString('SequenceSelection', json_encode(['id' => $id, 'checksum' => $draft['draftChecksum'], 'token' => $id === '' ? '' : bin2hex(random_bytes(16))], JSON_THROW_ON_ERROR));
+        $this->WriteEditorAttribute('SequenceSelection', json_encode(['id' => $id, 'checksum' => $draft['draftChecksum'], 'token' => $id === '' ? '' : bin2hex(random_bytes(16))], JSON_THROW_ON_ERROR));
     }
 
     private function ReusableSequence(string $id): ?array
@@ -227,7 +227,7 @@ trait ReusableSequences
     {
         foreach ($this->ReusableFormUpdates() as $name => $fields) {
             foreach ($fields as $key => $value) {
-                $this->UpdateFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value);
+                $this->UpdateEditorFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) : $value);
             }
         }
         $this->UpdateEditorWorkStatus($this->RefreshState());

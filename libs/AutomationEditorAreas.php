@@ -40,7 +40,7 @@ trait AutomationEditorAreas
         if ($index !== null) {
             return $this->EditorRuleType($draft['configuration']['automations'][$index]);
         }
-        $modes = $this->ReadAttributeString('EditorModes');
+        $modes = $this->ReadEditorAttribute('EditorModes');
         $type = $modes === '' ? 'device' : (json_decode($modes, true, 8, JSON_THROW_ON_ERROR)['EditorTriggerType'] ?? 'device');
         return $type === 'time' ? 'time' : 'device';
     }
@@ -56,7 +56,7 @@ trait AutomationEditorAreas
 
     private function UpdateEditorField(string $name, string $parameter, mixed $value): void
     {
-        $this->UpdateFormField($name, $parameter, $value);
+        $this->UpdateEditorFormField($name, $parameter, $value);
         if ($name === 'EditorDetails' || !in_array($name, self::AREA_EDITOR_FIELDS, true)) {
             return;
         }
@@ -65,7 +65,7 @@ trait AutomationEditorAreas
             return;
         }
         if ($area !== 'advanced') {
-            $this->UpdateFormField(($area === 'time' ? 'Time' : 'Device') . $name, $parameter, $value);
+            $this->UpdateEditorFormField(($area === 'time' ? 'Time' : 'Device') . $name, $parameter, $value);
         }
     }
 

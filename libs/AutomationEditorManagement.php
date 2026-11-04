@@ -103,20 +103,21 @@ trait AutomationEditorManagement
 
     private function ReadEditorDraft(bool $currentScopeOnly = false): ?array
     {
-        $text = $this->ReadAttributeString('EditorDraft');
+        $text = $this->ReadEditorAttribute('EditorDraft');
         $draft = $text === '' ? null : json_decode($text, true, 32, JSON_THROW_ON_ERROR);
         return $currentScopeOnly && ($draft['scope'] ?? '') !== $this->TransportScope() ? null : $draft;
     }
 
     private function EditorContextError(array $state, ?array $draft, string $currentDraft, bool $checkDraft, bool $requireReceiver = true): string
     {
+        if ($this->workspaceEditorContext !== null) $requireReceiver = false;
         if ($draft === null || $this->EditorSnapshot() === []) {
             return 'editor_unavailable';
         }
         $receiverChanged = $state['extensionConfirmed'] && ($draft['session'] !== $state['extension']['session']
             || $draft['baseRevision'] !== $state['extension']['storedRevision'] || $draft['baseChecksum'] !== $state['extension']['checksum']);
         return ($requireReceiver && !$state['extensionConfirmed']) || $receiverChanged || $state['workflow'] !== null || $draft['scope'] !== $state['scope']
-            || $draft['draftChecksum'] !== hash('sha256', $this->ReadAttributeString('YamlDraft'))
+            || $draft['draftChecksum'] !== hash('sha256', $this->ReadEditorAttribute('YamlDraft'))
             || (($checkDraft || $currentDraft !== '') && hash('sha256', $currentDraft) !== $draft['draftChecksum']) ? 'editor_changed' : '';
     }
 
@@ -138,7 +139,7 @@ trait AutomationEditorManagement
 
     private function EditorSelection(): array
     {
-        $text = $this->ReadAttributeString('EditorSelection');
+        $text = $this->ReadEditorAttribute('EditorSelection');
         return $text === '' ? [] : json_decode($text, true, 32, JSON_THROW_ON_ERROR);
     }
 
@@ -199,9 +200,9 @@ trait AutomationEditorManagement
 
     private function SetEditorSelection(array $draft, string $id, string $newType = ''): void
     {
-        $this->SetBuffer('EditorRowChoices', '{}');
+        $this->WriteEditorBuffer('EditorRowChoices', '{}');
         $previousArea = $this->ActiveEditorArea();
-        $this->WriteAttributeString('EditorSelection', $id === '' ? '' : json_encode(['id' => $id, 'checksum' => $draft['draftChecksum'], 'token' => bin2hex(random_bytes(16))], JSON_THROW_ON_ERROR));
+        $this->WriteEditorAttribute('EditorSelection', $id === '' ? '' : json_encode(['id' => $id, 'checksum' => $draft['draftChecksum'], 'token' => bin2hex(random_bytes(16))], JSON_THROW_ON_ERROR));
         $fields = $this->EditorSelectionFields($draft);
         if (!$fields['selected']) {
             $fields['EditorTriggerType'] = $newType !== '' ? $newType : ($previousArea === 'time' ? 'time' : 'device');
@@ -213,7 +214,7 @@ trait AutomationEditorManagement
         $this->ApplyScheduleFields($fields);
         $snapshot = $this->EditorSnapshot();
         foreach (['Source', 'Target'] as $side) {
-            $this->WriteAttributeString('Editor' . $side, $fields['Editor' . $side]);
+            $this->WriteEditorAttribute('Editor' . $side, $fields['Editor' . $side]);
             $this->UpdateEditorField('Editor' . $side . 'Choice', 'options', json_encode($this->EditorChoices($snapshot, $fields['Editor' . $side], $side), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         }
         $this->UpdateEditorField('EditorActions', 'columns', json_encode($this->EditorActionColumns($snapshot, $fields['EditorActionRows']), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));

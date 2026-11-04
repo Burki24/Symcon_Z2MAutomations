@@ -20,6 +20,7 @@ trait AutomationDesigner
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(function (): string
         {
+            if ($this->WorkspaceMode()) return $this->WorkspaceDesignerOpen();
             if (!$this->RegisterHook($this->DesignerHookName())) {
                 $this->DebugEvent('FEHLER', 'Automationsdesigner konnte nicht geöffnet werden: Browserzugang nicht verfügbar.');
                 return '';
@@ -27,7 +28,7 @@ trait AutomationDesigner
             $token = bin2hex(random_bytes(32));
             $sessions = $this->DesignerSessions();
             $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->TransportScope(), 'create' => true, 'edit' => true, 'sequences' => true, 'receipts' => []];
-            $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
             $this->DebugEvent('AKTION', 'Automationsdesigner mit 15 Minuten Zugang geöffnet. Neue ausgeschaltete Regeln und Aktionsfolgen lokal erstellen und bearbeiten; keine Abfrage oder Geräteaktion.', ['DauerSekunden' => 900]);
             return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
         }));
@@ -35,7 +36,7 @@ trait AutomationDesigner
 
     public function GetDesignerData(): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(fn (): string => $this->DesignerData()));
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WorkspaceMode() ? $this->WorkspaceDesignerData() : $this->WithTransportLock(fn (): string => $this->DesignerData()));
     }
 
     protected function ProcessHookData(): void
@@ -48,18 +49,27 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'reader.js' => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
+            $types = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'reader.js' => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['create', 'edit', 'sequence'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['create', 'edit', 'sequence', 'select-system'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
+                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'select-system'], true)) {
+                    [$status, $result] = $this->WorkspaceDesignerRequest($asset);
+                    $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                    return;
+                }
+                if (in_array($asset, ['select-system', 'devices'], true)) {
+                    $this->DesignerResponse(404, 'text/plain', 'Bitte zuerst Systeme zuordnen.');
+                    return;
+                }
                 if (in_array($asset, ['create', 'edit', 'sequence'], true)) {
                     [$status, $result] = match ($asset) {
                         'create' => $this->DesignerCreateRequest(), 'edit' => $this->DesignerEditRequest(), 'sequence' => $this->DesignerSequenceRequest()
@@ -108,18 +118,21 @@ trait AutomationDesigner
     private function DesignerData(): string
     {
         $scope = $this->TransportScope();
-        $cached = $this->GetBuffer('TransportState');
+        $cached = $this->ReadEditorBuffer('TransportState');
         $state = $cached === '' ? [] : json_decode($cached, true, 32, JSON_THROW_ON_ERROR);
         $state = ($state['scope'] ?? '') === $scope ? $state : [];
-        $raw = $this->ReadAttributeString('EditorSnapshot');
-        $snapshot = $raw === '' ? [] : json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
+        $raw = $this->ReadEditorAttribute('EditorSnapshot');
+        $snapshot = $this->workspaceEditorContext['snapshot'] ?? ($raw === '' ? [] : json_decode($raw, true, 32, JSON_THROW_ON_ERROR));
         $snapshot = ($snapshot['scope'] ?? '') === $scope ? $this->EditorSnapshot() : [];
         $draft = $this->ReadEditorDraft();
         $draftCurrent = ($draft['scope'] ?? '') === $scope
-            && ($draft['draftChecksum'] ?? '') === hash('sha256', $this->ReadAttributeString('YamlDraft'));
+            && ($draft['draftChecksum'] ?? '') === hash('sha256', $this->ReadEditorAttribute('YamlDraft'));
         $configuration = $draftCurrent ? ($draft['configuration'] ?? null) : null;
         $devices = [];
-        foreach ($snapshot['devices'] ?? [] as $key => $device) {
+        $allDevices = $snapshot['devices'] ?? [];
+        $offset = $this->workspaceEditorContext['catalogOffset'] ?? 0;
+        $pageDevices = $this->workspaceEditorContext === null ? $allDevices : array_slice($allDevices, $offset, 20, true);
+        foreach ($pageDevices as $key => $device) {
             $properties = [];
             $readable = $this->EditorProperties($snapshot, $key, 'Source');
             $writable = $this->EditorProperties($snapshot, $key, 'Target');
@@ -135,6 +148,12 @@ trait AutomationDesigner
                 ? ['type' => 'group', 'id' => (int) substr($key, 6)] : ['type' => 'device', 'id' => $key]), 'properties' => $properties];
         }
         $extension = $state['extension'] ?? [];
+        if ($this->workspaceEditorContext['catalogOnly'] ?? false) {
+            $ctx = $this->workspaceEditorContext;
+            return json_encode(['devices' => $devices,
+                'devicePage'              => ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)],
+                'workspaceContext'        => ['systemId' => $ctx['id'], 'generation' => $ctx['record']['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($ctx['record'])]], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        }
         $openFormEdits = $this->DesignerPendingInput();
         $data = ['contractVersion' => 1, 'mode' => 'read', 'module' => ['id' => $this->InstanceID, 'name' => IPS_GetName($this->InstanceID),
             'baseTopic'                                                      => $this->ReadPropertyString('BaseTopic'), 'gateway' => $this->GetParentID()], 'readAt' => $this->Now(),
@@ -150,6 +169,18 @@ trait AutomationDesigner
             'sequenceAllowed'       => $this->DesignerCreateBlock(false) === '',
             'sequenceCreateAllowed' => $this->DesignerCreateBlock(false) === '' && count($configuration['sequences'] ?? []) < 32,
             'sequenceNotice'        => $this->DesignerCreateBlock(false), 'sequenceSections' => $this->DesignerSequenceSections($configuration)];
+        if ($this->workspaceEditorContext !== null) {
+            $ctx = $this->workspaceEditorContext;
+            $data['module']['baseTopic'] = $ctx['record']['binding']['baseTopic'];
+            $data['module']['gateway'] = $ctx['record']['binding']['mqttParent'];
+            $data['workspace'] = json_decode($this->WorkspaceOverview($ctx['workspace']), true, 32, JSON_THROW_ON_ERROR);
+            $data['workspaceContext'] = ['systemId' => $ctx['id'], 'generation' => $ctx['record']['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($ctx['record'])];
+            $data['catalogAvailable'] = $ctx['catalogAvailable'];
+            $data['devicePage'] = ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)];
+            $data['status'] = ['confirmed' => $ctx['info']['state']['runtimeConfirmed'] ?? false,
+                'mqttConnected'            => $ctx['info']['state']['mqttConnected'] ?? false, 'executing' => $ctx['info']['state']['extension']['executing'] ?? false,
+                'storedRevision'           => $ctx['info']['state']['extension']['storedRevision'] ?? 0, 'activeRevision' => $ctx['info']['state']['extension']['activeRevision'] ?? 0];
+        }
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (strlen($json) > 2097152) {
             throw new \RuntimeException('Designer response exceeds size limit.');
@@ -170,9 +201,9 @@ trait AutomationDesigner
 
     private function DesignerSessions(): array
     {
-        $text = $this->GetBuffer('DesignerSessions');
+        $text = $this->ReadEditorBuffer('DesignerSessions');
         $sessions = $text === '' ? [] : json_decode($text, true, 8, JSON_THROW_ON_ERROR);
-        return array_values(array_filter($sessions, fn (array $session): bool => $session['expires'] > $this->Now() && $session['scope'] === $this->TransportScope()));
+        return array_values(array_filter($sessions, fn (array $session): bool => $session['expires'] > $this->Now() && $session['scope'] === $this->DesignerAccessScope()));
     }
 
     private function DesignerTokenAllowed(mixed $token, bool $create = false): bool

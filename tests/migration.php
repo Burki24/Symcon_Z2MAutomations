@@ -62,6 +62,10 @@ class TakeoverProbe extends Z2MAutomations
     {
         return self::$storage . '/' . $this->InstanceID;
     }
+    protected function LoadConfigurationForm(): array
+    {
+        return json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
+    }
     protected function MigrationCheckpoint(string $phase): void
     {
         if ($this->checkpoint !== null)($this->checkpoint)($phase);
@@ -152,6 +156,8 @@ foreach ([1, 2, 8] as $count) {
     $state = $decode($manager->Raw('SystemWorkspace'));
     foreach ($rows as $row) $check(in_array($row['connectionInstance'], $manager->GetReferenceList(), true), 'Committed connection references are registered');
     $check(count($state['systems']) === $count, 'Every original system is retained');
+    $check(str_contains($manager->GetConfigurationForm(), 'WorkspaceSystem'), 'Committed manager can open the system-bound native editor');
+    $check(isset($decode($manager->GetDesignerData())['workspaceContext']), 'Committed owner can read its system-bound browser model');
     foreach ($state['systems'] as $systemID => $record) {
         $id = $record['binding']['sourceInstance'];
         $source = IPS\InstanceManager::getInstanceInterface($id);

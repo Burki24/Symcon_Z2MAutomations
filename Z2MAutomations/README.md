@@ -59,21 +59,28 @@ zentralen Kopien freigegeben. Ein Rückweg sichert auch spätere zentrale Änder
 und gibt die bisherigen Instanzen wieder frei. Z2M-Dateien und laufende Regeln
 werden dabei nicht verändert.
 
-Diese Stufe wird noch über Modulfunktionen bedient; die gemeinsame Oberfläche
-folgt separat. Ein Update führt keine Übernahme aus. Die Vorbereitung, Ablage,
+Die Übernahme wird noch über Modulfunktionen bedient. Ein Update führt keine
+Übernahme aus. Die Vorbereitung, Ablage,
 Funktionen und Konfliktfälle sind in [Sicherung und Rückweg](../docs/MIGRATION.md)
 beschrieben. Eine tatsächliche Umstellung zuerst auf Test gesondert prüfen.
 
 ## Lokaler Arbeitsbereich für mehrere Systeme
 
-Die Datenbasis der zentralen Verwaltung ist vorbereitet. Eine Systemliste und
-getrennte lokale Dokumente, Gerätezuordnungen, Auswahl und offene Eingaben lassen
-sich bereits über Modulfunktionen verwalten. **Die gemeinsame Bedienoberfläche
-und zentrale systemgebundene Speicher-/Startaktionen folgen noch.**
-Der bisherige Klick-Editor und seine Speicher-/Startbuttons bleiben an das
-bisher eingestellte System gebunden; eine Workspace-Auswahl stellt sie nicht um.
-Nach einer ausdrücklichen Übernahme werden die alten Bedienaufrufe gesperrt und
-nennen die zuständige Verwaltungsinstanz.
+Im nativen Formular ordnen Sie unter **Z2M-Systeme** bis zu acht vorhandene
+Z2M-Verbindungen zu. Unter **Entwurf dieses Systems bearbeiten** wählen Sie das
+System für die Bearbeitung. Dieselbe Auswahl finden Sie oben im Browserdesigner.
+Regeln und Aktionsfolgen werden ausschließlich im Entwurf des angezeigten Systems
+erstellt und bearbeitet. Die Felder werden aus diesem Entwurf vorbelegt.
+
+Nicht übernommene Formulareingaben verhindern den Systemwechsel. Übernehmen Sie
+diese zuerst in den lokalen Entwurf oder verwerfen Sie sie ausdrücklich in der
+Bearbeitung. Im Browser schließen Sie zuerst den offenen Bearbeitungsdialog.
+Andere Systeme behalten ihre Entwürfe; vorhandene Partnerfreigaben bleiben erhalten.
+Bei einer veralteten Ansicht laden Sie diese erneut, bevor Sie Änderungen übernehmen.
+
+**Die gemeinsame Oberfläche bearbeitet derzeit lokale Entwürfe. Systemgebundene
+Prüfung, Übertragung, Aktivierung und Stopp werden im nächsten Schritt ergänzt.**
+Die neue Systemauswahl benutzt dafür keine bisherigen MQTT-Bedienbuttons.
 
 Das Eintragen einer Z2M-Verbindung erzeugt einen leeren lokalen Dokumentplatz.
 Es kopiert keine vorhandenen Automationen und erteilt keine Empfangsfreigaben.
@@ -83,8 +90,7 @@ erscheinen nur aktuell schaltbare Eigenschaften. Fremde Aktionen erfordern eine
 ausdrückliche gerichtete Empfangsfreigabe im Zielentwurf. Das ist zunächst eine
 lokale Planung, keine Bestätigung einer gespeicherten Z2M-Freigabe.
 
-Die folgenden Funktionen richten sich an Skripte zur Vorbereitung. Für die normale
-Regelerstellung weiterhin den vorhandenen Editor verwenden. Alle Rückgaben sind
+Die folgenden Funktionen richten sich an Skripte zur Vorbereitung. Alle Rückgaben sind
 JSON mit `version`, `ok`, `error` und einer verständlichen `message`.
 
 | Funktion nach `Z2MA_` | Weitere Parameter nach `int InstanceID` | Rückgabe / Wirkung |

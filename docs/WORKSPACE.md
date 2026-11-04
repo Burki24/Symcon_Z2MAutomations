@@ -1,10 +1,45 @@
 # Lokaler zentraler Arbeitsbereich
 
 Schritt 3 von [ADR 0026](adr/0026-central-manager-and-system-connections.md).
-Diese Stufe stellt Datenhaltung und lokale Modulfunktionen bereit. Die native
-und die Browseroberfläche bleiben noch am bisherigen Editor. Schritt 4 ergänzt
+Diese Stufe stellt Datenhaltung und lokale Modulfunktionen bereit. Schritt 5
+bindet inzwischen native Oberfläche und Browserdesigner an diese Daten an. Schritt 4 ergänzt
 inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION.md).
 Eine neue zentrale Z2M-Steuerung ist noch nicht implementiert.
+
+## Gemeinsame Bearbeitung
+
+WorkspaceForm stellt die native Systemliste und den lokalen Editor bereit.
+WorkspaceDesigner ergänzt die Systemwahl im Browser. WorkspaceEditorContext
+verwendet die vorhandenen Editorvalidatoren mit expliziten Speicherzugriffen
+auf genau einen Systemeintrag. Die bisherigen Instanzattribute werden nicht
+beim Umschalten ausgetauscht. Eine zusätzliche Rückwärtskompatibilitätsschicht
+ist nicht vorgesehen.
+
+Native Aufträge nennen SystemID, Generation und Dokumentfingerabdruck. Eine
+feste Positivliste erlaubt ausschließlich lokale Editoroperationen. Auch
+dynamische Listenformulare sind daran gebunden. Die generierten eigenen
+Callbacktexte werden ohne eval in systemgebundene Aufrufe übersetzt. Mehrere
+Aufrufe desselben Klicks übernehmen den jeweils bestätigten Fingerabdruck.
+Eine inzwischen geänderte Systemauswahl weist alte native Formulare zurück.
+
+Der Browser sendet dieselben Systemangaben in separaten Headern. Datenabfragen
+mit einer Systemkennung ändern die Auswahl nicht; select-system wechselt sie
+ausdrücklich und prüft offene native Eingaben. CRUD-Aufträge ändern nur den
+benannten Entwurf. Quittungen bleiben je System und Besitzergeneration getrennt.
+Empfängerfreigaben, Revision und andere Systeme werden nicht stillschweigend
+ersetzt. Es gibt keinen allgemeinen PHP- oder MQTT-Aufruf aus dem Browser.
+
+WorkspaceEditorViews enthält nur kurzlebige Auswahltoken und Editoransichten.
+Kataloge werden nicht zusätzlich darin gespeichert. Offene Eingaben werden im
+persistenten data.work gehalten und nach Verlust dieser Puffer wieder vorgelegt.
+Der Browser liest Gerätemetadaten in Seiten von höchstens 20 Einträgen und
+zeigt den Ladefortschritt. Ein unvollständiger Abruf ersetzt die vorige Ansicht
+nicht. Native Aktionsrechte werden weiterhin anhand der Variablen-ID geprüft.
+
+Eine neue Zuordnung initialisiert keinen Entwurf über unbekannten Z2M-Dateien.
+Vorhandene Dokumente müssen ausdrücklich über den gesicherten Übernahmeablauf
+zugeordnet werden. Diese Stufe ergänzt keine zentralen Betriebsaufträge;
+Laufzeit und MQTT-Verbindungen werden durch Editorzugriffe nicht verändert.
 
 ## Zuständigkeiten und Daten
 

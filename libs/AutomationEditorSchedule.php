@@ -21,11 +21,11 @@ trait AutomationEditorSchedule
                 return;
             }
             $modes = ['EditorTriggerType' => $TriggerType, 'EditorWindow' => $Window, 'EditorConditionType' => $ConditionType];
-            $previous = $this->ReadAttributeString('EditorModes');
+            $previous = $this->ReadEditorAttribute('EditorModes');
             $previous = $previous === '' ? [] : json_decode($previous, true, 8, JSON_THROW_ON_ERROR);
             $modes['EditorTimeMode'] = $previous['EditorTimeMode'] ?? 'clock';
             $modes['EditorWeekdays'] = $previous['EditorWeekdays'] ?? false;
-            $this->WriteAttributeString('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
+            $this->WriteEditorAttribute('EditorModes', json_encode($modes, JSON_THROW_ON_ERROR));
             $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($ConditionType), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             if ($ConditionType === 'state' && ($previous['EditorConditionType'] ?? '') !== 'state') {
                 $this->UpdateEditorField('EditorCompare', 'value', 'eq');
@@ -125,13 +125,13 @@ trait AutomationEditorSchedule
                 return;
             }
             $snapshot = $this->EditorSnapshot();
-            $device = $this->ReadAttributeString('EditorCondition');
+            $device = $this->ReadEditorAttribute('EditorCondition');
             $meta = $this->EditorProperties($snapshot, $device, 'Source')[$Property] ?? null;
             if (($meta['type'] ?? 'numeric') === 'numeric') {
                 $Property = '';
                 $meta = null;
             }
-            $this->WriteAttributeString('EditorConditionProperty', $Property);
+            $this->WriteEditorAttribute('EditorConditionProperty', $Property);
             $this->UpdateEditorField('EditorConditionChoice', 'options', json_encode($this->EditorItemValues($snapshot, $device, $meta, 'Source'), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
             $this->UpdateEditorField('EditorConditionChoice', 'value', '');
             $this->DebugEvent('AKTION', 'Eigenschaft der Zustandsbedingung ausgewählt; Wertauswahl zurückgesetzt.', ['EigenschaftVerfügbar' => $meta !== null]);
@@ -147,7 +147,7 @@ trait AutomationEditorSchedule
     {
         $device = $fields['EditorCondition'];
         $choice = $this->FindEditorChoice($snapshot, $device, $fields['EditorConditionChoice'], 'Source');
-        $property = $choice['property'] ?? $this->ReadAttributeString('EditorConditionProperty');
+        $property = $choice['property'] ?? $this->ReadEditorAttribute('EditorConditionProperty');
         return $this->EditorProperties($snapshot, $device, 'Source')[$property] ?? null;
     }
 
@@ -467,12 +467,12 @@ trait AutomationEditorSchedule
 
     private function ApplyScheduleFields(array $fields): void
     {
-        $this->WriteAttributeString('EditorCondition', $fields['EditorCondition']);
-        $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode', 'EditorWeekdays'])), JSON_THROW_ON_ERROR));
+        $this->WriteEditorAttribute('EditorCondition', $fields['EditorCondition']);
+        $this->WriteEditorAttribute('EditorModes', json_encode(array_intersect_key($fields, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode', 'EditorWeekdays'])), JSON_THROW_ON_ERROR));
         $snapshot = $this->EditorSnapshot();
         $this->UpdateEditorField('EditorCompare', 'options', json_encode($this->EditorComparisonOptions($fields['EditorConditionType']), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $meta = $this->ConditionMeta($snapshot, $fields);
-        $this->WriteAttributeString('EditorConditionProperty', $meta['property'] ?? '');
+        $this->WriteEditorAttribute('EditorConditionProperty', $meta['property'] ?? '');
         $this->UpdateEditorField('EditorConditionProperty', 'options', json_encode($this->ConditionPropertyOptions($snapshot, $fields['EditorCondition']), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
         $this->UpdateEditorField('EditorConditionProperty', 'value', $meta['property'] ?? '');
         $this->UpdateEditorField('EditorConditionProperty', 'enabled', $fields['simple']);
@@ -488,9 +488,9 @@ trait AutomationEditorSchedule
 
     private function FillScheduleForm(array &$form, ?array $draft, array $selection): void
     {
-        $modes = $this->ReadAttributeString('EditorModes');
+        $modes = $this->ReadEditorAttribute('EditorModes');
         $v = $selection['selected'] ? $selection : array_replace($this->ScheduleDefaults(), $modes === '' ? [] : json_decode($modes, true, 8, JSON_THROW_ON_ERROR));
-        $v['EditorCondition'] = $selection['selected'] ? $selection['EditorCondition'] : $this->ReadAttributeString('EditorCondition');
+        $v['EditorCondition'] = $selection['selected'] ? $selection['EditorCondition'] : $this->ReadEditorAttribute('EditorCondition');
         $visibility = $this->ScheduleVisibility($v);
         $snapshot = $this->EditorSnapshot();
         foreach ($this->EditorFormFields($form['actions']) as &$field) {

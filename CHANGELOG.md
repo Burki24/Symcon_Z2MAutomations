@@ -9,6 +9,14 @@
 
 ## Neu
 
+- Gemeinsame Systemauswahl im nativen Formular und Browserdesigner für bis zu
+  acht Z2M-Systeme. Regeln und Aktionsfolgen werden im jeweiligen lokalen Entwurf
+  erstellt und bearbeitet. Vorbelegung, offene Eingaben und Partnerfreigaben
+  bleiben getrennt erhalten. Veraltete Fenster können kein anderes System
+  überschreiben. Große Browser-Gerätelisten werden seitenweise gelesen;
+  verständliche Debug-Ausgaben erklären Systemwahl, Änderungen und Abbrüche.
+  Zentrale Speicher- und Laufzeitaufträge folgen im nächsten Ausbauschritt.
+
 - Lokale Sicherung und Übernahme vorhandener Automationsinstanzen mit geprüftem
   Rückweg: private Archive, dauerhaftes Journal, Quellen-/Zielvergleich und
   exklusiver Besitzerwechsel für bis zu acht Systeme. Alte Editoren und Zugänge
@@ -16,7 +24,7 @@
   spätere zentrale Änderungen bleiben beim Rückweg zusätzlich gesichert.
   Verständliche deutsche Ablauf- und Fehlermeldungen. Keine automatische
   Migration, MQTT-Ausgabe oder Änderung laufender Z2M-Automationen. Die gemeinsame
-  Bedienoberfläche folgt separat.
+  Bedienoberfläche ist inzwischen für die lokale Bearbeitung ergänzt.
 
 - Lokaler zentraler Arbeitsbereich als nächster Baustein der Mehrsystemverwaltung:
   bis zu acht Verbindungen ausdrücklich zuordnen und Dokumente, Auswahl und offene

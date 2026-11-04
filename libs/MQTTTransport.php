@@ -308,6 +308,7 @@ trait MQTTTransport
 
     private function RefreshState(): array
     {
+        if ($this->workspaceEditorContext !== null) return $this->workspaceEditorContext['state'];
         $parent = $this->GetParentID();
         $scope = $this->TransportScope();
         $connected = $this->ReadPropertyBoolean('Active') && $this->ValidConfiguration() && $this->HasParent()
@@ -338,6 +339,11 @@ trait MQTTTransport
 
     private function SaveState(array $state): array
     {
+        if ($this->workspaceEditorContext !== null) {
+            $this->workspaceEditorContext['state'] = $state;
+            $this->UpdateEditorFormField('ErrorInfo', 'caption', $this->ExtensionErrorText($state));
+            return $state;
+        }
         $state['bridgeOnline'] = $state['mqttConnected'] && $state['bridgeState'] === 'online';
         if (!$state['extensionInstalled'] && $state['extensionConfirmed'] && ($state['extension']['ready'] ?? false)) {
             $state['extensionInstalled'] = true;

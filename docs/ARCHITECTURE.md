@@ -2,6 +2,14 @@
 
 ## Geplanter Umbau auf mehrere Systeme
 
+Schritt 5 verbindet WorkspaceForm, WorkspaceDesigner und WorkspaceEditorContext
+mit den getrennten Dokumenten: gemeinsame Auswahl, explizite System-/Generations-
+und Änderungsbindung, native Editorcallbacks und Browser-CRUD. Editorzugriffe
+werden auf den jeweiligen Systemeintrag projiziert; die Instanzattribute dienen
+nicht als Umschaltpuffer. Geräte-/Kanalmetadaten kommen aus bestätigten Katalogen,
+Schaltrechte aus aktuellen nativen Variablenbindungen. Weitere Details in
+[WORKSPACE.md](WORKSPACE.md). Keine neue zentrale MQTT-Laufzeitsteuerung.
+
 Schritt 4 ergänzt die ausdrückliche [lokale Migration](MIGRATION.md): private
 Quellsicherungen, prüfsummengebundenes Manifest, persistentes Journal und
 Besitzerfences vor Freigabe des zentralen Arbeitsbereichs. Ein unterbrochener
@@ -12,8 +20,8 @@ Schritt 3 ergänzt die lokale Datenhaltung und die Modulfunktionen aus
 [WORKSPACE.md](WORKSPACE.md): ein versioniertes Attribut je Verwaltung, einzelne
 Dokumente und Bearbeitungskontexte je System, lokale Quittungen und gerichtete
 Zielauswahl. Registry und Dokumente sind von Legacy-Attributen und dessen
-MQTT-Parent getrennt. Die gemeinsame Oberfläche ist weiterhin ein späterer
-Schritt. Native Identität und Schaltrechte verwenden
+MQTT-Parent getrennt. Die gemeinsame Oberfläche ist inzwischen lokal ergänzt.
+Native Identität und Schaltrechte verwenden
 gemeinsame librarylokale Adapter mit dem Bestandseditor; Z2M-Katalog und
 Symcon-Bindungen bleiben getrennte Bereiche.
 

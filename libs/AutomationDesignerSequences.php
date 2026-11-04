@@ -102,7 +102,7 @@ trait AutomationDesignerSequences
             if ($changed && !$this->CommitEditorChange($state, $draft, $new ? 'sequence_created' : 'sequence_updated', $this->EditorSelection()['id'] ?? '')) return $this->DesignerCreateFailure(422, 'Die Aktionsfolge konnte nicht übernommen werden. Bitte Entwurfsgröße und Schrittliste prüfen.');
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'sequence', 'digest' => $digest, 'sequence' => $sequence['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
-            $this->SetBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
             $this->DebugEvent(
                 'AKTION',
                 $changed ? 'Browser-Aktionsfolge im lokalen Entwurf übernommen. Automationsregeln und Partnerfreigaben bleiben erhalten; Z2M wurde nicht verändert.'

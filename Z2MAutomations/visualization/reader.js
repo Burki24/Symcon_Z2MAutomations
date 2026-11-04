@@ -1,6 +1,7 @@
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
 import {installCreation} from './creator.js';
 import {installEditing} from './editor.js';
+import {installSystemSelection, loadSystemDevices} from './workspace.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -17,6 +18,8 @@ import {installEditing} from './editor.js';
     let selectedPart = null;
     let busy = false;
     let editing = null;
+    let systemId = '';
+    const systemViews = new Map();
     const token = location.hash.slice(1);
     const endpoint = new URL('data', location.href);
     endpoint.hash = '';
@@ -62,6 +65,10 @@ import {installEditing} from './editor.js';
     };
     const field = (label, value) => `<div class="read-field"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
     const message = text => { $('#feedback').textContent = text; };
+    const updateSystems = installSystemSelection({getData: () => data, message, isLoading: () => busy, select: async id => {
+        const previous = systemId; systemId = id;
+        if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
+    }});
 
     function triggerSummary(trigger) {
         if (trigger.type === 'device') return `${sourceName(trigger.device)} · ${propertyName(sourceDevice(trigger.device), trigger.property)} ${compare[trigger.operator] ?? trigger.operator} ${displayValue(sourceDevice(trigger.device), trigger.property, trigger.value)}`;
@@ -207,14 +214,24 @@ import {installEditing} from './editor.js';
             const timeout = setTimeout(() => controller.abort(), 10000);
             let response; let text;
             try {
-                response = await fetch(endpoint, {method: 'GET', headers: {'X-Z2MA-Read-Token': token}, cache: 'no-store', signal: controller.signal, redirect: 'error'});
+                response = await fetch(endpoint, {method: 'GET', headers: {'X-Z2MA-Read-Token': token, ...(systemId ? {'X-Z2MA-System-ID': systemId} : {})}, cache: 'no-store', signal: controller.signal, redirect: 'error'});
                 if (response.ok) text = await response.text();
             } finally { clearTimeout(timeout); }
             if (!response.ok) throw new Error(response.status === 403 ? 'access' : 'transport');
             if (text.length > 2097152) throw new Error('invalid');
             const next = JSON.parse(text);
             if (next.contractVersion !== 1 || next.mode !== 'read' || !Array.isArray(next.devices) || !next.module || !next.status) throw new Error('invalid');
-            data = next;
+            await loadSystemDevices(next, {token, signal: controller.signal, onProgress: (loaded, total) => message(`Gerätedaten werden gelesen: ${loaded} von ${total}. Entwürfe bleiben unverändert.`)});
+            const previousSystem = data?.workspaceContext?.systemId ?? '';
+            const nextSystem = next.workspaceContext?.systemId ?? '';
+            if (previousSystem !== nextSystem) {
+                if (previousSystem) systemViews.set(previousSystem, {category, selected, selectedPart, search: $('#search').value});
+                const view = systemViews.get(nextSystem);
+                category = view?.category ?? 'device'; selected = view?.selected ?? null; selectedPart = view?.selectedPart ?? null;
+                $('#search').value = view?.search ?? '';
+            }
+            data = next; systemId = nextSystem; updateSystems(data);
+            if (data.workspace) $('.preview-notice > span:last-child').textContent = 'Getrennte lokale Entwürfe je Z2M-System erstellen und bearbeiten. Zentrale Prüfung und Übertragung werden im nächsten Schritt ergänzt.';
             document.title = `${data.module.name} · Automationsdesigner · Entwurf`;
             $('#draft-status').textContent = data.draftAvailable ? `Lokaler Entwurf · Revision ${data.configuration.revision}` : 'Kein passender Editorentwurf geladen';
             $('#runtime-status').textContent = data.status.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision}` : 'Betrieb noch nicht bestätigt';
@@ -223,8 +240,8 @@ import {installEditing} from './editor.js';
             const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
                 ? new Date(data.catalogLoadedAt * 1000).toLocaleString('de-DE') : null;
             notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
-            if (!data.catalogAvailable) notices.push('Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
-            if (!data.draftAvailable && !data.draftMismatch) notices.push('Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
+            if (!data.catalogAvailable) notices.push(data.workspace ? 'Gerätedaten fehlen für dieses System. Zuerst an seiner Z2M-Verbindung bestätigen, dann im nativen Systembereich „Bestätigte Gerätedaten dieses Systems einlesen“ wählen und diese Ansicht aktualisieren.' : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
+            if (!data.draftAvailable && !data.draftMismatch) notices.push(data.workspace ? 'Für dieses System fehlt noch ein lokaler Entwurf. Vorhandene Dokumente werden ausdrücklich über den gesicherten Übernahmeablauf zugeordnet.' : 'Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
             if (data.draftMismatch) notices.push('Der YAML-Entwurf weicht vom geladenen Editorstand ab. Bitte im nativen Formular prüfen; hier wird nichts ersetzt.');
             if (data.openFormEdits) notices.push('Im nativen Formular gibt es noch nicht in den Entwurf übernommene Eingaben. Diese sind hier noch nicht enthalten und bleiben erhalten.');
             $('#issues').hidden = data.catalogAvailable && data.draftAvailable && !data.openFormEdits;
@@ -252,7 +269,7 @@ import {installEditing} from './editor.js';
     }
     installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
         const refreshed = await load(ruleId);
-        message(refreshed ? 'Neue Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen und Übertragen weiterhin im nativen Formular.'
+        message(refreshed ? 'Neue Automation ausgeschaltet im lokalen Symcon-Entwurf ergänzt. In Z2M wurde nichts geändert.'
             : 'Die Automation wurde im Entwurf ergänzt. Die Ansicht konnte noch nicht aktualisiert werden; bitte „Ansicht aktualisieren“ wählen.');
     }});
     editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onEdited: async ruleId => {
@@ -261,7 +278,7 @@ import {installEditing} from './editor.js';
             : 'Die Änderung wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
     }, onSequenceSaved: async sequenceId => {
         const refreshed = await load('', sequenceId);
-        message(refreshed ? 'Aktionsfolge im lokalen Symcon-Entwurf übernommen. Verwenden Sie sie als Aktion einer Automation; Prüfen und Übertragen weiterhin im nativen Formular.'
+        message(refreshed ? 'Aktionsfolge im lokalen Symcon-Entwurf übernommen. Sie kann als Aktion einer Automation verwendet werden. In Z2M wurde nichts geändert.'
             : 'Die Aktionsfolge wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
     }});
     render();

@@ -3686,3 +3686,42 @@ Separate Struktur-/Kodierungsprüfung, offizieller StylePHP-Check der 18 eigenen
 JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus (108 Dateien
 ohne Befund) und git diff --check bestanden. Kanonische Helper und Fremdstubs
 bleiben unverändert; Entwicklung auf dev ohne Commit oder Push durch den Agenten.
+
+## 04.11.2026: Gemeinsame native und Browser-Systemauswahl
+
+Schritt 5 bindet die vorhandenen Editorvalidatoren über WorkspaceEditorContext
+an getrennte Systemdokumente. Attribute und Puffer erhalten explizite
+Speicherzugriffe; keine persistierten Bestandsattribute werden beim Wechsel
+ausgetauscht. WorkspaceForm baut die native Systemliste und systemgebundene
+Callbacks auf, WorkspaceDesigner begrenzt Browserzugriffe auf feste lokale
+Routen und einen ausdrücklich benannten Entwurf. Gemeinsame Helper wurden vor
+der Umsetzung geprüft und bleiben unverändert. Es entsteht keine zusätzliche
+Rückwärtskompatibilitätsschicht für alte Einzelinstanzen.
+
+tests/workspace-ui.php verwendet ausschließlich synthetische Kernel-/MQTT-Daten:
+acht getrennte Dokumente, identische Regelkennungen, native generierte Callbacks
+einschließlich mehrerer Aufrufe pro Klick, offene Eingaben, Wiederherstellung
+nach Pufferverlust, veraltete Fenster, Browser-Erstellung/-Bearbeitung, Freigaben
+und fehlende Verbindungen. tests/migration.php prüft zusätzlich die Oberflächen
+eines tatsächlich übernommenen Besitzers. Alle UI-Aufträge bleiben ohne MQTT.
+Der Browser-Pagingvertrag ist separat in workspace-designer.test.mjs geprüft.
+
+Die Skalierungsprüfung liest 2048 Geräte-/Gruppeneinträge aus acht großen
+Katalogen vollständig in begrenzten Seiten. Native Ausgabe: 717433 Bytes;
+erste Browserseite: 208722 Bytes. Ein nur während des Aufrufs gemeinsam genutzter
+Katalog verhindert wiederholte große JSON-Dekodierungen. Browserseiten prüfen
+System- und Arbeitsbereichsstand, damit geänderte Freigaben keine Seiten
+verschiedener Stände mischen.
+
+Ein separater lokaler Browser mit künstlichen Snapshots bestätigt Auswahl,
+Rückkehr zum ersten System und passende Vorbelegung. Mausradbedienung im
+Bearbeitungsdialog erreicht die unteren Aktions- und Übernahmebuttons.
+Diese UI-Vorschau ist kein echter Symcon-Kernel-/MQTT-Praxisnachweis. Native
+Konsole, reale Übernahme und zentrale Z2M-Aufträge bleiben gesonderte Schritte.
+Keine Test-/Live-Aktualisierung, Geräteaktion oder Änderung der Z2M-Erweiterung.
+
+php tests/run.php einschließlich 141 JavaScript-Tests erfolgreich. Nach den
+abschließenden Meldungs- und Katalogseitenänderungen wurden die betroffenen
+Modul-, Designer-, Migrations- und Workspace-UI-Tests erneut ausgeführt.
+Struktur, zentrale Kodierungsprüfung, StylePHP der 18 eigenen JSON-Dateien,
+PHP CS Fixer 3.95.27 im Prüfmodus (112 Dateien) und git diff --check bestanden.

@@ -19,21 +19,7 @@ trait SystemWorkspace
         {
             try {
                 $state = $this->WithWorkspaceLock(fn (): array => $this->ReadWorkspace());
-                $systems = [];
-                foreach ($state['systems'] as $id => $record) {
-                    $current = $this->WorkspaceConnectionCurrent($record['binding']);
-                    $info = $current ? $this->WorkspaceInfo($record['binding']) : null;
-                    $configuration = $record['data']['document']['editorDraft']['configuration'] ?? [];
-                    $systems[] = ['systemId' => $id, 'name' => $record['name'], 'binding' => $record['binding'],
-                        'fingerprint'        => WorkspaceState::Fingerprint($record), 'connectionCurrent' => $current && $info !== null,
-                        'online'             => $info['state']['bridgeOnline'] ?? false, 'confirmed' => $info['state']['extensionConfirmed'] ?? false,
-                        'storedRevision'     => $info['state']['extension']['storedRevision'] ?? null,
-                        'activeRevision'     => ($info['state']['runtimeConfirmed'] ?? false) ? ($info['state']['extension']['activeRevision'] ?? null) : null,
-                        'rules'              => count($configuration['automations'] ?? []), 'sequences' => count($configuration['sequences'] ?? []),
-                        'hasDocument'        => $record['data']['document'] !== null, 'openInput' => WorkspaceState::Dirty($record)];
-                }
-                $this->DebugEvent('AKTION', 'Zentrale Systemübersicht gelesen. Entwürfe und Z2M bleiben unverändert.', ['Systeme' => count($systems)]);
-                return $this->WorkspaceResult('', ['fingerprint' => WorkspaceState::Fingerprint($state), 'selectedSystem' => $state['selectedSystem'], 'systems' => $systems]);
+                return $this->WorkspaceOverview($state);
             } catch (Throwable $exception) {
                 return $this->WorkspaceFailure($exception);
             }
@@ -264,6 +250,25 @@ trait SystemWorkspace
     protected function ReadWorkspaceConnectionCatalog(int $id): array
     {
         return $this->DecodeWorkspaceInput(Z2MC_GetDeviceCatalog($id), WorkspaceState::MAX_RESPONSE);
+    }
+
+    private function WorkspaceOverview(array $state): string
+    {
+        $systems = [];
+        foreach ($state['systems'] as $id => $record) {
+            $current = $this->WorkspaceConnectionCurrent($record['binding']);
+            $info = $current ? $this->WorkspaceInfo($record['binding']) : null;
+            $configuration = $record['data']['document']['editorDraft']['configuration'] ?? [];
+            $systems[] = ['systemId' => $id, 'name' => $record['name'], 'binding' => $record['binding'],
+                'fingerprint'        => WorkspaceState::Fingerprint($record), 'connectionCurrent' => $current && $info !== null,
+                'online'             => $info['state']['bridgeOnline'] ?? false, 'confirmed' => $info['state']['extensionConfirmed'] ?? false,
+                'storedRevision'     => $info['state']['extension']['storedRevision'] ?? null,
+                'activeRevision'     => ($info['state']['runtimeConfirmed'] ?? false) ? ($info['state']['extension']['activeRevision'] ?? null) : null,
+                'rules'              => count($configuration['automations'] ?? []), 'sequences' => count($configuration['sequences'] ?? []),
+                'hasDocument'        => $record['data']['document'] !== null, 'openInput' => WorkspaceState::Dirty($record)];
+        }
+        $this->DebugEvent('AKTION', 'Zentrale Systemübersicht gelesen. Entwürfe und Z2M bleiben unverändert.', ['Systeme' => count($systems)]);
+        return $this->WorkspaceResult('', ['fingerprint' => WorkspaceState::Fingerprint($state), 'selectedSystem' => $state['selectedSystem'], 'systems' => $systems]);
     }
 
     private function WorkspaceConnectionBinding(int $id): ?array

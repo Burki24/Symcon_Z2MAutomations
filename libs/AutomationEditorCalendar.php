@@ -18,10 +18,10 @@ trait AutomationEditorCalendar
             if (!$this->CheckEditorArea($Area)) {
                 return;
             }
-            $text = $this->ReadAttributeString('EditorModes');
+            $text = $this->ReadEditorAttribute('EditorModes');
             $modes = array_replace($this->ScheduleDefaults(), $text === '' ? [] : json_decode($text, true, 8, JSON_THROW_ON_ERROR));
             $modes['EditorWeekdays'] = $Enabled;
-            $this->WriteAttributeString('EditorModes', json_encode(array_intersect_key($modes, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode', 'EditorWeekdays'])), JSON_THROW_ON_ERROR));
+            $this->WriteEditorAttribute('EditorModes', json_encode(array_intersect_key($modes, array_flip(['EditorTriggerType', 'EditorWindow', 'EditorConditionType', 'EditorTimeMode', 'EditorWeekdays'])), JSON_THROW_ON_ERROR));
             foreach ($this->CalendarVisibility($modes) as $name => $visible) {
                 $this->UpdateEditorField($name, 'visible', $visible);
             }

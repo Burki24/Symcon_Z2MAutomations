@@ -188,6 +188,10 @@ dialog h2 { font-size: 20px; margin: 9px 0 23px; }
 dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .dialog-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 22px; }
 [hidden] { display: none !important; }
+.system-selector { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 25px; background: #f4f9fb; border-bottom: 1px solid var(--line); }
+.system-selector label { font-weight: 600; }
+.system-selector select { min-width: 200px; max-width: 100%; flex: 1 1 300px; }
+.system-selector span { color: #64758a; font-size: 12px; }
 .read-only #save-button, .read-only #activate-button, .read-only #stop-button, .read-only .navigation-footer, .read-only .activity, .read-only .toolbar-divider { display: none; }
 .read-only .preview-label { color: #276d67; background: #e7f5ef; }
 .read-only .preview-notice { color: #276d67; background: #edf8f4; border-color: #cfe5dc; }

@@ -1,5 +1,6 @@
 /* Own bounded rule editor. Existing data is cloned; only changed rule fields are submitted. */
 import {creationDevices, creationProperties, creationValue, requestIdentity} from './creator.js';
+import {systemHeaders} from './workspace.js';
 
 const copy = value => structuredClone(value);
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -29,7 +30,7 @@ export function installEditing({getData, getRule, reload, onEdited, onSequenceSa
     dialog.innerHTML = '<form id="edit-form"><span class="eyebrow">VORHANDENE AUTOMATION</span><h2 id="edit-title">Automation bearbeiten</h2><p>Änderungen betreffen nur den lokalen Symcon-Entwurf. Laufende Automationen und Z2M bleiben unverändert.</p><p id="edit-usage" hidden></p><div id="edit-fields"></div><p id="edit-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" id="edit-reload">Neu laden und Eingaben verwerfen</button><button type="button" id="edit-cancel">Abbrechen</button><button type="submit" id="edit-submit" class="primary">Änderungen in den Entwurf übernehmen</button></div></form>';
     document.body.append(dialog);
     const $ = name => dialog.querySelector('#edit-' + name);
-    let original; let working; let context; let requestId; let busy = false; let serial = 0; let sequenceMode = false; let creatingSequence = false;
+    let original; let working; let context; let requestId; let busy = false; let serial = 0; let sequenceMode = false; let creatingSequence = false; let boundHeaders = {};
     const hint = text => { $('message').textContent = text; };
     const node = (tag, text, className) => { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; if (className) element.className = className; return element; };
     function field(parent, label, value, set, options = {}) {
@@ -214,6 +215,7 @@ export function installEditing({getData, getRule, reload, onEdited, onSequenceSa
         original = copy(entry); delete original.kind; working = copy(original);
         if (creatingSequence) working.actions = [newItem('actions', 'set')];
         context = getData().createContext; requestId = requestIdentity();
+        boundHeaders = systemHeaders(getData());
         $('title').textContent = sequenceMode ? (creatingSequence ? 'Neue Aktionsfolge' : 'Aktionsfolge bearbeiten') : 'Automation bearbeiten';
         dialog.querySelector('.eyebrow').textContent = sequenceMode ? 'WIEDERVERWENDBARE AKTIONSFOLGE' : 'VORHANDENE AUTOMATION';
         $('usage').hidden = !sequenceMode;
@@ -248,7 +250,7 @@ export function installEditing({getData, getRule, reload, onEdited, onSequenceSa
         const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 15000);
         try {
             const endpoint = new URL(sequenceMode ? 'sequence' : 'edit', location.href); endpoint.hash = '';
-            const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1)}, body: JSON.stringify(payload), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
+            const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1), ...boundHeaders}, body: JSON.stringify(payload), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
             const text = await response.text(); if (text.length > 4096) throw new Error('transport'); const result = JSON.parse(text);
             if (!response.ok) { hint(result.message || 'Die Änderung konnte nicht übernommen werden. Ihre Eingaben bleiben erhalten.'); return; }
             dialog.close(); if (sequenceMode) await onSequenceSaved(result.sequenceId); else await onEdited(result.ruleId);

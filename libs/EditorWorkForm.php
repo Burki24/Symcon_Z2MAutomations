@@ -8,10 +8,10 @@ trait EditorWorkForm
 {
     private function CompleteEditorWork(string $kind): void
     {
-        $this->SetBuffer('EditorWork.' . $kind, '');
-        $this->SetBuffer('EditorNavigation', '');
+        $this->WriteEditorBuffer('EditorWork.' . $kind, '');
+        $this->WriteEditorBuffer('EditorNavigation', '');
         $other = $kind === 'rule' ? 'sequence' : 'rule';
-        $text = $this->GetBuffer('EditorWork.' . $other);
+        $text = $this->ReadEditorBuffer('EditorWork.' . $other);
         if ($text === '') {
             return;
         }
@@ -27,7 +27,7 @@ trait EditorWorkForm
         unset($same['token']);
         if ($old === $same) {
             $work['context'] = $context;
-            $this->SetBuffer('EditorWork.' . $other, json_encode($work, JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('EditorWork.' . $other, json_encode($work, JSON_THROW_ON_ERROR));
             $this->RestoreEditorWorkValues($other);
         }
     }
@@ -37,7 +37,7 @@ trait EditorWorkForm
         if (!$this->EditorWorkDirty($kind)) {
             return;
         }
-        $work = json_decode($this->GetBuffer('EditorWork.' . $kind), true, 16, JSON_THROW_ON_ERROR);
+        $work = json_decode($this->ReadEditorBuffer('EditorWork.' . $kind), true, 16, JSON_THROW_ON_ERROR);
         $prefix = $kind === 'sequence' ? 'Sequence' : match ($work['context']['area']) {
             'device' => 'Device', 'time' => 'Time', default => ''
         };
@@ -63,7 +63,7 @@ trait EditorWorkForm
         } else {
             foreach ($updates as $name => $properties) {
                 foreach ($properties as $key => $value) {
-                    $this->UpdateFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value);
+                    $this->UpdateEditorFormField($name, $key, is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value);
                 }
             }
         }
@@ -82,7 +82,7 @@ trait EditorWorkForm
                 $field['value'] = $this->EditorWorkContext('sequence')['id'];
             }
             if ($name === 'EditorNavigationToken') {
-                $pending = $this->GetBuffer('EditorNavigation');
+                $pending = $this->ReadEditorBuffer('EditorNavigation');
                 $field['value'] = $pending === '' ? '' : (json_decode($pending, true, 16, JSON_THROW_ON_ERROR)['token'] ?? '');
             }
             if ($name === 'DiscardEditorNavigation') {

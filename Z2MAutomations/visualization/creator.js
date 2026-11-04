@@ -1,4 +1,5 @@
 /* Own small creation dialog; device metadata and all draft writes stay in the module. */
+import {systemHeaders} from './workspace.js';
 export function creationProperties(device, side) {
     return (device?.properties ?? []).filter(property => side === 'source' ? property.readable && property.type !== 'color' : property.writable);
 }
@@ -92,7 +93,7 @@ export function installCreation({getData, reload, onCreated}) {
     const label = value => typeof value === 'boolean' ? (value ? 'Ja / erkannt' : 'Nein / nicht erkannt')
         : ({ON: 'Ein', OFF: 'Aus', TOGGLE: 'Umschalten'}[value] ?? String(value ?? 'Ohne Wert'));
     const hint = text => { field('message').textContent = text; };
-    let context = ''; let requestId = ''; let busy = false;
+    let context = ''; let requestId = ''; let busy = false; let boundHeaders = {};
     const selectedDevice = side => getData()?.devices.find(device => device.key === field(side + '-device').value);
     const selectedProperty = side => creationProperties(selectedDevice(side), side).find(property => property.id === field(side + '-property').value);
 
@@ -166,6 +167,7 @@ export function installCreation({getData, reload, onCreated}) {
 
     function updateContext(newRequest = false) {
         context = getData()?.createContext ?? '';
+        boundHeaders = systemHeaders(getData());
         if (newRequest || !requestId) requestId = requestIdentity();
         field('submit').disabled = !getData()?.createAllowed;
         hint(getData()?.createNotice || 'Die Auswahl wird vor dem Übernehmen nochmals im Modul geprüft.');
@@ -209,7 +211,7 @@ export function installCreation({getData, reload, onCreated}) {
         const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 15000);
         try {
             const endpoint = new URL('create', location.href); endpoint.hash = '';
-            const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1)}, body: JSON.stringify(payload), cache: 'no-store', credentials: 'same-origin', redirect: 'error', signal: controller.signal});
+            const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1), ...boundHeaders}, body: JSON.stringify(payload), cache: 'no-store', credentials: 'same-origin', redirect: 'error', signal: controller.signal});
             const text = await response.text();
             if (text.length > 4096) throw new Error('transport');
             const result = JSON.parse(text);

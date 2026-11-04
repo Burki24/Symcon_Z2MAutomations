@@ -128,7 +128,7 @@ trait AutomationDesignerEditing
             }
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'edit', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
-            $this->SetBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
+            $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
             $this->DebugEvent(
                 'AKTION',
                 $changed
