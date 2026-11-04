@@ -35,6 +35,8 @@ aber noch keinen Übernahmebutton und keine automatische Migration:
 - `Z2MA_PreviewSystemMigration(InstanceID, SourceInstanceIDs)` prüft eine
   ausdrücklich ausgewählte Liste von einer bis acht bisherigen Automationsinstanzen.
   Der zweite Parameter ist eine JSON-Liste von Instanz-IDs.
+  Sie darf auch die aufrufende Instanz selbst enthalten. Die Prüfung liest
+  deren Bestand, ohne eine Übernahme oder einen Besitzerwechsel auszulösen.
 - Der Bericht nennt pro Quelle Verbindung, Basistopic, Regel-/Folgenanzahl,
   lokale Änderungen und Konflikte. Offene Formulareingaben oder eine Abweichung
   zwischen YAML und Editorstand werden erhalten und als Problem angezeigt.

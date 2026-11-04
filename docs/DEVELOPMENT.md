@@ -3652,3 +3652,37 @@ Struktur- und zentrale Kodierungsprüfung, offizieller StylePHP-Check der
 18 eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus
 (108 Dateien ohne Befund) und git diff --check bestanden. Änderungen bleiben
 uncommittet auf dev; Commit und Push führt der Benutzer durch.
+
+## 04.11.2026: Selbstsperre bei der Übernahmevorschau
+
+Die native Prüfung zeigte einen getrennten Modulaufruf auf dieselbe Instanz:
+PreviewSystemMigration hielt bereits ihre Eintrittssperre; der native
+Z2MA_GetSystemMigrationSource-Rückaufruf besaß keinen lokalen Wiedereintrittskontext
+und wurde als konkurrierender Zugriff abgewiesen. Die direkte Bestandsabfrage
+funktionierte, die Vorschau meldete dagegen source_unavailable.
+
+Die Vorschau ruft GetSystemMigrationSource für die eigene Instanz jetzt direkt
+auf. Andere Quellen bleiben native Modulaufrufe. Eigentums- und Transportsperren
+sowie der Metadatenvertrag wurden nicht aufgeweicht. Der bestehende
+DebugFlowHelper protokolliert die direkte Eigenprüfung im selben Vorgang,
+einschließlich ausgeglichener START-/ENDE-Paare; keine zusätzlichen Zähler.
+
+tests/multisystem.php ersetzt ausschließlich in diesem isolierten Testprozess
+den nativen Quellaufruf durch einen separaten Eintrittskontext: Die Stubinstanz
+wird geklont und ihr lokales Eigentums-Eintrittsflag zurückgesetzt, während
+Kernelzustand und Semaphoren gemeinsam bleiben. Vor der Korrektur scheitert
+dadurch bereits die Ein-Quellen-Vorschau. Nach der Korrektur bestehen 1/2/8
+Quellen, Eigenquelle an anderer Position, Fremd- und Eigeninstanz mit belegter
+Sperre sowie erneute Prüfung nach deren Freigabe. Die vorhandenen Prüfungen
+sichern unveränderte Quellbytes und null MQTT-Ausgaben ab. Zusätzlich werden
+deutscher Ablauftext und gemeinsamer Debug-Vorgang geprüft.
+
+Nur lokale Dateien geändert; keine Test-/Live-Aktualisierung, Übernahme oder
+Z2M-Aktion. Ein Erweiterungsupdate ist nicht erforderlich. Die erneute native
+Vorschauprüfung nach Modulupdate bleibt ein eigener Praxisnachweis.
+
+Abschließendes php tests/run.php einschließlich 137 JavaScript-Tests erfolgreich.
+Separate Struktur-/Kodierungsprüfung, offizieller StylePHP-Check der 18 eigenen
+JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus (108 Dateien
+ohne Befund) und git diff --check bestanden. Kanonische Helper und Fremdstubs
+bleiben unverändert; Entwicklung auf dev ohne Commit oder Push durch den Agenten.

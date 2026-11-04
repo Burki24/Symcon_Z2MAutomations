@@ -43,7 +43,14 @@ trait SystemMigrationInspection
             if ($valid) foreach ($ids as $id) {
                 try {
                     if (!IPS_InstanceExists($id) || IPS_GetInstance($id)['ModuleInfo']['ModuleID'] !== SystemContract::SOURCE_MODULE) throw new \RuntimeException();
-                    $raw = Z2MA_GetSystemMigrationSource($id);
+                    if ($id === $this->InstanceID) {
+                        $this->DebugEvent('AKTION', 'Die Vorschau liest den Bestand dieser Instanz direkt. Entwurf und Besitzer bleiben unverändert.');
+                        // A native self-RPC loses the local reentry context and tries to acquire our held owner lock again.
+                        $raw = $this->GetSystemMigrationSource();
+                    } else {
+                        $this->DebugEvent('AKTION', 'Bestandsdaten einer anderen ausgewählten Instanz für die Vorschau abfragen. Deren Zugriffssperre bleibt wirksam.', ['Quelle' => $id]);
+                        $raw = Z2MA_GetSystemMigrationSource($id);
+                    }
                     $source = is_string($raw) && strlen($raw) <= 16384 ? json_decode($raw, true, 16, JSON_THROW_ON_ERROR) : null;
                     if (!$this->ValidMigrationSourceSummary($source, $id)) throw new \RuntimeException();
                     $sources[] = $source;

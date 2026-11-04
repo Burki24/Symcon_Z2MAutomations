@@ -293,6 +293,11 @@
 
 ## Fixes
 
+- Die Übernahmevorschau kann auch die aufrufende Instanz prüfen, ohne sie
+  fälschlich als nicht erreichbar zu melden. Entwürfe und Besitzer bleiben
+  unverändert; Zugriffssperren anderer Aufrufe gelten weiterhin. Deutsche
+  Debugmeldungen erklären die Prüfung. Ein Modulupdate genügt.
+
 - Gespeicherte Automationen bleiben nach dem Laden unverändert und lassen sich
   ohne erneutes Speichern einmalig ausführen. Bei unveränderten Partnerfreigaben
   behält das Modul den ursprünglichen YAML-Text samt Prüfsumme bei.

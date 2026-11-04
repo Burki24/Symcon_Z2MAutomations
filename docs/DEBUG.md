@@ -2,6 +2,12 @@
 
 ## Sicherung und Besitzerwechsel
 
+Die Übernahmevorschau erklärt, ob sie den Bestand dieser Instanz direkt liest
+oder eine andere ausgewählte Instanz abfragt. Die direkte Eigenprüfung bleibt
+im selben kanonischen Debug-Vorgang; beide öffentlichen Aufrufe haben START und
+ENDE. Eine andere Instanz wird weiterhin über ihre geschützte Modulschnittstelle
+gelesen. Eine tatsächlich belegte Zugriffssperre wird nicht umgangen.
+
 Sicherungs-, Vorbereitungs-, Übernahme- und Rückwegaufrufe beider Module verwenden
 TraceModuleCall und den kanonischen DebugFlowHelper. Deutsche Meldungen erklären
 geprüfte private Sicherung, blockierte offene Eingaben, veränderte Quellen,

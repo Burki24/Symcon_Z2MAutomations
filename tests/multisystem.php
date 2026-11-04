@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 require __DIR__ . '/stubs/autoload.php';
 require_once dirname(__DIR__) . '/libs/SystemContract.php';
+
+/** Native module RPCs enter a separate PHP context, unlike the SDK stub dispatcher. */
+function Z2MA_GetSystemMigrationSource(int $InstanceID): string
+{
+    $context = clone IPS\InstanceManager::getInstanceInterface($InstanceID);
+    (new ReflectionProperty(Z2MAutomations::class, 'ownershipEntry'))->setValue($context, false);
+    return $context->GetSystemMigrationSource();
+}
+
 IPS\Kernel::reset();
 $root = dirname(__DIR__);
 $library = json_decode(file_get_contents($root . '/library.json'), true);
@@ -76,6 +85,34 @@ foreach ([1, 2, 8] as $count) {
     $check($result['contractVersion'] === 1 && $result['status'] === 'ready_for_review' && count($result['systems']) === $count, 'Explicit one, two and eight system sources can be inspected');
     $check($result['systems'][0]['rules'] === 1 && $result['systems'][0]['sequences'] === 1 && $result['systems'][0]['localChanges'], 'Preview distinguishes local drafts from stored base and keeps repeated IDs system-local');
     $check($probe->PreviewSystemMigration(json_encode(array_slice($ids, 0, $count))) === json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'Read-only preview is deterministic and does not allocate system identities');
+}
+$reordered = json_decode($probe->PreviewSystemMigration(json_encode([$ids[1], $ids[0]])), true);
+$check($reordered['status'] === 'ready_for_review' && array_column($reordered['systems'], 'sourceInstance') === [$ids[1], $ids[0]], 'Self-inspection works in any source position without changing selection order');
+$foreignLock = 'Z2MA.Owner.' . $ids[1];
+$check(IPS_SemaphoreEnter($foreignLock, 0), 'An independent caller holds the other source entry lock');
+try {
+    $blocked = json_decode($probe->PreviewSystemMigration(json_encode([$ids[0], $ids[1]])), true);
+    $check($blocked['systems'][0]['status'] === 'ready_for_review'
+        && in_array('source_unavailable', array_column($blocked['systems'][1]['issues'], 'code'), true), 'Direct self-inspection does not bypass the owner lock of another source');
+} finally {
+    IPS_SemaphoreLeave($foreignLock);
+}
+$check(json_decode($probe->PreviewSystemMigration(json_encode([$ids[0], $ids[1]])), true)['status'] === 'ready_for_review', 'Both owner locks are released after a rejected foreign inspection');
+$probe->debug = [];
+$probe->PreviewSystemMigration(json_encode([$ids[0]]));
+$starts = array_values(array_filter($probe->debug, static fn (string $line): bool => str_contains($line, ' | START | ')));
+$ends = array_values(array_filter($probe->debug, static fn (string $line): bool => str_contains($line, ' | ENDE | ')));
+$check(count($starts) === 2 && count($ends) === 2, 'Self-inspection retains balanced public preview and source debug entries');
+$startRecords = array_map(static fn (string $line): array => json_decode(substr($line, strpos($line, '{"Instanz"')), true, 16, JSON_THROW_ON_ERROR), $starts);
+$check($startRecords[0]['Vorgang'] === $startRecords[1]['Vorgang'] && $startRecords[0]['Aufruf'] !== $startRecords[1]['Aufruf'], 'Direct self-inspection shares the canonical debug flow without new counters');
+$check(str_contains(implode('', $probe->debug), 'Die Vorschau liest den Bestand dieser Instanz direkt.')
+    && !str_contains(implode('', $probe->debug), 'OwnershipRejected'), 'German debug explains the direct read without a false ownership rejection');
+$ownLock = 'Z2MA.Owner.' . $ids[0];
+$check(IPS_SemaphoreEnter($ownLock, 0), 'An independent caller holds this source entry lock');
+try {
+    $check(json_decode($probe->PreviewSystemMigration(json_encode([$ids[0]])), true)['error'] === 'ownership_conflict', 'An independent preview still cannot bypass the held owner lock');
+} finally {
+    IPS_SemaphoreLeave($ownLock);
 }
 $afterInitial = array_map(static fn (int $id): string => IPS\InstanceManager::getInstanceInterface($id)->Digest(), $ids);
 $check($before === $afterInitial, 'Every selected source retains its full YAML, peers, local IDs and pending state during successful previews');

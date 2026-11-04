@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Selbstsperre der Übernahmevorschau lokal korrigiert: Die eigene ausgewählte
+  Quelle wird direkt im laufenden Aufruf gelesen. Andere Quellen verwenden
+  weiterhin die geschützte Modulschnittstelle. Regression bildet deren getrennten
+  Eintrittskontext nach und prüft 1/2/8 Quellen, Reihenfolge, konkurrierende
+  Sperren, Daten-/Besitzererhalt, null MQTT und ausgeglichene deutsche Debugabläufe.
+  Native erneute Abnahme nach Modulupdate steht aus; Test und Live unverändert.
+
 - Schritt 4 lokal implementiert: private Quellsicherungen, Manifest und
   persistentes Journal für Sicherung, Übernahme und Rückweg. Explizite Zuordnung
   von 1–8 Quellen zu vorhandenen Verbindungen, Quell-/Zielvergleich, ein lokaler
