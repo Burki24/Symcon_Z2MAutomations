@@ -128,7 +128,9 @@ final class WorkspaceState
         }
         $bindings = [];
         foreach ($state['systems'] as $id => $record) {
-            if (!SystemContract::SystemID($id) || !is_array($record) || !self::Keys($record, ['binding', 'name', 'data', 'catalog', 'nativeBindings'])
+            if (!SystemContract::SystemID($id) || !is_array($record) || !self::Keys($record, array_key_exists('ownershipEpoch', $record)
+                ? ['binding', 'name', 'data', 'catalog', 'nativeBindings', 'ownershipEpoch'] : ['binding', 'name', 'data', 'catalog', 'nativeBindings'])
+                || (array_key_exists('ownershipEpoch', $record) && (!is_string($record['ownershipEpoch']) || preg_match('/\A[a-f0-9]{32}\z/D', $record['ownershipEpoch']) !== 1))
                 || !is_array($record['binding']) || ($record['binding']['systemId'] ?? null) !== $id
                 || !is_string($record['name']) || strlen($record['name']) > 480 || preg_match('/[\x00-\x1f\x7f]/', $record['name'])
                 || self::DataError($record['data']) !== '' || !is_array($record['nativeBindings'])

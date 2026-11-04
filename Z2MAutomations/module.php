@@ -12,6 +12,8 @@ require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
 require_once __DIR__ . '/../libs/AutomationDesigner.php';
 require_once __DIR__ . '/../libs/SystemMigrationInspection.php';
 require_once __DIR__ . '/../libs/SystemWorkspace.php';
+require_once __DIR__ . '/../libs/SystemMigration.php';
+require_once __DIR__ . '/../libs/SystemOwnership.php';
 require_once __DIR__ . '/../libs/MQTTTransport.php';
 require_once __DIR__ . '/../libs/ModuleDiagnostics.php';
 require_once __DIR__ . '/../libs/RuntimeDebug.php';
@@ -60,6 +62,8 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\AutomationDesigner;
     use Z2MAutomations\SystemMigrationInspection;
     use Z2MAutomations\SystemWorkspace;
+    use Z2MAutomations\SystemMigration;
+    use Z2MAutomations\SystemOwnership;
     use Z2MAutomations\MQTTTransport;
     use Z2MAutomations\ModuleDiagnostics;
     use Z2MAutomations\RuntimeDebug;
@@ -103,6 +107,8 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterPropertyInteger('RequestTimeout', 10);
             $this->RegisterAttributeInteger('ObservedParentID', 0);
             $this->RegisterAttributeString('SystemWorkspace', '');
+            $this->RegisterAttributeString('SystemOwnership', '');
+            $this->RegisterAttributeString('MigrationSourceWork', '');
             $this->RegisterAttributeString('YamlDraft', '');
             $this->RegisterAttributeString('EditorSnapshot', '');
             $this->RegisterAttributeString('EditorDraft', '');

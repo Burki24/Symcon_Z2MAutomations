@@ -131,6 +131,7 @@ trait RuntimeDebug
     {
         $this->WithTransportLock(function () use ($suffix, $payload, $retained): void
         {
+            if ($this->TransportOwnershipBlocked()) return;
             $this->SyncRuntimeDebug($this->RefreshState());
             $lease = $this->RuntimeDebugLease();
             if ($retained || $lease === [] || !$payload instanceof \stdClass) {

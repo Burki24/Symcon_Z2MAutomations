@@ -8,6 +8,7 @@ namespace Z2MAutomations;
 final class SystemMigrationPreview
 {
     public const MESSAGES = [
+        'owned'              => 'Diese Instanz gehört bereits zu einer Übernahme. Bitte den bestehenden Vorgang fortsetzen oder dessen Rückweg verwenden.',
         'invalid_selection'  => 'Bitte eine bis acht unterschiedliche Automationsinstanzen als Liste ihrer Instanz-IDs auswählen.',
         'source_unavailable' => 'Diese Quelle ist keine erreichbare Automationsinstanz mit unterstützter Bestandsprüfung.',
         'invalid_source'     => 'Bestandsdaten fehlen, sind beschädigt oder haben einen nicht unterstützten Aufbau. Es wird nichts ersetzt.',

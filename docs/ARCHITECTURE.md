@@ -2,12 +2,18 @@
 
 ## Geplanter Umbau auf mehrere Systeme
 
+Schritt 4 ergänzt die ausdrückliche [lokale Migration](MIGRATION.md): private
+Quellsicherungen, prüfsummengebundenes Manifest, persistentes Journal und
+Besitzerfences vor Freigabe des zentralen Arbeitsbereichs. Ein unterbrochener
+Vorgang bleibt gesperrt und kann gezielt fortgesetzt oder zurückgenommen werden.
+Ein Modulupdate allein ändert keine Rolle, Verbindung oder Z2M-Laufzeit.
+
 Schritt 3 ergänzt die lokale Datenhaltung und die Modulfunktionen aus
 [WORKSPACE.md](WORKSPACE.md): ein versioniertes Attribut je Verwaltung, einzelne
 Dokumente und Bearbeitungskontexte je System, lokale Quittungen und gerichtete
 Zielauswahl. Registry und Dokumente sind von Legacy-Attributen und dessen
-MQTT-Parent getrennt. Die gemeinsame Oberfläche und exklusive Besitzerumschaltung
-sind weiterhin spätere Schritte. Native Identität und Schaltrechte verwenden
+MQTT-Parent getrennt. Die gemeinsame Oberfläche ist weiterhin ein späterer
+Schritt. Native Identität und Schaltrechte verwenden
 gemeinsame librarylokale Adapter mit dem Bestandseditor; Z2M-Katalog und
 Symcon-Bindungen bleiben getrennte Bereiche.
 
@@ -19,9 +25,9 @@ mit Sicherung, Vorschau, Besitzerwechsel und lokalem Rückweg. Der
 Arbeitsfolge und Prüfmatrix. Der Gesamtumbau ist noch nicht implementiert.
 Die lokale Grundlage besteht aus SystemContract v1, SystemMigrationInspection
 und SystemMigrationPreview: explizite System-/Besitzer-/Generationsbindung und
-rein lesende Bestandsberichte für ausgewählte Quellen. Weder Registrierung noch
-persistenter Besitzerwechsel werden bereits ausgeführt. Bestehende Modulrollen,
-Datenflussmetadaten, Entwürfe und Runtime bleiben unverändert.
+rein lesende Bestandsberichte für ausgewählte Quellen. Registrierung und
+persistenter Besitzerwechsel erfolgen nur über die eigenen ausdrücklich
+beauftragten Modulfunktionen. Ohne Übernahme bleiben Bestandsinstanzen erhalten.
 
 Schritt 2 stellt Z2MConnection (Z2MC) als eigenständiges IPSModuleStrict bereit.
 MQTTTransport, ExtensionTransport und DeviceCatalog sind aus der bisherigen

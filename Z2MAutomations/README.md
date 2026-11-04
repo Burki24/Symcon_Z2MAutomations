@@ -48,14 +48,30 @@ und Prüfsummen. Es exportiert keine YAML, offenen Eingaben oder Sitzungskennung
 und ersetzt keine Sicherung. Nach einem Modulupdate mit den neuen öffentlichen
 Funktionen ist deren erneute Registrierung in Symcon erforderlich.
 
+## Sicherung und lokale Übernahme
+
+Vorhandene Instanzen können inzwischen ausdrücklich privat gesichert und einer
+eigenen zentralen Verwaltung zugeordnet werden. Dabei werden zunächst die Quellen
+gesichert und geprüft, danach ihre bisherigen Editoren gesperrt und zuletzt die
+zentralen Kopien freigegeben. Ein Rückweg sichert auch spätere zentrale Änderungen
+und gibt die bisherigen Instanzen wieder frei. Z2M-Dateien und laufende Regeln
+werden dabei nicht verändert.
+
+Diese Stufe wird noch über Modulfunktionen bedient; die gemeinsame Oberfläche
+folgt separat. Ein Update führt keine Übernahme aus. Die Vorbereitung, Ablage,
+Funktionen und Konfliktfälle sind in [Sicherung und Rückweg](../docs/MIGRATION.md)
+beschrieben. Eine tatsächliche Umstellung zuerst auf Test gesondert prüfen.
+
 ## Lokaler Arbeitsbereich für mehrere Systeme
 
 Die Datenbasis der zentralen Verwaltung ist vorbereitet. Eine Systemliste und
 getrennte lokale Dokumente, Gerätezuordnungen, Auswahl und offene Eingaben lassen
 sich bereits über Modulfunktionen verwalten. **Die gemeinsame Bedienoberfläche
-und die Übernahme vorhandener Instanzen folgen erst in den nächsten Schritten.**
+und zentrale systemgebundene Speicher-/Startaktionen folgen noch.**
 Der bisherige Klick-Editor und seine Speicher-/Startbuttons bleiben an das
 bisher eingestellte System gebunden; eine Workspace-Auswahl stellt sie nicht um.
+Nach einer ausdrücklichen Übernahme werden die alten Bedienaufrufe gesperrt und
+nennen die zuständige Verwaltungsinstanz.
 
 Das Eintragen einer Z2M-Verbindung erzeugt einen leeren lokalen Dokumentplatz.
 Es kopiert keine vorhandenen Automationen und erteilt keine Empfangsfreigaben.

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../libs/SystemOwnership.php';
+require_once __DIR__ . '/../libs/ConnectionOwnership.php';
+
 require_once __DIR__ . '/../libs/helper/DataFlowHelper.php';
 require_once __DIR__ . '/../libs/helper/ParentConnectionHelper.php';
 require_once __DIR__ . '/../libs/helper/VariablePresentationHelper.php';
@@ -22,6 +25,8 @@ use Z2MAutomations\Z2MProtocol;
 
 class Z2MConnection extends IPSModuleStrict
 {
+    use Z2MAutomations\SystemOwnership;
+    use Z2MAutomations\ConnectionOwnership;
     use Burki24\SymconModuleHelper\DataFlowHelper;
     use Burki24\SymconModuleHelper\ParentConnectionHelper;
     use Burki24\SymconModuleHelper\VariablePresentationHelper;
@@ -38,6 +43,7 @@ class Z2MConnection extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::Create();
+            $this->RegisterAttributeString('SystemOwnership', '');
             $this->SetBuffer('ModulePropertiesReady', '');
             $this->SetReceiveDataFilter(Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $identity = bin2hex(random_bytes(16));
@@ -235,7 +241,7 @@ class Z2MConnection extends IPSModuleStrict
         return $this->DebugFlowCall(
             $function,
             $line,
-            Closure::fromCallable($callback),
+            fn (): mixed => $this->WithOwnershipEntry($function, $callback),
             in_array($function, ['Create', 'ApplyChanges', 'MessageSink', 'ExpireRequest', 'ExpireRuntimeDebug'], true)
         );
     }

@@ -58,6 +58,7 @@ trait MQTTTransport
                 $refreshExtension = false;
                 $this->WithTransportLock(function () use ($suffix, $payload, $packet, &$next, &$refreshExtension): void
                 {
+                    if ($this->TransportOwnershipBlocked()) return;
                     $state = $this->RefreshState();
                     if (!$state['mqttConnected']) {
                         $this->DebugEvent('AKTION', 'Empfang ohne aktive MQTT-Anbindung verworfen.');

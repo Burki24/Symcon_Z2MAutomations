@@ -2,8 +2,9 @@
 
 Schritt 3 von [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 Diese Stufe stellt Datenhaltung und lokale Modulfunktionen bereit. Die native
-und die Browseroberfläche bleiben noch am bisherigen Editor. Es gibt keine
-Übernahme von Altinstanzen, keine Rollenumschaltung und keine neue Z2M-Steuerung.
+und die Browseroberfläche bleiben noch am bisherigen Editor. Schritt 4 ergänzt
+inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION.md).
+Eine neue zentrale Z2M-Steuerung ist noch nicht implementiert.
 
 ## Zuständigkeiten und Daten
 
@@ -18,11 +19,12 @@ Die Wurzel enthält `version`, `selectedSystem`, `systems` und `receipts`.
 
 | Bereich | Inhalt |
 | --- | --- |
-| binding | SystemContract v1 mit Verbindung, Parent, Topic, Generation, lokaler Besitzer-ID und `sourceInstance: 0` |
+| binding | SystemContract v1 mit Verbindung, Parent, Topic, Generation und lokaler Besitzer-ID; sourceInstance ist vor der Übernahme 0, danach die Quellinstanz |
 | name | Anzeigename der ausgewählten Verbindungsinstanz |
 | data | Getrenntes Dokument, Auswahl und offene Eingaben dieses Systems |
 | catalog | Explizit eingelesener, bestätigter Katalog der Verbindung |
 | nativeBindings | Native Variablen-IDs, Elterninstanzen und Anzeigenamen; getrennt von Dokument und Gerätemetadaten |
+| ownershipEpoch | Optional bei übernommenen Einträgen: Kennung dieses Besitzerwechsels. Geht in den Bearbeitungsfingerabdruck ein und sperrt alte Ansichten nach einem Rückweg. Bestehende vorbereitende v1-Einträge ohne dieses Feld bleiben gültig. |
 
 `data` enthält genau `document`, `selection` und `work`:
 
@@ -49,7 +51,7 @@ Systems, bis der Aufrufer sie durch ausdrückliches lokales Übernehmen oder
 Verwerfen aufgelöst hat. Es wird nichts automatisch verworfen.
 
 Das Dokumentformat ist eine lokale Vorstufe. Ein portables Windows-Projektformat
-und ein Sicherungs-/Übernahmearchiv werden hier noch nicht exportiert.
+ist davon getrennt. Private Sicherungs-/Übernahmearchive beschreibt MIGRATION.md.
 
 ## Zuordnung und Besitzergrenze
 
@@ -59,12 +61,13 @@ passen. Die Instanz-ID und das Topic bestimmen das Ziel, nicht dessen Anzeigenam
 RegistryError aus SystemContract schützt die Grenze von acht Systemen sowie
 doppelte Systemkennungen, Verbindungseinträge und Mesh-Basistopics.
 
-Die lokale `ownerInstance` nennt nur die Z2MAutomations-Instanz, in der dieser
-Arbeitsbereich liegt. Es ist **noch keine exklusive Verbindungseigentümerschaft**.
-Andere vorbereitende Arbeitsbereiche dürfen dieselbe Verbindung lesen und eigene
-lokale Kopien führen. Rollenmarker, dauerhafter Besitzerwechsel, Entzug der alten
-Schreibwege und Migration folgen gemeinsam in Schritt 4. Aus diesem Arbeitsbereich
-gibt es noch keinen Pfad zum Speichern oder Aktivieren in Z2M.
+Vor einer Übernahme nennt `ownerInstance` zunächst die Z2MAutomations-Instanz,
+in der der vorbereitende Arbeitsbereich liegt. Erst die ausdrückliche Migration
+registriert exklusive Verbindungseigentümerschaft. Danach schützt die gemeinsame
+Besitzersperre auch den abschließenden lokalen Schreibvorgang gegen andere
+Verwaltungen. Rollenmarker, alter Editor und Rückweg werden gemeinsam behandelt;
+eine reine ConfigureWorkspace-Zuordnung ist keine Migration. Aus diesem
+Arbeitsbereich gibt es noch keinen Pfad zum Speichern oder Aktivieren in Z2M.
 
 Neue Zuordnungen erzeugen leere Dokumentplätze und erteilen keine mesh_peers.
 Vorhandene Systeme werden durch erneutes Konfigurieren nicht gelöscht. Entfernen

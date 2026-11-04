@@ -51,9 +51,12 @@ ursprüngliches System gebunden und in diesem Schritt nicht entfernt.
 Schritt 3 ergänzt den lokalen zentralen Arbeitsbereich nach
 [WORKSPACE.md](../WORKSPACE.md). Die neue Datenhaltung wird ausdrücklich über
 Modulfunktionen verwendet; Bestandseditor und Runtime bleiben unverändert.
-Exklusive Besitzerregistrierung, Sicherungs-/Migrationsjournal und Oberfläche
-folgen in den beschlossenen nächsten Schritten. Die begrenzten lokalen
-Operationsquittungen ersetzen das Migrationsjournal nicht.
+Schritt 4 ergänzt [MIGRATION.md](../MIGRATION.md): unveränderliche private
+Quellsicherungen, Manifest, dauerhaftes Journal, Quellenfences und exklusive
+Verbindungsclaims. Eine lokale Rücknahme sichert auch spätere zentrale Änderungen,
+prüft die Quellen und gibt erst danach die bisherigen Editoren frei. Die
+begrenzten Workspace-Quittungen ersetzen dieses Journal nicht. Gemeinsame
+Oberfläche und neue zielgebundene Betriebsaufträge folgen weiterhin separat.
 
 Schritt 2 (04.11.2026) extrahiert den bisherigen nativen MQTT-Grundtransport,
 Erweiterungstransport und Katalogparser in gemeinsam verwendete lokale Traits.

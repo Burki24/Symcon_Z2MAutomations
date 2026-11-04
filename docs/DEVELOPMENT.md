@@ -3598,3 +3598,57 @@ Helper, Fremdstubs, Z2M-Quellen und Erweiterungsartefakt bleiben unverändert.
 Kein Zugriff auf Test oder Live; reale Workspace-Abnahme bleibt nach den
 weiteren Integrationsschritten offen. Als Nächstes: Sicherung, Übernahme,
 Besitzerwechsel und Rückweg; danach gemeinsame Oberfläche.
+
+## 04.11.2026: Lokale Sicherung, Übernahme und Rückweg (Schritt 4)
+
+SystemMigration, MigrationSource, MigrationArchive und SystemOwnership ergänzen
+explizite lokale Modulfunktionen. Private Quellarchive und Manifest sind
+unveränderlich und prüfsummengebunden; das atomare Journal bleibt über
+ApplyChanges und verlorene Laufzeitpuffer erhalten. Quellen werden erst nach
+Vergleich und vor Veröffentlichung der vollständigen Zielstände gesperrt.
+Eine zusätzliche lokale Besitzergeneration im Workspace-Fingerabdruck verhindert
+alte Ansichten nach Rückweg und erneuter Übernahme. Routinggeneration und
+SystemID vorhandener Verbindungen werden nicht still geändert.
+
+ConnectionOwnership schützt exklusive Verbindungs-/Mesh-Topic-Zuordnung und
+verlangt den passenden Journalzustand. Neue Empfängerfreigaben werden nicht aus
+historischen Puffern abgeleitet. Der Rückweg sperrt zunächst zentrale Änderungen,
+sichert deren aktuellen Stand zusätzlich und prüft die Quellen. Er stellt den
+exakten zentralen Ausgangsstand und die Referenzen wieder her, bevor alte
+Editoren freigegeben werden. Nach einer ersten Quellenfreigabe entstandene
+Änderungen werden bei Wiederholung nicht zurückgesetzt. Ein Update führt keine
+Migration aus; bestehende native Geräte-, Variablen- und MQTT-Zuordnungen bleiben
+erhalten. Gemeinsame Oberfläche und zielgebundene Betriebsbefehle folgen noch.
+
+tests/migration.php prüft private Dateien, 1/2/8 synthetische Systeme,
+bytegleichen YAML-Erhalt, gleiche lokale Kennungen, Freigaben, ausgewählte Regeln,
+saubere Eingaben, native Bindungen und Actions sowie zweite Verwaltungen und
+Verbindungsaliase. Fehler an Vorbereitungs-, Quellen-, Verbindungs-, Referenz-,
+Veröffentlichungs- und Rückgabeschritten werden mit frischen Stubobjekten,
+persistierten Attributen und verlorenen Puffern wiederaufgenommen. Quelländerung,
+unbekannter/beschädigter Stand und Archivprüfsummenfehler überschreiben keine
+Daten. Alte Operationskennungen können keinen neuen Besitzerwechsel beginnen.
+
+Ein zusätzlicher fehlschlagender Nebenläufigkeitstest zeigte, dass eine breite
+öffentliche Eintrittssperre gleichzeitig eintreffende MQTT-Antworten verwerfen
+würde. ReceiveData wird deshalb durch die vorhandene Transportsperre geschützt,
+ohne an der Bedien-Eintrittssperre zu warten. Besitzer werden dort nochmals
+geprüft. Noch laufende Erweiterungsübergaben werden begrenzt im flüchtigen
+TransportDispatches geführt und verhindern eine Übergabe trotz bereits
+abgeschlossener Antwort. Netzwerkversand bleibt außerhalb der Transportsperre.
+Keine neue Befehlswarteschlange und keine eigene Debug-Vorgangszählung.
+
+Tests sichern null MQTT-Ausgaben durch Migration/Rückweg und ausschließliche
+Debug-Metadaten statt privater Testeingaben oder Archivinhalt ab. Native
+Parent-Metadaten, Helper und Fremdquellen bleiben unverändert. Es gab keinen
+Zugriff auf Test oder Live. Ein echter Kernelneustart, Dateirechte und der
+vollständige native Rückweg sind spätere ausdrücklich beauftragte Praxisabnahmen.
+Die Z2M-Erweiterung wurde nicht geändert; ein Erweiterungsupdate ist für diese
+lokalen Abläufe nicht erforderlich.
+
+Abschließende Prüfung dieses Stands: php tests/run.php einschließlich der neuen
+Migrationsintegration und aller 137 JavaScript-Tests erfolgreich. Separate
+Struktur- und zentrale Kodierungsprüfung, offizieller StylePHP-Check der
+18 eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus
+(108 Dateien ohne Befund) und git diff --check bestanden. Änderungen bleiben
+uncommittet auf dev; Commit und Push führt der Benutzer durch.

@@ -286,7 +286,13 @@ trait SystemWorkspace
 
     private function WorkspaceConnectionCurrent(array $binding): bool
     {
-        return $this->WorkspaceConnectionBinding($binding['connectionInstance']) === $binding;
+        $current = $this->WorkspaceConnectionBinding($binding['connectionInstance']);
+        $expected = $binding;
+        $expected['sourceInstance'] = 0;
+        if ($current !== $expected) return false;
+        $owner = json_decode(Z2MC_GetSystemOwnership($binding['connectionInstance']), true, 16, JSON_THROW_ON_ERROR);
+        return $owner === [] || (($owner['owner'] ?? null) === $this->InstanceID
+            && ($owner['systemId'] ?? null) === $binding['systemId'] && ($owner['generation'] ?? null) === $binding['generation']);
     }
 
     private function WorkspaceInfo(array $binding): ?array
@@ -381,7 +387,19 @@ trait SystemWorkspace
         if ($error !== '') throw new RuntimeException($error);
         $json = json_encode($state, WorkspaceState::JSON_FLAGS);
         if (strlen($json) > WorkspaceState::MAX_BYTES) throw new RuntimeException('invalid_request');
-        if ($json !== $this->ReadAttributeString('SystemWorkspace')) $this->WriteAttributeString('SystemWorkspace', $json);
+        $lock = 'Z2MA.OwnershipRegistry';
+        if (!IPS_SemaphoreEnter($lock, 0)) throw new RuntimeException('binding_changed');
+        try {
+            // The claim and final local write share this short installation-wide fence.
+            foreach ($state['systems'] as $record) {
+                $owner = json_decode(Z2MC_GetSystemOwnership($record['binding']['connectionInstance']), true, 16, JSON_THROW_ON_ERROR);
+                if ($owner !== [] && (($owner['owner'] ?? null) !== $this->InstanceID || ($owner['systemId'] ?? null) !== $record['binding']['systemId']
+                    || ($owner['generation'] ?? null) !== $record['binding']['generation'])) throw new RuntimeException('binding_changed');
+            }
+            if ($json !== $this->ReadAttributeString('SystemWorkspace')) $this->WriteAttributeString('SystemWorkspace', $json);
+        } finally {
+            IPS_SemaphoreLeave($lock);
+        }
     }
 
     private function WorkspaceResult(string $error, array $fields = []): string

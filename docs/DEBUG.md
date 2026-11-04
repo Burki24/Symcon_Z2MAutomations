@@ -1,5 +1,22 @@
 # Debug und MQTT-Diagnose
 
+## Sicherung und Besitzerwechsel
+
+Sicherungs-, Vorbereitungs-, Übernahme- und Rückwegaufrufe beider Module verwenden
+TraceModuleCall und den kanonischen DebugFlowHelper. Deutsche Meldungen erklären
+geprüfte private Sicherung, blockierte offene Eingaben, veränderte Quellen,
+Quellensperre, exklusive Verbindungszuordnung, vollständige Zielveröffentlichung
+und Wiederaufnahme nach einem Abbruch. Beim Rückweg wird die zusätzliche Sicherung
+zentraler Änderungen vor der Quellenfreigabe sichtbar gemeldet. Ein alter Editor
+nennt bei Ablehnung die zuständige Verwaltungsinstanz.
+
+Es werden nur Instanzbezüge, Anzahl der Quellen/Systeme, feste Fehlercodes und
+Journalphasen ausgegeben. Sicherungsinhalte, Dateiinhalte, Operationskennungen,
+Tokens, Formulareingaben und beliebige Exception-Texte gehen nicht an den Debug.
+Der private Kernel-Rohdatenexport hat keinen Browserzugang; sein Funktionsende
+meldet nur den Textumfang. Die Meldung „Z2M wurde nicht verändert“ bezieht sich
+auf den lokalen Ablauf und bestätigt keinen aktuellen Gerätebetrieb.
+
 ## Zentraler lokaler Arbeitsbereich
 
 Alle sieben Workspace-Einstiege nutzen TraceModuleCall und den unveränderten

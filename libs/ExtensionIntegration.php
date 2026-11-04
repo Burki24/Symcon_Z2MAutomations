@@ -44,6 +44,7 @@ trait ExtensionIntegration
         $this->DebugEvent('AKTION', 'Erweiterungsauftrag prüfen.', ['Auftrag' => $kind, 'YAMLBytes' => strlen($yaml), 'Artefaktbytes' => strlen($code)]);
         $frame = $this->WithTransportLock(function () use ($kind, $yaml, $code, $notify, $automatic, $importEvent, $preserveDraft, $executionRule): array
         {
+            if ($this->TransportOwnershipBlocked()) return [];
             $state = $this->RefreshState();
             if (in_array($kind, ['run_once', 'stop_rule'], true) && preg_match('/\A[a-z][a-z0-9_-]{0,63}\z/D', $executionRule) !== 1) {
                 $state['lastError'] = 'rule_missing';

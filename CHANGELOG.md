@@ -9,6 +9,15 @@
 
 ## Neu
 
+- Lokale Sicherung und Übernahme vorhandener Automationsinstanzen mit geprüftem
+  Rückweg: private Archive, dauerhaftes Journal, Quellen-/Zielvergleich und
+  exklusiver Besitzerwechsel für bis zu acht Systeme. Alte Editoren und Zugänge
+  werden vor Freigabe der zentralen Kopien gesperrt. Abbrüche sind fortsetzbar;
+  spätere zentrale Änderungen bleiben beim Rückweg zusätzlich gesichert.
+  Verständliche deutsche Ablauf- und Fehlermeldungen. Keine automatische
+  Migration, MQTT-Ausgabe oder Änderung laufender Z2M-Automationen. Die gemeinsame
+  Bedienoberfläche folgt separat.
+
 - Lokaler zentraler Arbeitsbereich als nächster Baustein der Mehrsystemverwaltung:
   bis zu acht Verbindungen ausdrücklich zuordnen und Dokumente, Auswahl und offene
   Eingaben getrennt halten. Aktuelle native Schaltrechte und gerichtete Freigaben
@@ -16,7 +25,8 @@
   wiederholte Aufträge erhalten eine Quittung. Vorhandene Freigaben sind bei
   gewöhnlichen Änderungen geschützt. Geräteauswahl ist seitenweise begrenzt.
   Deutsche Debugmeldungen erklären die lokalen Entscheidungen. Die Funktionen
-  übertragen nichts an Z2M; gemeinsamer Editor und Übernahme folgen separat.
+  übertragen nichts an Z2M; der gemeinsame Editor folgt separat. Die ausdrückliche
+  Übernahme ist inzwischen als eigener lokaler Ablauf implementiert.
 
 - Z2M-Verbindung als eigener Baustein für die künftige zentrale Verwaltung:
   vorhandenes MQTT-Gateway verwenden, Verbindung und Erweiterungsstand prüfen,

@@ -12,7 +12,7 @@ require_once __DIR__ . '/SystemMigrationPreview.php';
 
 trait SystemMigrationInspection
 {
-    /** Metadata only. Actual archive/copy and ownership changes belong to a later stage. */
+    /** Metadata only; this entry never grants ownership. */
     public function GetSystemMigrationSource(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(function (): string
@@ -84,16 +84,29 @@ trait SystemMigrationInspection
             'ExecutionRule', 'EditorCondition', 'EditorConditionProperty', 'EditorModes'] as $key) $attributes[$key] = $this->ReadAttributeString($key);
         $work = [];
         foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation'] as $key) $work[$key] = $this->GetBuffer($key);
+        if (($this->OwnershipMarker()['role'] ?? '') === 'legacy') {
+            $work = json_decode($this->ReadAttributeString('MigrationSourceWork'), true, 32, JSON_THROW_ON_ERROR);
+        }
         $source['mqttParent'] = $this->GetParentID();
         $source['baseTopic'] = $this->ReadPropertyString('BaseTopic');
         $source['peerInstance'] = $this->ReadPropertyInteger('PeerModuleID');
         $settings = [$source['mqttParent'], $source['baseTopic'], $source['peerInstance'], $this->ReadPropertyBoolean('Active'),
             $this->ReadPropertyBoolean('ResumeAfterRestart'), $this->ReadPropertyInteger('RequestTimeout'), $this->ReadAttributeBoolean('ShowYaml')];
-        $source['fingerprint'] = hash('sha256', serialize([$settings, $attributes, $work]));
+        $fingerprintAttributes = $attributes;
+        // Editing capabilities are not content and are deliberately invalidated on return.
+        foreach (['EditorSelection', 'SequenceSelection'] as $name) {
+            $selected = json_decode($fingerprintAttributes[$name], true);
+            if (is_array($selected)) {
+                unset($selected['token']);
+                $fingerprintAttributes[$name] = json_encode($selected, JSON_THROW_ON_ERROR);
+            }
+        }
+        $source['fingerprint'] = hash('sha256', serialize([$settings, $fingerprintAttributes, $work]));
         $source['yamlChecksum'] = hash('sha256', $attributes['YamlDraft']);
         $source['role'] = SystemContract::Role(null, $attributes['YamlDraft'] !== '' || $attributes['EditorSnapshot'] !== '' || $source['mqttParent'] > 0);
         $issue = static function (string $code) use (&$source): void
         { $source['issues'][] = SystemMigrationPreview::Issue($code); };
+        if ($this->OwnershipMarker() !== []) $issue('owned');
         $parent = $source['mqttParent'] > 0 && IPS_InstanceExists($source['mqttParent']) ? IPS_GetInstance($source['mqttParent']) : null;
         if (!in_array($parent['ModuleInfo']['ModuleID'] ?? '', [Z2MProtocol::MQTT_CLIENT, Z2MProtocol::MQTT_SERVER], true) || !SystemContract::Topic($source['baseTopic'])
             || ($source['peerInstance'] !== 0 && ($source['peerInstance'] < 10000 || $source['peerInstance'] > 59999))
@@ -128,7 +141,8 @@ trait SystemMigrationInspection
             }
             if ($work['EditorNavigation'] !== '' && !in_array('open_input', array_column($source['issues'], 'code'), true)) $issue('open_input');
             $state = $this->GetBuffer('TransportState');
-            if ($state !== '' && ($decode($state)['workflow'] ?? null) !== null) $issue('busy');
+            if ($state !== '' && (($decode($state)['workflow'] ?? null) !== null || ($decode($state)['pending'] ?? null) !== null)) $issue('busy');
+            if ($this->GetBuffer('TransportDispatches') !== '' && json_decode($this->GetBuffer('TransportDispatches'), true, 8, JSON_THROW_ON_ERROR) !== []) $issue('busy');
         } catch (Throwable) {
             $issue('invalid_source');
         }

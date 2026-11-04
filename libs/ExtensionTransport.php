@@ -55,24 +55,41 @@ trait ExtensionTransport
         try {
             $send = $this->WithTransportLock(function () use ($frame): bool
             {
+                if ($this->TransportOwnershipBlocked()) return false;
                 $state = $this->RefreshState();
                 $this->SaveState($state);
-                return $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || ($state['workflow']['kind'] ?? '') === 'deactivate')
+                $valid = $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || ($state['workflow']['kind'] ?? '') === 'deactivate')
                     && ($state['workflow']['transaction'] ?? null) === $frame['transaction'];
+                if ($valid) {
+                    $dispatches = json_decode($this->GetBuffer('TransportDispatches') ?: '[]', true, 8, JSON_THROW_ON_ERROR);
+                    if (count($dispatches) >= 16) return false;
+                    $dispatches[$frame['transaction']] = true;
+                    $this->SetBuffer('TransportDispatches', json_encode($dispatches, JSON_THROW_ON_ERROR));
+                }
+                return $valid;
             });
             if (!$send) {
                 return false;
             }
-            if (strlen($frame['payload']) > Z2MProtocol::MAX_PAYLOAD_BYTES) {
-                throw new \RuntimeException('Request too large');
+            try {
+                if (strlen($frame['payload']) > Z2MProtocol::MAX_PAYLOAD_BYTES) {
+                    throw new \RuntimeException('Request too large');
+                }
+                // Never hold the state semaphore while the parent dispatches replies.
+                $this->DebugEvent('SENDEN', 'Erweiterungsanfrage an MQTT-Gateway übergeben; Bestätigung steht aus.', ['Gateway' => $this->GetParentID(), 'Topic' => $frame['topic'], 'Nutzdatenbytes' => strlen($frame['payload']), 'Anfragebezug' => substr(hash('sha256', $frame['transaction']), 0, 16)]);
+                $this->SendDataToParent($this->EncodeDataFlowMessage(Z2MProtocol::MQTT_TX, [
+                    'PacketType' => 3, 'QualityOfService' => 0, 'Retain' => false,
+                    'Topic'      => $frame['topic'], 'Payload' => bin2hex($frame['payload'])
+                ]));
+                return true;
+            } finally {
+                $this->WithTransportLock(function () use ($frame): void
+                {
+                    $dispatches = json_decode($this->GetBuffer('TransportDispatches') ?: '[]', true, 8, JSON_THROW_ON_ERROR);
+                    unset($dispatches[$frame['transaction']]);
+                    $this->SetBuffer('TransportDispatches', $dispatches === [] ? '' : json_encode($dispatches, JSON_THROW_ON_ERROR));
+                });
             }
-            // Never hold the state semaphore while the parent dispatches replies.
-            $this->DebugEvent('SENDEN', 'Erweiterungsanfrage an MQTT-Gateway übergeben; Bestätigung steht aus.', ['Gateway' => $this->GetParentID(), 'Topic' => $frame['topic'], 'Nutzdatenbytes' => strlen($frame['payload']), 'Anfragebezug' => substr(hash('sha256', $frame['transaction']), 0, 16)]);
-            $this->SendDataToParent($this->EncodeDataFlowMessage(Z2MProtocol::MQTT_TX, [
-                'PacketType' => 3, 'QualityOfService' => 0, 'Retain' => false,
-                'Topic'      => $frame['topic'], 'Payload' => bin2hex($frame['payload'])
-            ]));
-            return true;
         } catch (Throwable $exception) {
             $this->WithTransportLock(function () use ($frame): void
             {

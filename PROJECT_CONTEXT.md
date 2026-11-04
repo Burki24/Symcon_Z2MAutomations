@@ -8,6 +8,18 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 4 lokal implementiert: private Quellsicherungen, Manifest und
+  persistentes Journal für Sicherung, Übernahme und Rückweg. Explizite Zuordnung
+  von 1–8 Quellen zu vorhandenen Verbindungen, Quell-/Zielvergleich, ein lokaler
+  schreibender Besitzer und generationstreue Eintrittssperren. Neue
+  ownershipEpoch schützt gegen alte Ansichten nach Rückweg und erneuter Übernahme.
+  Native Objekte, YAML-Bytes und Freigaben bleiben erhalten; spätere zentrale
+  Änderungen werden vor dem Rückweg zusätzlich gesichert. Alte Zugänge und
+  Empfängerfreigaben werden nicht übertragen. Synthetische Abbruch-/Wiederanlauf-
+  und Konfliktprüfungen; keine Test-/Live-Änderung und keine MQTT-Ausgabe.
+  Gemeinsame Bedienoberfläche ist der nächste Schritt, danach zentrale
+  systemgebundene Betriebsaufträge. Siehe docs/MIGRATION.md.
+
 - Schritt 3 lokal implementiert: versioniertes WorkspaceState und SystemWorkspace
   in Z2MAutomations, eigenes persistentes Attribut. Explizite Verbindungsliste,
   getrennte Roh-YAML/Editorzustände, Auswahl, offene Eingaben und Kataloge je UUID.
@@ -18,8 +30,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Bestandseditor verwendet. 1/2/8-System-Integration und große Kataloge lokal
   geprüft, inklusive mehr als 512 fremden nativen Instanzen. Keine Migration,
   exklusive Verbindungseigentümerschaft, neue Bedienoberfläche oder Z2M-Ausgabe.
-  Test und Live unverändert. Nächster Schritt: Übernahme, Sicherung, Besitzerwechsel
-  und Rückweg (Schritt 4), danach gemeinsame Oberfläche. Details: docs/WORKSPACE.md.
+  Test und Live unverändert. Darauf baut inzwischen Schritt 4 auf; die gemeinsame
+  Oberfläche folgt noch. Details: docs/WORKSPACE.md und docs/MIGRATION.md.
 
 - Statusanzeigen der neuen Verbindung lokal korrigiert: Der gemeinsame
   MQTT-Transport erkennt einen bestätigten bereiten Empfänger als installiert,

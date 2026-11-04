@@ -15,7 +15,7 @@ trait ModuleDiagnostics
         $void = in_array($function, ['ProcessHookData', 'ConfigureEditorWeekdays', 'ConfigureSequenceCall', 'SelectExecutionRule', 'RefreshExecutionStatus', 'ConfigureEditorSolar', 'ExpireRuntimeDebug', 'RefreshStatus', 'Create', 'ApplyChanges', 'MessageSink', 'ExpireRequest', 'SelectEditorDevice', 'ShowYamlEditor', 'ConfigureEditorSchedule', 'ConfigureEditorItem', 'SelectEditorConditionProperty'], true);
         $results = in_array($function, ['InspectEditorTimes', 'FilterAutomations', 'CopyAutomation', 'TrackEditorInput', 'NavigateEditor', 'ResolveEditorNavigation', 'EditorWorkReady', 'SelectReusableSequence', 'SaveReusableSequence', 'DeleteReusableSequence', 'InspectReusableSequenceActions', 'ScanEventImports', 'PreviewEventImport', 'ImportSymconEvent', 'InspectEditorConditions', 'InspectEditorTriggers', 'OpenAutomationEditor', 'CreateSimpleAutomation', 'SelectAutomation', 'UpdateAutomation', 'DeleteAutomation', 'SaveScheduledAutomation', 'InspectEditorActions'], true)
             ? ['Editoraktion abgelehnt; Grund siehe Ablauf.', 'Editoraktion abgeschlossen; Z2M noch unverändert.'] : null;
-        return $this->DebugFlowCall($function, $line, \Closure::fromCallable($callback), $void, [], $results);
+        return $this->DebugFlowCall($function, $line, fn (): mixed => $this->WithOwnershipEntry($function, $callback), $void, [], $results);
     }
 
     private function DebugEvent(string $event, string $message, array $details = []): void

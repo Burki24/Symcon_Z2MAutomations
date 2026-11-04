@@ -10,6 +10,13 @@ Automationsabläufe zeitlich begrenzt aufzeichnen. Bestehende Automationsinstanz
 und Entwürfe bleiben erhalten. Sie werden durch ein Modulupdate oder das Anlegen
 einer Verbindung **noch nicht in eine zentrale Instanz übernommen**.
 
+Eine spätere ausdrücklich gestartete [lokale Übernahme](../docs/MIGRATION.md)
+ordnet diese Verbindung genau einer zentralen Verwaltung zu. Zwei Verwaltungen
+können sie danach nicht unabhängig beschreiben. Status, Katalog und Debug bleiben
+an dieser Verbindung verfügbar; ein unabhängiger Erweiterungsupload ist nach
+dem Besitzerwechsel gesperrt. Der Rückweg löst die Besitzerzuordnung, ohne die
+Instanz, MQTT-Einstellungen oder Geräte zu löschen.
+
 ## Voraussetzungen und Einrichtung
 
 - IP-Symcon 9.0 mit PHP 8.5 und ein erreichbares Zigbee2MQTT-System.
