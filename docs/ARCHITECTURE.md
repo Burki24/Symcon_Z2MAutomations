@@ -425,3 +425,14 @@ für Einzelbetrieb und Zentrale. Native Formulare und Designer benutzen dieselbe
 Auftragsfunktion. Prüfung und Speicherung sind umgesetzt; Aktivierung, Stopp und
 Einzellauf verbleiben als weiterer Teil von Schritt 6. Details: docs/WORKSPACE.md.
 Das Z2M-Artefakt und der Erweiterungsvertrag bleiben unverändert.
+
+## Direkte Ersteinrichtung
+
+WorkspaceSetup und ConnectionWorkspaceSetup ergänzen ADR 0027: gespeicherten
+Z2M-Stand direkt lesen, Vorschau und private Sicherung, ausdrückliche frische
+Bestätigung und lokaler Claim ohne alte Quellinstanz. WorkspaceSetupSnapshot
+prüft den vorhandenen editor/status-Vertrag. Die bisherige Claimlogik ist für
+Migration und direkte Einrichtung gemeinsam; beide verlangen ihre jeweilige
+journalgebundene Freigabe. Vorhandene Entwürfe werden nicht ersetzt. Persistenter
+lokaler Commit und Rückweg sichern Abbruchfälle. Runtime und Erweiterungsartefakt
+bleiben unverändert.

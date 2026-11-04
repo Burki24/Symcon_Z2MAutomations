@@ -3908,3 +3908,74 @@ der 18 eigenen JSON-Dateien in isolierter Kopie erfolgreich; Fremdquellen werden
 nicht hineinkopiert. PHP CS Fixer 3.95.27 im Prüfmodus für 118 Dateien ohne Befund. Alle 32
 geänderten eigenen Dateien sind UTF-8 mit LF; git diff --check ist ebenfalls
 ohne Befund. Sichtbare Symcon-Abnahme bleibt ausdrücklich offen.
+
+## Direkte Zentraleinrichtung ohne alte Einzelinstanzen am 04.11.2026
+
+Die Abnahme der zentralen Übertragung zeigte eine fehlende Voraussetzung:
+Eine neu angelegte Zentrale besitzt keine alten Quellinstanzen. Der bisherige
+Migrationsablauf konnte deshalb keine Entwürfe oder Verbindungsclaims liefern.
+Der neue ausdrücklich beauftragte Einrichtungsweg liest den gespeicherten
+Z2M-Stand direkt. Er baut keine künstlichen Einzelinstanzen und beansprucht
+keinen Besitzer beim bloßen Zuordnen, Anhaken oder Öffnen einer Ansicht.
+
+WorkspaceSetup/ConnectionWorkspaceSetup verwenden den vorhandenen editor/status-
+Vertrag. Zunächst werden gespeicherte Automationen und Katalog nur gelesen,
+korreliert geprüft und privat mit dem vorherigen lokalen Stand gesichert.
+Die native Vorschau zeigt Topic, Revision, Anzahlen, Freigaben und Betriebszustand.
+Erst der getrennte Bestätigungsbutton fragt eine frische Statusantwort ab,
+beansprucht lokal die Verbindung und veröffentlicht das Dokument. Die YAML
+bleibt bytegleich; Namen, IDs, enabled und mesh_peers bleiben unverändert.
+Ein bestätigter leerer Speicher ergibt nur einen neuen lokalen Entwurf mit
+Revision 1/Basis 0. Gesperrte oder widersprüchliche Speicher werden abgewiesen.
+Vorhandene lokale Dokumente und offene Eingaben werden nicht ersetzt.
+
+Die bisherige Claimprüfung wird für direkte Einrichtung und Legacy-Übernahme
+geteilt. Nur die jeweilige journalgebundene Autorität erlaubt den Claim.
+Der gemeinsame Adapter für native Variablenbindungen wird ebenfalls verwendet.
+Private MigrationArchive-Dateien sichern Vorschau und späteren Rückgabestand.
+Das begrenzte WorkspaceSetup-Journal hält dauerhaft die Commit-/Rückgabephase;
+andere Änderungen bleiben bei einem halben Übergang gesperrt. Lokale Schritte
+lassen sich ohne neue MQTT-Anfrage fortsetzen. Der Rückweg betrifft nur den
+einen Systemplatz und sichert neue lokale Änderungen zusätzlich. Nach möglichem
+Z2M-Schreiben bleibt er wie bei der bisherigen Migration gesperrt.
+
+Direkte Systeme nutzen anschließend denselben Prüf-/Speicherpfad. Dessen
+Integrationstest deckt insbesondere den tatsächlich im zentralen Editor
+verwendeten normalisierten Katalog ab: Direkt gelesene Geräte und Schaltrechte
+müssen im Designer verfügbar sein und die folgende Speicherung freigeben.
+Eine bloß angezeigte erfolgreiche Übernahme reicht als Nachweis nicht aus.
+
+Tests/workspace-setup.php prüft 1/2/8 Systeme an gemeinsamen/getrennten Brokern,
+identische Geräte-/Regelkennungen, unveränderte aktive Empfänger, exakte YAML,
+leeres Z2M, fehlende Autorität, doppelte Bestätigung, geschützte vorhandene
+Dokumente, Timeout, sofortige Freigabe eines verworfenen Leseauftrags, falsche
+Prüfsumme und Neustart des Empfängers zwischen Vorschau und Bestätigung.
+Neue Stubobjekte mit echten persistierten Attributen statt alten Puffern prüfen
+Vorschaufortsetzung und Abbruch nach Claim, Besitzerwechsel und Veröffentlichung.
+Die Rückgabe wird nach Datenwiederherstellung und Claimfreigabe unterbrochen und
+fortgesetzt. Native generierte Callbacks werden tatsächlich ausgeführt. Danach
+folgen eine echte synthetische validate/store-Antwortkette für eine unveränderte
+Datei sowie die gesperrte lokale Rückgabe nach möglichem externem Schreiben.
+Debug bleibt deutsch und enthält keine privaten Testnamen oder YAML-Inhalte.
+Der Einrichtungsablauf selbst sendet ausschließlich status/editor und nie
+store, activate, deactivate, run, restart oder Gerätebefehle.
+
+Zentrale ParentConnection-, DataFlow-, Form- und DebugFlow-Helper vor Umsetzung
+geprüft und unverändert eingebunden. Keine Fremdquellen oder Änderungen am
+Z2M-Schema, Runtime-Protokoll oder generierten Erweiterungsartefakt. Die neue
+Bedienung liegt im nativen Formular; der Designer verweist bei fehlendem Entwurf
+auf Direkt aus Z2M einrichten und übernimmt anschließend die eingerichteten
+Geräte und Regeln. Sichtbare Symcon-/Browser-Praxisabnahme nach Modulupdate ist
+noch offen. Keine Test- oder Produktivinstallation angesprochen oder aktualisiert;
+kein realer MQTT-Befehl, Neustart oder Schaltversuch. Commit/Push verbleiben beim
+Benutzer. ADR 0027 und Benutzeranleitungen dokumentieren den Einrichtungsweg.
+
+Abschließender Prüfnachweis: php tests/run.php vollständig erfolgreich,
+einschließlich neuer direkter Setup-Integration, bisheriger Übernahme-/Transfer-
+Tests und 147 JavaScript-Tests. Zusätzliche Struktur- und zentrale Kodierungsprüfung
+bestanden. Offizieller StylePHP-Check der 18 eigenen JSON-Dateien in isolierter
+Kopie erfolgreich; kanonische Helper, Stubs und andere Fremdquellen nicht
+hineinkopiert oder verändert. PHP CS Fixer 3.95.27 im Prüfmodus: 0 von 122 Dateien
+mit Änderungen. Alle 27 geänderten eigenen Dateien UTF-8 ohne BOM mit LF;
+git diff --check ohne Befund. Native sichtbare Bedienung und echte Z2M-
+Ersteinrichtung bleiben nach einem ausdrücklich beauftragten Testupdate offen.

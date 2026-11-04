@@ -23,6 +23,14 @@
 
 ## Neu
 
+- Direkte Einrichtung der Zentrale ohne alte Automationsinstanzen: vorhandene
+  Z2M-Regeln und Gerätedaten sicher lesen, Vorschau und private Sicherung prüfen,
+  anschließend die Verbindung ausdrücklich übernehmen. Gespeicherte YAML und
+  Partnerfreigaben bleiben erhalten. Vorhandene lokale Entwürfe und fremde
+  Besitzer werden geschützt; leere Systeme erhalten nur einen lokalen Entwurf.
+  Verständliche Status-/Debugmeldungen, fortsetzbarer lokaler Besitzerwechsel
+  und gesicherter Rückweg. Keine Speicherung, Aktivierung oder Schaltung in Z2M.
+
 - Die Automationszentrale prüft und überträgt Entwürfe getrennt je Z2M-System,
   im nativen Formular und Browserdesigner. Status und genaue Ablehnungen bleiben
   beim richtigen System sichtbar; andere Entwürfe bleiben erhalten. Speicherung

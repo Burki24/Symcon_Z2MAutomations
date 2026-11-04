@@ -708,3 +708,19 @@ Die readonly Variablen `TransferSystem`, `TransferStatus` und `TransferError`
 zeigen den ausgewählten Systembezug, Auftragszustand und die detaillierte
 Ablehnung. Sie sind nicht schaltbar. Eine Rückmeldung bedeutet ausschließlich
 Prüfung oder bestätigte Speicherung, niemals Aktivierung oder Gerätewirkung.
+
+## Direkte Einrichtung aus Z2M
+
+Alle öffentlichen Einstiege in WorkspaceSetup und ConnectionWorkspaceSetup
+verwenden TraceModuleCall und den kanonischen DebugFlowHelper. Deutsche Meldungen
+unterscheiden ausdrücklich Lesen, bereitgestellte Vorschau/private Sicherung,
+frische Bestätigung des gespeicherten Stands, lokalen Claim und Veröffentlichung.
+Sie nennen ausschließlich System-UUID, Revision, Anzahl und feste Ursachen.
+YAML, Namen, Standortdaten, Kataloginhalte und Empfängersitzung bleiben geschützt.
+
+Abbruchmeldungen erklären vorhandene Entwürfe, fremde Besitzer, Zeitablauf,
+fehlende Antwort, veränderten Stand, gesperrten Speicher und falsches Format.
+CancelWorkspaceSnapshot beendet nur den passenden eigenen Leseauftrag; die
+Meldung grenzt dies vom Stopp laufender Automationen ab. Commit und Rückweg
+melden ausschließlich lokale Wirkung. Kein Schritt sendet store, activate,
+deactivate, Neustarts oder Gerätebefehle.

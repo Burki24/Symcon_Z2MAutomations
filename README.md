@@ -81,9 +81,10 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
   Anbindung an das Modul oder an Geräte.
 - [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md#automationszentrale-anlegen):
   neue Z2MAutomations-Instanz ohne eigene MQTT-Schnittstelle anlegen und vorhandene
-  Z2M-Verbindungen für die gemeinsame Bearbeitung zuordnen. Nach gesicherter
-  Übernahme Entwürfe je System prüfen und übertragen; zentrale Aktivierung und
-  Stopp folgen noch.
+  Z2M-Verbindungen für die gemeinsame Bearbeitung zuordnen. Vorhandene Z2M-Regeln
+  direkt einlesen und die Verbindungen ohne alte Einzelinstanzen übernehmen.
+  Anschließend Entwürfe je System prüfen und übertragen; zentrale Aktivierung
+  und Stopp folgen noch.
 - [Z2M-Verbindung](Z2MConnection/README.md): neuer Verbindungsbaustein zur
   Vorbereitung der zentralen Verwaltung. Prüft jeweils ein System und lädt
   dessen Gerätedaten. Bestehende Instanzen und Entwürfe werden noch nicht übernommen.

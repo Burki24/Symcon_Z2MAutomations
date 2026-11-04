@@ -8,6 +8,17 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Direkte Einrichtung lokal implementiert: native Vorschau aus vorhandenem
+  Z2M-editor/status ohne alte Einzelinstanzen, private geprüfte Sicherung,
+  ausdrückliche Bestätigung und exklusiver lokaler Verbindungsclaim. YAML, IDs,
+  Flags und Partnerfreigaben bleiben erhalten; leeres Z2M ergibt nur einen neuen
+  lokalen Entwurf. Vorhandene Entwürfe/alte Einzelquellen/fremde Besitzer werden
+  geschützt. Nach Abbruch lokaler Commit und Rückweg fortsetzbar, keine erneuten
+  MQTT-Aufträge. Direkt eingerichtete Systeme nutzen die bestehende Prüf-/Store-
+  API. Native Bedienung, Timeout-, Konflikt- und Abbruchfälle synthetisch geprüft.
+  Keine Test-/Live-Änderung; reale Abnahme nach Modulupdate und neue Registrierung
+  der öffentlichen Methoden offen. Erweiterungsartefakt unverändert.
+
 - Schritt 6 teilweise lokal umgesetzt: Prüfung und Speicherung je System in
   Formular und Browserdesigner. Verbindung benötigt abgeschlossenen exklusiven
   Besitzerwechsel; keine implizite Freigabe durch Zuordnung. Eigene Auftrags-

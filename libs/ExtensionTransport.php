@@ -59,12 +59,17 @@ trait ExtensionTransport
             {
                 if ($this->TransportOwnershipBlocked()) return false;
                 $state = $this->RefreshState();
+                if (method_exists($this, 'WorkspaceSnapshotFrameAllowed') && !$this->WorkspaceSnapshotFrameAllowed($state)) {
+                    $this->SaveState($state);
+                    return false;
+                }
                 if (method_exists($this, 'DraftFrameAllowed') && !$this->DraftFrameAllowed($state, $frame)) {
                     $this->SaveState($state);
                     return false;
                 }
                 $this->SaveState($state);
-                $valid = $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || ($state['workflow']['kind'] ?? '') === 'deactivate')
+                $readProbe = ($state['workflow']['kind'] ?? '') === 'setup_read' && ($state['workflow']['wire'] ?? '') === 'status';
+                $valid = $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || $readProbe || ($state['workflow']['kind'] ?? '') === 'deactivate')
                     && ($state['workflow']['transaction'] ?? null) === $frame['transaction'];
                 if ($valid) {
                     $dispatches = json_decode($this->GetBuffer('TransportDispatches') ?: '[]', true, 8, JSON_THROW_ON_ERROR);

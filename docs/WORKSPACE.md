@@ -217,8 +217,9 @@ es wird kein generischer Ersatzhelper und keine unverteilte Helperkopie eingefü
 `RequestWorkspaceTransfer(SystemID, Generation, Fingerprint, Action, OperationID,
 TransferContext)` unterstützt ausschließlich `validate` und `store`. Das native
 Formular und die authentifizierten Designer-Endpunkte verwenden denselben Weg.
-Die vorangehende lokale Übernahme muss abgeschlossen und die Verbindung exklusiv
-an diese Zentrale gebunden sein. Zuordnung allein beansprucht keinen Besitzer.
+Eine direkte Einrichtung aus Z2M oder eine lokale Übernahme aus Einzelinstanzen
+muss abgeschlossen und die Verbindung exklusiv an diese Zentrale gebunden sein.
+Zuordnung allein beansprucht keinen Besitzer.
 
 `GetWorkspaceTransferStatus(SystemID)` und `RefreshWorkspaceTransfers` lesen die
 lokalen Verbindungsresultate. Sie senden keine MQTT-Anfrage. Der kurze Timer läuft
@@ -268,3 +269,59 @@ Systemheadern. Der Body enthält ausschließlich Aktion, Anfrage-UUID und
 Übertragungskontext. Ein verspätetes Ergebnis ersetzt keine inzwischen gewechselte
 Systemansicht. Speicherung verlangt eine sichtbare Bestätigung des Zieltopics
 und weist auf das Stoppen des bisherigen Betriebs hin.
+
+## Direkte Einrichtung ohne bisherige Einzelinstanzen
+
+WorkspaceSetup ergänzt einen separaten ausdrücklichen Einrichtungsweg nach
+ADR 0027. Er arbeitet je zugeordnetem System und verwendet keine künstlichen
+Quellinstanzen. sourceInstance bleibt 0. Die bestehende Datenhaltung und die
+Prüf-/Speicheraufträge verwenden danach dieselben Besitzer- und Epochprüfungen.
+
+Öffentliche Funktionen mit Z2MA und erster InstanceID:
+
+| Funktion | Weitere Parameter / Wirkung |
+| --- | --- |
+| StartWorkspaceSetup | SystemID, Generation, Fingerprint, OperationID: gespeicherte Datei und Katalog nur lesen; keine Ersetzung eines lokalen Dokuments. |
+| ConfirmWorkspaceSetup | OperationID: explizite Freigabe, frische Statusprüfung, privates Manifest, lokaler Besitzerwechsel und Veröffentlichung des Entwurfs. |
+| GetWorkspaceSetupStatus | keine: vorhandene Rückmeldungen lesen, gegebenenfalls bereits autorisierte lokale Commit-/Rückgabeschritte fortsetzen; kein erneuter MQTT-Auftrag. |
+| RefreshWorkspaceSetup | keine: Timer für denselben lokalen Statuspfad; void. |
+| CancelWorkspaceSetup | OperationID: vor Besitzerwechsel abbrechen und ausschließlich den eigenen Leseauftrag lokal freigeben. |
+| RollbackWorkspaceSetup | OperationID des letzten Vorgangs: aktuellen Zielentwurf privat sichern, vorherigen Systemplatz wiederherstellen und Claim freigeben; nach möglichem Z2M-Schreiben gesperrt. |
+
+OperationID ist wie bei den anderen Aufträgen eine neue 32-stellige kleine
+Hexkennung. Wiederholung derselben Anfrage sendet nicht erneut. Ein neuer Vorgang
+verdrängt nur einen abgeschlossenen/verworfenenen Vorgang; seine privaten Archive
+bleiben erhalten. Vorhandene Dokumente, offene Eingaben oder fremde Besitzer
+werden nicht ersetzt. Eine noch zuständige Einzelinstanz verlangt den bisherigen
+gesicherten Migrationsweg, um ungespeicherte Änderungen zu schützen.
+
+ConnectionWorkspaceSetup verwendet status → editor für die Vorschau und eine
+weitere korrelierte Statusantwort vor dem Claim. Der initiale reine Statusprobe
+ist auch ohne vorangehendes bridge/state zulässig; ein passender bereiter Empfänger
+bestätigt die Erreichbarkeit. Alle anderen Transportregeln bleiben erhalten.
+Nur die aktuelle reine GetWorkspaceSetupAuthority-Freigabe erlaubt die nächste
+Lesephase beziehungsweise den lokalen Claim. Kein generischer Publishzugang.
+
+YAML-Prüfsumme, Sitzungs- und Revisionsbezug, Anzahl, Format und normalisierter
+Katalog müssen zusammenpassen. Vorhandene YAML wird bytegleich übernommen;
+Parserdefinitionen aus der Erweiterungsantwort bilden den Editorstand. Die
+vorhandene lokale Datenprüfung schützt IDs, Folgen und Partnerfreigaben. Ein
+leerer Speicher ergibt einen lokalen Entwurf mit Revision 1 und Basis 0; ein
+fehlerhafter oder wiederhergestellter Nur-Lese-Speicher wird abgewiesen.
+
+WorkspaceSetup hält nur begrenzte Metadaten (32 KiB). Der vorübergehende private
+ConnectionWorkspaceSnapshot ist auf 2 MiB beschränkt. Der gelesene Stand und die
+vorherige lokale Zuordnung werden mit MigrationArchive atomar, gehasht und
+unveränderlich privat gesichert. Ein dauerhaftes Commitstadium schützt den
+Übergang von Claim über Besitzer bis Workspace-Veröffentlichung. Nach einem
+Abbruch bleiben andere Änderungen gesperrt, bis derselbe lokale Vorgang fortgesetzt
+oder zurückgenommen ist. Es gibt keine automatische Wiederholung von MQTT-Lesen.
+Andere Systemdokumente werden bei Commit und Rückweg nicht aus einem alten
+Gesamtbackup überschrieben. Der bisherige Migrationsrückweg darf zusätzlich
+direkt übernommene Systeme nicht verlieren; sie sind zuerst lokal zurückzunehmen.
+
+Der native Bereich Direkt aus Z2M einrichten zeigt Auswahl, Vorschau, Bestätigung,
+Verwerfen und Rückweg. Beim Öffnen werden nur vorhandene lokale Rückmeldungen
+verarbeitet. Der Designer verweist auf diesen Einrichtungsbereich. Eine reale
+Abnahme nach Modulupdate bleibt gesondert erforderlich; ein Erweiterungsupdate
+ist für das vorhandene editor/status-Protokoll nicht erforderlich.

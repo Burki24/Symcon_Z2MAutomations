@@ -10,8 +10,9 @@ Automationsabläufe zeitlich begrenzt aufzeichnen. Bestehende Automationsinstanz
 und Entwürfe bleiben erhalten. Sie werden durch ein Modulupdate oder das Anlegen
 einer Verbindung **noch nicht in eine zentrale Instanz übernommen**.
 
-Eine spätere ausdrücklich gestartete [lokale Übernahme](../docs/MIGRATION.md)
-ordnet diese Verbindung genau einer zentralen Verwaltung zu. Zwei Verwaltungen
+Eine ausdrücklich gestartete [direkte Einrichtung](../Z2MAutomations/README.md#direkt-aus-z2m-einrichten)
+oder [lokale Übernahme aus Einzelinstanzen](../docs/MIGRATION.md) ordnet diese
+Verbindung genau einer zentralen Verwaltung zu. Zwei Verwaltungen
 können sie danach nicht unabhängig beschreiben. Status, Katalog und Debug bleiben
 an dieser Verbindung verfügbar; ein unabhängiger Erweiterungsupload ist nach
 dem Besitzerwechsel gesperrt. Der Rückweg löst die Besitzerzuordnung, ohne die
@@ -153,3 +154,19 @@ und `Z2MC_GetDraftTransferResult(InstanceID, Owner, OperationID)` sind für den
 internen Aufruf der zuständigen Zentrale bestimmt. Der erste Auftrag benötigt
 deren aktuelle systemgebundene Freigabe. Ein bloß übergebener Besitzerwert ist
 keine Berechtigung. Der zweite Aufruf liest nur das vorhandene Ergebnis.
+
+## Lesen für die direkte Einrichtung
+
+Die Zentrale kann über diese Verbindung zuerst eine reine Vorschau gespeicherter
+Z2M-Automationen samt Gerätedaten abrufen. Vor dem ausdrücklichen Besitzerwechsel
+wird der gespeicherte Stand durch eine frische Statusantwort erneut geprüft.
+Ohne passende Freigabe und Zuordnung wird kein Auftrag angenommen. Der Abruf
+verwendet ausschließlich die vorhandenen Z2M-Befehle status und editor; keine
+Speicherung, Aktivierung, Deaktivierung oder Geräteaktion.
+
+`RequestWorkspaceSnapshot`, `GetWorkspaceSnapshotResult`, `CancelWorkspaceSnapshot`
+und `ClaimWorkspaceConnection` mit Präfix Z2MC dienen der internen Abstimmung mit
+der Zentrale. Der begrenzte private Rückgabestand ist kein zweiter bearbeitbarer
+Entwurf. Sitzungsdaten, YAML und Kataloginhalte werden nicht ins Debug geschrieben.
+Die vorhandene Anbindung und ihre Passwörter werden durch die Einrichtung nicht
+umgestellt.

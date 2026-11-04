@@ -132,7 +132,10 @@ trait WorkspaceForm
     }
     private function WorkspaceConfigurationForm(): string
     {
+        $setup = json_decode($this->GetWorkspaceSetupStatus(), true, 32, JSON_THROW_ON_ERROR);
+        if (!$setup['ok']) return $this->EncodeConfigurationForm(['elements' => [], 'actions' => [['type' => 'Label', 'caption' => $setup['message']]]]);
         $state = $this->ReadWorkspace();
+        if ($this->WorkspaceSetupLocked()) return $this->EncodeConfigurationForm(['elements' => [], 'actions' => [$this->WorkspaceSetupPanel($state['systems'][$setup['setup']['systemId']], $setup['setup'])]]);
         if ($state['selectedSystem'] !== '') {
             $this->SyncWorkspaceTransfer($state['selectedSystem']);
             $state = $this->ReadWorkspace();
@@ -174,11 +177,12 @@ trait WorkspaceForm
         $actions[] = ['type' => 'Select', 'name' => 'WorkspaceSystem', 'caption' => 'Entwurf dieses Systems bearbeiten', 'options' => $options, 'value' => $id,
             'onChange'       => 'Z2MA_ChooseWorkspaceSystem($id, $WorkspaceSystem, $WorkspaceFingerprint, ' . $source . ', ' . $generation . ', $WorkspaceEditorFingerprint, ' . $input . ');'];
         $actions[] = ['type' => 'ValidationTextBox', 'name' => 'WorkspaceEditorFingerprint', 'value' => $fingerprint, 'visible' => false];
+        $actions[] = $this->WorkspaceSetupPanel($record, $setup['setup']);
         $actions[] = ['type' => 'Button', 'caption' => 'Automationsdesigner öffnen', 'onClick' => 'echo Z2MA_OpenAutomationDesigner($id);'];
         $actions[] = ['type' => 'Button', 'caption' => 'Bestätigte Gerätedaten dieses Systems einlesen',
             'onClick'        => 'Z2MA_ReadWorkspaceCatalog($id, ' . $source . ', ' . $generation . ', $WorkspaceEditorFingerprint);'];
         if ($record['data']['document'] === null) {
-            $actions[] = ['type' => 'Label', 'caption' => 'Für dieses System fehlt noch ein lokaler Entwurf. Ein vorhandener Entwurf muss zuerst über den gesicherten Übernahmeablauf zugeordnet werden. Es wird kein leerer Entwurf über bestehende Daten geschrieben.'];
+            $actions[] = ['type' => 'Label', 'caption' => 'Für dieses System fehlt noch ein lokaler Entwurf. Oben „Z2M-Automationen sicher einlesen“ wählen, die Vorschau prüfen und anschließend die Verbindung übernehmen. Bestehende Z2M-Dateien werden nicht ersetzt.'];
         } else {
             $editing = $this->WithWorkspaceEditor($id, $generation, $fingerprint, false, function (): array
             {

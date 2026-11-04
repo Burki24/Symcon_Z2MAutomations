@@ -210,3 +210,19 @@ geänderten Empfängerstand nicht zurücksetzen. Zunächst den tatsächlichen
 Z2M-Stand sichern und einen eigenen betrieblichen Rückweg planen. Ein eindeutig
 vor jedem Versand abgewiesener Speicherauftrag erlaubt weiterhin den bisherigen
 lokalen Rückweg. Es wird weder eine alte YAML blind eingespielt noch aktiviert.
+
+## Neue Zentralen ohne alte Einzelinstanzen
+
+Für diesen Fall steht inzwischen die direkte Einrichtung über WorkspaceSetup
+bereit. Sie liest den vorhandenen Z2M-Stand statt eines alten Modularchivs und
+behält sourceInstance 0. Vorschau und lokale Übernahme sind getrennte, ausdrücklich
+bediente Schritte. Die Verbindung prüft vor dem Claim erneut eine aktuelle
+Einrichtungsfreigabe. Es gibt keinen künstlichen Legacy-Besitzer.
+
+Derselbe private Archivspeicher hält pro Vorgang *-direct und beim Rückweg
+*-direct-return. WorkspaceSetup verwaltet das zugehörige begrenzte Journal im
+Instanzattribut. Der letzte lokale Vorgang ist fortsetzbar und vor möglichen
+Z2M-Speicheraufträgen zurücknehmbar. Der Rückweg betrifft nur dessen Systemplatz;
+spätere lokale Änderungen bleiben zusätzlich privat gesichert. Bereits bestehende
+Dokumente werden bei der Einrichtung abgewiesen. Details und Funktionen stehen
+in WORKSPACE.md und ADR 0027.

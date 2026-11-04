@@ -58,6 +58,49 @@ sich zwischen Anzeige und Übernehmen eine Verbindung oder ihr Besitzer geänder
 wird die Auswahl nicht gespeichert. Das Formular neu öffnen und die Angaben
 erneut prüfen. Die Liste liest lokale Instanzdaten und sendet keine MQTT-Anfrage.
 
+## Direkt aus Z2M einrichten
+
+Dieser Weg benötigt keine alten Automationsinstanzen. Nach dem Zuordnen der
+Z2M-Verbindungen wird jedes System einzeln eingerichtet:
+
+1. Im nativen Zentralenformular das gewünschte **Z2M-System** auswählen.
+2. **Direkt aus Z2M einrichten** öffnen und **Z2M-Automationen sicher einlesen**
+   wählen. Der Abruf liest die gespeicherten Automationen und Gerätedaten.
+   Vorhandene lokale Entwürfe und Besitzer werden nicht ersetzt.
+3. Die Vorschau prüfen: Systemtopic, gespeicherte Revision, Anzahl der Regeln,
+   Aktionsfolgen und Partnerfreigaben sowie der zuletzt gelesene Betriebszustand.
+   Der Stand und die bisherige lokale Zuordnung sind zusätzlich privat gesichert.
+4. **Verbindung übernehmen und Entwurf einrichten** wählen und bestätigen.
+   Vor der Übernahme prüft das Modul den gespeicherten Stand erneut. Eine inzwischen
+   geänderte Datei, Sitzung oder Zuordnung verlangt eine neue Vorschau.
+5. Die Erfolgsmeldung abwarten. Danach können die Regeln im nativen Formular oder
+   Browserdesigner bearbeitet sowie systemweise geprüft und übertragen werden.
+
+Die Einrichtung schreibt nichts nach Z2M und aktiviert oder stoppt keine Regeln.
+Gespeicherte YAML, Regelnamen, IDs, Aktivierungskennzeichen und Partnerfreigaben
+bleiben erhalten. Die Verbindung gehört anschließend innerhalb dieser Symcon-
+Installation ausschließlich dieser Zentrale. Andere Systeme behalten ihre Entwürfe.
+Die Einrichtung benötigt die bereits vorhandene eigene Z2M-Erweiterung; ein
+Erweiterungsupdate für diesen Einrichtungsweg ist nicht erforderlich.
+
+Ist Z2M noch leer, wird nach Bestätigung ein leerer **lokaler** Entwurf vorbereitet.
+Ein beschädigter oder gesperrter Z2M-Speicher wird niemals als leer behandelt.
+Existiert bereits ein lokaler Entwurf oder eine zuständige bisherige
+Einzelinstanz, bleibt deren Stand geschützt. Dann zunächst
+die vorhandene Bearbeitung beziehungsweise den bisherigen Übernahmeweg klären.
+
+**Vorschau verwerfen** beendet nur den eigenen Leseauftrag. Nach einem Timeout wird
+nichts automatisch erneut gesendet. Mit **Einrichtungsstatus aktualisieren oder
+fortsetzen** lässt sich ein unterbrochener lokaler Besitzerwechsel fortsetzen.
+**Letzte Einrichtung lokal zurücknehmen** gibt deren Verbindung wieder frei und
+stellt den vorherigen lokalen Platz wieder her. Spätere Entwurfsänderungen werden
+vorher zusätzlich privat gesichert. Andere Systeme bleiben erhalten. Nach einer
+möglichen Speicherung in Z2M ist dieser rein lokale Rückweg gesperrt.
+
+Die Einrichtung wird im nativen Zentralenformular bedient. Der Browserdesigner
+verweist bei fehlendem Entwurf auf diesen Bereich und kann den eingerichteten
+Entwurf danach anzeigen und bearbeiten.
+
 ## Bestandsprüfung für die zentrale Verwaltung
 
 Der zusätzliche Baustein [Z2M-Verbindung](../Z2MConnection/README.md) kann inzwischen
@@ -123,9 +166,11 @@ verfügbar.** Die neue Systemauswahl benutzt keine bisherigen MQTT-Bedienbuttons
 
 ### Einen Systementwurf prüfen und übertragen
 
-Voraussetzung ist eine abgeschlossene [gesicherte Übernahme](#sicherung-und-lokale-übernahme).
+Voraussetzung ist eine abgeschlossene [direkte Einrichtung](#direkt-aus-z2m-einrichten)
+oder eine [Übernahme aus bisherigen Einzelinstanzen](#sicherung-und-lokale-übernahme).
 Die bloße Häkchenauswahl erteilt der Zentrale noch kein Schreibrecht. Fehlt die
-Übernahme, bleiben Prüf- und Speicherbuttons gesperrt; der Hinweis erklärt dies.
+Einrichtung, bleiben Prüf- und Speicherbuttons gesperrt; der Hinweis führt zum
+nativen Bereich **Direkt aus Z2M einrichten**.
 
 1. Im nativen Formular oder oben im Designer das gewünschte **Z2M-System** wählen.
 2. Änderungen zunächst in dessen lokalen Entwurf übernehmen. Offene Eingaben

@@ -37,7 +37,7 @@ final class WorkspaceState
         'open_input'                   => 'Es gibt noch nicht übernommene Eingaben. Bitte zuerst im bisherigen System weiterbearbeiten oder die Eingaben ausdrücklich verwerfen.',
         'invalid_data'                 => 'Der lokale Entwurf oder seine Bearbeitungsdaten sind ungültig. Es wurde nichts ersetzt.',
         'catalog_unavailable'          => 'Für diese Verbindung fehlen bestätigte Gerätedaten. Bitte dort die Gerätedaten aktualisieren. Vorhandene Entwürfe bleiben erhalten.',
-        'ownership_required'           => 'Diese Verbindung ist noch nicht von der Zentrale übernommen. Bitte zuerst den gesicherten Übernahmeablauf abschließen. Entwürfe und Z2M bleiben unverändert.',
+        'ownership_required'           => 'Diese Verbindung ist noch nicht von der Zentrale übernommen. Im nativen Formular unter „Direkt aus Z2M einrichten“ die Automationen einlesen und die Vorschau bestätigen. Vorhandene Entwürfe und Z2M bleiben unverändert.',
         'actions_unavailable'          => 'Eine Aktion ist nicht mehr vollständig verfügbar oder nicht mehr schaltbar. Bitte Gerätedaten einlesen und Gerät, Kanal, Wert sowie Schaltrechte der Aktionen prüfen.',
         'no_document'                  => 'Für dieses System liegt noch kein lokaler Entwurf vor. Bitte den vorhandenen Entwurf zuerst übernehmen.',
         'transfer_pending'             => 'Für dieses System läuft bereits eine Prüfung oder Übertragung. Bitte die Rückmeldung abwarten. Andere Systeme bleiben nutzbar.',

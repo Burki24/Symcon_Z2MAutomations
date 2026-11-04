@@ -71,6 +71,7 @@ trait ConnectionWorkflow
         }
         if (!$this->MatchExtensionResponse($state, $suffix, $payload, $retained)) return null;
         $workflow = $state['workflow'];
+        if (isset($workflow['setupRequest'])) return $this->ReceiveWorkspaceSnapshot($state, $payload);
         if (isset($workflow['workspaceRequest'])) return $this->ReceiveDraftTransfer($state, $payload);
         if (($payload->status ?? null) !== 'ok' || !($payload->data ?? null) instanceof stdClass) {
             $code = $workflow['wire'] === 'install' ? 'installation_failed' : ($payload->error->code ?? 'invalid_response');
@@ -130,6 +131,7 @@ trait ConnectionWorkflow
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
         $this->FinishDraftTransfer($state, $status, $error);
+        $this->FinishWorkspaceSnapshot($state, $status, $error);
         $this->DebugEvent(
             $error === '' ? 'AKTION' : 'FEHLER',
             'Verbindungsauftrag abgeschlossen.',

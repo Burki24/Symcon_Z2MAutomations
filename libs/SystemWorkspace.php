@@ -165,12 +165,7 @@ trait SystemWorkspace
                 $record = $this->WithWorkspaceLock(fn (): array => $this->WorkspaceRecord($this->ReadWorkspace(), $SystemID, $Generation, $Fingerprint));
                 $catalog = $this->WorkspaceCatalog($record['binding']);
                 if ($catalog === null) throw new RuntimeException('catalog_unavailable');
-                $instances = [];
-                foreach (array_keys(Z2MInstanceIdentity::TYPES) as $type) foreach (IPS_GetInstanceListByModuleID($type) as $id) {
-                    $scope = Z2MInstanceIdentity::Read($id, $record['binding']['mqttParent'], $record['binding']['baseTopic']);
-                    if ($scope !== null && $scope['type'] !== 'bridge') $instances[$id] = $scope;
-                }
-                $bindings = NativeVariableBindings::Collect($instances);
+                $bindings = $this->WorkspaceNativeBindings($record['binding']);
                 // Never call another module while holding the workspace semaphore.
                 return $this->WithWorkspaceLock(function () use ($SystemID, $Generation, $Fingerprint, $catalog, $bindings, $operation): string
                 {
@@ -288,6 +283,16 @@ trait SystemWorkspace
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function WorkspaceNativeBindings(array $binding): array
+    {
+        $instances = [];
+        foreach (array_keys(Z2MInstanceIdentity::TYPES) as $type) foreach (IPS_GetInstanceListByModuleID($type) as $id) {
+            $scope = Z2MInstanceIdentity::Read($id, $binding['mqttParent'], $binding['baseTopic']);
+            if ($scope !== null && $scope['type'] !== 'bridge') $instances[$id] = $scope;
+        }
+        return NativeVariableBindings::Collect($instances);
     }
 
     private function WorkspaceConnectionCurrent(array $binding): bool

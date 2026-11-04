@@ -188,6 +188,9 @@ trait SystemMigration
                 $this->MigrationOwner($journal);
                 if ($this->WorkspaceTransferBlocksRollback($OperationID)) throw new RuntimeException('z2m_write_started');
                 $manifest = $this->MigrationManifest($journal);
+                foreach ($this->ReadWorkspace()['systems'] as $id => $record) {
+                    if (!isset($manifest['after']['systems'][$id]) && isset($record['ownershipEpoch'])) throw new RuntimeException('rollback_conflict');
+                }
                 if ($journal['phase'] !== 'rolling_back') {
                     $journal['phase'] = 'rolling_back';
                     $this->SaveMigrationJournal($journal);
@@ -348,6 +351,9 @@ trait SystemMigration
     private function MigrationWorkspaceWritable(): bool
     {
         $marker = $this->OwnershipMarker();
+        if ($this->WorkspaceSetupLocked()) return false;
+        $direct = $marker !== [] ? $this->DirectWorkspaceOwnerReady($marker) : null;
+        if ($direct !== null) return $marker['role'] === 'manager' && $direct;
         return $marker['role'] === 'manager' && $this->ReadMigrationJournal($marker['operation'])['phase'] === 'committed';
     }
 
