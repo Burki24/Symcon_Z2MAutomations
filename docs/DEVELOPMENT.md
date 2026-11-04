@@ -1,3 +1,46 @@
+## Browserbearbeitung im ursprünglichen Testmodul am 04.11.2026
+
+Nach dem vom Anwender ausgeführten Modulupdate die echte Browseransicht im
+ursprünglichen Testmodul über einen eigenen Hintergrundtab geprüft. Acht Regeln
+und aktueller Katalog verfügbar, keine offenen nativen Eingaben; der lokale
+YAML-Entwurf stimmte vor der Prüfung mit dem gespeicherten Z2M-Stand überein.
+Ausgangsdaten einschließlich YAML außerhalb des Repositorys gesichert.
+
+- Aktive Bewegungsmelderregel ausschließlich geöffnet: boolescher Auslöser,
+  Helligkeitsbedingung, Nur-beim-Start-Option, erneute Auslösung und beide
+  Aktionen mit Nachlaufzeit korrekt vorbelegt. Abgebrochen, nicht geändert.
+- Ausgeschaltete Tasterregel: Name, auslösender Wert und Wartezeit lokal geändert.
+  Wieder geöffnet und mit den tatsächlichen Entwurfsdaten verglichen. Zielgerät,
+  Kanal, Umschaltaktion und ausgeschalteter Regelschalter erhalten.
+- Ausgeschaltete Zeitregel: Uhrzeit, Zeitzone, nächtliches Zeitfenster,
+  Wochentage, numerische Gerätebedingung und Aktion korrekt vorbelegt.
+  Uhrzeit, Samstag und Vergleichswert lokal geändert, übernommen und erneut
+  vorgefüllt geprüft. Der Vergleich mit der Ausgangskopie zeigte ausschließlich
+  die beabsichtigten Änderungen und die vorbereitete lokale Folgerevision.
+- Absichtlich identische Zeitfenstergrenzen wurden mit HTTP 422 und dem Hinweis
+  auf Bedingung 1 abgewiesen. Eingaben blieben im Dialog und der vorherige
+  Entwurf unverändert. Danach abgebrochen. Mausrad bewegt den langen Dialog;
+  bei 1280 Pixeln kein horizontaler Überlauf, keine Browserwarnungen/Skriptfehler.
+- Native Datei-Debugaufzeichnung bestätigt lokale Übernahmen und Ablehnung,
+  ohne Regelnamen oder Schaltwerte in diesen Meldungen. Der globale Debugpuffer
+  rotierte auf dem laufenden Testsystem zu schnell; deshalb gezielt die
+  Datei-Aufzeichnung benutzt und anschließend beendet.
+
+Nach Prüfung der unveränderten gespeicherten Z2M-Prüfsumme ausschließlich den
+Editorstand lesend neu geladen. Alle acht Regeln, ihre Schalter und Freigaben
+wiederhergestellt; YAML anschließend bytegleich zur Sicherung. Auch der Browser
+zeigt wieder die ursprünglichen Zeit-/Bedingungswerte. Gespeicherter und aktiver
+Z2M-Stand, Zahl aktiver Regeln und automatischer Wiederanlauf unverändert.
+Die erfassten Erweiterungsaufträge enthalten nur Editor- und Statusabfragen.
+Keine Speicherung, Aktivierung, Laufzeitsteuerung oder Geräteaktion.
+
+Keine Modul-/Erweiterungsdateien auf einem System geändert. Prüftab geschlossen,
+eigene Debugaufzeichnungen beendet; bestehende Benutzertabs erhalten. Der native
+Öffnungsbutton, weitere Regeltypen und schmale Fenster wurden in dieser Runde
+nicht erneut praktisch geprüft. Die vorigen synthetischen Nachweise bleiben
+separat dokumentiert. Für diese Dokumentation Kodierung, Struktur und Diff geprüft;
+keine erneute vollständige Programmsuite wegen unveränderter Programmquellen.
+
 ## Partnerfreigaben bei lokaler Regelerstellung am 03.11.2026
 
 ## Browserbearbeitung vorhandener Regeln am 03.11.2026 (lokal)

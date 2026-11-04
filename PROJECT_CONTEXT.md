@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Browserbearbeitung nach Modulupdate am 04.11.2026 im ursprünglichen Testmodul
+  praktisch geprüft: Geräte- und Zeitregel vorgefüllt, lokal geändert und wieder
+  geöffnet; ungültiges Zeitfenster ohne Entwurfsänderung abgewiesen. Deutsche
+  Debugmeldungen bestätigt. Ausgangsentwurf danach bytegleich hergestellt;
+  alle Regeln, Partnerfreigaben und gespeicherter/aktiver Z2M-Stand erhalten.
+  Keine Z2M-Speicherung, Aktivierung oder Geräteaktion. Details in DEVELOPMENT.md.
+
 - Vorhandene Regeln im Browser bearbeiten (ADR 0023): Geräte/Zeiten/Astro,
   Bedingungen und Aktionen mit typisierter Vorbelegung und geschützten Bereichen.
   Feste POST-edit-Route über den nativen Commitpfad; Kontext-, Rechte- und
