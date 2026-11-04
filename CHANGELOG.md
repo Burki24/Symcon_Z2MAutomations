@@ -23,6 +23,16 @@
 
 ## Neu
 
+- Die Automationszentrale prüft und überträgt Entwürfe getrennt je Z2M-System,
+  im nativen Formular und Browserdesigner. Status und genaue Ablehnungen bleiben
+  beim richtigen System sichtbar; andere Entwürfe bleiben erhalten. Speicherung
+  benötigt aktuelle Prüfung und Schaltrechte sowie abschließende Bestätigung.
+  Keine automatische Aktivierung oder Wiederholung nach einem Abbruch.
+  Verständliche Debugmeldungen erklären die einzelnen Schritte. Voraussetzung
+  ist die abgeschlossene gesicherte Übernahme. Nach möglichem Schreiben in Z2M
+  wird der rein lokale Übernahme-Rückweg gesperrt, um keine Wiederherstellung
+  des externen Betriebs vorzutäuschen. Keine Änderung am Erweiterungsprotokoll.
+
 - Vorhandene Z2M-Verbindungen werden in der Zentrale automatisch mit Name,
   Instanz-ID, Basistopic und MQTT-Zuordnung angezeigt und per Häkchen ausgewählt.
   Die Auswahl wird erst ausdrücklich übernommen. Bereits zugeordnete Systeme

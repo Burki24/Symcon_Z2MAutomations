@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 6 teilweise lokal umgesetzt: Prüfung und Speicherung je System in
+  Formular und Browserdesigner. Verbindung benötigt abgeschlossenen exklusiven
+  Besitzerwechsel; keine implizite Freigabe durch Zuordnung. Eigene Auftrags-
+  und Ergebnisjournale, aktuelle Session/Revisionsbasis, native Aktionsrechte,
+  frische Speicherstatusbestätigung und keine automatischen Wiederholungen.
+  Detaillierte Ablehnungen bleiben bis zur nächsten Prüfung erhalten. Möglicher
+  externer Schreibvorgang sperrt den rein lokalen Übernahme-Rückweg. Keine
+  Aktivierung oder Laufzeitsteuerung ergänzt, kein Test-/Live-Update und kein
+  Erweiterungsbuild geändert. Native/Browser-Praxisabnahme nach Update offen.
+
 - Browserstart korrigiert: Die sofortige Besitzersperre wies gleichzeitig
   geladene JavaScript-Dateien mit HTTP 409 ab. Nur feste statische GET-Dateien
   warten nun begrenzt bis 5000 ms; alle Besitzerprüfungen bleiben erhalten.

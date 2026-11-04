@@ -7,6 +7,8 @@ namespace Z2MAutomations;
 use stdClass;
 use Throwable;
 
+require_once __DIR__ . '/DraftTransferProtocol.php';
+
 trait ExtensionTransport
 {
     public function InstallExtension(bool $Notify = false): string
@@ -57,6 +59,10 @@ trait ExtensionTransport
             {
                 if ($this->TransportOwnershipBlocked()) return false;
                 $state = $this->RefreshState();
+                if (method_exists($this, 'DraftFrameAllowed') && !$this->DraftFrameAllowed($state, $frame)) {
+                    $this->SaveState($state);
+                    return false;
+                }
                 $this->SaveState($state);
                 $valid = $state['scope'] === $frame['scope'] && $state['mqttConnected'] && ($state['bridgeOnline'] || ($state['workflow']['kind'] ?? '') === 'deactivate')
                     && ($state['workflow']['transaction'] ?? null) === $frame['transaction'];

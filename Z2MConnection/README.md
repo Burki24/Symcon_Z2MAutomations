@@ -133,3 +133,23 @@ oder Stoppen von Automationsregeln bereit. Dafür wird weiterhin die vorhandene
 [Z2MAutomations-Instanz](../Z2MAutomations/README.md) verwendet.
 
 Lizenz: [PolyForm Noncommercial License 1.0.0](../LICENSE).
+
+## Entwürfe aus der zuständigen Zentrale
+
+Nach abgeschlossener gesicherter Übernahme nimmt diese Verbindung Prüf- und
+Speicheraufträge ausschließlich von ihrem eingetragenen Besitzer an. Die
+Zentrale nennt jeweils genau dieses System und den zugehörigen Entwurfsstand.
+Andere Verbindungen sind von einem Fehler oder einer ausbleibenden Antwort
+nicht betroffen. Die Verbindung legt keine zweite bearbeitbare Entwurfskopie an.
+
+Prüfung und Speicherung verwenden die bestehende Z2M-Erweiterung. Vor dem
+Speichern muss die Prüfung noch zur aktuellen Empfängersitzung und Revision
+passen. Eine neue Statusabfrage bestätigt anschließend die gespeicherte Datei.
+Bei einem Abbruch wird der Auftrag nicht automatisch erneut gesendet. Es wird
+keine Automation aktiviert; bei geänderter Datei stoppt die bestehende Ausführung.
+
+Die Funktionen `Z2MC_RequestDraftTransfer(InstanceID, Owner, OperationID, Yaml)`
+und `Z2MC_GetDraftTransferResult(InstanceID, Owner, OperationID)` sind für den
+internen Aufruf der zuständigen Zentrale bestimmt. Der erste Auftrag benötigt
+deren aktuelle systemgebundene Freigabe. Ein bloß übergebener Besitzerwert ist
+keine Berechtigung. Der zweite Aufruf liest nur das vorhandene Ergebnis.

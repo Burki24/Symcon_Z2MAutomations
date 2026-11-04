@@ -15,8 +15,8 @@ IPS_ApplyChanges($id);
 if (IPS_GetInstance($id)['InstanceStatus'] !== 104) {
     throw new RuntimeException('The scaffold must remain inactive.');
 }
-if (IPS_GetInstance($id)['ConnectionID'] !== 0 || count(IPS_GetChildrenIDs($id)) !== 15) {
-    throw new RuntimeException('Create only the fifteen status variables and no connection.');
+if (IPS_GetInstance($id)['ConnectionID'] !== 0 || count(IPS_GetChildrenIDs($id)) !== 18) {
+    throw new RuntimeException('Create only the eighteen status variables and no connection.');
 }
 
 $children = IPS_GetChildrenIDs($id);

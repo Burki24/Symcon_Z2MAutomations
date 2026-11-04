@@ -133,6 +133,10 @@ trait WorkspaceForm
     private function WorkspaceConfigurationForm(): string
     {
         $state = $this->ReadWorkspace();
+        if ($state['selectedSystem'] !== '') {
+            $this->SyncWorkspaceTransfer($state['selectedSystem']);
+            $state = $this->ReadWorkspace();
+        }
         $overview = json_decode($this->WorkspaceOverview($state), true, 32, JSON_THROW_ON_ERROR);
         $choices = $this->WorkspaceConnectionChoices($state);
         $rows = $choices['rows'];
@@ -198,7 +202,23 @@ trait WorkspaceForm
             $this->BindWorkspaceCallbacks($editing, $id, $generation);
             array_push($actions, ...$editing);
         }
-        $actions[] = ['type' => 'Label', 'caption' => 'Prüfen, Speichern, Aktivieren und Stopp werden im nächsten Schritt systemgebunden angebunden. Diese Oberfläche ändert ausschließlich lokale Entwürfe.'];
+        $transfer = $this->WorkspaceTransferView($record);
+        $callback = ' $reply = json_decode(Z2MA_RequestWorkspaceTransfer($id, ' . $source . ', ' . $generation
+            . ', $WorkspaceEditorFingerprint, %s, bin2hex(random_bytes(16)), $WorkspaceTransferContext), true);'
+            . ' if (!($reply["ok"] ?? false)) echo $reply["message"] ?? "Auftrag nicht bestätigt. Bitte Status und Debug prüfen.";';
+        $actions[] = ['type' => 'ExpansionPanel', 'caption' => 'Entwurf für dieses System prüfen und übertragen', 'expanded' => true, 'items' => [
+            ['type' => 'Label', 'caption' => $record['name'] . ' · Basistopic ' . $record['binding']['baseTopic']],
+            ['type' => 'ValidationTextBox', 'name' => 'WorkspaceTransferContext', 'value' => $transfer['context'], 'visible' => false],
+            ['type' => 'Label', 'name' => 'WorkspaceTransferMessage', 'caption' => $transfer['message']],
+            ['type' => 'Label', 'name' => 'WorkspaceTransferDetails', 'caption' => $transfer['details']],
+            ['type'       => 'Button', 'name' => 'WorkspaceValidate', 'caption' => 'Entwurf in Z2M prüfen', 'enabled' => $transfer['canValidate'],
+                'onClick' => sprintf($callback, '"validate"')],
+            ['type'       => 'Button', 'name' => 'WorkspaceStore', 'caption' => 'Geprüften Entwurf in Z2M speichern', 'enabled' => $transfer['canStore'],
+                'confirm' => 'Geprüften Entwurf für „' . $record['binding']['baseTopic'] . '“ in Z2M speichern? Bei Änderungen stoppt dort der bisherige Automatikbetrieb. Es wird keine Automation aktiviert.',
+                'onClick' => sprintf($callback, '"store"')],
+            ['type' => 'Button', 'caption' => 'Übertragungsstatus aktualisieren', 'onClick' => 'Z2MA_GetWorkspaceTransferStatus($id, ' . $source . ');'],
+            ['type' => 'Label', 'caption' => 'Jeder Entwurf wird getrennt geprüft und gespeichert. Speichern ersetzt nur die Automationsdatei dieses Systems und stoppt dort bei Änderungen die bisherige Ausführung. Aktivieren und Stopp sind in der Zentrale noch nicht verfügbar.']]];
+        $this->UpdateWorkspaceTransferDisplay($id, $transfer);
         $this->DebugEvent('AKTION', 'Gemeinsames Formular mit eindeutig ausgewähltem Systementwurf aufgebaut. Kein Gatewaywechsel und keine Übertragung.', ['Systembezug' => $id, 'Systeme' => count($options)]);
         return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);
     }

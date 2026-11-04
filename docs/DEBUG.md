@@ -685,3 +685,26 @@ Protokolliert werden keine YAML-Inhalte, Namen, Formularwerte, Browserzugänge
 oder Auswahltoken. Lokale Sichtbarkeit und Änderungsbestätigung bedeuten keine
 Übertragung oder Aktivierung in Z2M. Die zentrale Laufzeitsteuerung wird erst im
 nächsten Ausbauschritt angebunden.
+
+## Zentrale Prüfung und Übertragung
+
+`RequestWorkspaceTransfer`, `GetWorkspaceTransferStatus`,
+`RefreshWorkspaceTransfers` und die eng begrenzte lesende
+`GetWorkspaceTransferAuthority` verwenden `TraceModuleCall`. Das Verbindungsmodul
+führt `RequestDraftTransfer` und `GetDraftTransferResult` ebenso über den
+kanonischen DebugFlowHelper. Entscheidungen nennen System-UUID, Verbindung,
+Auftragsart, Revision, Größen und feste Ursachen. Namen, YAML, Eingabewerte,
+Sitzungsfreigaben und Browserzugänge werden nicht protokolliert.
+
+Die Meldungen unterscheiden ausdrücklich Vorbereitung, MQTT-Übergabe,
+Validierung, Annahme der Datei und abschließende Statusbestätigung. Fehlerpfade
+erklären Fristablauf, verlorenen Workflow, geänderten Entwurf/Empfänger und
+fehlende Schaltrechte. Validierungsdetails nennen im Debug ausschließlich den
+normalisierten Feldpfad und einen festen Ursachencode. Die verständliche Anzeige
+im Formular/Designer ergänzt Regelnamen und Nummern, ohne diese zu debuggen.
+Andere Systementwürfe und Abläufe werden nicht als erfolgreich mitgemeldet.
+
+Die readonly Variablen `TransferSystem`, `TransferStatus` und `TransferError`
+zeigen den ausgewählten Systembezug, Auftragszustand und die detaillierte
+Ablehnung. Sie sind nicht schaltbar. Eine Rückmeldung bedeutet ausschließlich
+Prüfung oder bestätigte Speicherung, niemals Aktivierung oder Gerätewirkung.

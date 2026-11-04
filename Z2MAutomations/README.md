@@ -117,9 +117,38 @@ Bearbeitung. Im Browser schließen Sie zuerst den offenen Bearbeitungsdialog.
 Andere Systeme behalten ihre Entwürfe; vorhandene Partnerfreigaben bleiben erhalten.
 Bei einer veralteten Ansicht laden Sie diese erneut, bevor Sie Änderungen übernehmen.
 
-**Die gemeinsame Oberfläche bearbeitet derzeit lokale Entwürfe. Systemgebundene
-Prüfung, Übertragung, Aktivierung und Stopp werden im nächsten Schritt ergänzt.**
-Die neue Systemauswahl benutzt dafür keine bisherigen MQTT-Bedienbuttons.
+Die gemeinsame Oberfläche kann den Entwurf des ausgewählten Systems jetzt
+prüfen und übertragen. **Aktivieren und Stopp sind in der Zentrale noch nicht
+verfügbar.** Die neue Systemauswahl benutzt keine bisherigen MQTT-Bedienbuttons.
+
+### Einen Systementwurf prüfen und übertragen
+
+Voraussetzung ist eine abgeschlossene [gesicherte Übernahme](#sicherung-und-lokale-übernahme).
+Die bloße Häkchenauswahl erteilt der Zentrale noch kein Schreibrecht. Fehlt die
+Übernahme, bleiben Prüf- und Speicherbuttons gesperrt; der Hinweis erklärt dies.
+
+1. Im nativen Formular oder oben im Designer das gewünschte **Z2M-System** wählen.
+2. Änderungen zunächst in dessen lokalen Entwurf übernehmen. Offene Eingaben
+   verhindern Prüfung und Speicherung.
+3. **Entwurf in Z2M prüfen** wählen. Der Auftrag wird nur an dieses System gesendet.
+   Bei Ablehnung stehen darunter Automation, betroffener Schritt und Ursache.
+   Die Meldung bleibt auch nach Statusabfragen bis zur nächsten Prüfung erhalten.
+4. Nach erfolgreicher Prüfung **Geprüften Entwurf in Z2M speichern** wählen und
+   bestätigen. Entwurfsänderungen oder ein Z2M-Neustart machen eine erneute Prüfung
+   nötig. Vor dem Senden werden die Schaltrechte der Aktionen erneut kontrolliert.
+5. Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
+   Die Datei wird nur auf diesem System ersetzt. Bei Änderungen stoppt dort die
+   bisherige Ausführung. Es wird keine Automation aktiviert.
+
+Während des Auftrags aktualisiert sich die Anzeige. **Übertragungsstatus
+aktualisieren** liest nur das vorhandene Ergebnis der Verbindung und wiederholt
+keinen Schreibauftrag. Fehlt die abschließende Bestätigung, zeigt das Modul den
+unsicheren Stand ausdrücklich an. Andere Systementwürfe bleiben erhalten und
+können unabhängig geprüft werden.
+
+Nach einer möglichen Speicherung in Z2M ist der rein lokale Übernahme-Rückweg
+gesperrt: Er könnte die geänderte Z2M-Datei nicht wiederherstellen. Ein betrieblicher
+Rückweg muss dann gesondert mit dem tatsächlichen Z2M-Stand geplant werden.
 
 Das Eintragen einer Z2M-Verbindung erzeugt einen leeren lokalen Dokumentplatz.
 Es kopiert keine vorhandenen Automationen und erteilt keine Empfangsfreigaben.
@@ -140,9 +169,12 @@ JSON mit `version`, `ok`, `error` und einer verständlichen `message`.
 | UpdateWorkspaceSystem | `string SystemID, int Generation, string Fingerprint, string Data, string OperationID, bool ChangePermissions` | Vollständige lokale Bearbeitungsdaten als JSON übernehmen. `ChangePermissions: false` schützt bestehende Freigaben; Änderungen daran müssen ausdrücklich mit true bestätigt werden. Keine Übertragung an Z2M. |
 | SelectWorkspaceSystem | `string SystemID, string Fingerprint, string OperationID` | Auswahl ändern; offene nicht übernommene Eingaben blockieren den Wechsel. Der Bestandseditor wird nicht umgebunden. |
 | RefreshWorkspaceCatalog | `string SystemID, int Generation, string Fingerprint, string OperationID` | Bereits bestätigten Katalog aus der Verbindung lokal einlesen. Keine neue MQTT-Anfrage und keine Entwurfsänderung. |
+| RequestWorkspaceTransfer | `string SystemID, int Generation, string Fingerprint, string Action, string OperationID, string TransferContext` | Ausschließlich `validate` oder `store` für den exakt angezeigten Entwurf. `TransferContext` aus dem vorherigen Transferstatus. Speicherung verlangt eine aktuelle erfolgreiche Prüfung und eine abgeschlossene Übernahme. |
+| GetWorkspaceTransferStatus | `string SystemID` | Lokales Auftragsergebnis unter `transfer`, einschließlich Freigabe der Buttons, Meldung und Fehlerdetails; keine MQTT-Anfrage. |
+| RefreshWorkspaceTransfers | keine | Lokale Ergebnisse laufender Systemaufträge einlesen und Anzeige aktualisieren; keine erneute Übertragung. Rückgabe void. |
 | GetWorkspaceEntities | `string SourceSystemID, string TargetSystemID, string Use, int Offset, int Limit` | Geräte-/Gruppen-/Szeneneigenschaften für `trigger`, `condition` oder `action`; 1 bis 100 Einträge je Seite. Rückgabe nennt total und hasMore. |
 
-Alle Funktionen liefern einen String. SystemID und Generation aus der Übersicht
+Bis auf RefreshWorkspaceTransfers liefern diese Funktionen einen String. SystemID und Generation aus der Übersicht
 oder den Systemdetails verwenden. Es sind keine frei gewählten Namen oder
 Symcon-Objekt-IDs. Bei ConfigureWorkspace und SelectWorkspaceSystem stammt der
 Fingerabdruck aus der Übersicht; bei UpdateWorkspaceSystem und
@@ -317,7 +349,9 @@ Zum Verwenden eine Automation bearbeiten und bei den Aktionen
 **„Aktionsfolge aufrufen“** sowie die gewünschte Folge wählen. Reine Folgen
 haben keinen eigenen Auslöser und keinen Regelschalter.
 
-Prüfen, Übertragen, Aktivieren und Stoppen bleiben im nativen Formular. Das Erstellen und Bearbeiten
+In der Zentrale sind Prüfen und Übertragen je System direkt im Designer verfügbar.
+Aktivieren und Stoppen sind dort noch nicht angebunden. Im bisherigen Einzelbetrieb
+bleiben diese Funktionen im nativen Formular. Das Erstellen und Bearbeiten
 im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen

@@ -381,3 +381,14 @@ Verbindungsbaustein auf diesem geprüften Vertrag aufgebaut werden.
 - [Mosquitto-Bridgekonfiguration](https://mosquitto.org/man/mosquitto-conf-5.html): mehrere Bridges, Topicfilter und Vermeidung von Schleifen.
 - Repository-Verträge: ADR 0002, ADR 0009, docs/EXTENSION_PROTOCOL.md,
   libs/ExtensionContract.php und libs/z2m/automations.schema.json.
+
+## Umsetzungsstand Schritt 6 am 04.11.2026
+
+Zentrale Prüfung und Übertragung sind lokal implementiert, mit expliziten
+Buttons im nativen Formular und Designer. Je System getrennte Aufträge,
+Validierungsdetails, Speicherbestätigung und Ausfallzustände; keine Aktivierung.
+Die abgeschlossene gesicherte Übernahme ist Voraussetzung für Schreibrechte.
+Synthetische Integration prüft 1/2/8 Systeme, gemeinsame/getrennte Broker,
+Teilfehler, stale replies, Neustart ohne Wiederholung und lokale Rückwegsperre
+nach möglichem externem Schreiben. Zentrale Aktivierung, Stopp, Einzelsteuerung
+und deren Praxisabnahme sind weiterhin offen. Keine Installation aktualisiert.

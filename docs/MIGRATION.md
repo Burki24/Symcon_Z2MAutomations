@@ -193,3 +193,20 @@ Vor einer praktischen Umstellung bleiben Modulupdate ohne automatische Migration
 native Parent-/Objekterhaltung, Dateirechte, Öffnen alter Tabs, zentraler Editor,
 Wiederanlauf und Daten-/Code-Rückweg auf der ausdrücklich freigegebenen
 Testinstallation zu prüfen. Am Live-System wurde für diese Umsetzung nichts geändert.
+
+## Sperre nach zentraler Übertragung
+
+Die zentrale Prüfung (`validate`) verändert keine Z2M-Datei und sperrt den
+lokalen Rückweg nicht. Ein vorbereiteter oder ausstehender Speicherauftrag wird
+dagegen vorsichtshalber als möglicher externer Schreibvorgang behandelt. Die
+Verbindung vermerkt den möglichen Versand dauerhaft vor dem MQTT-Senden.
+Sobald dieser Versand beobachtet wurde, bleibt die betroffene Übernahmeepoch
+auch nach späteren Aufträgen als extern beschrieben markiert.
+
+`RollbackSystemMigration` weist den lokalen Rückweg dann mit
+`z2m_write_started` ab, bevor Quellen, Besitzer oder Dokumente verändert werden.
+Das gilt auch bei verlorener Speicherantwort. Ein lokaler Rollback würde den
+geänderten Empfängerstand nicht zurücksetzen. Zunächst den tatsächlichen
+Z2M-Stand sichern und einen eigenen betrieblichen Rückweg planen. Ein eindeutig
+vor jedem Versand abgewiesener Speicherauftrag erlaubt weiterhin den bisherigen
+lokalen Rückweg. Es wird weder eine alte YAML blind eingespielt noch aktiviert.

@@ -6,7 +6,7 @@ namespace Z2MAutomations;
 
 use stdClass;
 
-/** Connection policy only: no draft ownership, storage or execution commands. */
+/** Connection observations; owned draft transfers use the separate scoped workflow. */
 trait ConnectionWorkflow
 {
     public function RequestDeviceCatalog(): string
@@ -20,7 +20,7 @@ trait ConnectionWorkflow
         {
             $state = $this->RefreshState();
             if (!in_array($kind, ['status', 'catalog', 'install'], true)) {
-                $this->DebugEvent('FEHLER', 'Dieser Verbindungsbaustein unterstützt noch keine Entwurfs- oder Ausführungsaufträge.');
+                $this->DebugEvent('FEHLER', 'Dieser Einstieg unterstützt nur Verbindungsaufträge. Entwürfe werden ausschließlich durch die zuständige Zentrale geprüft und übertragen.');
                 return [];
             }
             if ($state['workflow'] !== null) {
@@ -71,6 +71,7 @@ trait ConnectionWorkflow
         }
         if (!$this->MatchExtensionResponse($state, $suffix, $payload, $retained)) return null;
         $workflow = $state['workflow'];
+        if (isset($workflow['workspaceRequest'])) return $this->ReceiveDraftTransfer($state, $payload);
         if (($payload->status ?? null) !== 'ok' || !($payload->data ?? null) instanceof stdClass) {
             $code = $workflow['wire'] === 'install' ? 'installation_failed' : ($payload->error->code ?? 'invalid_response');
             if (!is_string($code) || !in_array($code, array_merge(ExtensionContract::ERROR_CODES, ['installation_failed', 'invalid_response']), true)) $code = 'invalid_response';
@@ -128,6 +129,7 @@ trait ConnectionWorkflow
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        $this->FinishDraftTransfer($state, $status, $error);
         $this->DebugEvent(
             $error === '' ? 'AKTION' : 'FEHLER',
             'Verbindungsauftrag abgeschlossen.',

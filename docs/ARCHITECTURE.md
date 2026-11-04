@@ -413,3 +413,15 @@ Die bestehende Z2M-Engine besitzt manuelle und automatische Läufe gemeinsam;
 Bedingungen, Aktionspfade und Limits bleiben an dieser Stelle. Keine
 YAML-Änderung und kein zweiter Runtime-Besitzer. Einzellaufsteuerung ändert
 weder Automatikbetrieb noch Wiederanlaufwunsch. Siehe ADR 0014.
+
+## Zentrale systemgebundene Übertragung
+
+WorkspaceTransfer hält explizite Aufträge und Anzeigen je Workspace-System.
+ConnectionDraftTransfer besitzt deren MQTT-Workflow und begrenzte persistente
+Ergebnisse. Das Dokument bleibt ausschließlich im zentralen Arbeitsbereich;
+keine zweite Editor- oder MQTT-Vertragsschicht wird eingeführt. Der reine
+DraftTransferProtocol bündelt vorhandene Session-/Revisions-/Prüfsummenprüfungen
+für Einzelbetrieb und Zentrale. Native Formulare und Designer benutzen dieselbe
+Auftragsfunktion. Prüfung und Speicherung sind umgesetzt; Aktivierung, Stopp und
+Einzellauf verbleiben als weiterer Teil von Schritt 6. Details: docs/WORKSPACE.md.
+Das Z2M-Artefakt und der Erweiterungsvertrag bleiben unverändert.

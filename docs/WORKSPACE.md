@@ -211,3 +211,60 @@ wurden geprüft. Sie bleiben unverändert. PersistentJsonCacheHelper wurde ebenf
 geprüft; dieser versionierte Benutzerarbeitsbereich mit Konfliktprüfung ist kein
 verwerfbarer API-Cache. Seine fachliche Persistenz bleibt beim lokalen Modell;
 es wird kein generischer Ersatzhelper und keine unverteilte Helperkopie eingeführt.
+
+## Prüfung und Übertragung pro System
+
+`RequestWorkspaceTransfer(SystemID, Generation, Fingerprint, Action, OperationID,
+TransferContext)` unterstützt ausschließlich `validate` und `store`. Das native
+Formular und die authentifizierten Designer-Endpunkte verwenden denselben Weg.
+Die vorangehende lokale Übernahme muss abgeschlossen und die Verbindung exklusiv
+an diese Zentrale gebunden sein. Zuordnung allein beansprucht keinen Besitzer.
+
+`GetWorkspaceTransferStatus(SystemID)` und `RefreshWorkspaceTransfers` lesen die
+lokalen Verbindungsresultate. Sie senden keine MQTT-Anfrage. Der kurze Timer läuft
+nur bei ausstehenden Aufträgen. Der Designer liest währenddessen begrenzt den
+lokalen Status; nach Ablauf kann der Benutzer ihn ausdrücklich erneut lesen.
+Aktivierung, Stopp und Einzellauf sind hier nicht implementiert.
+
+Die Zentrale hält je System das letzte Ergebnis in `WorkspaceTransfers` und die
+letzten 32 Auftragsquittungen. Die Verbindung hält die letzten 32 Ergebnisse in
+`ConnectionDraftTransfers`. Beide Journale enthalten Metadaten und begrenzte
+Validierungsdetails, keine YAML oder wiederverwendbare Empfängerfreigabe. Die
+Zentrale ergänzt für die Anzeige lokale Regelnamen, ohne sie zu debuggen.
+Journalgrenzen: Zentrale 1 MiB, Verbindung 256 KiB; beschädigte Einträge werden
+abgewiesen und nicht durch einen leeren Stand ersetzt.
+
+Vor dem Delegieren wird der Auftrag dauerhaft vermerkt. Die Verbindung prüft
+Besitzer, Übernahmeepoch, UUID, Generation, MQTT-Parent, Topic und YAML-Prüfsumme.
+Vor jedem weiteren MQTT-Schritt liest sie die aktuelle reine Freigabe der Zentrale
+über `GetWorkspaceTransferAuthority`. Nur dieser eng begrenzte lesende Aufruf
+umgeht die Eintrittssemaphore, um synchrone MQTT-Antworten ohne Selbstsperre zu
+ermöglichen. Er beansprucht keinen Besitzer und erteilt keine neue Berechtigung.
+Geänderte Dokumente verhindern den nächsten Schreibschritt. Eine bereits
+begonnene Speicherung darf weiter ausschließlich lesend bestätigt werden.
+
+Das vorhandene Status-/Prüf-/Speicherprotokoll bleibt unverändert. Geteilte reine
+Prüfungen in `DraftTransferProtocol` gelten auch für den bisherigen Einzelbetrieb.
+Session, Basisrevision, vorherige Prüfsumme und positive Validierungsquittung
+müssen zusammenpassen. Der identische bereits gespeicherte Stand ist zulässig;
+eine anderweitig verwendete Revision wird nicht überschrieben. Aktuelle native
+Aktionsbindungen und gerichtete Partnerfreigaben werden vor `store` geprüft.
+Erst Speicherantwort plus frische passende Statusantwort ergeben `stored`.
+Nur dann wird bei unveränderter YAML die Bearbeitungsbasis dieses Dokuments
+fortgeschrieben. Andere Dokumente und zwischenzeitliche Eingaben bleiben erhalten.
+
+Bei verlorenen Antworten, Fristablauf, Neustart oder Besitzerwechsel erfolgt keine
+automatische Wiederholung. Eine quittierte Datei ohne abschließenden Status heißt
+`stored_unconfirmed`; ein verlorener flüchtiger Workflow heißt `interrupted`.
+Prüfbelege sind flüchtig und geben nach einem Neustart keine Speicherung frei.
+Fehlerdetails überleben unabhängige Status-/Katalogabfragen bis zur neuen Prüfung.
+Ein fehlgeschlagenes System löst weder Sammelrollback noch Wiederholungen anderer
+Systeme aus. Nach möglichem externem Schreiben sperrt ein dauerhafter Epochmarker
+den rein lokalen Übernahme-Rückweg; siehe [Migration](MIGRATION.md).
+
+Designer: GET `transfer-status`, POST `transfer` mit gleicher Herkunft,
+JSON-Inhaltstyp, gültigem zeitlich begrenztem Designerzugang und exakten
+Systemheadern. Der Body enthält ausschließlich Aktion, Anfrage-UUID und
+Übertragungskontext. Ein verspätetes Ergebnis ersetzt keine inzwischen gewechselte
+Systemansicht. Speicherung verlangt eine sichtbare Bestätigung des Zieltopics
+und weist auf das Stoppen des bisherigen Betriebs hin.

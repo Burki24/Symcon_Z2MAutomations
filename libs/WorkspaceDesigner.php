@@ -35,6 +35,7 @@ trait WorkspaceDesigner
         if ($system === '') return json_encode(['contractVersion' => 1, 'mode' => 'read', 'workspace' => json_decode($this->GetWorkspaceOverview(), true),
             'module'                                              => ['id' => $this->InstanceID, 'name' => IPS_GetName($this->InstanceID), 'baseTopic' => '', 'gateway' => 0],
             'status'                                              => ['confirmed' => false], 'devices' => [], 'configuration' => null, 'draftAvailable' => false, 'createAllowed' => false, 'editAllowed' => false], JSON_THROW_ON_ERROR);
+        $this->SyncWorkspaceTransfer($system);
         unset($state);
         return $this->WithWorkspaceEditor($system, null, null, false, fn (): string => $this->DesignerData());
     }
@@ -45,6 +46,10 @@ trait WorkspaceDesigner
             $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
             if (!$this->DesignerTokenAllowed($token)) return [403, ['message' => 'Der Designerzugang ist abgelaufen. Bitte den Designer erneut im Modul öffnen.']];
             if ($asset === 'data') return [200, json_decode($this->WorkspaceDesignerData($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? ''), true, 32, JSON_THROW_ON_ERROR)];
+            if ($asset === 'transfer-status') {
+                $result = json_decode($this->GetWorkspaceTransferStatus($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? ''), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'devices') {
                 $offset = $_SERVER['HTTP_X_Z2MA_OFFSET'] ?? '';
                 if (!is_string($offset) || preg_match('/\A(?:0|[1-9][0-9]{0,4})\z/D', $offset) !== 1) throw new RuntimeException('invalid_request');
@@ -73,6 +78,13 @@ trait WorkspaceDesigner
             $fingerprint = $_SERVER['HTTP_X_Z2MA_FINGERPRINT'] ?? '';
             if (!SystemContract::SystemID($system) || !is_string($rawGeneration) || preg_match('/\A[1-9][0-9]{0,15}\z/D', $rawGeneration) !== 1
                 || !ExtensionContract::Checksum($fingerprint)) throw new RuntimeException('invalid_request');
+            if ($asset === 'transfer') {
+                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
+                if (count($body) !== 3 || !in_array($body['action'] ?? null, ['validate', 'store'], true)
+                    || !RuntimeDebugContract::UUID($body['requestId'] ?? null) || !ExtensionContract::Checksum($body['context'] ?? null)) throw new RuntimeException('invalid_request');
+                $result = json_decode($this->RequestWorkspaceTransfer($system, (int) $rawGeneration, $fingerprint, $body['action'], str_replace('-', '', $body['requestId']), $body['context']), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             $sessions = $this->GetBuffer('DesignerSessions');
             try {
                 return $this->WithWorkspaceEditor($system, (int) $rawGeneration, $fingerprint, true, function () use ($asset): array

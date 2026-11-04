@@ -17,7 +17,7 @@ trait AutomationDesigner
     use AutomationDesignerEditing;
     use AutomationDesignerSequences;
     private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'startup.js' => 'application/javascript',
-        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript'];
+        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
     {
@@ -52,24 +52,24 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = self::DESIGNER_ASSETS + ['select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
+            $types = self::DESIGNER_ASSETS + ['transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['create', 'edit', 'sequence', 'select-system'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['create', 'edit', 'sequence', 'select-system', 'transfer'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
-                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'select-system'], true)) {
+                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'select-system', 'transfer', 'transfer-status'], true)) {
                     [$status, $result] = $this->WorkspaceDesignerRequest($asset);
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;
                 }
-                if (in_array($asset, ['select-system', 'devices'], true)) {
+                if (in_array($asset, ['select-system', 'devices', 'transfer', 'transfer-status'], true)) {
                     $this->DesignerResponse(404, 'text/plain', 'Bitte zuerst Systeme zuordnen.');
                     return;
                 }
@@ -189,6 +189,7 @@ trait AutomationDesigner
             $data['workspaceContext'] = ['systemId' => $ctx['id'], 'generation' => $ctx['record']['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($ctx['record'])];
             $data['catalogAvailable'] = $ctx['catalogAvailable'];
             $data['devicePage'] = ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)];
+            $data['transfer'] = $this->WorkspaceTransferView($ctx['record']);
             $data['status'] = ['confirmed' => $ctx['info']['state']['runtimeConfirmed'] ?? false,
                 'mqttConnected'            => $ctx['info']['state']['mqttConnected'] ?? false, 'executing' => $ctx['info']['state']['extension']['executing'] ?? false,
                 'storedRevision'           => $ctx['info']['state']['extension']['storedRevision'] ?? 0, 'activeRevision' => $ctx['info']['state']['extension']['activeRevision'] ?? 0];

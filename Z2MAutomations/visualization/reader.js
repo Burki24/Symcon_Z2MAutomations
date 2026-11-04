@@ -2,6 +2,7 @@
 import {installCreation} from './creator.js';
 import {installEditing} from './editor.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
+import {installTransfers} from './transfer.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -69,6 +70,7 @@ import {installSystemSelection, loadSystemDevices} from './workspace.js';
         const previous = systemId; systemId = id;
         if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
     }});
+    const updateTransfers = installTransfers({getData: () => data, reload: () => load(), isLoading: () => busy, message});
 
     function triggerSummary(trigger) {
         if (trigger.type === 'device') return `${sourceName(trigger.device)} · ${propertyName(sourceDevice(trigger.device), trigger.property)} ${compare[trigger.operator] ?? trigger.operator} ${displayValue(sourceDevice(trigger.device), trigger.property, trigger.value)}`;
@@ -231,7 +233,8 @@ import {installSystemSelection, loadSystemDevices} from './workspace.js';
                 $('#search').value = view?.search ?? '';
             }
             data = next; systemId = nextSystem; updateSystems(data);
-            if (data.workspace) $('.preview-notice > span:last-child').textContent = 'Getrennte lokale Entwürfe je Z2M-System erstellen und bearbeiten. Zentrale Prüfung und Übertragung werden im nächsten Schritt ergänzt.';
+            if (data.workspace) $('.preview-notice > span:last-child').textContent = 'Entwürfe je Z2M-System bearbeiten, ausdrücklich prüfen und übertragen. Es wird keine Automation automatisch aktiviert.';
+            $('.canvas-footer > span:last-child').textContent = data.workspace ? 'Lokale Entwürfe bearbeiten · Übertragung nur nach Bestätigung' : 'Automationen und Aktionsfolgen bearbeiten · Z2M bleibt unverändert';
             document.title = `${data.module.name} · Automationsdesigner · Entwurf`;
             $('#draft-status').textContent = data.draftAvailable ? `Lokaler Entwurf · Revision ${data.configuration.revision}` : 'Kein passender Editorentwurf geladen';
             $('#runtime-status').textContent = data.status.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision}` : 'Betrieb noch nicht bestätigt';
@@ -265,7 +268,7 @@ import {installSystemSelection, loadSystemDevices} from './workspace.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); }
     }
     installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
         const refreshed = await load(ruleId);

@@ -248,15 +248,7 @@ trait ExtensionIntegration
             }
             if ($workflow['verifyStorage'] ?? false) {
                 $stored = $workflow['storedSnapshot'];
-                $error = match (true) {
-                    $metadata['session'] !== $stored['session'] => 'session_mismatch',
-                    $metadata['storedRevision'] !== $stored['storedRevision'] || $metadata['checksum'] !== $stored['checksum']
-                        || $metadata['automationCount'] !== $stored['automationCount'] => 'revision_conflict',
-                    $metadata['storage'] !== 'ok'                                      => 'storage_unavailable',
-                    $metadata['runtimeVersion'] !== 1                                  => 'runtime_unavailable',
-                    $metadata['executing'] !== $stored['executing']                    => 'runtime_mismatch',
-                    default                                                            => ''
-                };
+                $error = DraftTransferProtocol::StoredStatusError($metadata, $stored);
                 if ($error !== '') {
                     $this->FinishExtensionWorkflow($state, 'error', $error);
                     return null;
@@ -391,26 +383,19 @@ trait ExtensionIntegration
         if ($workflow['wire'] === 'validate') {
             $data = $payload->data;
             $target = $workflow['target'];
-            if (($data->valid ?? null) !== true || !ExtensionContract::Revision($data->revision ?? null) || $data->revision < 1
-                || ($data->checksum ?? null) !== $workflow['checksum'] || !is_int($data->automation_count ?? null)
-                || $data->automation_count < 0 || $data->automation_count > 100 || ($data->executing ?? null) !== false
-                || $target !== $state['extension']) {
+            $receipt = DraftTransferProtocol::Validation($data, $workflow['checksum'], $target, $state['extension']);
+            if ($receipt === null) {
                 $state['validation'] = null;
                 $state['extensionConfirmed'] = false;
                 $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
                 return null;
             }
-            $state['validation'] = ['checksum' => $workflow['checksum'], 'revision' => $data->revision,
-                'automationCount'              => $data->automation_count, 'session' => $target['session'],
-                'expectedRevision'             => $target['storedRevision'], 'previousChecksum' => $target['checksum']];
+            $state['validation'] = $receipt;
             $this->FinishExtensionWorkflow($state, 'validated');
             return null;
         }
-        $metadata = ExtensionContract::Storage($payload->data);
-        $receipt = $state['validation'];
-        if ($metadata === null || $receipt === null || $metadata['storedRevision'] !== $receipt['revision']
-            || $metadata['checksum'] !== $workflow['checksum'] || $metadata['automationCount'] !== $receipt['automationCount']
-            || $metadata['storage'] !== 'ok' || !is_bool($payload->data->unchanged ?? null)) {
+        $metadata = DraftTransferProtocol::Storage($payload->data, $state['validation'], $workflow['checksum']);
+        if ($metadata === null) {
             $state['extensionConfirmed'] = false;
             $state['validation'] = null;
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
@@ -436,8 +421,7 @@ trait ExtensionIntegration
 
     private function ReceiptMatches(array $receipt, array $metadata): bool
     {
-        return $receipt['session'] === $metadata['session'] && $receipt['expectedRevision'] === $metadata['storedRevision']
-            && $receipt['previousChecksum'] === $metadata['checksum'];
+        return DraftTransferProtocol::ReceiptMatches($receipt, $metadata);
     }
 
     private function RuntimeMatches(array $metadata, array $target, bool $active): bool

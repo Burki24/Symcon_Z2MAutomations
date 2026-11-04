@@ -3843,3 +3843,68 @@ Struktur und zentrale Kodierungsprüfung, offizieller StylePHP-Check der 18
 eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer im Prüfmodus (114 Dateien)
 und git diff --check erfolgreich. Fremdquellen und Erweiterungsartefakt
 unverändert; Entwicklung auf dev, kein Commit oder Push durch den Agenten.
+
+## Zentrale Entwurfsprüfung und Übertragung am 04.11.2026
+
+Schritt 6 ergänzt ausschließlich validate/store je Z2M-System. Keine Aktivierung,
+kein Stopp, kein Einzellauf und kein neuer Erweiterungsbuild. Native Formular-
+buttons und Designer verwenden RequestWorkspaceTransfer mit UUID, Generation,
+Dokumentfingerabdruck, neuer Auftragskennung und aktuellem Übertragungskontext.
+Voraussetzung ist eine abgeschlossene gesicherte Übernahme; Häkchenauswahl allein
+erteilt keine Schreibrechte. Die vorhandenen ParentConnection-, DataFlow- und
+DebugFlow-Verträge wurden geprüft und unverändert verwendet. Journal und
+fachlicher Protokollablauf bleiben librarylokal.
+
+Vor der Delegation vermerkt die Zentrale den Auftrag dauerhaft. Die Verbindung
+prüft Eigentümerschaft und aktuellen Entwurf erneut vor jedem MQTT-Schritt.
+Die reine Freigabeabfrage der Zentrale besitzt eine begrenzte Ausnahme von der
+Eintrittssperre für synchrone Antwortketten. Es gibt keine zweite Editorablage
+und keine Freigabe durch frei übergebene Besitzerwerte. Gemeinsam genutzte reine
+Session-/Revisions-/Prüfsummenprüfungen erhalten den bisherigen Einzelbetrieb.
+
+Speicherung benötigt aktuellen Prüfbeleg, unveränderte Revisionsbasis, bestätigten
+Katalog sowie erneut geprüfte native Aktionsbindungen und Partnerfreigaben.
+Annahme der Datei allein bedeutet noch keinen Erfolg: Eine frische Statusantwort
+bestätigt Sitzung, Revision, Prüfsumme, Anzahl und Laufzustand. Danach wird nur
+bei unverändertem Dokument dessen Bearbeitungsbasis fortgeschrieben. Roh-YAML,
+Auswahl und offene Eingaben bleiben erhalten. Bei einem währenddessen bearbeiteten
+Dokument wird kein falscher neuer Basisstand eingetragen.
+
+Verlorene Antworten, Zeitablauf, Gatewaywechsel und Neustart führen nicht zu
+stillen Wiederholungen. Fehlerdetails bleiben bis zur neuen Prüfung sichtbar.
+Ein Gatewaywechsel beendet auch die zentrale Warteanzeige verständlich, ohne
+eine Rückmeldung des neuen Ziels zu verwenden. Vor einem möglichen store-Versand
+entsteht ein persistenter Vermerk; die Zentrale sperrt danach den rein lokalen
+Übernahme-Rückweg. Er könnte den externen Stand nicht wiederherstellen.
+
+Tests/workspace-transfer.php nutzt tatsächlich übernommene Besitzer, synthetische
+MQTT-Parents und die öffentlichen Modulfunktionen für 1/2/8 Systeme. Gemeinsame und
+getrennte Broker sowie identische Geräte- und Regel-IDs geprüft. Abgedeckt sind
+positive Prüfung/Speicherbestätigung, Einzelsystemfehler bei weiter nutzbarem
+Nachbarsystem, detaillierte Ablehnung und Erhalt nach Statusabfrage, offene
+Eingaben, Dokumentänderung, verlorene native Schaltbindung, alte Sitzung, falsche
+Transaktion/Phase, Retain, inkompatibles Protokoll, Fristablauf, fehlende finale
+Bestätigung, verlorener Workflow und Gatewaywechsel. Tatsächlich generierte
+native Callbacks und authentifizierte HTTP-Einstiege verwenden denselben Weg.
+Doppelte Aufträge senden nicht erneut; Debug enthält keine privaten Testnamen.
+
+Tests/workspace-transfer.test.mjs prüft die Browserheader, explizites POST statt
+GET, System-/Generationszuordnung, deutsche Fehler ohne Browserrohdaten und
+fehlende automatische Schreibwiederholungen. DOM-Fixtures prüfen gesperrten
+Speicherbutton, Bestätigungsabbruch und Verwerfen einer verspäteten Antwort nach
+Systemwechsel. CSS lässt die neuen Buttons umbrechen und Fehlertexte vollständig
+anzeigen. Eine sichtbare native/browsergestützte Praxisabnahme dieses Schritts
+auf Symcon steht nach Update noch aus. Keine Kachel-/IPSView-Ausgabe ergänzt.
+
+Keine Test- oder Produktivinstallation angesprochen oder aktualisiert. Keine
+realen MQTT-Nachrichten, Dateiübertragung, Aktivierung, Neustarts oder Schaltungen.
+Fremdquellen, kanonische Helper und Erweiterungsartefakt unverändert. Entwicklung
+auf dev; Commit und Push verbleiben beim Benutzer über GitHub Desktop.
+
+Prüfnachweis: php tests/run.php einschließlich 147 JavaScript-Tests erfolgreich.
+Zusätzlich betroffene Workspace-Integration nach den abschließenden Korrekturen,
+Struktur und zentrale Kodierungsprüfung bestanden. Offizieller StylePHP-Check
+der 18 eigenen JSON-Dateien in isolierter Kopie erfolgreich; Fremdquellen werden
+nicht hineinkopiert. PHP CS Fixer 3.95.27 im Prüfmodus für 118 Dateien ohne Befund. Alle 32
+geänderten eigenen Dateien sind UTF-8 mit LF; git diff --check ist ebenfalls
+ohne Befund. Sichtbare Symcon-Abnahme bleibt ausdrücklich offen.

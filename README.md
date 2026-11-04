@@ -73,14 +73,17 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
 
 - [Automationsdesigner im Browser](Z2MAutomations/README.md#automationsdesigner-im-browser):
   Geräte-, Zeit- und Sonnenregeln erstellen und vorhandene Automationen bearbeiten.
-  Änderungen betreffen den lokalen Symcon-Entwurf; Prüfung und Übertragung bleiben
-  im nativen Modul. Neue Regeln beginnen ausgeschaltet.
+  Änderungen betreffen zunächst den lokalen Symcon-Entwurf. In der Zentrale sind
+  Prüfung und Übertragung je System auch im Designer verfügbar. Neue Regeln
+  beginnen ausgeschaltet; es erfolgt keine automatische Aktivierung.
 - [Vorschau des Automationsdesigners](docs/prototypes/automation-designer/README.md):
   separat öffnbarer Oberflächenentwurf mit erfundenen Beispielen. Noch keine
   Anbindung an das Modul oder an Geräte.
 - [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md#automationszentrale-anlegen):
   neue Z2MAutomations-Instanz ohne eigene MQTT-Schnittstelle anlegen und vorhandene
-  Z2M-Verbindungen für die gemeinsame lokale Bearbeitung zuordnen.
+  Z2M-Verbindungen für die gemeinsame Bearbeitung zuordnen. Nach gesicherter
+  Übernahme Entwürfe je System prüfen und übertragen; zentrale Aktivierung und
+  Stopp folgen noch.
 - [Z2M-Verbindung](Z2MConnection/README.md): neuer Verbindungsbaustein zur
   Vorbereitung der zentralen Verwaltung. Prüft jeweils ein System und lädt
   dessen Gerätedaten. Bestehende Instanzen und Entwürfe werden noch nicht übernommen.
