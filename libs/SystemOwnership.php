@@ -44,7 +44,7 @@ trait SystemOwnership
 
     private function WithOwnershipEntry(string $function, callable $callback): mixed
     {
-        if (in_array($function, ['Create', 'GetSystemOwnership', 'GetSystemMigrationAuthority'], true)) return $callback();
+        if (in_array($function, ['Create', 'GetSystemOwnership', 'GetSystemMigrationAuthority', 'GetCompatibleParents'], true)) return $callback();
         $nested = $this->ownershipEntry;
         // Replies may arrive while SendDataToParent is still on another entry's stack.
         $receive = $function === 'ReceiveData';

@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Anlegeweg der Zentrale korrigiert: Alias „Zigbee2MQTT Automationszentrale“
+  und explizites SDK-GetCompatibleParents mit {}. Der native Instanzassistent
+  darf keine eigene MQTT-Schnittstelle fordern. Datenflussmetadaten bleiben
+  für bestehende Quellverbindungen erhalten; der Getter ändert keine Zuordnung.
+  Neue Instanzen öffnen direkt Z2M-Systeme. Verbindungsmodul unverändert.
+  Nur lokal geprüft; native Assistentenabnahme nach Modulupdate steht aus.
+
 - Schritt 5 lokal ergänzt: gemeinsame Systemauswahl im nativen Formular und
   Browserdesigner, lokale Bearbeitung je System, Vorbelegung, persistente offene
   Eingaben und expliziter Schutz vor falschem Speicherziel. Keine zusätzliche

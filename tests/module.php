@@ -59,6 +59,19 @@ foreach (formFields($form['elements']) as $field) {
 }
 
 $module = IPS\InstanceManager::getInstanceInterface($id);
+// The foreign stub returns {} unconditionally; the native kernel instead infers
+// a MQTT parent from metadata unless the module overrides this SDK entry point.
+$parentPolicy = new ReflectionMethod($module, 'GetCompatibleParents');
+if ($parentPolicy->getDeclaringClass()->getName() !== $metadata['name'] || $module->GetCompatibleParents() !== '{}') {
+    throw new RuntimeException('The central creation wizard must explicitly require no MQTT parent.');
+}
+if (!in_array('Zigbee2MQTT Automationszentrale', $metadata['aliases'], true)) {
+    throw new RuntimeException('The central manager must be identifiable by its name in the creation wizard.');
+}
+$setup = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+if (!isset($setup['WorkspaceConnections']) || IPS_GetInstance($id)['ConnectionID'] !== 0) {
+    throw new RuntimeException('A new parentless manager must open the central system setup.');
+}
 $draft = "schema_version: 1\nrevision: 1\nautomations: []\n";
 if ($module->ValidateYaml($draft) !== '') {
     throw new RuntimeException('Disabled module cannot send validation requests.');

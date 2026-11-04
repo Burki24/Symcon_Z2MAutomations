@@ -1,5 +1,13 @@
 # Unveröffentlicht
 
+## Korrigiert
+
+- Die neue Automationszentrale lässt sich ohne eigenen MQTT-Client oder -Server
+  anlegen. Der native Instanzassistent erhält dafür eine ausdrückliche
+  SDK-Angabe ohne Parent-Anforderung. Die Auswahl heißt nun eindeutig
+  „Zigbee2MQTT Automationszentrale“. Vorhandene Verbindungen und Entwürfe werden
+  dadurch nicht umgestellt; Z2M-Verbindungsinstanzen behalten ihre MQTT-Anbindung.
+
 ## Planung
 
 - Zielarchitektur und Übernahmeplan für eine zentrale Automationsinstanz mit

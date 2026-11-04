@@ -647,6 +647,12 @@ vollständige Ablaufhistorie und bestätigt keine physische Gerätewirkung.
 
 ## Gemeinsame Systemauswahl
 
+GetCompatibleParents meldet den Anlegeweg ohne eigene MQTT-Schnittstelle und
+verweist auf die spätere Zuordnung der Z2M-Verbindungsinstanzen. Dieser reine
+SDK-Metadatenaufruf bleibt auch während einer Übernahmesperre verfügbar. Er
+ändert weder Elternverbindung noch Besitzer oder Entwürfe und verwendet
+ebenfalls TraceModuleCall mit dem kanonischen DebugFlowHelper.
+
 ApplyWorkspaceConnections, ChooseWorkspaceSystem, ReadWorkspaceCatalog und
 WorkspaceEditorAction verwenden den kanonischen DebugFlowHelper über
 TraceModuleCall. Lesende Übersicht, native Bearbeitung und Browserzugriffe

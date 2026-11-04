@@ -176,6 +176,15 @@ class Z2MAutomations extends IPSModuleStrict
         });
     }
 
+    public function GetCompatibleParents(): string
+    {
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): string
+        {
+            $this->DebugEvent('AKTION', 'Automationszentrale ohne eigene MQTT-Schnittstelle anlegen. Die Z2M-Systeme werden später über ihre Verbindungsinstanzen zugeordnet. Vorhandene Verbindungen bleiben unverändert.');
+            return '{}';
+        });
+    }
+
     public function GetConfigurationForm(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function ()

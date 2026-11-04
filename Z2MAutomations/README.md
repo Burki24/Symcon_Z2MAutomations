@@ -4,7 +4,9 @@ Mit diesem Modul erstellen und bearbeiten Sie Automationen per Klick. Symcon
 überträgt die Regeln an die eigene Z2M-Erweiterung. Nach dem Speichern und
 Aktivieren führt Zigbee2MQTT sie auch bei ausgeschaltetem Symcon aus.
 
-Für den Einstieg:
+Für die neue gemeinsame Verwaltung beginnen Sie mit
+[Automationszentrale anlegen](#automationszentrale-anlegen).
+Die folgenden Schritte beschreiben die bisherigen Funktionen im Einzelbetrieb:
 
 1. [MQTT-Verbindung einrichten](#voraussetzungen-und-einrichtung).
 2. [Erweiterung installieren](#erweiterung-installieren).
@@ -19,6 +21,29 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [Szenen](#vorhandene-szenen-aufrufen), [Aktionsfolgen](#eine-aktionsfolge-mehrfach-verwenden),
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
+
+## Automationszentrale anlegen
+
+1. Z2MAutomations in der Symcon-Modulverwaltung aktualisieren. Ein Update der
+   Z2M-Erweiterung ist für diesen Einrichtungsweg nicht erforderlich.
+2. Im Objektbaum eine neue Instanz hinzufügen und nach
+   **Zigbee2MQTT Automationszentrale** suchen. Das ist das Modul Z2MAutomations.
+3. Die Instanz beispielsweise **Z2M-Automationszentrale** nennen und anlegen.
+   Es wird kein MQTT-Client oder -Server als Schnittstelle ausgewählt.
+4. Im Formular erscheint **Z2M-Systeme**. Dort die vorhandenen
+   **Zigbee2MQTT Verbindung**-Instanzen eintragen, höchstens acht.
+5. **Systemzuordnung übernehmen** wählen. Anschließend steht die gemeinsame
+   Systemauswahl zur Verfügung. Dieser Schritt kopiert noch keine Automationen.
+
+Erscheint beim Anlegen weiterhin „Schnittstelle konfigurieren“ mit einer
+MQTT-Auswahl, den Dialog abbrechen und prüfen, ob das Modulupdate mit dem neuen
+Anlegeweg geladen ist. Keinen MQTT-Client als Platzhalter auswählen.
+
+Vorhandene Automationsinstanzen bleiben bis zur ausdrücklichen
+[gesicherten Übernahme](#sicherung-und-lokale-übernahme) erhalten. Das Anlegen der
+Zentrale und das Zuordnen ihrer Verbindungen übernehmen weder Entwürfe noch
+Besitzer und verändern keine Automationen in Z2M. Die Zentrale und die
+Z2M-Verbindungen sind die beiden unterschiedlichen Module dieser Library.
 
 ## Bestandsprüfung für die zentrale Verwaltung
 

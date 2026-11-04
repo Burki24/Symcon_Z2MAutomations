@@ -2,6 +2,13 @@
 
 ## Geplanter Umbau auf mehrere Systeme
 
+Die zentrale Instanz wird als „Zigbee2MQTT Automationszentrale“ angeboten.
+GetCompatibleParents liefert ausdrücklich {}: Der native Assistent darf aus
+den bisherigen Datenflussmetadaten keine eigene MQTT-Schnittstelle ableiten.
+Die Metadaten bleiben für vorhandene Quellverbindungen erhalten. Dieser Getter
+konfiguriert und trennt keine Verbindung; Z2MConnection ist weiterhin der
+MQTT-Verbindungsbaustein. Es entsteht kein drittes Modul.
+
 Schritt 5 verbindet WorkspaceForm, WorkspaceDesigner und WorkspaceEditorContext
 mit den getrennten Dokumenten: gemeinsame Auswahl, explizite System-/Generations-
 und Änderungsbindung, native Editorcallbacks und Browser-CRUD. Editorzugriffe

@@ -78,14 +78,15 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
 - [Vorschau des Automationsdesigners](docs/prototypes/automation-designer/README.md):
   separat öffnbarer Oberflächenentwurf mit erfundenen Beispielen. Noch keine
   Anbindung an das Modul oder an Geräte.
-- [Z2MAutomations](Z2MAutomations/README.md): Einrichtung, Klick-Editor, Import,
-  Prüfung, Übertragung und Steuerung der Automationen.
+- [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md#automationszentrale-anlegen):
+  neue Z2MAutomations-Instanz ohne eigene MQTT-Schnittstelle anlegen und vorhandene
+  Z2M-Verbindungen für die gemeinsame lokale Bearbeitung zuordnen.
 - [Z2M-Verbindung](Z2MConnection/README.md): neuer Verbindungsbaustein zur
   Vorbereitung der zentralen Verwaltung. Prüft jeweils ein System und lädt
   dessen Gerätedaten. Bestehende Instanzen und Entwürfe werden noch nicht übernommen.
 - [Lokaler Mehrsystem-Arbeitsbereich](Z2MAutomations/README.md#lokaler-arbeitsbereich-für-mehrere-systeme):
-  Systemliste und getrennte Entwürfe über Modulfunktionen vorbereiten. Gemeinsamer
-  Editor und Übernahmeoberfläche folgen in weiteren Schritten.
+  Systemliste und getrennte Entwürfe im gemeinsamen nativen und Browsereditor
+  verwalten. Die gesicherte Übernahme wird noch über Modulfunktionen bedient.
 - [Eigene Z2M-Erweiterung](libs/z2m/README.md): Empfänger mit Schema-Prüfung,
   persistentem Konfigurationsspeicher und Sicherung der vorherigen Fassung.
 

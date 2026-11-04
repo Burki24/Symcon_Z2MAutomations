@@ -156,11 +156,13 @@ foreach ([1, 2, 8] as $count) {
     $state = $decode($manager->Raw('SystemWorkspace'));
     foreach ($rows as $row) $check(in_array($row['connectionInstance'], $manager->GetReferenceList(), true), 'Committed connection references are registered');
     $check(count($state['systems']) === $count, 'Every original system is retained');
+    $check($manager->GetCompatibleParents() === '{}', 'Owned manager still declares no native parent requirement');
     $check(str_contains($manager->GetConfigurationForm(), 'WorkspaceSystem'), 'Committed manager can open the system-bound native editor');
     $check(isset($decode($manager->GetDesignerData())['workspaceContext']), 'Committed owner can read its system-bound browser model');
     foreach ($state['systems'] as $systemID => $record) {
         $id = $record['binding']['sourceInstance'];
         $source = IPS\InstanceManager::getInstanceInterface($id);
+        $check($source->GetCompatibleParents() === '{}', 'Parent-policy metadata remains valid for a fenced source without mutating its connection');
         $check($record['data']['document']['yaml'] === $originals[$id]['yaml'] && $source->Raw('EditorDraft') === $originals[$id]['draft'], 'Raw YAML and source draft bytes survive ownership transfer');
         $check($record['data']['document']['editorDraft']['configuration']['revision'] === 5 && $record['data']['selection']['rule'] === 'same_rule', 'Revision and selected IDs survive without merging equal IDs');
         $check(!isset($record['data']['document']['editorDraft']['session'], $record['data']['document']['editorDraft']['scope']) && $record['catalog'] === null, 'Old receiver capabilities and historical catalogs grant no new authority');

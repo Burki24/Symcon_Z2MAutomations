@@ -3725,3 +3725,37 @@ abschließenden Meldungs- und Katalogseitenänderungen wurden die betroffenen
 Modul-, Designer-, Migrations- und Workspace-UI-Tests erneut ausgeführt.
 Struktur, zentrale Kodierungsprüfung, StylePHP der 18 eigenen JSON-Dateien,
 PHP CS Fixer 3.95.27 im Prüfmodus (112 Dateien) und git diff --check bestanden.
+
+## 04.11.2026: Anlegeweg ohne eigene MQTT-Schnittstelle
+
+Der native Assistent leitete für Z2MAutomations weiterhin einen MQTT-Parent
+aus den bisherigen Datenflussmetadaten ab. Dadurch ließ sich die im lokalen
+Stub bereits parentlos erzeugte Zentrale nicht regulär über die Konsole anlegen.
+Die Stubs bilden diese native GetCompatibleParents-Heuristik nicht nach.
+
+Das Modul überschreibt jetzt den offiziellen SDK-Einstieg GetCompatibleParents
+und liefert {}. Der Instanzassistent erhält damit ausdrücklich keine eigene
+Schnittstellenanforderung. Der Alias lautet „Zigbee2MQTT Automationszentrale“.
+Modul-GUID, Typ, Präfix, Datenflussmetadaten und vorhandene Elternverbindungen
+bleiben erhalten. Das ist keine automatische Übernahme oder Trennung; nur das
+Verbindungsmodul fordert weiterhin im Assistenten einen MQTT-Parent.
+
+Der Metadatengetter verwendet TraceModuleCall und den DebugFlowHelper. Als
+reiner Getter ist er auch bei gesperrten Quellen, vorbereiteter Übernahme und
+übernommener Verwaltung verfügbar. Er benötigt keine schreibende Besitzerfreigabe.
+
+tests/module.php scheitert vor der Korrektur an der fehlenden ausdrücklichen
+SDK-Implementierung. Die zusätzliche Deklarationsprüfung ist wegen des leeren
+Stub-Standardwerts nötig; sie ersetzt keinen echten Konsolenassistenten.
+Danach prüft der Test {} und die direkte Systemeinrichtung einer neuen
+parentlosen Instanz. tests/migration.php prüft den Getter auch bei übernommenen
+Verwaltungen und gesperrten Quellen; deren Daten und Verbindungen bleiben erhalten.
+
+Keine Test-/Live-Installation oder Z2M-Aktion. Die native Assistentenprüfung
+nach Modulupdate ist offen; ein Erweiterungsupdate ist nicht erforderlich.
+
+php tests/run.php einschließlich 141 JavaScript-Tests erfolgreich. Zusätzlich
+Struktur, zentrale Kodierungsprüfung, offizieller StylePHP-Check der 18 eigenen
+JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmodus (112 Dateien)
+und git diff --check ohne Befund. Entwicklung auf dev, kein Commit oder Push
+durch den Agenten; kanonische Helper und Fremdquellen unverändert.
