@@ -23,6 +23,9 @@ foreach (['libs/z2m/src/extension.mjs', 'libs/z2m/src/runtime.mjs', 'libs/z2m/z2
     $check(is_file($root . '/' . $file), 'Missing extension file: ' . $file);
 }
 $check(is_file($root . '/libs/z2m/src/mesh.mjs') && is_file($root . '/tests/mesh.test.mjs'), 'Cross-system source and tests');
+foreach (['libs/SystemWorkspace.php', 'libs/WorkspaceState.php', 'libs/Z2MInstanceIdentity.php', 'libs/NativeVariableBindings.php', 'tests/workspace.php'] as $file) {
+    $check(is_file($root . '/' . $file), 'Missing workspace component: ' . $file);
+}
 $check(is_file($root . '/libs/z2m/src/scenes.mjs') && is_file($root . '/libs/EditorScenes.php') && is_file($root . '/tests/editor-scenes.inc.php'), 'Scene discovery, editor integration and tests');
 $check($library['name'] === 'Z2MAutomations' && $library['compatibility']['version'] === '9.0', 'Library identity and platform');
 $check(str_contains(file_get_contents($root . '/LICENSE'), 'PolyForm Noncommercial License 1.0.0'), 'Project license');

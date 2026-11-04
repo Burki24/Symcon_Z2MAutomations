@@ -2,6 +2,15 @@
 
 ## Geplanter Umbau auf mehrere Systeme
 
+Schritt 3 ergänzt die lokale Datenhaltung und die Modulfunktionen aus
+[WORKSPACE.md](WORKSPACE.md): ein versioniertes Attribut je Verwaltung, einzelne
+Dokumente und Bearbeitungskontexte je System, lokale Quittungen und gerichtete
+Zielauswahl. Registry und Dokumente sind von Legacy-Attributen und dessen
+MQTT-Parent getrennt. Die gemeinsame Oberfläche und exklusive Besitzerumschaltung
+sind weiterhin spätere Schritte. Native Identität und Schaltrechte verwenden
+gemeinsame librarylokale Adapter mit dem Bestandseditor; Z2M-Katalog und
+Symcon-Bindungen bleiben getrennte Bereiche.
+
 ADR 0026 beschreibt die beschlossene Zielarchitektur: eine zentrale Verwaltung
 mit bis zu acht Z2MConnection-Modulen. Jedes System behält Dokument, Revision
 und Laufzeit; die Übernahme vorhandener Entwürfe und Bindungen erfolgt ausdrücklich

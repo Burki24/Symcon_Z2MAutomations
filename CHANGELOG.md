@@ -9,6 +9,15 @@
 
 ## Neu
 
+- Lokaler zentraler Arbeitsbereich als nächster Baustein der Mehrsystemverwaltung:
+  bis zu acht Verbindungen ausdrücklich zuordnen und Dokumente, Auswahl und offene
+  Eingaben getrennt halten. Aktuelle native Schaltrechte und gerichtete Freigaben
+  begrenzen die Zielauswahl. Veraltete Bearbeitungsstände werden abgewiesen;
+  wiederholte Aufträge erhalten eine Quittung. Vorhandene Freigaben sind bei
+  gewöhnlichen Änderungen geschützt. Geräteauswahl ist seitenweise begrenzt.
+  Deutsche Debugmeldungen erklären die lokalen Entscheidungen. Die Funktionen
+  übertragen nichts an Z2M; gemeinsamer Editor und Übernahme folgen separat.
+
 - Z2M-Verbindung als eigener Baustein für die künftige zentrale Verwaltung:
   vorhandenes MQTT-Gateway verwenden, Verbindung und Erweiterungsstand prüfen,
   Gerätedaten laden und Ablaufmeldungen zeitlich begrenzt aufzeichnen. Antworten,

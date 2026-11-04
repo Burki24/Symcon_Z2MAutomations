@@ -3553,3 +3553,48 @@ der 18 eigenen JSON-Dateien in isolierter Kopie, PHP CS Fixer 3.95.27 im Prüfmo
 git diff --check sowie UTF-8 ohne BOM mit LF bestanden. Keine Änderung an Helpern,
 Fremdstubs, Z2M-Quellen oder Erweiterungsartefakt. Test-/Live-System nicht angefasst;
 native Praxisprüfung nach Modulupdate steht aus. Kein Erweiterungsupdate nötig.
+
+## Zentraler Arbeitsbereich lokal geprüft am 04.11.2026
+
+Schritt 3 nach ADR 0026 implementiert WorkspaceState und sieben SystemWorkspace-
+Modulfunktionen in Z2MAutomations. Die Daten liegen in einem separaten versionierten
+Attribut. Relevante zentrale Helper und bestehende lokale Bausteine vorab geprüft;
+keine Helperänderung und keine Parallelimplementierung von Datenfluss oder Editor.
+Die nativen Identitäts-/Rechteprüfungen werden mit dem Bestandseditor geteilt.
+Keine Rollenumschaltung, Migration, Besitzerübertragung oder neue Editoroberfläche.
+
+tests/workspace.php prüft 1/2/8 synthetische Systeme mit tatsächlichen nativen
+MQTT-, Geräte- und Gruppenfixtures sowie den öffentlichen Verbindungssnapshots.
+Gleiche Geräte-/Gruppen-/Regel-/Folgenkennungen bleiben getrennt. Roh-YAML samt
+Kommentar und Umlauten, lokale Auswahl und offene Eingaben bleiben erhalten.
+Einseitige Empfangsfreigaben ergeben keine Gegenrichtung oder automatische
+Freigaben für weitere Systeme. Gewöhnliche Bearbeitung darf bestehende Freigaben
+nicht entfernen; nur ausdrückliche Freigabenänderung ändert die lokale Planung.
+
+Native Custom-Action-Sperre und umbenannter Ident schützen nur betroffene Ziele.
+Sensoren bleiben als lokale Auslöser verfügbar. Scene-Metadaten und TOGGLE-Auswahl
+nutzen dieselben Konverter wie bisher. Zwischen einem anderen Modulaufruf und
+lokaler Übernahme eingebrachte Bearbeitung bleibt erhalten; kein übergreifender
+Semaphore wird dabei gehalten. Stale-Kontext, falsche Generation, doppelte IDs/
+Topics, neunte Verbindung, Entfernung, unbekannte Version und beschädigte
+Persistenz werden ohne stilles Ersetzen abgewiesen. Replays liefern ihre
+persistierte Quittung; andere Parameter mit derselben Operationskennung scheitern.
+ApplyChanges erhält den Arbeitsbereich. Legacy-Konfiguration und Editorattribute
+bleiben während sämtlicher Workspace-Aktionen unverändert; kein MQTT-Publish.
+
+Acht Kataloge mit je 255 synthetischen Geräten lokal gespeichert. Die Übersicht
+bleibt 4482 Bytes groß; eine Seite mit 100 detaillierten Sensoren hat 351026 Bytes.
+Die letzte Seite meldet die verbleibenden 55 Einträge und hasMore false. Ein
+zusätzlicher passender nativer Aktor nach 513 fremden Geräteinstanzen bleibt
+auswählbar; der Workspace scannt nach Scope, ohne globales 512er-Abschneiden.
+Der vorhandene 1-MiB-MQTT-Payloadvertrag bleibt unverändert. Rechte-/Verbindungsverlust
+löscht keine Dokumente und sperrt keine unabhängigen Systeme.
+
+Abschließendes php tests/run.php einschließlich aller PHP-Integrationstests und
+137 JavaScript-Tests erfolgreich. Struktur, zentrale Kodierungsprüfung,
+offizielle StylePHP-Prüfung der 18 eigenen JSON-Dateien in isolierter Kopie,
+PHP CS Fixer 3.95.27 im Prüfmodus und git diff --check bestanden. Kanonische
+Helper, Fremdstubs, Z2M-Quellen und Erweiterungsartefakt bleiben unverändert.
+Kein Zugriff auf Test oder Live; reale Workspace-Abnahme bleibt nach den
+weiteren Integrationsschritten offen. Als Nächstes: Sicherung, Übernahme,
+Besitzerwechsel und Rückweg; danach gemeinsame Oberfläche.

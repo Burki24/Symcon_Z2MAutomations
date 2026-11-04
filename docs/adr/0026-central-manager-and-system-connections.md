@@ -1,7 +1,7 @@
 # ADR 0026: Zentrale Verwaltung und Z2M-Verbindungen
 
 - Datum: 04.11.2026
-- Status: Zielarchitektur beschlossen; lokale Vertrags-/Vorschaugrundlage und Verbindungsmodul vorhanden,
+- Status: Zielarchitektur beschlossen; Vertrags-/Vorschaugrundlage, Verbindungsmodul und lokaler Arbeitsbereich vorhanden,
   Gesamtumbau und Migration ausstehend
 - Präzisiert die künftige Aufteilung aus ADR 0002 und 0009; bestehendes Verhalten
   bleibt bis zur geprüften Umsetzung gültig.
@@ -47,6 +47,13 @@ Gerätebefehle an Z2M. Bereits laufende Regeln bleiben dort unabhängig bestehen
 ursprüngliches System gebunden und in diesem Schritt nicht entfernt.
 
 ## Folgen
+
+Schritt 3 ergänzt den lokalen zentralen Arbeitsbereich nach
+[WORKSPACE.md](../WORKSPACE.md). Die neue Datenhaltung wird ausdrücklich über
+Modulfunktionen verwendet; Bestandseditor und Runtime bleiben unverändert.
+Exklusive Besitzerregistrierung, Sicherungs-/Migrationsjournal und Oberfläche
+folgen in den beschlossenen nächsten Schritten. Die begrenzten lokalen
+Operationsquittungen ersetzen das Migrationsjournal nicht.
 
 Schritt 2 (04.11.2026) extrahiert den bisherigen nativen MQTT-Grundtransport,
 Erweiterungstransport und Katalogparser in gemeinsam verwendete lokale Traits.

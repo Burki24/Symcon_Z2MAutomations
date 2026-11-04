@@ -83,6 +83,9 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
 - [Z2M-Verbindung](Z2MConnection/README.md): neuer Verbindungsbaustein zur
   Vorbereitung der zentralen Verwaltung. Prüft jeweils ein System und lädt
   dessen Gerätedaten. Bestehende Instanzen und Entwürfe werden noch nicht übernommen.
+- [Lokaler Mehrsystem-Arbeitsbereich](Z2MAutomations/README.md#lokaler-arbeitsbereich-für-mehrere-systeme):
+  Systemliste und getrennte Entwürfe über Modulfunktionen vorbereiten. Gemeinsamer
+  Editor und Übernahmeoberfläche folgen in weiteren Schritten.
 - [Eigene Z2M-Erweiterung](libs/z2m/README.md): Empfänger mit Schema-Prüfung,
   persistentem Konfigurationsspeicher und Sicherung der vorherigen Fassung.
 

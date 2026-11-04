@@ -6,6 +6,8 @@ namespace Z2MAutomations;
 
 use Throwable;
 
+require_once __DIR__ . '/NativeVariableBindings.php';
+
 trait RemoteAutomationTargets
 {
     private ?array $peerActionCatalog = null;
@@ -115,11 +117,8 @@ trait RemoteAutomationTargets
                 return null;
             }
             $object = IPS_GetObject($binding['id']);
-            $variable = IPS_GetVariable($binding['id']);
-            $action = $variable['VariableCustomAction'] !== 0 ? $variable['VariableCustomAction'] : $variable['VariableAction'];
             return $object['ParentID'] === $binding['instance'] && $object['ObjectIdent'] === $property
-                && !($variable['VariableIsLocked'] ?? false) && $action > 1
-                && ($variable['VariableCustomAction'] > 1 ? IPS_ScriptExists($action) : IPS_InstanceExists($action)) ? $binding : null;
+                && NativeVariableBindings::Switchable($binding['id']) ? $binding : null;
         } catch (Throwable) {
             return null;
         }

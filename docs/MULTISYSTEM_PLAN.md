@@ -1,6 +1,6 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: 04.11.2026. Schritte 1 und 2 lokal vorhanden; keine Migration.
+Stand: 04.11.2026. Schritte 1 bis 3 lokal vorhanden; keine Migration.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 
 Fortschritt: Die lokale Grundlage von Schritt 1 ist inzwischen implementiert:
@@ -12,7 +12,12 @@ Status/Health, Installation, Katalogabruf und zeitlich begrenztem Debugkanal.
 Transport und Katalogparser sind gemeinsam mit dem Bestandsmodul genutzt.
 Acht synthetische Verbindungen sind lokal geprüft; native Konsolen-/Brokerpraxis
 für diesen neuen Baustein steht noch aus. Archivexport, persistente Registrierung/
-Rollenmarker, Besitzerwechsel und Übernahmeoberfläche sind noch nicht umgesetzt. Die Metadaten-
+Rollenmarker, Besitzerwechsel und Übernahmeoberfläche sind noch nicht umgesetzt.
+Schritt 3 ergänzt den versionierten lokalen Arbeitsbereich mit Systemliste,
+getrennten Dokumenten, Bearbeitungskontexten, Katalogen und nativen Bindungen.
+Quittungen, Konfliktschutz, gerichtete Freigaben und aktuelle Rechte sind lokal
+geprüft; gemeinsamer Editor und Migration sind weiterhin offen. Details und
+Grenzen stehen in [WORKSPACE.md](WORKSPACE.md). Die Metadaten-
 vorschau ist keine Sicherung, keine aktuelle Rechteprüfung und keine Migration.
 
 ## 1. Ziel und verbindliche Grenzen

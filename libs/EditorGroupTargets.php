@@ -6,6 +6,8 @@ namespace Z2MAutomations;
 
 use Throwable;
 
+require_once __DIR__ . '/NativeVariableBindings.php';
+
 trait EditorGroupTargets
 {
     private array $editorGroupBindings = [];
@@ -49,10 +51,7 @@ trait EditorGroupTargets
                     if ($object['ObjectType'] !== 2 || $object['ObjectIdent'] !== 'state') {
                         continue;
                     }
-                    $variable = IPS_GetVariable($variableID);
-                    $action = $variable['VariableCustomAction'] !== 0 ? $variable['VariableCustomAction'] : $variable['VariableAction'];
-                    if ($variable['VariableType'] !== 0 || ($variable['VariableIsLocked'] ?? false) || $action <= 1
-                        || ($variable['VariableCustomAction'] > 1 ? !IPS_ScriptExists($action) : !IPS_InstanceExists($action))) {
+                    if (!NativeVariableBindings::Switchable($variableID, true)) {
                         continue;
                     }
                     if ($found !== null) {

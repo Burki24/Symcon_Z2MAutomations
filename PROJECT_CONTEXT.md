@@ -8,6 +8,19 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 3 lokal implementiert: versioniertes WorkspaceState und SystemWorkspace
+  in Z2MAutomations, eigenes persistentes Attribut. Explizite Verbindungsliste,
+  getrennte Roh-YAML/Editorzustände, Auswahl, offene Eingaben und Kataloge je UUID.
+  Eigene Systemfingerabdrücke und Generation schützen Schreiben; 32 persistente
+  Quittungen sichern Wiederholungen. Aktionsziele prüfen native Variablen-IDs und
+  gerichtete lokale Empfangsfreigaben; gewöhnliche Änderungen schützen mesh_peers.
+  Native Identitäts-/Rechteadapter und Eigenschaftenauswahl gemeinsam mit dem
+  Bestandseditor verwendet. 1/2/8-System-Integration und große Kataloge lokal
+  geprüft, inklusive mehr als 512 fremden nativen Instanzen. Keine Migration,
+  exklusive Verbindungseigentümerschaft, neue Bedienoberfläche oder Z2M-Ausgabe.
+  Test und Live unverändert. Nächster Schritt: Übernahme, Sicherung, Besitzerwechsel
+  und Rückweg (Schritt 4), danach gemeinsame Oberfläche. Details: docs/WORKSPACE.md.
+
 - Statusanzeigen der neuen Verbindung lokal korrigiert: Der gemeinsame
   MQTT-Transport erkennt einen bestätigten bereiten Empfänger als installiert,
   auch ohne Erweiterungsliste. Bereits bestätigter Cache wird beim Lesen lokal
@@ -25,8 +38,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   SystemID und Generation begrenzen Antworten und Cache; keine Passwörter im
   Verbindungsmodul. Acht synthetische Verbindungen mit gemeinsamem und getrennten
   Parents geprüft. Bestehender Editor bleibt eigenständig; keine Übernahme oder
-  Besitzerregistrierung, keine Test-/Live-Änderung. Nächster Schritt: zentraler
-  Arbeitsbereich und Systemliste mit getrennten Entwürfen (Schritt 3).
+  Besitzerregistrierung, keine Test-/Live-Änderung. Der lokale Arbeitsbereich
+  und die Systemliste bauen inzwischen auf diesem Verbindungsbaustein auf.
 
 - Schritt 1 des Mehrsystemumbaus lokal begonnen: SystemContract v1 mit stabilen
   System-/Entitätsschlüsseln, höchstens acht Einträgen, explizitem Besitzer und

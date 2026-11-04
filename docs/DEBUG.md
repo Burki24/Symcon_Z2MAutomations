@@ -1,5 +1,23 @@
 # Debug und MQTT-Diagnose
 
+## Zentraler lokaler Arbeitsbereich
+
+Alle sieben Workspace-Einstiege nutzen TraceModuleCall und den unveränderten
+DebugFlowHelper. Meldungen erklären Systemzuordnung, getrennte lokale Übernahme,
+erhaltene offene Eingaben, geschützte Freigaben, aktuelle Schaltrechte und
+abgewiesene veraltete Kontexte. Wiederholungen melden „Bereits abgeschlossenen
+lokalen Auftrag erneut bestätigt; keine Daten ein zweites Mal übernommen.“
+Bezüge enthalten nur System-UUIDs, Zähler, Nutzungsart und sichere Fehlercodes.
+Weder Operationskennungen, Fingerabdrücke, Namen, Eingabewerte noch Roh-YAML
+werden protokolliert. Das Funktionsende beschreibt JSON nur nach Umfang.
+
+Katalogübernahme benennt ausdrücklich den lokalen Snapshot und die ausgebliebene
+MQTT-Anfrage. Bindings werden bei jeder Geräteauswahl erneut geprüft; ein
+Rechteverlust löscht keine Regel. Fehler nennen einen verständlichen nächsten
+Schritt und verwerfen keine gespeicherten Entwürfe. Diese Meldungen bestätigen
+keine Speicherung oder Freigabe im laufenden Z2M. Es gibt in dieser Stufe keinen
+Workspace-Befehl zum Schalten, Speichern, Aktivieren oder Stoppen in Z2M.
+
 ## Z2M-Verbindungsmodul
 
 Z2MConnection verwendet den unveränderten kanonischen DebugFlowHelper an allen

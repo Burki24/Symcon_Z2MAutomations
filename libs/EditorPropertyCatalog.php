@@ -6,7 +6,7 @@ namespace Z2MAutomations;
 
 trait EditorPropertyCatalog
 {
-    private function EditorProperties(array $snapshot, string $device, string $side): array
+    private function EditorProperties(array $snapshot, string $device, string $side, ?callable $bindingResolver = null): array
     {
         $properties = $snapshot['devices'][$device]['properties'] ?? [];
         if ($side === 'Target') {
@@ -18,8 +18,9 @@ trait EditorPropertyCatalog
             }
             unset($meta);
         }
+        $bindingResolver ??= fn (string $property): ?array => $this->EditorActionVariable($snapshot, $device, $property);
         return array_filter($properties, fn (array $p): bool => ($p['access'] & ($side === 'Target' ? 2 : 1)) !== 0
-            && ($side !== 'Target' || $this->EditorActionVariable($snapshot, $device, $p['property']) !== null));
+            && ($side !== 'Target' || $bindingResolver($p['property']) !== null));
     }
 
     private function EditorPropertyLabel(array $snapshot, string $device, string $property, string $side): string
