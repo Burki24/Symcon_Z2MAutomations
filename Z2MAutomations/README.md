@@ -22,6 +22,11 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 
 ## Bestandsprüfung für die zentrale Verwaltung
 
+Der zusätzliche Baustein [Z2M-Verbindung](../Z2MConnection/README.md) kann inzwischen
+einzelne Z2M-Systeme prüfen und ihre Gerätedaten laden. Bestehende Zuordnungen und
+Entwürfe werden dabei noch nicht umgestellt; dieses Automationsmodul arbeitet
+weiter wie bisher.
+
 Die geplante zentrale Verwaltung für mehrere Z2M-Systeme wird schrittweise
 vorbereitet. Bisher gibt es dafür nur eine **lesende Bestandsvorschau über
 Modulfunktionen**, noch keinen Übernahmebutton und keine automatische Migration:

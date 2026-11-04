@@ -14,6 +14,35 @@ rein lesende Bestandsberichte für ausgewählte Quellen. Weder Registrierung noc
 persistenter Besitzerwechsel werden bereits ausgeführt. Bestehende Modulrollen,
 Datenflussmetadaten, Entwürfe und Runtime bleiben unverändert.
 
+Schritt 2 stellt Z2MConnection (Z2MC) als eigenständiges IPSModuleStrict bereit.
+MQTTTransport, ExtensionTransport und DeviceCatalog sind aus der bisherigen
+Implementierung extrahiert und werden von beiden Modulen verwendet. Sie kapseln
+nativen MQTT-Datenfluss, Korrelation, Fristen, Statusvertrag, Artefaktinstallation,
+Buildanzeige und die identische Katalogvalidierung. ConnectionWorkflow begrenzt
+die neue Modulpolitik auf Status, Katalog und Installation; die bisherige
+ExtensionIntegration behält Entwurfs- und Ausführungsabläufe. RuntimeDebug wird
+unverändert wiederverwendet. Es entsteht kein zweiter MQTT-Client in PHP.
+
+Der neue Scope enthält Parent, Topic, Aktivierung, Wartezeit, SystemID und
+Generation. Ein eigenes ConnectionCatalog-Attribut hält ausschließlich geprüfte
+Geräte-/Kanal-/Gruppen-/Szenendaten samt Scope, Sitzung und Ladezeit. Es enthält
+keine YAML. Ein ungültiger Abruf erhält die vorigen Bytes, bestätigt sie aber
+nicht erneut. Die lesende API liefert ausschließlich aktuell zugeordnete und
+bestätigte Kataloge; Sitzungen werden nicht exportiert. Zugriffsbits stammen aus
+Z2M und sind noch keine Freigabe einer Symcon-Aktion. Die Bestandsprüfung der
+Symcon-Schaltrechte bleibt beim Editor. Der vorhandene eigene Katalogvertrag
+enthält die notwendige Scope-/Sitzungsprüfung; ein generischer Cachehelper würde
+diese fachliche Prüfung nicht ersetzen.
+
+Create, ApplyChanges, Formularöffnen und lokale Abfragen senden im neuen Modul
+keine MQTT-Anfragen. Operative Aufträge werden ausdrücklich gestartet und nur
+außerhalb der instanzeigenen Sperre versendet. Ein Auftrag blockiert kein anderes
+System. Nach Abbruch, Generation-, Gateway- oder Topicwechsel gelten vorherige
+Antworten nicht mehr. Es gibt keine globale Sperre, Besitzerübernahme,
+Regelspeicherung oder Ausführungs-API im neuen Baustein dieser Stufe. Die Grenze
+von acht Systemen bleibt Aufgabe des künftigen Verwaltungsregisters; einzelne
+Verbindungsinstanzen zählen keine fremden Instanzen oder Installationen.
+
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 
 ADR 0025 ergänzt AutomationDesignerSequences und die feste POST-sequence-Route.

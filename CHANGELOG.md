@@ -9,6 +9,13 @@
 
 ## Neu
 
+- Z2M-Verbindung als eigener Baustein für die künftige zentrale Verwaltung:
+  vorhandenes MQTT-Gateway verwenden, Verbindung und Erweiterungsstand prüfen,
+  Gerätedaten laden und Ablaufmeldungen zeitlich begrenzt aufzeichnen. Antworten,
+  Kataloge und Zeitlimits bleiben je System getrennt. Verständliche deutsche
+  Status-, Popup- und Debugmeldungen. Bestehende Automationsinstanzen und Entwürfe
+  werden noch nicht übernommen; gemeinsame MQTT- und Kataloglogik weiterverwendet.
+
 - Erste Grundlage der zentralen Verwaltung: versionierter Systemvertrag für
   bis zu acht Systeme und lesende Bestandsvorschau über ausgewählte vorhandene
   Automationsinstanzen. Konflikte, offene Eingaben und abweichende Entwürfe

@@ -1,5 +1,23 @@
 # Debug und MQTT-Diagnose
 
+## Z2M-Verbindungsmodul
+
+Z2MConnection verwendet den unveränderten kanonischen DebugFlowHelper an allen
+öffentlichen Einstiegen und den gemeinsamen MQTTTransport/ExtensionTransport.
+Verbindungsaufträge melden Vorbereitung, tatsächliches Senden, passende Antwort,
+Abschluss oder sicheren Fehlercode. Katalogmeldungen nennen nur Geräte-, Gruppen-
+und Szenenzahlen. Kein Code, keine Rohkonfiguration, YAML oder Empfängersitzung.
+Systembezug ist die erzeugte UUID, Transportbezug der native Parent und das
+Basistopic; die tatsächlichen Nutzdaten bleiben geschützt. Fehler durch falsches
+Topic, unpassende Transaktion, Retain und abgelaufene Fristen bestätigen nichts.
+
+Die zeitlich begrenzte Ablaufaufzeichnung nutzt denselben RuntimeDebug-Vertrag
+wie bisher und besitzt je Verbindung eine eigene Lease. Bei mehreren Systemen
+deren Debugfenster getrennt öffnen; Regellauf und Aktionsschritt dienen weiterhin
+der systemübergreifenden Zuordnung. Identisches ApplyChanges und Formularöffnen
+behalten die ursprüngliche Endzeit. Verbindung-/Sitzungswechsel beendet die Lease.
+Ein Update oder Katalogabruf aktiviert keine Automation.
+
 ## Lesende Mehrsystem-Vorschau
 
 GetSystemMigrationSource und PreviewSystemMigration verwenden TraceModuleCall

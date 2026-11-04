@@ -6,57 +6,6 @@ namespace Z2MAutomations;
 
 trait EditorPropertyCatalog
 {
-    private function ReadEditorProperties(object $device, array $entry): ?array
-    {
-        $properties = [];
-        if (isset($device->properties)) {
-            if (!is_array($device->properties) || count($device->properties) > 64) {
-                return null;
-            }
-            foreach ($device->properties as $p) {
-                if (!is_object($p) || !is_string($p->property ?? null) || preg_match('/\A[A-Za-z][A-Za-z0-9_]{0,63}\z/D', $p->property) !== 1
-                    || in_array($p->property, ['constructor', 'prototype', '__proto__'], true) || isset($properties[$p->property])
-                    || !in_array($p->type ?? '', ['binary', 'enum', 'numeric', 'color'], true) || !is_int($p->access ?? null) || $p->access < 1 || $p->access > 3
-                    || (($p->type ?? '') === 'color' && ($p->access !== 2 || preg_match('/\Acolor(?:_[A-Za-z0-9_]+)?\z/D', $p->property) !== 1 || ($p->values ?? []) !== []))
-                    || !is_string($p->label ?? null) || strlen($p->label) > 320 || preg_match('/[\x00-\x1f\x7f]/', $p->label)
-                    || !is_string($p->endpoint ?? null) || ($p->endpoint !== '' && preg_match('/\A[A-Za-z0-9_-]{1,32}\z/D', $p->endpoint) !== 1)
-                    || !is_array($p->values ?? null) || count($p->values) > 32) {
-                    return null;
-                }
-                $meta = ['property' => $p->property, 'type' => $p->type, 'access' => $p->access, 'label' => $p->label, 'endpoint' => $p->endpoint, 'values' => $p->values];
-                foreach ($p->values as $value) {
-                    if (!(is_scalar($value) || $value === null) || (is_string($value) && strlen($value) > 1024)) {
-                        return null;
-                    }
-                }
-                foreach (['minimum', 'maximum', 'step'] as $key) {
-                    if (isset($p->$key)) {
-                        if (!(is_float($p->$key) || is_int($p->$key)) || !is_finite((float) $p->$key) || ($key === 'step' && $p->$key <= 0)) {
-                            return null;
-                        }
-                        $meta[$key] = $p->$key;
-                    }
-                }
-                if (isset($meta['minimum'], $meta['maximum']) && $meta['minimum'] > $meta['maximum']) {
-                    return null;
-                }
-                $properties[$p->property] = $meta;
-            }
-        } else {
-            foreach (['triggers' => 1, 'actions' => 2] as $kind => $access) {
-                foreach ($entry[$kind] as $choice) {
-                    $property = $choice['property'];
-                    $properties[$property] ??= ['property' => $property, 'type' => 'enum', 'access' => 0, 'label' => $property, 'endpoint' => '', 'values' => []];
-                    $properties[$property]['access'] |= $access;
-                    if (!in_array($choice['value'], $properties[$property]['values'], true)) {
-                        $properties[$property]['values'][] = $choice['value'];
-                    }
-                }
-            }
-        }
-        return $properties;
-    }
-
     private function EditorProperties(array $snapshot, string $device, string $side): array
     {
         $properties = $snapshot['devices'][$device]['properties'] ?? [];

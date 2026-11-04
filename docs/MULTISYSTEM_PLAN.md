@@ -1,14 +1,18 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: 04.11.2026. Zielplan mit erster lokaler Vertragsgrundlage; keine Migration.
+Stand: 04.11.2026. Schritte 1 und 2 lokal vorhanden; keine Migration.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 
 Fortschritt: Die lokale Grundlage von Schritt 1 ist inzwischen implementiert:
 SystemContract und die rein lesenden Metadatenfunktionen GetSystemMigrationSource
 und PreviewSystemMigration. Prüfungen mit synthetischen Quellen für 1/2/8 Systeme
 sind vorhanden. Der folgende Zielplan beschreibt weiterhin den gesamten Umbau.
-Archivexport, persistente Registrierung/Rollenmarker, Besitzerwechsel,
-Verbindungsmodul und Übernahmeoberfläche sind noch nicht umgesetzt. Die Metadaten-
+Schritt 2 ergänzt Z2MConnection mit dem bestehenden nativen MQTT-Datenfluss,
+Status/Health, Installation, Katalogabruf und zeitlich begrenztem Debugkanal.
+Transport und Katalogparser sind gemeinsam mit dem Bestandsmodul genutzt.
+Acht synthetische Verbindungen sind lokal geprüft; native Konsolen-/Brokerpraxis
+für diesen neuen Baustein steht noch aus. Archivexport, persistente Registrierung/
+Rollenmarker, Besitzerwechsel und Übernahmeoberfläche sind noch nicht umgesetzt. Die Metadaten-
 vorschau ist keine Sicherung, keine aktuelle Rechteprüfung und keine Migration.
 
 ## 1. Ziel und verbindliche Grenzen
@@ -352,8 +356,8 @@ eigene Praxisaufträge. Die spätere Windows-Anwendung ist nicht Teil dieses Umb
 | Debug | Beide Module erklären Ziel, Entscheidung und Ergebnis, vorhandene Lauf-/Schrittbezüge und Lease-Endzeit stimmen, keine Geheimnisse |
 
 Bei der Implementierung tests/validate_structure.php auf zwei konkrete Module
-und deren eigene Präfixe/Datenflussverträge erweitern; die heutige Prüfung erwartet
-noch genau ein Modul. Bestehende MQTT-, Workflow-, Designer-, Import-, Runtime-,
+  und deren eigene Präfixe/Datenflussverträge erweitern (mit Schritt 2 umgesetzt).
+  Bestehende MQTT-, Workflow-, Designer-, Import-, Runtime-,
 Mesh- und Wiederanlauftests erhalten und um Mehrsystemfälle ergänzen. Helper und
 Erweiterungsartefakt nur ändern, wenn ein eigener fachlicher Bedarf nachgewiesen
 ist. Für den unveränderten Mesh-1-Vertrag ist kein Erweiterungsupdate eingeplant.

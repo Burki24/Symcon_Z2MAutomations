@@ -9,22 +9,6 @@ use Throwable;
 trait EditorGroupTargets
 {
     private array $editorGroupBindings = [];
-    private function ReadEditorGroups(object $data): ?array
-    {
-        if (!is_array($data->groups ?? []) || count($data->groups ?? []) > 256) {
-            return null;
-        }
-        $groups = [];
-        foreach ($data->groups ?? [] as $group) {
-            if (!is_object($group) || !is_int($group->id ?? null) || $group->id < 1 || $group->id > 65535
-                || !is_string($group->name ?? null) || $group->name === '' || strlen($group->name) > 480
-                || preg_match('/[\x00-\x1f\x7f+#]/', $group->name) || isset($groups[$group->id])) {
-                return null;
-            }
-            $groups[$group->id] = $group->name;
-        }
-        return $groups;
-    }
 
     private function AddEditorGroupTargets(array $snapshot): array
     {

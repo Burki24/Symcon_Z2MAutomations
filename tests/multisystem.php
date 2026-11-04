@@ -142,6 +142,11 @@ $check(\Z2MAutomations\SystemContract::RegistryError($unknown) === 'unsupported_
 $check(\Z2MAutomations\SystemContract::CONNECTION_MODULE !== $guid && \Z2MAutomations\SystemContract::CONNECTION_PREFIX === 'Z2MC', 'New module identity and four-letter prefix are reserved separately');
 foreach (array_merge(glob($root . '/*/module.json'), glob(__DIR__ . '/fixtures/*/module.json'), [$root . '/library.json']) as $metadataFile) {
     $knownIdentity = json_decode(file_get_contents($metadataFile), true);
+    if ($metadataFile === $root . '/Z2MConnection/module.json') {
+        $check($knownIdentity['id'] === \Z2MAutomations\SystemContract::CONNECTION_MODULE
+            && $knownIdentity['prefix'] === \Z2MAutomations\SystemContract::CONNECTION_PREFIX, 'Implemented connection uses exactly its reserved identity');
+        continue;
+    }
     $check($knownIdentity['id'] !== \Z2MAutomations\SystemContract::CONNECTION_MODULE && ($knownIdentity['prefix'] ?? '') !== \Z2MAutomations\SystemContract::CONNECTION_PREFIX, 'Reserved connection identity does not collide with existing library, module or fixture identities');
 }
 $check(\Z2MAutomations\SystemContract::EntityKey($systems[0]['systemId'], 'group', '7') !== \Z2MAutomations\SystemContract::EntityKey($systems[1]['systemId'], 'group', '7'), 'Equal native group IDs never alias between systems');

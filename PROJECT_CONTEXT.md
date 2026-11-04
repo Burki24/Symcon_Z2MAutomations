@@ -8,15 +8,26 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Schritt 2 lokal implementiert: Z2MConnection mit Präfix Z2MC verwendet ein
+  vorhandenes natives MQTT-Gateway je System. Gemeinsame Traits MQTTTransport,
+  ExtensionTransport und DeviceCatalog statt zweitem Transport. Health samt
+  Popup, Status/Buildvergleich, offizielle Erweiterungsinstallation mit frischer
+  Bestätigung, Katalogabruf und begrenzte Ablaufaufzeichnung. Eigene stabile
+  SystemID und Generation begrenzen Antworten und Cache; keine Passwörter im
+  Verbindungsmodul. Acht synthetische Verbindungen mit gemeinsamem und getrennten
+  Parents geprüft. Bestehender Editor bleibt eigenständig; keine Übernahme oder
+  Besitzerregistrierung, keine Test-/Live-Änderung. Nächster Schritt: zentraler
+  Arbeitsbereich und Systemliste mit getrennten Entwürfen (Schritt 3).
+
 - Schritt 1 des Mehrsystemumbaus lokal begonnen: SystemContract v1 mit stabilen
   System-/Entitätsschlüsseln, höchstens acht Einträgen, explizitem Besitzer und
   Generation. Rollen werden nur klassifiziert, keine Marker gesetzt. Neue
-  Verbindungsmodulidentität und Präfix Z2MC reserviert; Modul noch nicht angelegt.
+  Verbindungsmodulidentität und Präfix Z2MC festgelegt.
   GetSystemMigrationSource und PreviewSystemMigration lesen ausschließlich
   Metadaten ausgewählter Bestandsinstanzen. Keine Migration/Archive, Registrierung,
   Besitzerübergabe, neue Oberfläche oder MQTT-Ausgabe. Synthetische 1/2/8-System-
   Prüfungen einschließlich gemeinsamer/getrennter Parents, Konflikte und Erhalt
-  aller Quellbytes bestehen. Nächster Schritt: Z2MConnection auf diesen Verträgen.
+  aller Quellbytes bestehen. Z2MConnection baut inzwischen auf diesen Verträgen auf.
 
 - Zielarchitektur für die nächste Arbeit festgelegt (ADR 0026,
   docs/MULTISYSTEM_PLAN.md): eine zentrale Automationsverwaltung, bis zu acht
@@ -24,8 +35,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   Betriebsfreigaben und Laufzeiten je System; keine Zusammenführung der YAML.
   Übernahme mit Vorschau, bytegleicher Sicherung, Erhalt von IDs/Bindungen/
   Partnerfreigaben, Konfliktschutz, einem schreibenden Besitzer und Rückweg.
-  Gesamtumbau noch nicht abgeschlossen; bisher nur lokale Vertrags-/Vorschau-
-  grundlage. Noch keine Test-/Live-Systemänderung oder Datenübernahme.
+  Gesamtumbau noch nicht abgeschlossen; lokale Vertrags-/Vorschaugrundlage und
+  Verbindungsbaustein vorhanden. Keine automatische Datenübernahme.
 
 - Wiederverwendbare Aktionsfolgen im Browser erstellen und bearbeiten (ADR 0025):
   gemeinsame Aktionsfelder mit Vorbelegung, Geräte-/Kanal-/Wertsuche, Szenen,

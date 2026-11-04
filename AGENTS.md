@@ -8,6 +8,8 @@ die zentralen principles/ und die relevanten standards/. Sie gelten für dieses 
   eigene externe Erweiterung direkt in Zigbee2MQTT ausführen lassen.
 - Einstieg: PROJECT_CONTEXT.md, docs/ARCHITECTURE.md und docs/DEVELOPMENT.md.
 - Modul: Z2MAutomations; öffentliches vierstelliges Präfix Z2MA.
+- Verbindungsmodul: Z2MConnection; öffentliches vierstelliges Präfix Z2MC.
+  Bestehende Instanzen werden nicht durch ein Update migriert.
 - Eigene Implementierung von PHP, JavaScript, YAML-Schema und Tests. Kein Code,
   übersetzter Code oder interne Implementierungsstruktur aus
   Luligu/zigbee2mqtt-automations übernehmen. Externe Dokumentation beschreibt

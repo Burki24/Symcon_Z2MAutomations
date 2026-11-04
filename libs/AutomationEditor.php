@@ -6,8 +6,12 @@ namespace Z2MAutomations;
 
 use stdClass;
 
+require_once __DIR__ . '/DeviceCatalog.php';
+
 trait AutomationEditor
 {
+    use DeviceCatalog;
+
     public function ValidateAutomationDraft(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->ValidateYaml($this->ReadAttributeString('YamlDraft')));
@@ -148,59 +152,12 @@ trait AutomationEditor
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
         }
-        $devices = [];
-        foreach ($data->devices as $device) {
-            if (!$device instanceof stdClass || !is_string($device->id ?? null) || preg_match('/\A0x[a-f0-9]{16}\z/D', $device->id) !== 1
-                || !is_string($device->name ?? null) || strlen($device->name) > 480 || isset($devices[$device->id])) {
-                $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                return;
-            }
-            $entry = ['name' => $device->name];
-            foreach (['triggers', 'actions'] as $kind) {
-                if (!is_array($device->$kind ?? null) || count($device->$kind) > 64) {
-                    $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                    return;
-                }
-                $entry[$kind] = [];
-                foreach ($device->$kind as $option) {
-                    if (!$option instanceof stdClass || !is_string($option->property ?? null)
-                        || preg_match('/\A[A-Za-z][A-Za-z0-9_]{0,63}\z/D', $option->property) !== 1
-                        || in_array($option->property, ['constructor', 'prototype', '__proto__'], true) || !property_exists($option, 'value')
-                        || !(is_scalar($option->value) || $option->value === null) || (is_string($option->value) && strlen($option->value) > 1024)) {
-                        $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                        return;
-                    }
-                    $value = ['property' => $option->property, 'value' => $option->value];
-                    $key = hash('sha256', json_encode($value, JSON_THROW_ON_ERROR));
-                    $entry[$kind][$key] = $value;
-                }
-            }
-            $entry['properties'] = $this->ReadEditorProperties($device, $entry);
-            if ($entry['properties'] === null) {
-                $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                return;
-            }
-            $devices[$device->id] = $entry;
-            $devices[$device->id]['numeric'] = [];
-            if (!is_array($device->numeric ?? []) || count($device->numeric ?? []) > 64) {
-                $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                return;
-            }
-            foreach ($device->numeric ?? [] as $number) {
-                if (!$number instanceof stdClass || !is_string($number->property ?? null) || preg_match('/\A[A-Za-z][A-Za-z0-9_]{0,63}\z/D', $number->property) !== 1
-                    || in_array($number->property, ['constructor', 'prototype', '__proto__'], true) || !is_string($number->unit ?? null) || strlen($number->unit) > 96) {
-                    $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
-                    return;
-                }
-                $devices[$device->id]['numeric'][$number->property] = $number->unit;
-            }
-        }
-        $groups = $this->ReadEditorGroups($data);
-        $scenes = $groups === null ? null : $this->ReadEditorScenes($data, $devices, $groups);
-        if ($groups === null || $scenes === null) {
+        $catalog = $this->ReadDeviceCatalog($data);
+        if ($catalog === null) {
             $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
             return;
         }
+        [$devices, $groups, $scenes] = $catalog;
         if ($catalogOnly) {
             $this->WriteEditorCatalog($state['scope'], $devices, $groups, $scenes);
             $this->DebugEvent(

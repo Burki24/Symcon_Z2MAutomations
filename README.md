@@ -80,6 +80,9 @@ Die standardmäßig eingeschaltete Option wird beim Aktivieren an Z2M übertrage
   Anbindung an das Modul oder an Geräte.
 - [Z2MAutomations](Z2MAutomations/README.md): Einrichtung, Klick-Editor, Import,
   Prüfung, Übertragung und Steuerung der Automationen.
+- [Z2M-Verbindung](Z2MConnection/README.md): neuer Verbindungsbaustein zur
+  Vorbereitung der zentralen Verwaltung. Prüft jeweils ein System und lädt
+  dessen Gerätedaten. Bestehende Instanzen und Entwürfe werden noch nicht übernommen.
 - [Eigene Z2M-Erweiterung](libs/z2m/README.md): Empfänger mit Schema-Prüfung,
   persistentem Konfigurationsspeicher und Sicherung der vorherigen Fassung.
 

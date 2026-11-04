@@ -3488,3 +3488,41 @@ Struktur- und zentrale Kodierungsprüfung, aktuelles Erweiterungsartefakt,
 offizielle StylePHP-Prüfung der 15 eigenen JSON-Dateien in isolierter Kopie
 sowie PHP CS Fixer 3.95.27 im Prüfmodus ebenfalls erfolgreich. Nur drei
 Dokumentationsdateien geändert, UTF-8 ohne BOM mit LF; git diff --check sauber.
+## Z2MConnection lokal geprüft am 04.11.2026
+
+Schritt 2 aus ADR 0026: Eigenes IPSModuleStrict mit reservierter Identität und
+Präfix Z2MC. Passende zentrale DataFlow-, ParentConnection-, Form-, Darstellungs-
+und Debughelper geprüft und unverändert genutzt. Der PersistentJsonCacheHelper
+wurde geprüft; der vorhandene librarylokale Scope-/Sitzungs-Katalogvertrag bleibt
+mit seinem einzelnen Attribut bestehen. Keine neue generische Cache-API und
+keine lokale Helperkopie. MQTTTransport, ExtensionTransport und DeviceCatalog
+enthalten die aus dem Bestandsmodul herausgelösten gemeinsamen Abläufe.
+
+tests/connection.php verwendet ausschließlich synthetische native MQTT-Fixtures:
+acht Verbindungen an einem Client und anschließend an acht getrennten Parents,
+darunter ein MQTT Server. Unabhängige Health-/Erweiterungsaufträge, falsche und
+retained Antworten, Zeitablauf, verspätete Antworten, Gateway-/Generationswechsel,
+Disconnect/Reconnect und ungültige Systemkennung geprüft. Gleiche Geräte-/Gruppen-
+kennungen bleiben nach SystemID getrennt. Ein ungültiger Katalog erhält bisherige
+Bytes, liefert sie aber nicht als bestätigt aus. Kanalrechte, reine Sensoren und
+Szenen bleiben normalisiert erhalten; fremde YAML-Felder werden nicht gespeichert.
+
+Offiziellen Installationspfad mit echtem mitgeliefertem Artefakt an der synthetischen
+Parentgrenze geprüft. Erfolg benötigt eine neue bestätigte Empfängersitzung;
+unveränderte Sitzung sowie bekannte fehlende JavaScript-Freigabe werden abgewiesen.
+Keine reale Installation. Buildvergleich und Popup-Rückmeldungen bestätigt.
+Debug-Start, Stopp, Frist und Erhalt der Endzeit bei identischen Einstellungen
+geprüft. Alle öffentlichen Einstiege nutzen DebugFlowHelper; Rohkonfiguration,
+Sitzungen und JavaScript-Code fehlen in den aufgezeichneten Debugmeldungen.
+Anlegen, ApplyChanges, Formularöffnen und lokale Abfragen senden kein MQTT.
+
+php tests/run.php einschließlich sämtlicher PHP-Integrationstests und 137
+JavaScript-Tests bestanden. Struktur-/Kodierungsprüfung, offizielle StylePHP-
+Prüfung der 18 eigenen JSON-Dateien in isolierter Kopie und PHP CS Fixer 3.95.27
+im Prüfmodus erfolgreich. Änderungen in UTF-8 ohne BOM mit LF geprüft. Gemeinsame
+Helper, deren Manifest/Abonnement, Fremdstubs, Z2M-Quellen und Erweiterungsartefakt
+unverändert. Kein Erweiterungsupdate erforderlich. Test- und Live-Installation
+nicht angefasst. Native Konsolenabnahme des neuen Bausteins sowie reale
+Mehrbroker-/Acht-System-Praxis bleiben offen; keine Datenübernahme oder Änderung
+vorhandener Modulrollen. Nächster Umsetzungsschritt ist der lokale zentrale
+Arbeitsbereich, noch kein Installations- oder Migrationsauftrag.

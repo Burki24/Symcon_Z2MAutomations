@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+require_once $root . '/libs/SystemContract.php';
 $readJson = static fn (string $path): array => json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
 $check = static function (bool $condition, string $message): void
 {
@@ -27,19 +28,25 @@ $check($library['name'] === 'Z2MAutomations' && $library['compatibility']['versi
 $check(str_contains(file_get_contents($root . '/LICENSE'), 'PolyForm Noncommercial License 1.0.0'), 'Project license');
 $ids = [$library['id']];
 $modules = glob($root . '/*/module.json');
-$check(count($modules) === 1, 'One scaffold module expected');
+$check(count($modules) === 2, 'Automation and connection modules expected');
+$identities = ['Z2MAutomations' => [Z2MAutomations\SystemContract::SOURCE_MODULE, 'Z2MA'],
+    'Z2MConnection'             => [Z2MAutomations\SystemContract::CONNECTION_MODULE, Z2MAutomations\SystemContract::CONNECTION_PREFIX]];
+$prefixes = [];
 foreach ($modules as $path) {
     $module = $readJson($path);
     $check(!in_array($module['id'], $ids, true), 'Duplicate GUID');
     $ids[] = $module['id'];
-    $check($module['prefix'] === 'Z2MA' && $module['type'] === 3, 'Module identity and type');
+    $identity = $identities[$module['name']] ?? null;
+    $check($identity !== null && $module['id'] === $identity[0] && $module['prefix'] === $identity[1] && $module['type'] === 3, 'Module identity and type');
+    $check(!in_array($module['prefix'], $prefixes, true), 'Unique public prefix');
+    $prefixes[] = $module['prefix'];
     $check($module['parentRequirements'] === ['{043EA491-0325-4ADD-8FC2-A30C8EEB4D3F}'] && $module['childRequirements'] === []
         && $module['implemented'] === ['{7F7632D9-FA40-4F38-8DEA-C83CD4325A32}'], 'Official MQTT data flow');
     $folder = dirname($path);
     foreach (['module.php', 'form.json', 'locale.json', 'README.md'] as $file) {
         $check(is_file($folder . '/' . $file), 'Missing module file: ' . $file);
     }
-    $check(str_contains(file_get_contents($folder . '/module.php'), 'class Z2MAutomations extends IPSModuleStrict'), 'Strict base class');
+    $check(str_contains(file_get_contents($folder . '/module.php'), 'class ' . $module['name'] . ' extends IPSModuleStrict'), 'Strict base class');
     $form = $readJson($folder . '/form.json');
     $translations = $readJson($folder . '/locale.json')['translations']['de'];
     $pending = array_merge($form['elements'], $form['actions'], $form['status']);

@@ -1,7 +1,7 @@
 # ADR 0026: Zentrale Verwaltung und Z2M-Verbindungen
 
 - Datum: 04.11.2026
-- Status: Zielarchitektur beschlossen; lokale Vertrags-/Vorschaugrundlage vorhanden,
+- Status: Zielarchitektur beschlossen; lokale Vertrags-/Vorschaugrundlage und Verbindungsmodul vorhanden,
   Gesamtumbau und Migration ausstehend
 - Präzisiert die künftige Aufteilung aus ADR 0002 und 0009; bestehendes Verhalten
   bleibt bis zur geprüften Umsetzung gültig.
@@ -47,6 +47,14 @@ Gerätebefehle an Z2M. Bereits laufende Regeln bleiben dort unabhängig bestehen
 ursprüngliches System gebunden und in diesem Schritt nicht entfernt.
 
 ## Folgen
+
+Schritt 2 (04.11.2026) extrahiert den bisherigen nativen MQTT-Grundtransport,
+Erweiterungstransport und Katalogparser in gemeinsam verwendete lokale Traits.
+Z2MConnection verwendet diese Bausteine mit begrenzter Status-/Katalog-/Installations-
+Politik und bestehendem RuntimeDebug. Eine eigene Systemkennung und Generation
+begrenzen Aufträge und Cache. Bestehende Instanzen, Editorattribute und öffentliche
+Präfixe behalten ihre Bedeutung. Keine automatische Migration, Registrierung oder
+Z2M-Speicher-/Aktivierungs-/Stopp-API im neuen Verbindungsmodul dieser Stufe.
 
 Die bestehende Fachlogik wird schrittweise herausgelöst. Zentrale Helper bleiben
 kanonisch eingebunden; Transport-/Automationslogik bleibt librarylokal. UI und
