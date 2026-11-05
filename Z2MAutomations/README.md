@@ -1167,7 +1167,60 @@ Gegenstelle wird die Aktionsfolge abgebrochen und nicht automatisch nachgeholt.
 Eine Bestätigung bedeutet, dass das Ziel-Z2M den Gerätebefehl übernommen hat;
 die tatsächliche Gerätewirkung ist damit noch nicht bestätigt.
 
-## Vorhandene Symcon-Ereignisse importieren
+## Symcon-Ereignisse in der Zentrale und im Designer importieren
+
+1. In der Zentrale das **Z2M-System** auswählen, dessen Geräte die Automation
+   auslösen sollen. Das Modul sucht selbst im Symcon-Objektbaum nach den
+   passenden Ereignissen. Entscheidend sind MQTT-Verbindung **und** Basistopic;
+   derselbe Broker kann mehrere getrennte Z2M-Systeme bedienen.
+2. Bei fehlenden Gerätedaten im Designer **Gerätedaten aktualisieren** wählen.
+   Vorhandene Entwürfe bleiben erhalten. Im nativen Formular können bereits
+   bestätigte Daten mit **Bestätigte Gerätedaten dieses Systems einlesen**
+   übernommen werden. Zum eigentlichen Import ist kein weiterer Z2M-Abruf nötig.
+3. **Symcon-Ereignisse importieren** öffnen und **Vorhandene Ereignisse prüfen**
+   wählen. Die Suche startet erst mit diesem Klick. Das Öffnen des Designers
+   prüft oder importiert keine Ereignisse automatisch.
+4. Die Übersicht nennt Ereignisname, auslösendes Gerät und dessen Instanz-ID.
+   Im Designer zusätzlich nach Ereignis, Gerät oder ID suchen und bei Bedarf
+   **Nur importierbare Ereignisse** anzeigen. Die Importprüfung sagt ausdrücklich,
+   ob die Übernahme möglich ist. Fehlende Daten werden als **Noch nicht prüfbar**
+   angezeigt. Suchgrenzen werden sichtbar gemeldet.
+5. Einen Eintrag auswählen und die **Vorschau** prüfen: Auslöser, Kanal, Wert,
+   Ziel und Aktion. Nicht unterstützte Ereignisse nennen den Grund; der
+   Übernehmen-Button bleibt dann gesperrt. Auch namenlose Ereignisse lassen
+   sich prüfen und erhalten beim Import einen vorläufigen Namen.
+6. Im Designer **Ausgeschaltet zum Entwurf hinzufügen** wählen; im nativen
+   Formular **Ereignis in den Entwurf übernehmen**. Direkt davor werden Ereignis,
+   Gerätezuordnung und Schaltrechte erneut geprüft. Die neue Regel beginnt
+   ausgeschaltet und lässt sich anschließend im gemeinsamen Editor bearbeiten.
+7. Weitere Importe können vor dem Prüfen und Übertragen gesammelt werden.
+   **Vor dem späteren Aktivieren in Z2M das zugehörige Originalereignis in Symcon
+   ausschalten**, damit die Aktion nicht doppelt ausgeführt wird. Der Import
+   selbst schaltet kein Ereignis aus und startet keine Automation.
+
+Lesbare Sensoren sind als Auslöser erlaubt. Ziele benötigen die ursprüngliche
+schaltbare Z2M-Variable; reine Anzeigen, gesperrte Variablen und eigene
+Aktionsskripte werden nicht als Ziele übernommen. Ein Ziel in einem anderen
+System ist nur mit den bereits eingerichteten passenden Freigaben möglich.
+Dann liegt die Regel beim auslösenden System und die Aktion verweist ausdrücklich
+auf das Zielsystem. Der Import richtet keine Freigaben oder Broker-Brücken ein.
+
+Geänderte Ereignisse und offene Formularänderungen verhindern eine unbemerkte
+Übernahme. Die vorhandenen Entwürfe anderer Systeme, Partnerfreigaben und
+Aktionsfolgen bleiben erhalten. Bereits übernommene Ereignisse werden nicht
+erneut angelegt. Im Designer bleiben Suchergebnisse und Vorschau beim Schließen
+erhalten. Eine Vorschau gilt nur für ihr jeweiliges System und den dabei geprüften
+Katalog.
+**Ansicht aktualisieren** liest nur den vorhandenen Modulstand.
+
+Unterstützt sind weiterhin Ereignisse **Bei bestimmtem Wert**, native Ein-/Aus-
+und Text-/Auswahlaktionen sowie **Wert umschalten**. Ereignisse mit zusätzlichen
+Bedingungen, Ausführungsbegrenzungen, PHP-Code oder ungesicherter Zahlenskalierung
+werden vollständig abgewiesen. Es wird kein PHP-Code ausgewertet oder ausgeführt.
+Für diese Erweiterung genügt ein Modulupdate; ein Z2M-Erweiterungsupdate ist
+nicht erforderlich.
+
+## Ereignisimport im bisherigen Einzelmodul
 
 Die Prüfung unterscheidet zwischen dem Gerät und der einzelnen Variable:
 Ein Gerät kann richtig verbunden sein, obwohl eine seiner Variablen noch nicht

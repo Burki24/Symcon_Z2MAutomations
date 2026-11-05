@@ -532,6 +532,12 @@ zugeordnete Anzahlen, die Importfähigkeit und feste Ablehnungsgründe. Ereignis
 Auslösewerte, Skriptinhalte und Vorschautokens werden nicht protokolliert.
 Die Übernahme bestätigt ausdrücklich die deaktivierte lokale Regel und die
 unveränderten Originale. Der Katalog-Debug zählt zusätzlich bestätigte Gruppen.
+In der Zentrale ergänzt WithWorkspaceEditor denselben Vorgangsbezug um das
+konkrete System. Scan zählt die tatsächlich gelesenen Ereignisse, statt bei
+erreichter Treffergrenze weitere Prüfungen zu behaupten. Preview meldet einen
+festen deutschen Grund; Details mit privaten Variablennamen erscheinen nur in
+der Benutzeransicht. Wiederholte Importquittungen erklären, dass keine zweite
+Regel angelegt wurde. Browser-Suchbegriffe werden nicht protokolliert.
 Die Z2M-Laufzeit meldet, wenn ein Umschaltziel aus dem Cache ermittelt wurde;
 `state_unavailable` erklärt fehlende Zustände ohne Gerätedaten im Protokoll.
 

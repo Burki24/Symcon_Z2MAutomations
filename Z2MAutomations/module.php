@@ -36,6 +36,7 @@ require_once __DIR__ . '/../libs/EditorGroupTargets.php';
 require_once __DIR__ . '/../libs/EditorScenes.php';
 require_once __DIR__ . '/../libs/Z2MInstanceDiscovery.php';
 require_once __DIR__ . '/../libs/SymconEventImport.php';
+require_once __DIR__ . '/../libs/WorkspaceEventImport.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
 require_once __DIR__ . '/../libs/ExtensionContract.php';
 require_once __DIR__ . '/../libs/ValidationFeedback.php';
@@ -92,6 +93,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\EditorScenes;
     use Z2MAutomations\Z2MInstanceDiscovery;
     use Z2MAutomations\SymconEventImport;
+    use Z2MAutomations\WorkspaceEventImport;
     use Z2MAutomations\ExtensionIntegration;
     use Z2MAutomations\AutomationEditor;
     use Z2MAutomations\AutomationOverview;

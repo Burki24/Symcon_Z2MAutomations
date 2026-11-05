@@ -1,5 +1,19 @@
 # Unveröffentlicht
 
+## Ereignisimport in Zentrale und Browserdesigner
+
+- Symcon-Ereignisse je Z2M-System automatisch anhand von MQTT-Verbindung,
+  Basistopic und Variablen-ID finden, prüfen und als ausgeschaltete Regeln
+  übernehmen. Auch erlaubte Ziele anderer Systeme werden korrekt zugeordnet.
+- Im Designer nach Ereignis, Gerät oder ID suchen, importierbare Einträge
+  filtern und eine ausdrückliche Vorschau vor der Übernahme prüfen. Gerät und
+  Instanz-ID, Ablehnungsgründe sowie Such- und Ladezustand sind sichtbar.
+- Bestehende Konvertierung wiederverwenden. Geänderte Ereignisse, entzogene
+  Rechte, doppelte Importe, veraltete Zugänge und offene Eingaben werden
+  abgefangen. Originalereignisse, andere Entwürfe und Freigaben bleiben erhalten.
+- Deutsche Debugmeldungen erklären Suche, Prüfung und lokale Übernahme ohne
+  Ereignisnamen, Aktionswerte, Skripte oder Vorschautokens. Kein Erweiterungsupdate.
+
 ## Vollständiger Regeleditor im Browserdesigner
 
 - Neue und vorhandene Automationen im selben Dialog vollständig erstellen und

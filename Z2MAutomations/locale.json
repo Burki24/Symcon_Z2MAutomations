@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "%s \"%s\": The device does not belong to the selected Z2M system or an allowed target system.": "Nicht importierbar: %s „%s“ gehört zu einem anderen Z2M-System. Als Ziel ist nur dieses System oder ein dafür freigegebenes Partnersystem erlaubt.",
+            "Device data are missing for this system. In the designer, update the device data, then check the events again. Existing drafts are kept.": "Noch nicht prüfbar: Für dieses System fehlen bestätigte Gerätedaten. Im Designer „Gerätedaten aktualisieren“ wählen und danach die Ereignisse erneut prüfen. Vorhandene Entwürfe bleiben erhalten.",
             "Action sequence selection": "Ausgewählte Aktionsfolge",
             "Editing confirmation": "Bestätigung der Bearbeitung",
             "Editing and Z2M operation": "Bearbeitungsstand und Z2M-Betrieb",

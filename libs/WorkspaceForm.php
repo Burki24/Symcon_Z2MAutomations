@@ -188,11 +188,16 @@ trait WorkspaceForm
             {
                 $form = $this->LoadConfigurationForm();
                 $keep = ['EditorDeviceSection', 'EditorTimeSection', 'EditorAdvancedSection', 'ReusableSequencePanel', 'EditorExpert',
-                    'SequenceWorkID', 'EditorNavigationPopup', 'EditorWorkPopup', 'ErrorInfo'];
+                    'EventImportSection', 'SequenceWorkID', 'EditorNavigationPopup', 'EditorWorkPopup', 'ErrorInfo'];
                 $form['actions'] = array_values(array_filter($form['actions'], static fn (array $field): bool => in_array($field['name'] ?? '', $keep, true)));
                 $this->FillEditorForm($form, $this->RefreshState());
                 $this->PrepareEditorItemForms($form);
                 $this->FillReusableSequenceForm($form);
+                $this->FillEventImportForm($form);
+                foreach ($form['actions'] as &$section) {
+                    if (($section['name'] ?? '') === 'EventImportSection') $section['items'] = array_values(array_filter($section['items'], static fn (array $item): bool => ($item['name'] ?? '') !== 'ImportLoadButton'));
+                }
+                unset($section);
                 $this->FillEditorWorkForm($form, $this->RefreshState());
                 foreach ($this->EditorFormFields($form['actions']) as &$field) {
                     if (($field['name'] ?? '') === 'YamlInput') {

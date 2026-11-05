@@ -156,6 +156,24 @@ h1 { font-size: 16px; letter-spacing: -.2px; }
 dialog { width: min(440px, calc(100vw - 32px)); border: 1px solid #cfdbe4; border-radius: 15px; padding: 26px; color: var(--ink); box-shadow: 0 25px 80px #16344a35; }
 dialog::backdrop { background: #18304750; backdrop-filter: blur(2px); }
 .creation-dialog { width: min(900px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow-y: auto; }
+.event-import-dialog { width: min(1100px, calc(100vw - 32px)); }
+.event-import-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 16px 0; }
+.event-import-controls label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.event-import-controls input[type="search"] { min-height: 40px; padding: 8px 10px; font: inherit; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; background: white; }
+.event-import-controls .event-import-filter { flex-direction: row; align-items: center; }
+.event-import-controls input[type="checkbox"] { width: 20px; height: 20px; }
+.event-import-list { max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.event-import-list table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
+.event-import-list th { position: sticky; top: 0; background: #edf2f6; z-index: 1; text-align: left; }
+.event-import-list th, .event-import-list td { padding: 10px; vertical-align: top; overflow-wrap: anywhere; border-bottom: 1px solid var(--line); }
+.event-import-list th:nth-child(1), .event-import-list th:nth-child(2) { width: 26%; }
+.event-import-list button { border: 0; background: transparent; padding: 0; text-align: left; white-space: normal; min-height: 30px; }
+.event-import-list small { display: block; color: var(--muted); margin-top: 5px; }
+.event-import-list .is-selected { background: #e8f3f3; }
+.event-import-list p { margin: 5px 0; }
+.event-import-preview { border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-top: 16px; overflow-wrap: anywhere; }
+.event-import-message { background: #f0f7fa; padding: 12px; border-radius: 8px; overflow-wrap: anywhere; }
+@media (max-width: 700px) { .event-import-controls > label { width: 100%; } .event-import-list th, .event-import-list td { padding: 6px; } }
 .creation-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 20px; }
 .creation-side { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
 .creation-side legend { font-weight: 600; padding: 0 7px; font-size: 13px; }

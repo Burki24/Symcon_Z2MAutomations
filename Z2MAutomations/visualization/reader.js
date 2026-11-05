@@ -1,5 +1,6 @@
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
 import {installEditing} from './editor.js';
+import {installEventImport} from './imports.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
 import {installRuntime} from './runtime.js';
@@ -24,6 +25,7 @@ import {installManagement, matchesRuleState} from './management.js';
     let systemId = '';
     let stateFilter = 'all';
     let management = null;
+    let eventImport = null;
     const systemViews = new Map();
     const token = location.hash.slice(1);
     const endpoint = new URL('data', location.href);
@@ -194,7 +196,7 @@ import {installManagement, matchesRuleState} from './management.js';
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
-    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); }
+    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
     function selectEntry(key) { selected = key; selectedPart = null; render(); }
     function chooseArea(area) {
         category = area; selectedPart = null;
@@ -278,7 +280,7 @@ import {installManagement, matchesRuleState} from './management.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); management?.refresh(category, stateFilter); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
     }
     editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onCreated: async ruleId => {
         const refreshed = await load(ruleId);
@@ -295,6 +297,8 @@ import {installManagement, matchesRuleState} from './management.js';
     }});
     management = installManagement({getData: () => data, getEntry: current, isLoading: () => busy, reload: () => load(), copied: ruleId => load(ruleId), message,
         filterChanged: value => { stateFilter = value; renderNavigation(); }});
+    eventImport = installEventImport({getData: () => data, isLoading: () => busy, reload: () => load(), message,
+        onImported: async ruleId => { if (!await load(ruleId)) message('Ereignis wurde ausgeschaltet übernommen. Bitte die Ansicht aktualisieren.'); }});
     render();
     load();
 })();

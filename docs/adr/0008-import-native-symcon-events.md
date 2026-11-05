@@ -53,5 +53,20 @@ Der Import normalisiert diese beiden nativen Formen vor der bestehenden Prüfung
 Die Eigenschaft on_change erhält die Semantik ausgeschalteter wiederholter
 Ausführung bei einem bestimmten Wert; ein engerer Importfilter war unbegründet.
 
+## Zentrale und Browserdesigner
+
+Der gleiche Konverter verwendet den projizierten Editorzugriff auch für bis
+zu acht Systeme. Eine Quelle gehört exakt zu MQTT-Parent und Basistopic des
+ausgewählten Systems; native Variablen-ID und bestätigte Katalogkennung bleiben
+maßgeblich. Bereits freigegebene andere Systeme sind als Ziele erlaubt. Keine
+Freigabe, Broker-Brücke oder Besitzerübernahme wird durch den Import eingerichtet.
+
+Die native Positivliste und die feste Browserroute bieten Suche, Vorschau und
+ausdrückliche Übernahme. Es gibt keinen generischen RPC-Aufruf und keinen vom
+Browser gelieferten Ereignis- oder Skriptinhalt. Der vorhandene Commit erhält
+den übrigen Entwurf. Neue Regeln sind ausgeschaltet, Originalereignisse bleiben
+aktiv oder deaktiviert wie zuvor. Wiederholungen ersetzen keine vorhandene
+Regel. Diese Entscheidung verändert weder YAML-Schema noch Z2M-Erweiterung.
+
 - [Symcon: IPS_SetEventAction, Spezialparameter](https://www.symcon.de/en/service/documentation/command-reference/management-events/ips-seteventaction/)
 - [Symcon: Wiederholte Ausführung](https://www.symcon.de/en/service/documentation/command-reference/management-events/ips-seteventtriggersubsequentexecution/)

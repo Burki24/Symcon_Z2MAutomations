@@ -40,9 +40,13 @@ Z2M und erstellt Geräte- oder Zeitautomationen mit Bedingungen und bis zu 16
 geordneten Geräteaktionen. Die Wartezeit ist pro Schritt einstellbar;
 YAML-Kenntnisse sind dafür nicht erforderlich. Unterstützte ausgelöste
 Symcon-Ereignisse lassen sich nach Prüfung und Vorschau als deaktivierte Regeln
-importieren. Gruppen und zustandsabhängiges Umschalten sind als Aktionsziele verfügbar.
-Mit zwei Automationsmodulen und einem gemeinsamen Broker oder einer MQTT-Bridge lassen sich
-auch Geräte und Gruppen des jeweils zweiten Z2M-Systems als Aktionsziele wählen.
+importieren. In der Zentrale und im Browserdesigner sind Suche und Vorschau
+je System verfügbar; Originalereignisse und vorhandene Entwürfe bleiben erhalten.
+[Bedienung des Imports](Z2MAutomations/README.md#symcon-ereignisse-in-der-zentrale-und-im-designer-importieren).
+Gruppen und zustandsabhängiges Umschalten sind als Aktionsziele verfügbar.
+Die Automationszentrale verwaltet bis zu acht Z2M-Verbindungen. Über einen gemeinsamen
+Broker oder eine MQTT-Bridge lassen sich Geräte und Gruppen anderer freigegebener
+Systeme als Aktionsziele wählen.
 Beide Systeme benötigen dafür gespeicherte und ausdrücklich aktivierte Freigaben.
 [Bedienung](Z2MAutomations/README.md), [Ausführung und Grenzen](docs/RUNTIME.md).
 Ein [synthetisches YAML-Beispiel](libs/z2m/examples/automations.yaml) zeigt das

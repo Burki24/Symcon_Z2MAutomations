@@ -22,9 +22,17 @@ foreach (['Z2MAutomations', 'Z2MConnection', 'tests/fixtures/MQTTClient', 'tests
 
 class WorkspaceUIProbe extends Z2MAutomations
 {
+    public array $importEvents = [];
     public array $debugMessages = [];
     public $onCatalogRead = null;
     public string $requestBody = '';
+    public function RemoveImportAccess(string $token): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) if ($session['hash'] === hash('sha256', $token)) unset($session['imports']);
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
     public function Hook(string $path, string $token, array $headers = [], string $method = 'GET'): array
     {
         $_SERVER = ['REQUEST_URI'    => '/hook/Z2MAutomationsDesigner' . $this->InstanceID . '/' . $path, 'REQUEST_METHOD' => $method,
@@ -58,6 +66,14 @@ class WorkspaceUIProbe extends Z2MAutomations
     {
         return hash('sha256', json_encode([IPS_GetConfiguration($this->InstanceID), $this->ReadAttributeString('YamlDraft'),
             $this->ReadAttributeString('EditorDraft'), $this->ReadAttributeString('EditorSnapshot'), $this->GetBuffer('DesignerSessions')], JSON_THROW_ON_ERROR));
+    }
+    protected function ImportEventIDs(): array
+    {
+        return array_keys($this->importEvents);
+    }
+    protected function ReadImportEvent(int $id): ?array
+    {
+        return $this->importEvents[$id] ?? null;
     }
     protected function DesignerRequestBody(): string
     {
@@ -115,15 +131,21 @@ $catalogData = $ready + ['devices' => [['id' => $deviceKey, 'name' => 'Same synt
         ['property' => 'display_flag', 'type' => 'binary', 'access' => 1, 'label' => 'Sensor', 'endpoint' => '', 'values' => [true, false]]]]],
     'groups' => [['id' => 7, 'name' => 'Same synthetic group']],
     'scenes' => [['target' => ['type' => 'group', 'id' => 7], 'id' => 2, 'name' => 'Synthetic scene', 'control_property' => 'state']]];
-$parent->onPublish = static function (array $packet) use ($parent, &$catalogData, $ready): void
-{
-    $data = str_ends_with($packet['Topic'], '/request/catalog') ? $catalogData : (str_ends_with($packet['Topic'], '/request/health_check') ? ['healthy' => true] : $ready);
-    $parent->publish(str_replace('/request/', '/response/', $packet['Topic']), ['protocol_version' => 1, 'transaction' => $packet['Payload']['transaction'], 'status' => 'ok', 'data' => $data]);
-};
+$secondaryParentID = IPS_CreateInstance(Z2MProtocol::MQTT_CLIENT);
+IPS_ApplyChanges($secondaryParentID);
+$secondaryParent = IPS\InstanceManager::getInstanceInterface($secondaryParentID);
+foreach ([$parent, $secondaryParent] as $mqttPeer) {
+    $mqttPeer->onPublish = static function (array $packet) use ($mqttPeer, &$catalogData, $ready): void
+    {
+        $data = str_ends_with($packet['Topic'], '/request/catalog') ? $catalogData : (str_ends_with($packet['Topic'], '/request/health_check') ? ['healthy' => true] : $ready);
+        $mqttPeer->publish(str_replace('/request/', '/response/', $packet['Topic']), ['protocol_version' => 1, 'transaction' => $packet['Payload']['transaction'], 'status' => 'ok', 'data' => $data]);
+    };
+}
 $connections = $systems = $groups = [];
 for ($i = 0; $i < 8; $i++) {
+    $mqttParent = $i === 3 ? $secondaryParentID : $parentID;
     $id = IPS_CreateInstance(SystemContract::CONNECTION_MODULE);
-    IPS_ConnectInstance($id, $parentID);
+    IPS_ConnectInstance($id, $mqttParent);
     IPS_SetProperty($id, 'Active', true);
     IPS_SetProperty($id, 'BaseTopic', 'synthetic/system_' . $i);
     IPS_ApplyChanges($id);
@@ -133,12 +155,12 @@ for ($i = 0; $i < 8; $i++) {
     $connections[] = $id;
     $systems[] = IPS_GetProperty($id, 'SystemID');
     $device = IPS_CreateInstance('{E5BB36C6-A70B-EB23-3716-9151A09AC8A2}');
-    IPS_ConnectInstance($device, $parentID);
+    IPS_ConnectInstance($device, $mqttParent);
     IPS_SetProperty($device, 'IEEE', $deviceKey);
     IPS_SetProperty($device, 'MQTTBaseTopic', 'synthetic/system_' . $i);
     IPS_ApplyChanges($device);
     $group = IPS_CreateInstance('{11BF3773-E940-469B-9DD7-FB9ACD7199A2}');
-    IPS_ConnectInstance($group, $parentID);
+    IPS_ConnectInstance($group, $mqttParent);
     IPS_SetProperty($group, 'MQTTBaseTopic', 'synthetic/system_' . $i);
     IPS_ApplyChanges($group);
     $groups[] = $group;
@@ -280,6 +302,11 @@ $browserB = $decode($manager->GetDesignerData());
 $manager->requestBody = json_encode(['requestId' => '44444444-4444-4444-8444-444444444444', 'context' => $browserB['createContext'], 'operation' => 'delete-rule', 'id' => $manageCopy]);
 [$code, $raw] = $manager->Hook('manage', $token, $headerB, 'POST');
 $check($code === 200 && $detail($a)['data'] === $manageA && count($parent->sent) === $sent, 'Central deletion is local, system-isolated and sends no MQTT');
+require __DIR__ . '/workspace-import.inc.php';
+if (in_array('--import-only', $argv, true)) {
+    echo "Central import checks passed.\n";
+    exit;
+}
 // Missing bindings affect only that system; the draft is still readable.
 $beforeOffline = $detail($systems[7])['data'];
 IPS_DisconnectInstance($connections[7]);

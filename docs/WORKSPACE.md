@@ -393,6 +393,43 @@ das enabled-Feld des Entwurfs. Aktionsfolgen und Katalogeinträge werden davon
 nicht ausgeblendet. Der optionale Filterauftrag liefert ausschließlich Zähler
 für die Debugnachvollziehbarkeit und verändert den Entwurf nicht.
 
+## Symcon-Ereignisimport je System
+
+SymconEventImport bleibt der einzige Konverter. WorkspaceEventImport ergänzt
+die Identitäts- und Anzeigeadapter; die Zentrale benötigt dafür keinen eigenen
+MQTT-Parent. Quellen werden über Z2MInstanceIdentity gegen mqttParent und
+baseTopic des ausgewählten Eintrags geprüft. Ziele können zusätzlich über
+WorkspaceState::Allows freigegebene Systeme verwenden. Katalogeinträge und
+nativeBindings werden aus demselben Editor-Snapshot gelesen; Quellen dürfen
+rein lesbar sein, Ziele werden unmittelbar vor der Übernahme erneut auf ihre
+native Z2M-Aktion geprüft. Keine Geräte- oder Instanznamen als Ersatzschlüssel.
+
+ScanEventImports, PreviewEventImport und ImportSymconEvent sind in der lokalen
+WorkspaceEditorAction-Positivliste enthalten. Direkte öffentliche Aufrufe auf
+der Zentrale leiten kontrolliert an den ausgewählten Eintrag weiter; alte
+Formularcallbacks bleiben explizit an System, Generation und Fingerabdruck
+gebunden. Report und Vorschau liegen in den flüchtigen projizierten Buffern,
+nicht in den alten Instanzattributen und nicht in einem anderen Systementwurf.
+Die bisherigen Besitzer-, Übernahme- und Eingabesicherungen gelten weiter.
+
+Die feste POST-event-import-Route akzeptiert ausschließlich scan, preview und
+import mit JSON, UUID, Bearbeitungskontext und eigenen imports-Sitzungsrechten.
+Es werden nur Ereignis-ID und bei Übernahme die Vorschaufreigabe angenommen;
+kein EventScript, Ereignisexport oder beliebiger Methodenname vom Browser.
+Die gemeinsame Route sichert die Sitzung zurück, wenn der Systemcommit scheitert.
+Eine Quittung bestätigt verlorene Erfolgsantworten ohne doppelte Übernahme.
+Ein GET-data liest ausschließlich den vorhandenen Importbericht; es startet
+keine Suche. Katalogseiten enthalten diesen Bericht nicht erneut.
+
+Höchstens 4096 Ereignisse werden betrachtet und 256 passende Quellen angezeigt.
+Die HTTP-Anfrage bleibt auf 4096 Bytes und die Browserantwort auf 512 KiB
+begrenzt. Vorschau und Suche ändern kein Originalereignis. Übernahme hängt eine
+enabled=false-Regel über CommitEditorChange an den lokalen Entwurf an; andere
+Regeln, Partnerfreigaben und Folgen bleiben erhalten. Vorhandene Importe werden
+an ihrer deterministischen Kennung erkannt und nicht ersetzt. Zahlenaktionen
+mit ungesicherter Skalierung, PHP, Ablaufpläne und zusätzliche Bedingungen
+bleiben ausgeschlossen. Import führt weder Ereignisse aus noch sendet er MQTT.
+
 ## Gemeinsames Erstellen und Bearbeiten im Designer
 
 editor.js stellt neue und vorhandene Regeln mit denselben Bausteinen dar.

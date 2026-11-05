@@ -1,3 +1,63 @@
+## Zentraler Ereignisimport lokal geprüft am 05.11.2026
+
+Agenda Punkt 4 integriert den vorhandenen SymconEventImport-Konverter in
+WorkspaceEditorContext und den Browserdesigner. Der erste neue Kerneltest
+scheiterte am nicht erlaubten zentralen Scan-Aufruf. Danach wurden die
+systemgebundenen Speicher-, Identitäts- und Formularadapter ergänzt. Der
+native Importweg und die feste event-import-Browserroute verwenden dieselben
+Vorschau- und Übernahmeprüfungen. Im Browser wurde zuerst der fehlende Client
+mit Vertragstests nachgewiesen, danach die aktive Oberfläche angeschlossen.
+
+Vor der Umsetzung zentrale Helper und vergleichbare Projektpfade geprüft:
+ConfigurationFormHelper, DebugFlowHelper, HttpResponseHelper und
+VisualizationAssetHelper bleiben unverändert eingebunden. Fachlicher
+Konverter, systemgebundene Identität und HTTP-Verträge bleiben librarylokal.
+Z2MInstanceIdentity, NativeVariableBindings und CommitEditorChange werden
+weiterverwendet. Keine neue MQTT-Anbindung oder parallele Ausführungslogik.
+
+php tests/workspace-ui.php --import-only prüft acht Systeme an zwei Brokern
+mit identischen Geräte-/Gruppenkennungen: exakte Themenzuordnung, native
+Callbackskripte, namenlose Ereignisse, lesbare Sensorauslöser, lokale und
+freigegebene entfernte Gruppenziele am selben und am zweiten Broker. Ein
+identisches Topic auf einem fremden Broker wird ausgeschlossen.
+Originalereignisse und andere Dokumente bleiben
+unverändert, kein Import sendet MQTT. Geänderte Ereignisse, eigene Skripte,
+fehlende Metadaten, entzogene Rechte, doppelte Importe, offene Formulareingaben,
+fehlende Sitzungsrechte, Generationen, fremde Requestinhalte und übergroße
+Bodies sind abgedeckt. Quittungen verhindern doppelte Übernahmen. 4200
+synthetische Ereignisse ergeben 256 sichtbare Treffer mit Grenzhinweis;
+Antwort und natives Formular bleiben innerhalb ihrer Ausgabebudgets.
+
+Die bestehende PHP-/JavaScript-Integration bestätigt weiterhin den bisherigen
+Einzelimport. Ihr erster Lauf deckte auf, dass das Verwerfen jeder Vorschau
+nach einer reinen YAML-Abweichung einen erlaubten erneuten Versuch sperrte.
+Jetzt wird nur eine tatsächlich geänderte Ereignis-/Zuordnungsfreigabe
+verworfen; ein korrigierter Entwurfsparameter darf dieselbe gültige Vorschau
+weiter verwenden. Der gezielte Integrationslauf besteht anschließend.
+
+Ein separater unsichtbarer Edge-Prozess lädt die echten Designerassets gegen
+einen rein lokalen synthetischen Server mit zwei Systemen. Öffnen ohne Scan,
+explizite Prüfung, sichtbare Geräte-/Ereignis-IDs, Suche und Importierbarfilter,
+Vorschau und konkrete Ablehnung, sichere Textanzeige eines HTML-Namens,
+Schließen ohne Import und Erhalt der Vorschau sind bestätigt. Eine ausdrückliche
+Übernahme erzeugt genau eine ausgeschaltete lokale Regel und lässt das zweite
+System sowie die Originalereignisse unverändert. Liste und Dialog scrollen
+mit echtem Mausrad in beide Richtungen; die 900-Pixel-Ansicht ist geprüft.
+Es wurden ausschließlich die vorgesehenen Import- und Systemwahl-POSTs gesendet.
+
+Prüfnachweis: Gesamtsuite php tests/run.php erfolgreich einschließlich 166
+JavaScript-Tests und tatsächlichem synthetischem Erweiterungs-Peer. Native
+Importcallbacks und HTTP-Grenzen zusätzlich mit --import-only geprüft. Nach
+Ergänzung der gesperrten Importhinweise und Assetfreigabe betroffene Kernel-
+und Browsertests erneut bestanden. Struktur und zentrale Kodierungsprüfung
+grün; offizieller StylePHP-Check aller 18 eigenen JSON-Dateien in isolierter
+Kopie und PHP CS Fixer 3.95.27 im Prüfmodus für 137 Dateien ohne Befund.
+Fremdquellen und Z2M-Artefakt unverändert; eigene Änderungen UTF-8 ohne BOM/LF.
+
+Keine Test-/Live-Installation angesprochen, kein Originalereignis verändert,
+keine Automation übertragen oder aktiviert und kein Gerät geschaltet. Reale
+Abnahme nach Modulupdate bleibt offen; ein Erweiterungsupdate ist nicht nötig.
+
 ## Gemeinsamer Browsereditor lokal geprüft am 05.11.2026
 
 Agenda Punkt 3 führt Erstellen und Bearbeiten in editor.js zusammen. Die

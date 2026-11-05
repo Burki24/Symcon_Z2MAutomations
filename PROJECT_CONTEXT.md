@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 4 lokal umgesetzt: Symcon-Ereignisimport im nativen
+  Zentralenformular und Browserdesigner. Vorhandener Konverter verwendet
+  systemgebundene Speicher, Kataloge und native Variablenbindungen. Quellen
+  gehören exakt zum ausgewählten MQTT-Parent/Topic; erlaubte entfernte Ziele
+  sind ausdrücklich systemgebunden. Eigene imports-Browserberechtigung,
+  Vorschau, erneute Prüfung und Wiederholungsquittung. Neue Regeln bleiben aus;
+  keine Ereignisausführung, MQTT-Ausgabe oder automatische Originalabschaltung.
+  Lokale Kernel- und Browsernachweise siehe docs/DEVELOPMENT.md. Kein Live-Zugriff;
+  Praxisabnahme nach Modulupdate offen. Erweiterungsartefakt unverändert.
+
 - Agenda Punkt 3 lokal umgesetzt: gemeinsamer vollständiger Browsereditor für
   neue und vorhandene Regeln. Gesamte Regel wird in einem lokalen Commit
   validiert; neue Regeln bleiben ausgeschaltet. Drag & Drop und Pfeilbuttons
@@ -31,7 +41,7 @@ sie persistent und führt sie unabhängig von Symcon aus.
   manage-Berechtigung, Kontext-/Systembindung und Wiederholungsquittungen;
   keine MQTT-Ausgabe. Offline- und isolierte Browserprüfung siehe
   docs/DEVELOPMENT.md. Reale Testabnahme nach Modulupdate bleibt offen.
-- Weitere Designeragenda in dieser Reihenfolge: Symcon-Ereignisimport zentralisieren; Systeme und Diagnose ergänzen.
+- Weitere Designeragenda in dieser Reihenfolge: Systeme und Diagnose ergänzen.
 
 - Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet
   instance_busy mit verständlichem Hinweis auf die nicht ausgeführte Aktion,

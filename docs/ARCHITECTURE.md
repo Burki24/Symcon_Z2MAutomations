@@ -1,5 +1,16 @@
 # Architektur
 
+## Gemeinsamer Ereignisimport
+
+Der bestehende SymconEventImport-Konverter arbeitet auch in der Zentrale über
+den projizierten Editorzustand. WorkspaceEventImport löst native Quellen und
+erlaubte lokale/entfernte Ziele anhand der ausgewählten Systembindung auf.
+Native Oberfläche und die fest begrenzte Browserroute verwenden denselben
+Vorschau- und Übernahmeweg. Es entsteht kein zweiter Konverter, eigener MQTT-
+Client oder Ausführungspfad. Bericht und Freigabe sind flüchtig und systemgebunden;
+nur die ausgeschaltete neue Regel wird im lokalen Dokument gespeichert.
+Siehe ADR 0008 und WORKSPACE.md.
+
 ## Gemeinsamer Browsereditor
 
 Der aktive editor.js ist für neue und vorhandene Regeln sowie Definitionen

@@ -64,14 +64,15 @@ trait SystemOwnership
             } catch (Throwable) {
                 return $this->OwnershipRejected($function);
             }
-            if ($this->workspaceEditorContext === null && method_exists($this, 'WorkspaceMode') && in_array($function, self::WORKSPACE_EDITOR_ACTIONS, true) && $this->WorkspaceMode()) return $this->OwnershipRejected($function);
+            $import = in_array($function, ['ScanEventImports', 'PreviewEventImport', 'ImportSymconEvent', 'LoadImportDevices'], true);
+            if (!$import && $this->workspaceEditorContext === null && method_exists($this, 'WorkspaceMode') && in_array($function, self::WORKSPACE_EDITOR_ACTIONS, true) && $this->WorkspaceMode()) return $this->OwnershipRejected($function);
             $migration = in_array($function, ['BackupSystemMigration', 'PrepareSystemMigration', 'ApplySystemMigration', 'RollbackSystemMigration', 'GetSystemMigration', 'ExportSystemMigration', 'FenceSystemMigration', 'GetSystemMigrationSource', 'PreviewSystemMigration', 'ClaimSystemConnection'], true);
             $workspace = str_contains($function, 'Workspace');
             $setup = method_exists($this, 'ReadWorkspaceSetup') && in_array($function, ['GetWorkspaceSetupStatus', 'RefreshWorkspaceSetup', 'ConfirmWorkspaceSetup', 'CancelWorkspaceSetup', 'RollbackWorkspaceSetup', 'GetConfigurationForm'], true);
             if (method_exists($this, 'WorkspaceSetupLocked') && $this->WorkspaceSetupLocked() && !$setup) return $this->OwnershipRejected($function);
             try {
                 $editor = $this->workspaceEditorContext !== null && in_array($function, self::WORKSPACE_EDITOR_ACTIONS, true);
-                $ui = in_array($function, ['GetConfigurationForm', 'OpenAutomationDesigner', 'GetDesignerData', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
+                $ui = $import || in_array($function, ['GetConfigurationForm', 'OpenAutomationDesigner', 'GetDesignerData', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
                 $allowed = $marker === [] || $migration || ($marker['role'] === 'manager' && ($setup || (($workspace || $editor || $ui) && $this->MigrationWorkspaceWritable())));
             }
             catch (Throwable) {

@@ -15,7 +15,7 @@ trait WorkspaceEditorContext
         'InspectReusableSequenceActions', 'ConfigureSequenceCall', 'TrackEditorInput', 'NavigateEditor', 'ResolveEditorNavigation', 'EditorWorkReady',
         'SelectEditorDevice', 'ConfigureEditorItem', 'ConfigureEditorSchedule', 'ConfigureEditorSolar', 'ConfigureEditorWeekdays',
         'SelectEditorConditionProperty', 'InspectEditorTimes', 'InspectEditorActions', 'InspectEditorTriggers', 'InspectEditorConditions',
-        'ChangeEditorCommand', 'GetEditorItemForm', 'FilterAutomations'];
+        'ChangeEditorCommand', 'GetEditorItemForm', 'FilterAutomations', 'ScanEventImports', 'PreviewEventImport', 'ImportSymconEvent'];
 
     public function WorkspaceEditorAction(string $SystemID, int $Generation, string $Fingerprint, string $Action, string $Arguments): string
     {
