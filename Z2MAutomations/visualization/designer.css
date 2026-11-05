@@ -279,5 +279,11 @@ dialog.diagnostics-dialog { width: min(1180px, calc(100vw - 40px)); max-height: 
 dialog.diagnostics-dialog p { margin: 9px 0; line-height: 1.6; }
 dialog.diagnostics-dialog .field-help { margin-top: 12px; line-height: 1.6; }
 .diagnostics-dialog .debug-end { font-weight: 600; }
+.installation-start { max-width: 100%; white-space: normal; text-align: left; }
+.installation-status[data-phase="error"], .installation-status[data-phase="interrupted"] { color: #a43c32; }
+dialog.installation-confirm { width: min(720px, calc(100vw - 32px)); max-height: 88vh; overflow: auto; }
+.installation-confirm p, .installation-confirm dd { overflow-wrap: anywhere; line-height: 1.6; }
+.installation-builds dd { margin: 5px 0 16px; font-family: monospace; }
+.installation-notice { border-left: 4px solid #b68d39; background: #fff8e9; padding: 12px; }
 .diagnostics-dialog[aria-busy="true"] .diagnostics-message::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid #d9efed; border-top-color: var(--primary); border-radius: 50%; animation: catalog-spin 1s linear infinite; }
 @media (max-width: 700px) { .diagnostics-facts { grid-template-columns: 1fr; gap: 4px; } .diagnostics-facts dd { margin-bottom: 9px; } dialog.diagnostics-dialog { width: calc(100vw - 22px); padding: 18px; } }

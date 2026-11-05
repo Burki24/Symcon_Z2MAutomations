@@ -13,6 +13,9 @@ eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 Im Browserdesigner fasst [Systeme und Diagnose](Z2MAutomations/README.md#systeme-und-diagnose-im-browserdesigner)
 die Verbindungs- und Erweiterungsstände zusammen. Dort lassen sich Prüfungen
 ausdrücklich starten und Z2M-Abläufe je System zeitlich begrenzt aufzeichnen.
+Die mitgelieferte Erweiterung lässt sich dort nach eigener Bestätigung für
+das ausgewählte System installieren oder aktualisieren. Dasselbe ist im
+nativen Zentralenformular möglich.
 
 Bei erneuter Auslösung einer laufenden Automation lässt sich wählen, ob die
 Auslösung ignoriert, die Folge von vorn begonnen oder nur die aktuelle Wartezeit

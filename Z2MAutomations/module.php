@@ -38,6 +38,8 @@ require_once __DIR__ . '/../libs/Z2MInstanceDiscovery.php';
 require_once __DIR__ . '/../libs/SymconEventImport.php';
 require_once __DIR__ . '/../libs/WorkspaceEventImport.php';
 require_once __DIR__ . '/../libs/WorkspaceDiagnostics.php';
+require_once __DIR__ . '/../libs/WorkspaceInstallation.php';
+require_once __DIR__ . '/../libs/WorkspaceInstallationForm.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
 require_once __DIR__ . '/../libs/ExtensionContract.php';
 require_once __DIR__ . '/../libs/ValidationFeedback.php';
@@ -96,6 +98,8 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\SymconEventImport;
     use Z2MAutomations\WorkspaceEventImport;
     use Z2MAutomations\WorkspaceDiagnostics;
+    use Z2MAutomations\WorkspaceInstallation;
+    use Z2MAutomations\WorkspaceInstallationForm;
     use Z2MAutomations\ExtensionIntegration;
     use Z2MAutomations\AutomationEditor;
     use Z2MAutomations\AutomationOverview;
@@ -130,6 +134,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterAttributeString('WorkspaceTransfers', '');
             $this->RegisterAttributeString('WorkspaceSetup', '');
             $this->RegisterAttributeString('WorkspaceRuntime', '');
+            $this->RegisterAttributeString('WorkspaceInstallations', '');
             $this->RegisterAttributeString('SystemOwnership', '');
             $this->RegisterAttributeString('MigrationSourceWork', '');
             $this->RegisterAttributeString('YamlDraft', '');
@@ -155,6 +160,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterTimer('WorkspaceSetupRefresh', 0, 'Z2MA_RefreshWorkspaceSetup($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceRuntimeRefresh', 0, 'Z2MA_RefreshWorkspaceRuntime($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceCatalogRefresh', 0, 'Z2MA_RefreshWorkspaceDeviceCatalogs($_IPS[\'TARGET\']);');
+            $this->RegisterTimer('WorkspaceInstallationRefresh', 0, 'Z2MA_RefreshWorkspaceInstallations($_IPS[\'TARGET\']);');
             $this->RegisterVariableString('RuntimeSystem', 'Gewähltes Z2M-System für Betriebssteuerung', $this->TextPresentation(), 230);
             $this->RegisterVariableString('RuntimeStatus', 'Betriebssteuerung und Einzelstart', $this->TextPresentation(), 240);
             $this->RegisterVariableString('TransferSystem', 'Gewähltes Z2M-System für Prüfung und Übertragung', $this->TextPresentation(), 200);
@@ -189,6 +195,7 @@ class Z2MAutomations extends IPSModuleStrict
         {
             parent::ApplyChanges();
             $this->ResetWorkspaceCatalogRefresh();
+            $this->InterruptWorkspaceInstallations();
             if ($this->GetBuffer('WorkspaceDiagnosticsJobs') !== '') $this->DebugEvent('AKTION', 'Diagnosequittungen nach Modulupdate oder Einstellungsübernahme verworfen. Es wird nichts erneut gesendet; befristete Aufzeichnungen der Verbindungsinstanzen behalten ihre Endzeit.');
             $this->SetBuffer('WorkspaceDiagnosticsJobs', '');
             $this->SetBuffer('DesignerSessions', '');

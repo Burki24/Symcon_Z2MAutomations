@@ -67,11 +67,46 @@ eine aktuelle Anzeige, bevor ein weiterer Auftrag angenommen wird.
 Entwürfe, offene Eingaben, Empfangsfreigaben und laufende Automationen bleiben
 bei diesen Diagnoseaktionen erhalten. Der Browser speichert keine eigene
 Kopie der Ablaufmeldungen. Bei einem Updatehinweis ist eine gesonderte
-Aktualisierung der Erweiterung erforderlich. Für zentral verwaltete Verbindungen
-ist die Installation in dieser Ansicht noch nicht verfügbar. Der Hinweis führt
-deshalb nicht zu einem gesperrten Uploadbutton der Verbindung.
+Aktualisierung der Erweiterung erforderlich. Dafür steht nun der systemgebundene
+Installationsbutton im selben Dialog zur Verfügung; siehe den folgenden Abschnitt.
 Für die neue Diagnoseansicht genügt ein Library-Modulupdate; ein
 Z2M-Erweiterungsupdate ist nicht erforderlich.
+
+### Erweiterung eines Systems installieren oder aktualisieren
+
+1. Das gewünschte Z2M-System auswählen. Im nativen Zentralenformular den Bereich
+   **Z2M-Erweiterung dieses Systems installieren oder aktualisieren** öffnen;
+   im Designer **Systeme und Diagnose** öffnen.
+2. Installierten und mitgelieferten Build prüfen. Bei unbekanntem Stand zunächst
+   **Erweiterungsstatus abfragen** wählen. Für die Erstinstallation genügt eine
+   erreichbare, zugeordnete und noch besitzerlose Z2M-Verbindung.
+3. **Mitgelieferte Erweiterung auf diesem System installieren oder aktualisieren**
+   wählen. Die Bestätigung nennt System, Basistopic und mitgelieferten Build;
+   im Designer außerdem die Z2M-Verbindung und das MQTT-Gateway.
+4. Den Hinweis auf mögliche Unterbrechungen lesen und ausdrücklich bestätigen.
+   Erst dann prüft das Modul die Verbindung frisch und lädt ausschließlich die
+   mitgelieferte Datei „z2m-automations.mjs“ hoch. Externe Erweiterungen müssen
+   in Z2M bereits erlaubt sein; diese Einstellung wird nicht automatisch geändert.
+5. Die Rückmeldung abwarten. **Installation erfolgreich** erscheint erst nach
+   Bestätigung einer neuen Erweiterungssitzung mit erwartetem Build. Ist der
+   vorherige Speicherstand bekannt, müssen dessen Revision und Prüfsumme weiter
+   passen. Der bestätigte Automatikzustand wird daneben angezeigt.
+
+Ein Erweiterungswechsel kann laufende Abläufe und Aufzeichnungen beenden.
+Ist der automatische Wiederanlauf in Z2M eingeschaltet, können die gespeicherten
+freigegebenen Regeln danach wieder bereit sein. Das Modul sendet hierfür keinen
+zusätzlichen Aktivierungsbefehl. Entwürfe, Eingaben und Automationsdateien werden
+bei der Installation nicht übertragen. Andere Z2M-Systeme bleiben unverändert.
+
+Bei einer fehlenden oder unklaren Antwort zuerst **Diagnosestand neu laden**
+bzw. **Installationsstatus aktualisieren**, danach gegebenenfalls den
+Erweiterungsstatus abfragen. Kein Auftrag wird automatisch erneut hochgeladen,
+auch nicht nach einem Modulupdate. Ein eventuell nötiger Z2M-Neustart erfolgt
+gesondert. Im nativen Formular nach einer Änderung des Erweiterungsstands
+**Installationsansicht neu laden** wählen, bevor erneut bestätigt wird.
+Verwaltete Verbindungen akzeptieren den Upload ausschließlich von ihrer Zentrale.
+Die Erstinstallation übernimmt noch keine Regeln und wechselt keinen Besitzer;
+anschließend den normalen Einrichtungsweg nutzen.
 
 ## Automationszentrale anlegen
 

@@ -33,7 +33,12 @@ final class ExtensionContract
     public static function BundledBuild(): ?string
     {
         $header = @file_get_contents(__DIR__ . '/z2m/' . self::NAME, false, null, 0, 1024);
-        return is_string($header) && preg_match('/^export const EXTENSION_BUILD = \'([a-f0-9]{64})\';$/m', $header, $match) === 1 ? $match[1] : null;
+        return is_string($header) ? self::BuildFromHeader($header) : null;
+    }
+
+    public static function BuildFromHeader(string $header): ?string
+    {
+        return preg_match('/^export const EXTENSION_BUILD = \'([a-f0-9]{64})\';$/m', substr($header, 0, 1024), $match) === 1 ? $match[1] : null;
     }
 
     public static function Storage(mixed $data): ?array

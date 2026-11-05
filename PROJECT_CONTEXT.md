@@ -8,6 +8,17 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Erweiterungsinstallation je System lokal integriert: nativer Zentralenbutton
+  und eigener Bestätigungsdialog unter „Systeme und Diagnose“ im Designer.
+  Health-Prüfung, festes Artefakt, neue Empfängersitzung und erwarteter Build;
+  bekannte gespeicherte Revision/Prüfsumme werden mitgeprüft. Erstinstallation
+  vor der Übernahme nur bei besitzerloser Verbindung. Dauerhafte Quittungen
+  verhindern Neuversand nach unklarer Antwort oder Update. Erweiterungsupdate
+  kann Abläufe und Aufzeichnungen unterbrechen; Z2Ms bestehender Wiederanlauf
+  gilt unverändert. Kein Symcon-Aktivierungsauftrag, keine YAML-Übertragung.
+  Synthetische Kernel-/Browserprüfung; reale Abnahme nach Modulupdate offen.
+  Kein Live-Zugriff; Helper und Artefakt unverändert. ADR 0030 beschreibt den Ablauf.
+
 - Agenda Punkt 5 lokal umgesetzt: „Systeme und Diagnose“ im Browserdesigner mit
   bis zu acht Systemen, bestehendem Systemwechsel, MQTT-/Z2M-Status, deutschem
   Gesundheitszustand und kanonischem Buildvergleich. Feste Diagnose-POSTs rufen

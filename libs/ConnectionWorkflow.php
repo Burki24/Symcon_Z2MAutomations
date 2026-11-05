@@ -97,7 +97,12 @@ trait ConnectionWorkflow
         }
         if ($workflow['wire'] === 'status') {
             if ($workflow['kind'] === 'install' && $metadata['session'] === $workflow['previousSession']) {
-                $this->FinishExtensionWorkflow($state, 'error', 'invalid_response');
+                $this->FinishExtensionWorkflow($state, 'error', isset($workflow['installationRequest']) ? 'installation_session_mismatch' : 'invalid_response');
+                return null;
+            }
+            $installationError = $this->InstallationMetadataError($state, $metadata);
+            if ($installationError !== '') {
+                $this->FinishExtensionWorkflow($state, 'error', $installationError);
                 return null;
             }
             $state['extension'] = $metadata;
@@ -136,6 +141,7 @@ trait ConnectionWorkflow
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        $this->FinishOwnedInstallation($state, $status, $error);
         $this->FinishRuntimeControl($state, $status, $error);
         if ($error !== '' && isset($state['workflow']['runtimeRequest']) && in_array($state['workflow']['kind'], ['activate', 'deactivate'], true)) $state['runtimeConfirmed'] = false;
         $this->FinishDraftTransfer($state, $status, $error);

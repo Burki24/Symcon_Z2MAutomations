@@ -77,7 +77,7 @@ import {installManagement, matchesRuleState} from './management.js';
         const previous = systemId; systemId = id;
         if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
     }});
-    const updateDiagnostics = installDiagnostics({getData: () => data, isLoading: () => busy, chooseSystem: id => updateSystems.choose(id), message});
+    const updateDiagnostics = installDiagnostics({getData: () => data, isLoading: () => busy, chooseSystem: id => updateSystems.choose(id), message, reload: () => load()});
     const updateTransfers = installTransfers({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateCatalog = installCatalogRefresh({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});

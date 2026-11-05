@@ -279,6 +279,7 @@ trait WorkspaceTransfer
 
     private function WorkspaceTransferBlocksRollback(string $epoch): bool
     {
+        if ($this->ReadWorkspaceInstallations()['changedEpochs'][$epoch] ?? false) return true;
         if ($this->ReadWorkspaceRuntime()['controlledEpochs'][$epoch] ?? false) return true;
         $journal = $this->ReadWorkspaceTransfers();
         if ($journal['writtenEpochs'][$epoch] ?? false) return true;

@@ -16,9 +16,7 @@ trait ExtensionTransport
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Notify)
         {
-            $code = @file_get_contents(__DIR__ . '/z2m/' . ExtensionContract::NAME, false, null, 0, Z2MProtocol::MAX_PAYLOAD_BYTES + 1);
-            $valid = is_string($code) && $code !== '' && strlen($code) <= Z2MProtocol::MAX_PAYLOAD_BYTES && preg_match('//u', $code) === 1;
-            return $this->StartExtensionWorkflow('install', '', $valid ? $code : '', $Notify);
+            return $this->StartExtensionWorkflow('install', '', $this->BundledExtensionCode(), $Notify);
         });
     }
 
@@ -28,6 +26,19 @@ trait ExtensionTransport
         {
             return $this->StartExtensionWorkflow('status');
         });
+    }
+
+    protected function BundledExtensionCode(): string
+    {
+        $code = @file_get_contents(__DIR__ . '/z2m/' . ExtensionContract::NAME, false, null, 0, Z2MProtocol::MAX_PAYLOAD_BYTES + 1);
+        return is_string($code) && $code !== '' && strlen($code) <= Z2MProtocol::MAX_PAYLOAD_BYTES && preg_match('//u', $code) === 1 ? $code : '';
+    }
+
+    private function BundledExtensionIdentity(): ?array
+    {
+        $code = $this->BundledExtensionCode();
+        $build = ExtensionContract::BuildFromHeader($code);
+        return $code === '' || $build === null ? null : ['build' => $build, 'artifact' => hash('sha256', $code)];
     }
     private function NewExtensionState(): array
     {
@@ -69,6 +80,10 @@ trait ExtensionTransport
                     return false;
                 }
                 if (method_exists($this, 'DraftFrameAllowed') && !$this->DraftFrameAllowed($state, $frame)) {
+                    $this->SaveState($state);
+                    return false;
+                }
+                if (method_exists($this, 'InstallationFrameAllowed') && !$this->InstallationFrameAllowed($state)) {
                     $this->SaveState($state);
                     return false;
                 }

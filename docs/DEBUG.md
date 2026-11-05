@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Erweiterungsinstallation je System
+
+RequestWorkspaceInstallation, RefreshWorkspaceInstallations und die zugehörigen
+Status-/Authority-Aufrufe verwenden TraceModuleCall. RequestOwnedInstallation
+und GetOwnedInstallationResult protokollieren im Verbindungsmodul den bestehenden
+Upload- und Bestätigungsweg. Die kanonischen DebugFlowHelper bleiben unverändert.
+
+Deutsche Ablaufmeldungen erklären Bestätigung, frische Health-Prüfung, Übergabe
+der festen Datei, zugeordnetes Ergebnis und Ablehnungsgrund. Systembezug,
+Verbindungs-ID und gekürzte Buildkennung genügen zur Zuordnung. Quellcode,
+YAML, Anfragekörper, Browserzugang und rohe Empfängersitzung werden nicht geloggt.
+Wiederholungen und Modulupdates erklären ausdrücklich, dass kein zweiter Upload
+erfolgt. Ein fehlendes ACK ist kein Erfolg; neue Sitzung und erwarteter Build
+müssen bestätigt sein. Statusabfragen senden keinen Installationsauftrag.
+
 ## Zentrale Browserdiagnose
 
 GetWorkspaceDiagnostics, RequestWorkspaceDiagnostics und GetConnectionDiagnostics

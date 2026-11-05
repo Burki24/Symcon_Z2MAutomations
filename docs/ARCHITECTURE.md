@@ -461,6 +461,14 @@ Das Z2M-Artefakt und der Erweiterungsvertrag bleiben unverändert.
 
 ## Direkte Ersteinrichtung
 
+Die Erweiterung kann über WorkspaceInstallation und ConnectionInstallation auch
+vor der Übernahme einer besitzerlosen Verbindung eingerichtet werden. Verwaltete
+Verbindungen verlangen die zuständige Zentrale. Der ausdrücklich bestätigte
+Auftrag bindet Build und Dateibytes; ein Timer prüft Health und nutzt danach den
+vorhandenen extension/save-Installer mit neuer Sitzungs-/Buildbestätigung.
+Dauerhafte Quittungen und die bestehende Rückwegsperre sichern unklare Antworten.
+Es entsteht kein zweiter MQTT- oder Erweiterungsvertrag; siehe ADR 0030.
+
 WorkspaceSetup und ConnectionWorkspaceSetup ergänzen ADR 0027: gespeicherten
 Z2M-Stand direkt lesen, Vorschau und private Sicherung, ausdrückliche frische
 Bestätigung und lokaler Claim ohne alte Quellinstanz. WorkspaceSetupSnapshot

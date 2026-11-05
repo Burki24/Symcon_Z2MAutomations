@@ -1,5 +1,19 @@
 # Unveröffentlicht
 
+## Erweiterung je System installieren und aktualisieren
+
+- Mitgelieferte Erweiterung im nativen Zentralenformular und unter „Systeme und
+  Diagnose“ im Designer installieren oder aktualisieren. Bestätigung mit System,
+  Build und Hinweis auf mögliche Unterbrechungen von Abläufen und Aufzeichnungen.
+- Frische Verbindungsprüfung, Upload der festen mitgelieferten Datei und
+  Bestätigung einer neuen Erweiterungssitzung mit erwartetem Build.
+  Bekannte Revision und Prüfsumme der Automationsdatei werden zusätzlich geprüft.
+- Erstinstallation bei besitzerlosen Verbindungen ohne vorzeitige Übernahme;
+  verwaltete Verbindungen akzeptieren nur ihre zuständige Zentrale.
+- Getrennte Status- und deutsche Debugmeldungen. Verlorene Antworten, wiederholte
+  Aufrufe und Modulupdates führen zu keinem automatischen zweiten Upload.
+  Entwürfe und Automationsdateien werden nicht übertragen oder aktiviert.
+
 ## Systeme und Diagnose im Browserdesigner
 
 - Alle zugeordneten Z2M-Systeme mit MQTT-Zuordnung, Verbindungsprüfung,

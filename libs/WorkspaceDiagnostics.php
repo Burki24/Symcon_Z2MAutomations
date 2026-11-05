@@ -17,6 +17,7 @@ trait WorkspaceDiagnostics
             try {
                 $state = $this->ReadWorkspace();
                 $record = $this->WorkspaceRecord($state, $SystemID);
+                $this->SyncWorkspaceInstallation($SystemID);
                 $rows = [];
                 $selected = [];
                 foreach ($state['systems'] as $other) {
@@ -24,7 +25,7 @@ trait WorkspaceDiagnostics
                     if ($view['systemId'] === $record['binding']['systemId']) $selected = $view;
                     $rows[] = array_intersect_key($view, array_flip(['systemId', 'generation', 'name', 'baseTopic', 'connection', 'mqttParent', 'mqttConnected', 'online', 'healthText', 'build', 'debug']));
                 }
-                return $this->WorkspaceResult('', ['diagnostics' => $selected, 'systems' => $rows]);
+                return $this->WorkspaceResult('', ['diagnostics' => $selected, 'systems' => $rows, 'installation' => $this->WorkspaceInstallationView($record)]);
             } catch (Throwable $exception) {
                 return $this->WorkspaceFailure($exception);
             }

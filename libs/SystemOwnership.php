@@ -45,7 +45,7 @@ trait SystemOwnership
 
     private function WithOwnershipEntry(string $function, callable $callback): mixed
     {
-        if (in_array($function, ['Create', 'GetSystemOwnership', 'GetSystemMigrationAuthority', 'GetWorkspaceTransferAuthority', 'GetWorkspaceSetupAuthority', 'GetWorkspaceRuntimeAuthority', 'GetCompatibleParents'], true)) return $callback();
+        if (in_array($function, ['Create', 'GetSystemOwnership', 'GetSystemMigrationAuthority', 'GetWorkspaceTransferAuthority', 'GetWorkspaceSetupAuthority', 'GetWorkspaceRuntimeAuthority', 'GetWorkspaceInstallationAuthority', 'GetCompatibleParents'], true)) return $callback();
         $nested = $this->ownershipEntry;
         // Replies may arrive while SendDataToParent is still on another entry's stack.
         $receive = $function === 'ReceiveData';
@@ -72,13 +72,13 @@ trait SystemOwnership
             if (method_exists($this, 'WorkspaceSetupLocked') && $this->WorkspaceSetupLocked() && !$setup) return $this->OwnershipRejected($function);
             try {
                 $editor = $this->workspaceEditorContext !== null && in_array($function, self::WORKSPACE_EDITOR_ACTIONS, true);
-                $ui = $import || in_array($function, ['GetConfigurationForm', 'OpenAutomationDesigner', 'GetDesignerData', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
+                $ui = $import || in_array($function, ['ApplyChanges', 'GetConfigurationForm', 'OpenAutomationDesigner', 'GetDesignerData', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
                 $allowed = $marker === [] || $migration || ($marker['role'] === 'manager' && ($setup || (($workspace || $editor || $ui) && $this->MigrationWorkspaceWritable())));
             }
             catch (Throwable) {
                 return $this->OwnershipRejected($function);
             }
-            // Connection observations remain available; installation is a separate explicit owner operation in the later transport stage.
+            // Connection observations remain available; installation requires its separate owner-authorized entry.
             if (($marker['role'] ?? '') === 'connection') $allowed = $function !== 'InstallExtension';
             if (($marker['role'] ?? '') === 'legacy' && $function === 'GetActionCatalog') $allowed = true;
             if (!$allowed) return $this->OwnershipRejected($function);

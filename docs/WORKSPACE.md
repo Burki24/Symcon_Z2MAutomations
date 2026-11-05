@@ -7,6 +7,27 @@ inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION
 Prüfung, Speicherung und die ausdrückliche Betriebssteuerung je System sind
 inzwischen angebunden; siehe die entsprechenden Abschnitte unten.
 
+## Erweiterung je System
+
+Native Zentrale und Designer nutzen RequestWorkspaceInstallation und
+GetWorkspaceInstallationStatus. Eine eigene installation-Berechtigung schützt
+die Designer-Routen. Die Bestätigung bindet System, Generation, Entwurf,
+Zuordnung, Besitzerzustand, Build und die mitgelieferten Dateibytes.
+Erstinstallation ist vor der Übernahme nur bei besitzerloser Verbindung möglich.
+Der Auftrag selbst übernimmt weder Verbindung noch Regeln.
+
+Nach frischer Health-Prüfung delegiert der zentrale Timer an den bestehenden
+Installer der Verbindung. Erfolg verlangt neue Sitzung und erwarteten Build;
+bekannte gespeicherte Revision und Prüfsumme müssen erhalten bleiben. GETs lesen
+nur vorhandene Ergebnisse. Dauerhafte Quittungen verhindern Neuversand nach
+Zeitüberschreitung oder Modulupdate. Sobald ein Upload für die Übernahme begonnen
+haben könnte, wird deren rein lokaler Rückweg gesperrt.
+
+Entwürfe, Freigaben und offene Eingaben bleiben erhalten. Laufende Z2M-Abläufe
+und Aufzeichnungen können durch den Erweiterungswechsel enden; der vorhandene
+Wiederanlauf in Z2M gilt unverändert. Keine zusätzliche Speicherung oder
+Aktivierung aus Symcon. Details und Grenzen: ADR 0030.
+
 ## Systemdiagnose
 
 Die zusätzliche Systemdiagnose beschreibt [ADR 0029](adr/0029-central-browser-diagnostics.md).

@@ -1,3 +1,56 @@
+## Erweiterungsinstallation je System lokal geprüft am 05.11.2026
+
+WorkspaceInstallation, ConnectionInstallation und der native Formularbereich
+ergänzen den bestehenden Installer. Vor Umsetzung kanonischen DebugFlowHelper,
+ConfigurationFormHelper und HttpResponseHelper sowie ExtensionTransport,
+ConnectionWorkflow und die vorhandenen Besitz-/Workspace-Verträge geprüft.
+Der erste fokussierte Test scheiterte ausdrücklich an den fehlenden öffentlichen
+Installationseinstiegen. Zentrale Helper, Fremdquellen und Erweiterungsartefakt
+bleiben unverändert. ADR 0030 dokumentiert die Zuständigkeiten und Grenzen.
+
+Der Kerneltest verwendet acht synthetische Systeme an zwei MQTT-Eltern. Er prüft
+Erstinstallation vor dem Besitzerwechsel, ausdrückliche Bestätigung, frische
+Health-Prüfung und exakt das mitgelieferte Artefakt am festen extension/save-Topic.
+Neue Sitzung und erwarteter Build sowie bekannte gespeicherte Revision/Prüfsumme
+bestätigen den Abschluss. Falsche Sitzung/Build, veränderter Speicher, Ablehnung,
+abweichende Dateibytes bei gleicher Buildkennung, fehlende Antwort und abgelaufene
+Vorprüfung sind getrennte Gegenbeispiele. Andere Dokumente, offene Eingaben,
+Empfangsfreigaben und YAML-Dateien bleiben bytegleich; es gibt keinen Start-,
+Stopp- oder Gerätebefehl. Ein laufender Auftrag eines Systems blockiert die
+weiteren Systeme nicht.
+
+Dauerhafte Quittungen verhindern Neuversand und veränderte Wiederholungsaufträge.
+Modulupdate und verlorener Transportworkflow setzen keinen Upload erneut fort.
+Der reine Authority-Callback besteht auch mit simuliertem separatem Kernelaufruf
+bei bereits gehaltenem Besitzerlock. Ein möglicher Upload sperrt den rein lokalen
+Übernahmerückweg. Manager-ApplyChanges muss deshalb seine eigene, weiterhin
+besitzergeprüfte Aktualisierung durchführen dürfen. Native echte Buttoncallbacks
+und der bestehende geschützte Neuladeweg werden gegen die Kernelstubs ausgeführt;
+eine noch nicht übernommene Namenseingabe bleibt beim Neuaufbau erhalten.
+
+HTTP-Prüfungen decken eigene Browserberechtigung, Bestätigung, feste Parameter,
+Fremdherkunft, Generation und GET-/POST-Trennung ab. Browser-Unitprüfungen sichern
+feste Routen, Systembindung, Größenbudget, Fehler und fehlenden automatischen
+Neuversand. Ein separater unsichtbarer Edge-Prozess lädt die tatsächlichen
+Diagnose-/Installationsassets von einem lokalen synthetischen Server: acht
+Systeme in der Übersicht, Installation auf zwei Systemen, Abbruch per Button und
+Escape ohne POST, ausstehender Auftrag, neue Buildanzeige, Fehlererhalt und
+Neuladen der Hauptansicht nach Erfolg. Namen mit HTML werden als Text angezeigt.
+900-Pixel-Diagnose und 600-Pixel-Bestätigung passen in die sichtbare Breite;
+echtes Mausrad scrollt den kleinen Bestätigungsdialog in beide Richtungen.
+Keine JavaScriptfehler. Kein persönliches Browserprofil oder Desktop bedient.
+
+Gesamtsuite php tests/run.php einschließlich 173 JavaScript-Tests bestanden.
+Fokussierte Installations-, Diagnose- und Verbindungstests sowie Struktur- und
+zentrale Kodierungsprüfung erfolgreich. Offizieller StylePHP-Check der 18 eigenen
+JSON-Dateien in isolierter Kopie ohne Fremdquellen erfolgreich; PHP CS Fixer im
+Prüfmodus ohne Befund für 144 Dateien. npm run check:extension bestätigt das
+unveränderte Artefakt. Eigene Änderungen UTF-8 ohne BOM/LF; git diff --check sauber.
+
+Keine Test-/Produktivinstallation kontaktiert oder verändert. Die sichtbare
+Abnahme mit echter nativer Testkonsole und Z2M erfolgt nach Modulupdate separat;
+die Liste tatsächlich geprüfter Z2M-Versionen wird nicht erweitert.
+
 ## Systeme und Diagnose lokal geprüft am 05.11.2026
 
 Agenda Punkt 5 ergänzt WorkspaceDiagnostics sowie die feste diagnostics-

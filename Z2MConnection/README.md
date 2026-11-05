@@ -196,3 +196,19 @@ dauerhaftes Ergebnis. Der Besitzerwert allein erteilt keine Berechtigung.
 `GetConnectionInfo` liefert den Sitzungsbezug als SHA-256-Vergleichswert,
 keinen Aktivierungstoken. Deutsche Status- und Debugmeldungen erklären die
 Bestätigung und Fehler; Namen, YAML und Aktionswerte erscheinen nicht im Debug.
+
+## Erweiterungsinstallation der Zentrale
+
+RequestOwnedInstallation und GetOwnedInstallationResult mit Präfix Z2MC benötigen
+einen ausdrücklich bestätigten Auftrag. System, Verbindung, Zuordnung, Build
+und tatsächliche Dateibytes sind fest gebunden. Ein beliebiger Besitzerwert
+erteilt keine Berechtigung. Vor der ersten Übernahme ist die Installation nur
+möglich, solange die Verbindung noch keinen Besitzer hat.
+
+Die Verbindung nutzt ihren bestehenden Installer und die offizielle
+bridge/request/extension/save-Schnittstelle. Eine neue Sitzung mit erwartetem
+Build bestätigt das Ergebnis; ein bloßes Upload-OK genügt nicht. Dauerhafte
+Quittungen verhindern Doppelversand. Statusabfragen senden keine Datei erneut.
+Der direkte InstallExtension-Einstieg bleibt bei verwalteten Verbindungen
+gesperrt. Es werden keine Automationsdateien gespeichert oder Startbefehle
+gesendet. Z2Ms vorhandene Wiederanlaufeinstellung gilt weiterhin.

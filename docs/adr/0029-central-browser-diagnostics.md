@@ -19,6 +19,8 @@ Buildinformationen und eine bereinigte Lease-Ansicht aus. Empfängersitzung,
 Client und Transaktion bleiben privat. Die zentralen Diagnose-POSTs erlauben
 ausschließlich Health, Erweiterungsstatus sowie Start und Stopp der vorhandenen
 befristeten Aufzeichnung. Kein Erweiterungsupload und keine Automationssteuerung.
+Die gesonderte, ausdrücklich bestätigte Installationsroute ergänzt ADR 0030;
+der Diagnoseauftrag selbst bleibt unverändert auf diese Beobachtungen begrenzt.
 
 System-ID, Generation, Dokumentfingerabdruck und Lease-Kontext begleiten jeden
 Auftrag. Begrenzte flüchtige Quittungen verhindern Neuversand und Verlängerung

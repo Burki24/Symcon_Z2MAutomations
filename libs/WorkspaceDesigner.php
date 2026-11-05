@@ -22,7 +22,7 @@ trait WorkspaceDesigner
         $token = bin2hex(random_bytes(32));
         $sessions = $this->DesignerSessions();
         $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->DesignerAccessScope(),
-            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'diagnostics' => true, 'receipts' => []];
+            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'diagnostics' => true, 'installation' => true, 'receipts' => []];
         $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
         $this->DebugEvent('AKTION', 'Gemeinsamen Browserdesigner für die zugeordneten Systeme geöffnet. Jeder Auftrag benötigt den passenden Systementwurf; keine Z2M-Aktion.', ['Systeme' => count($this->ReadWorkspace()['systems'])]);
         return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
@@ -47,6 +47,14 @@ trait WorkspaceDesigner
             $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
             if (!$this->DesignerTokenAllowed($token)) return [403, ['message' => 'Der Designerzugang ist abgelaufen. Bitte den Designer erneut im Modul öffnen.']];
             if ($asset === 'data') return [200, json_decode($this->WorkspaceDesignerData($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? ''), true, 32, JSON_THROW_ON_ERROR)];
+            if ($asset === 'installation-status') {
+                if (!$this->DesignerWriteAccess($token, 'installation')) return [403, ['message' => 'Bitte den Designer für die Installation erneut im Modul öffnen.']];
+                $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
+                $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system);
+                if ((string) $record['binding']['generation'] !== ($_SERVER['HTTP_X_Z2MA_GENERATION'] ?? '')) throw new RuntimeException('binding_changed');
+                $result = json_decode($this->GetWorkspaceInstallationStatus($system), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'diagnostics-status') {
                 if (!$this->DesignerWriteAccess($token, 'diagnostics')) return [403, ['message' => 'Bitte den Designer für die Diagnose erneut im Modul öffnen.']];
                 $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
@@ -108,6 +116,14 @@ trait WorkspaceDesigner
                 $result = json_decode($this->RequestWorkspaceDeviceCatalog($system, (int) $rawGeneration, $fingerprint, str_replace('-', '', $body['requestId'])), true, 32, JSON_THROW_ON_ERROR);
                 return [$result['ok'] ? 200 : 409, $result];
             }
+            if ($asset === 'installation') {
+                if (!$this->DesignerWriteAccess($token, 'installation')) return [403, ['message' => 'Bitte den Designer für die Installation erneut im Modul öffnen.']];
+                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
+                if (!$this->DesignerEditShape($body, ['requestId', 'context', 'confirmed']) || !RuntimeDebugContract::UUID($body['requestId'])
+                    || !ExtensionContract::Checksum($body['context']) || $body['confirmed'] !== true) throw new RuntimeException('installation_confirmation');
+                $result = json_decode($this->RequestWorkspaceInstallation($system, (int) $rawGeneration, $fingerprint, str_replace('-', '', $body['requestId']), $body['context'], true), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'diagnostics') {
                 if (!$this->DesignerWriteAccess($token, 'diagnostics')) return [403, ['message' => 'Bitte den Designer für die Diagnose erneut im Modul öffnen.']];
                 $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
@@ -156,7 +172,7 @@ trait WorkspaceDesigner
                 throw $exception;
             }
         } catch (Throwable $exception) {
-            $failure = json_decode($this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
+            $failure = json_decode($asset === 'installation' ? $this->WorkspaceInstallationFailure($exception) : $this->WorkspaceFailure($exception), true, 16, JSON_THROW_ON_ERROR);
             return [409, $failure];
         }
     }

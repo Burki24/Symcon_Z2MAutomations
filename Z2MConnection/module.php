@@ -21,6 +21,7 @@ require_once __DIR__ . '/../libs/ConnectionWorkflow.php';
 require_once __DIR__ . '/../libs/ConnectionDraftTransfer.php';
 require_once __DIR__ . '/../libs/ConnectionWorkspaceSetup.php';
 require_once __DIR__ . '/../libs/ConnectionRuntimeControl.php';
+require_once __DIR__ . '/../libs/ConnectionInstallation.php';
 
 use Z2MAutomations\ExtensionContract;
 use Z2MAutomations\RuntimeControlProtocol;
@@ -44,6 +45,7 @@ class Z2MConnection extends IPSModuleStrict
     use Z2MAutomations\ConnectionDraftTransfer;
     use Z2MAutomations\ConnectionWorkspaceSetup;
     use Z2MAutomations\ConnectionRuntimeControl;
+    use Z2MAutomations\ConnectionInstallation;
 
     public function Create(): void
     {
@@ -66,6 +68,7 @@ class Z2MConnection extends IPSModuleStrict
             $this->RegisterAttributeString('ConnectionDraftTransfers', '');
             $this->RegisterAttributeString('ConnectionWorkspaceSnapshot', '');
             $this->RegisterAttributeString('ConnectionRuntimeControls', '');
+            $this->RegisterAttributeString('ConnectionInstallations', '');
             $this->RegisterTimer('RequestTimeout', 0, 'Z2MC_ExpireRequest($_IPS[\'TARGET\']);');
             $this->RegisterTimer('RuntimeDebugExpiry', 0, 'Z2MC_ExpireRuntimeDebug($_IPS[\'TARGET\']);');
             $this->RegisterMessage($this->InstanceID, FM_CONNECT);
