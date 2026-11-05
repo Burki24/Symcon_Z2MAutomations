@@ -7,6 +7,38 @@ inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION
 Prüfung, Speicherung und die ausdrückliche Betriebssteuerung je System sind
 inzwischen angebunden; siehe die entsprechenden Abschnitte unten.
 
+## Partnerfreigaben je Empfangssystem
+
+GET permissions-status und POST permissions benötigen die neue eigene
+permissions-Designerberechtigung. Beide verlangen System-ID und Generation,
+POST zusätzlich den Dokumentfingerabdruck, passenden Origin/JSON-Inhaltstyp und
+genau requestId/context/peers/confirmed=true. Die Auswahl ist auf höchstens acht
+Topics begrenzt: andere zugeordnete Systeme und bisherige unzugeordnete Freigaben.
+Beliebige Topics oder neue Eigenfreigaben sind ausgeschlossen.
+
+WorkspacePermissions bindet die Bestätigung an Empfänger, Besitzerzustand und
+den gesamten lokalen Workspace ohne Quittungen. Dadurch werden geänderte
+Partnerregeln oder Zuordnungen nach einer Vorschau nicht stillschweigend
+übergangen. Aktuelle Verbindungsbindungen werden zusätzlich geprüft. Offene
+native Eingaben oder ein fehlendes Dokument sperren die Änderung. Die kurze
+vorhandene Workspace-Sperre, Besitzerprüfung und CommitWorkspace-Quittung
+schützen den schmalen Commit; identische Wiederholung schreibt nicht erneut.
+
+Nur mesh_peers, lokale Revision (baseRevision+1), YAML und draftChecksum des
+Empfängers ändern sich. Gespeicherte Basis, Regeln, Folgen, Auswahl, Arbeit,
+Katalog, Partnerdokumente und Z2M-Betrieb bleiben gleich. Eine unveränderte
+Menge erhält sogar YAML-Kommentare, Reihenfolge und einen fehlenden mesh_peers-
+Schlüssel bytegenau. Unbekannte alte Freigaben sind sichtbar, initial ausgewählt
+und können ausdrücklich entfernt werden; ihre externen Nutzer sind unbekannt.
+
+SequencePlan zählt jede lokal abhängige Automation einmal, einschließlich
+ausgeschalteter Regeln und Folgenaufrufe. Der Browser erhält Gesamtzahlen und
+höchstens 20 Namen je Sender statt unbegrenzter Definitionen. Der eigene
+HTML-Dialog trennt Auswahl und Bestätigung; HTTP-Kennungen entstehen über
+identity.js. Kein automatischer Neuversand nach unklarer Antwort. Ein erneutes
+ausdrückliches Bestätigen verwendet denselben Auftrag. Nach Erfolg folgt nur
+ein lesender Modellabruf, keine automatische Z2M-Prüfung oder Übertragung.
+
 ## Erweiterung je System
 
 Native Zentrale und Designer nutzen RequestWorkspaceInstallation und

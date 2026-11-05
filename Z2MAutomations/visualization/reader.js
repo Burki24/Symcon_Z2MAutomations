@@ -2,6 +2,7 @@
 import {installEditing} from './editor.js';
 import {installEventImport} from './imports.js';
 import {installDiagnostics} from './diagnostics.js';
+import {installPermissions} from './permissions.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
 import {installRuntime} from './runtime.js';
@@ -78,6 +79,7 @@ import {installManagement, matchesRuleState} from './management.js';
         if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
     }});
     const updateDiagnostics = installDiagnostics({getData: () => data, isLoading: () => busy, chooseSystem: id => updateSystems.choose(id), message, reload: () => load()});
+    const updatePermissions = installPermissions({getData: () => data, isLoading: () => busy, message, reload: () => load()});
     const updateTransfers = installTransfers({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateCatalog = installCatalogRefresh({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});
@@ -282,7 +284,7 @@ import {installManagement, matchesRuleState} from './management.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); updatePermissions(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
     }
     editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onCreated: async ruleId => {
         const refreshed = await load(ruleId);

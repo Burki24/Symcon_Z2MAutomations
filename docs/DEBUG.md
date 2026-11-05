@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Partnerfreigaben im Browserdesigner
+
+ProcessHookData nutzt den bestehenden DebugFlowHelper. WorkspacePermissionsRequest
+meldet das reine Lesen der Empfangsfreigaben, die ausdrücklich bestätigte lokale
+Übernahme mit Anzahl neuer/entzogener Freigaben sowie wiedererkannte Aufträge
+ohne zweiten Commit. WorkspaceFailure erklärt ungültige oder veraltete Bezüge,
+offene Eingaben und geänderte Systembindungen auf Deutsch.
+
+Der Debugbezug enthält nur die Systemkennung und Anzahlen, keine Gerätenamen,
+Regeltexte, Freigabetopics, YAML, Browserzugangstoken oder vollständigen Requests.
+Die Detailansicht betroffener Regeln steht nur im berechtigten Browserdialog.
+Abbruch und unbestätigte Auswahl senden keinen Schreibauftrag. Es wird weder
+MQTT gesendet noch eine neue Aufzeichnung gestartet; die kanonischen Helper
+bleiben unverändert.
+
 ## Browserkennungen bei HTTP-Zugriff
 
 Systemwechsel und Designeraktionen erzeugen ihre UUIDs gemeinsam über identity.js

@@ -1,3 +1,44 @@
+## Partnerfreigaben im Designer lokal geprüft am 05.11.2026
+
+WorkspacePermissions und permissions.js ergänzen einen ausdrücklich bestätigten
+Bearbeitungsweg für gerichtete Empfangsfreigaben. Vor Umsetzung zentrale Debug-
+und HTTP-Helper, Workspace- und Eigentumsverträge sowie vorhandene Designer-
+Bestätigungen geprüft. Der erste HTTP-Test reproduzierte die fehlende Route mit
+404. Zentrale Helper, Fremdquellen und Erweiterungsartefakt bleiben unverändert.
+ADR 0031 beschreibt Zuständigkeiten und Grenzen.
+
+Der reale Moduleinstieg mit Kernelstubs und acht synthetischen Systemen an zwei
+MQTT-Eltern prüft exakte YAML-Erhaltung bei gleicher Auswahl, gerichtete Ziele,
+getrennte Dokumente, Basisrevision, Auswahl und Arbeit, unzugeordnete bestehende
+Freigaben, expliziten Entzug, ausgeschaltete Folgenbenutzer und begrenzte Ausgabe
+bei je 100 Regeln. Veraltete Vorschau, Generation und MQTT-Zuordnung, offene
+Eingaben, fehlendes Dokument, Origin, Methode, eigene Berechtigung und schmale
+Payload werden geprüft. Wiederholung verwendet dieselbe Quittung; ein anderer
+Auftrag unter derselben Kennung wird abgelehnt. Alle Fälle senden null MQTT.
+
+Sieben JavaScript-Regressionstests prüfen Auswahl, Antwortgrenzen, gerichtete
+Bestätigung, Abbruch, Herkunftsbezug, fehlende Berechtigung, späte fremde Antwort
+und ausdrückliche Wiederholung nach verlorener Rückmeldung ohne Neuversand.
+Ein separater unsichtbarer Edge-Prozess lädt die echten Assets über eine lokale
+synthetische HTTP-Domain mit isSecureContext=false und ohne randomUUID. Auswahl,
+Empfängeranzeige, sichere Textausgabe, Bestätigung mit 100 abhängigen Regeln,
+Erhalt unbekannter Freigaben, Zurück, Abbruch und Escape bestehen. Nach verlorener
+erfolgreicher Antwort bestätigt der Anwender denselben Auftrag erneut: zwei
+POST-Versuche, genau ein Commit. Ein verspäteter GET nach Systemwechsel bleibt
+geschlossen. 600/900 Pixel passen in die Breite, echtes Mausrad funktioniert
+in beiden Richtungen. Keine JavaScriptfehler; Skript und Bilder nur temporär.
+
+Gesamtsuite php tests/run.php mit 185 JavaScript-Tests erfolgreich; die neuen
+Modul-/HTTP-Prüfungen nach den letzten Debugergänzungen erneut bestanden.
+Struktur, zentrale Kodierungsprüfung, npm run check:extension und git diff --check
+erfolgreich. Offizieller StylePHP-Check der 18 eigenen JSON-Dateien in isolierter
+Kopie ohne Fremdquellen bestanden; PHP CS Fixer im Prüfmodus ohne Befund für
+148 Dateien. Alle 22 eigenen geänderten Dateien sind UTF-8 ohne BOM und LF.
+
+Keine Test-/Produktivinstallation kontaktiert oder verändert. Nach Modulupdate
+den Designer erneut öffnen; reale Praxisprüfung bleibt ein gesonderter Auftrag.
+Kein Update der Z2M-Erweiterung nötig.
+
 ## Designer-UUIDs über HTTP lokal geprüft am 05.11.2026
 
 Der Systemwechsel scheiterte vor dem POST, wenn randomUUID auf einer HTTP-LAN-

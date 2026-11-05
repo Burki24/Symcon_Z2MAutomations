@@ -1,5 +1,18 @@
 # Unveröffentlicht
 
+## Partnerfreigaben im Browserdesigner verwalten
+
+- Beim empfangenden System per Häkchen auswählen, welche anderen zugeordneten
+  Systeme Befehle senden dürfen. Richtung, Basistopics und Änderungen vor der
+  Übernahme anzeigen; die Gegenrichtung wird nicht automatisch freigegeben.
+- Vor dem Entzug betroffene lokale Automationen nennen, einschließlich
+  ausgeschalteter Regeln und Aufrufen über Aktionsfolgen. Bisherige Freigaben für
+  nicht zugeordnete Systeme sichtbar erhalten und nur ausdrücklich entfernen.
+- Ausschließlich den lokalen Empfangsentwurf ändern. Andere Regeln, Folgen,
+  Auswahl und Entwürfe bleiben erhalten. Veraltete Bestätigungen und offene
+  Eingaben abweisen; deutsche Debugmeldungen erklären Lesen, Übernahme und
+  wiedererkannte Aufträge. Kein Z2M- oder MQTT-Auftrag und kein Erweiterungsupdate.
+
 ## Designer über HTTP im LAN bedienen
 
 - Systemwechsel und weitere Designeraktionen brechen über HTTP-Adressen im LAN

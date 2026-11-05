@@ -179,7 +179,7 @@ $check($module->Hook('data', 'POST', $token)[0] === 405 && $module->Hook('data?t
 $check($module->Hook('data', 'GET', $token)[0] === 200, 'Valid capability reads module data');
 $page = $module->Hook('index.html');
 $lockScenario = \Z2MAutomations\DesignerLockScenario::class;
-foreach (['index.html', 'identity.js', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'imports.js', 'diagnostics.js', 'action-order.js', 'management.js', 'workspace.js', 'designer.css'] as $asset) {
+foreach (['index.html', 'identity.js', 'permissions.js', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'imports.js', 'diagnostics.js', 'action-order.js', 'management.js', 'workspace.js', 'designer.css'] as $asset) {
     $lockScenario::$lock = 'Z2MA.Owner.' . $id;
     $lockScenario::$release = true;
     $lockScenario::$waits = [];

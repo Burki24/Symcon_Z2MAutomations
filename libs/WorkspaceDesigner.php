@@ -22,7 +22,7 @@ trait WorkspaceDesigner
         $token = bin2hex(random_bytes(32));
         $sessions = $this->DesignerSessions();
         $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->DesignerAccessScope(),
-            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'diagnostics' => true, 'installation' => true, 'receipts' => []];
+            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'diagnostics' => true, 'installation' => true, 'permissions' => true, 'receipts' => []];
         $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
         $this->DebugEvent('AKTION', 'Gemeinsamen Browserdesigner für die zugeordneten Systeme geöffnet. Jeder Auftrag benötigt den passenden Systementwurf; keine Z2M-Aktion.', ['Systeme' => count($this->ReadWorkspace()['systems'])]);
         return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
@@ -47,6 +47,7 @@ trait WorkspaceDesigner
             $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
             if (!$this->DesignerTokenAllowed($token)) return [403, ['message' => 'Der Designerzugang ist abgelaufen. Bitte den Designer erneut im Modul öffnen.']];
             if ($asset === 'data') return [200, json_decode($this->WorkspaceDesignerData($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? ''), true, 32, JSON_THROW_ON_ERROR)];
+            if ($asset === 'permissions-status') return $this->WorkspacePermissionsRequest(false);
             if ($asset === 'installation-status') {
                 if (!$this->DesignerWriteAccess($token, 'installation')) return [403, ['message' => 'Bitte den Designer für die Installation erneut im Modul öffnen.']];
                 $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
@@ -97,6 +98,7 @@ trait WorkspaceDesigner
             }
             $failure = $this->DesignerWriteHeaders();
             if ($failure !== null) return $failure;
+            if ($asset === 'permissions') return $this->WorkspacePermissionsRequest(true);
             if ($asset === 'select-system') {
                 $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
                 if (count($body) !== 3 || !is_string($body['systemId'] ?? null) || !is_string($body['fingerprint'] ?? null)

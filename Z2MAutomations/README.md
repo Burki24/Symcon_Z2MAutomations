@@ -22,6 +22,35 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
+## Partnerfreigaben im Browserdesigner
+
+Eine Partnerfreigabe erlaubt einem anderen Z2M-System, Geräte dieses Systems
+zu schalten. Sie gilt nur in eine Richtung. Beispiel: Soll ein Taster auf System A
+ein Licht auf System B schalten, geben Sie **auf System B das System A frei**.
+
+1. Im Designer oben das **empfangende System** auswählen und **Partnerfreigaben**
+   öffnen. Der Dialog zeigt dessen Namen und Basistopic.
+2. Die Systeme anhaken, von denen es Befehle annehmen darf. Ein entferntes Häkchen
+   entzieht die bisherige Freigabe. Die Gegenrichtung bleibt unverändert.
+3. **Änderungen prüfen** wählen. Vor einem Entzug sehen Sie die betroffenen
+   lokalen Automationen, auch ausgeschaltete Regeln und verwendete Aktionsfolgen.
+   Bei vielen Treffern werden die Gesamtzahl und die ersten 20 je Sender gezeigt.
+4. Mit **Freigaben im Entwurf übernehmen** bestätigen. Das ändert ausschließlich
+   den lokalen Entwurf des empfangenden Systems. Anschließend diesen Entwurf in
+   Z2M **prüfen, speichern und aktivieren**, damit die Freigaben dort gelten.
+
+Bisherige Freigaben für hier nicht zugeordnete Systeme bleiben angehakt sichtbar.
+Deren Automationen können hier nicht geprüft werden. Entfernen Sie diese Häkchen
+nur, wenn Sie die Freigaben wirklich entziehen möchten. Ohne geänderte Auswahl
+bleibt auch der genaue YAML-Text erhalten.
+
+Offene Eingaben zuerst übernehmen oder verwerfen. Hat sich während der Prüfung
+ein System oder Entwurf geändert, den Dialog schließen und erneut öffnen.
+Fehlt der Button nach einem Modulupdate, den Designer erneut im Modul öffnen.
+Die erforderliche MQTT-Verbindung zwischen zwei Brokern wird hier nicht
+eingerichtet. Gespeicherte und laufende Z2M-Automationen bleiben bis zu einer
+gesonderten Übertragung unverändert.
+
 ## Systeme und Diagnose im Browserdesigner
 
 **Systeme und Diagnose** zeigt alle der Zentrale zugeordneten Z2M-Systeme in

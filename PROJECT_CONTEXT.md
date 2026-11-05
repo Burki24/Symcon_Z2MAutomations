@@ -8,6 +8,13 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Partnerfreigaben im Browserdesigner: eigener gerichteter Auswahl- und
+  Bestätigungsdialog je Empfänger. Nur lokale mesh_peers ändern, unbekannte
+  bestehende Freigaben erhalten, abhängige Regeln einschließlich Folgen vor
+  Entzug nennen. Eigene permissions-Berechtigung, schmale GET-/POST-Routen,
+  systemgebundene Wiederholungsquittungen und Schutz vor veralteter Vorschau.
+  Kein MQTT, keine Live-Änderung und kein neues Erweiterungsartefakt.
+
 - HTTP-LAN-Korrektur im Designer: identity.js erzeugt UUID-v4-Kennungen über
   getRandomValues; die Abhängigkeit von randomUUID entfällt in allen Aktionen
   einschließlich der lokalen Vorschau. Der bisherige requestIdentity-Export

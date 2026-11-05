@@ -1,5 +1,14 @@
 # Architektur
 
+## Gerichtete Partnerfreigaben im Designer
+
+WorkspacePermissions ergänzt den vorhandenen Workspace-Vertrag für mesh_peers
+um einen eigenen, ausdrücklich bestätigten lokalen Bearbeitungsweg. Nur der
+Empfangsentwurf wird geändert; es entsteht weder eine automatische Gegenfreigabe
+noch ein zweiter Transfer- oder MQTT-Pfad. SequencePlan ermittelt die abhängigen
+lokalen Regeln. Berechtigung, Bindung, Bestätigungskontext und Wiederholungsquittung
+schützen den Commit. Einzelheiten in ADR 0031 und WORKSPACE.md.
+
 ## Systemdiagnose im Browserdesigner
 
 WorkspaceDiagnostics delegiert die ausdrücklich gestarteten Beobachtungen an

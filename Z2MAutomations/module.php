@@ -15,6 +15,7 @@ require_once __DIR__ . '/../libs/SystemWorkspace.php';
 require_once __DIR__ . '/../libs/WorkspaceEditorContext.php';
 require_once __DIR__ . '/../libs/WorkspaceForm.php';
 require_once __DIR__ . '/../libs/WorkspaceDesigner.php';
+require_once __DIR__ . '/../libs/WorkspacePermissions.php';
 require_once __DIR__ . '/../libs/WorkspaceTransfer.php';
 require_once __DIR__ . '/../libs/WorkspaceSetup.php';
 require_once __DIR__ . '/../libs/WorkspaceRuntime.php';
@@ -78,6 +79,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\WorkspaceEditorContext;
     use Z2MAutomations\WorkspaceForm;
     use Z2MAutomations\WorkspaceDesigner;
+    use Z2MAutomations\WorkspacePermissions;
     use Z2MAutomations\WorkspaceTransfer;
     use Z2MAutomations\WorkspaceSetup;
     use Z2MAutomations\WorkspaceRuntime;

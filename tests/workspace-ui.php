@@ -33,10 +33,17 @@ class WorkspaceUIProbe extends Z2MAutomations
         unset($session);
         $this->SetBuffer('DesignerSessions', json_encode($sessions));
     }
+    public function RemovePermissionAccess(string $token): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) if ($session['hash'] === hash('sha256', $token)) unset($session['permissions']);
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
     public function Hook(string $path, string $token, array $headers = [], string $method = 'GET'): array
     {
-        $_SERVER = ['REQUEST_URI'    => '/hook/Z2MAutomationsDesigner' . $this->InstanceID . '/' . $path, 'REQUEST_METHOD' => $method,
-            'HTTP_X_Z2MA_READ_TOKEN' => $token, 'HTTP_HOST' => '127.0.0.1:3777', 'HTTP_ORIGIN' => 'http://127.0.0.1:3777', 'CONTENT_TYPE' => 'application/json'] + $headers;
+        $_SERVER = $headers + ['REQUEST_URI'    => '/hook/Z2MAutomationsDesigner' . $this->InstanceID . '/' . $path, 'REQUEST_METHOD' => $method,
+            'HTTP_X_Z2MA_READ_TOKEN'            => $token, 'HTTP_HOST' => '127.0.0.1:3777', 'HTTP_ORIGIN' => 'http://127.0.0.1:3777', 'CONTENT_TYPE' => 'application/json'];
         ob_start();
         try {
             $this->ProcessHookData();
@@ -192,6 +199,7 @@ $check($manager->LegacyDigest() === $legacy && count($parent->sent) === $sent, '
 
 $a = $systems[0];
 $b = $systems[1];
+require __DIR__ . '/workspace-permissions.inc.php';
 $legacyAttributes = $manager->LocalAttributes();
 $form = $manager->GetConfigurationForm();
 $check(str_contains($form, 'WorkspaceSystem') && str_contains($form, 'WorkspaceEditorAction'), 'Native form exposes system selection and scoped editor callbacks');

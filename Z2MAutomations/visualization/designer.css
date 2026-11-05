@@ -288,3 +288,9 @@ dialog.installation-confirm { width: min(720px, calc(100vw - 32px)); max-height:
 .installation-notice { border-left: 4px solid #b68d39; background: #fff8e9; padding: 12px; }
 .diagnostics-dialog[aria-busy="true"] .diagnostics-message::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid #d9efed; border-top-color: var(--primary); border-radius: 50%; animation: catalog-spin 1s linear infinite; }
 @media (max-width: 700px) { .diagnostics-facts { grid-template-columns: 1fr; gap: 4px; } .diagnostics-facts dd { margin-bottom: 9px; } dialog.diagnostics-dialog { width: calc(100vw - 22px); padding: 18px; } }
+.permissions-dialog { width: min(820px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
+.permissions-target { font-weight: 600; overflow-wrap: anywhere; }
+.permissions-choice { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line, #dce3ec); cursor: pointer; overflow-wrap: anywhere; }
+.permissions-choice input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; }
+.permissions-changes p { overflow-wrap: anywhere; }
+.permissions-feedback { min-height: 2em; }
