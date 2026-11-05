@@ -1493,3 +1493,32 @@ Weitere öffentliche Methoden dienen Formularcallbacks und Timern. Sie werden
 durch das Modul aufgerufen und sind nicht für die manuelle Skriptbedienung nötig.
 Hinweise zur begrenzten Ablaufaufzeichnung stehen in
 [Debug und MQTT-Diagnose](../docs/DEBUG.md).
+
+## Regeln im Browserdesigner verwalten
+
+Wählen Sie das Z2M-System und anschließend die gewünschte Automation aus.
+**Automation kopieren** legt nach Bestätigung eine neue, ausgeschaltete Kopie
+mit eigenem Namen an. Auslöser, Bedingungen und Aktionen werden vollständig
+übernommen. Das Original bleibt erhalten.
+
+**Automation löschen** entfernt die ausgewählte Regel nach Bestätigung aus dem
+lokalen Entwurf. Eine bereits in Z2M gespeicherte oder laufende Regel wird damit
+noch nicht entfernt: Dafür den geänderten Entwurf später ausdrücklich prüfen
+und übertragen.
+
+Im Bereich **Aktionsfolgen** entfernt **Aktionsfolge löschen** ausschließlich
+unbenutzte Folgen. Wird die Folge noch verwendet, zeigt der Dialog die
+betroffenen Automationen an. Entfernen oder ersetzen Sie dort zuerst die
+Folgenaufrufe. Das gilt auch für ausgeschaltete Regeln.
+
+Mit **Regelschalter im Entwurf** wählen Sie **Alle**, **Aktiviert** oder
+**Deaktiviert**. Der Filter beschreibt den Regelschalter im lokalen Entwurf,
+nicht die zuletzt bestätigte Ausführung in Z2M. Er lässt sich mit der Textsuche
+kombinieren. Suchtext, Filter und Auswahl bleiben je System getrennt.
+Aktionsfolgen und Gerätelisten werden vom Regelfilter nicht ausgeblendet.
+
+Offene, noch nicht übernommene Eingaben im nativen Formular und veraltete
+Ansichten verhindern widersprüchliche Änderungen. Nach fehlender Bestätigung
+kann derselbe unveränderte Auftrag erneut bestätigt werden; er wird nicht
+zweimal ausgeführt. Native Debugmeldungen erklären den Vorgang ohne
+Regelinhalte oder Zugangsdaten.

@@ -1,5 +1,17 @@
 # Debug und MQTT-Diagnose
 
+## Browser-Regelverwaltung
+
+Die feste POST-manage-Route erklärt Kopieren, Löschen und Statusfilter mit dem
+kanonischen DebugFlowHelper des Hook-Aufrufs. Kopien sind ausgeschaltet; nur
+lokale Entwürfe werden über CommitEditorChange übernommen. Die Meldungen nennen
+Aktion, Anzahl der Regeln/Folgen und den Schutz noch verwendeter Aktionsfolgen.
+Namen abhängiger Regeln werden nur im geschützten Browserdialog angezeigt,
+nicht protokolliert. Ablehnungen durch fehlenden Zugang, veralteten Kontext,
+offene native Eingaben oder Regelgrenzen erhalten Entwurf und Betrieb.
+Wiederholungsquittungen verhindern ein zweites Kopieren oder Löschen. Der Filter
+beschreibt ausdrücklich den lokalen Regelschalter. Keine MQTT-Ausgabe.
+
 ## Parallele Aufrufe und Besitzerkonflikte
 
 Ist die instanzeigene Eintrittssperre belegt, nennt die deutsche Fehlermeldung

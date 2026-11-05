@@ -367,3 +367,28 @@ Entwürfe, offene Eingaben, Auswahl und Partnerfreigaben bleiben erhalten.
 Kein Betriebsauftrag installiert eine Erweiterung oder prüft/speichert YAML.
 Z2M bleibt Laufzeitbesitzer. Einzelstart prüft Bedingungen auch bei ausgeschalteter
 Regel, ohne dauerhafte Regelfreigabe. Siehe ADR 0028.
+
+## Browser-Regelverwaltung
+
+POST-manage ergänzt die feste Designer-Whitelist um copy-rule, delete-rule,
+delete-sequence und den nicht schreibenden filter-Auftrag. Neue Designerzugänge
+besitzen eine ausdrückliche manage-Berechtigung; alte Sitzungen werden nicht
+aufgewertet. Herkunft, JSON-Inhaltstyp, maximal 4096 Bytes, aktueller Kontext,
+Systemkennung, Generation und Fingerabdruck bleiben Pflicht. Die Route nutzt
+denselben WithWorkspaceEditor-/CommitEditorChange-Pfad wie die übrige lokale
+Bearbeitung. Sie sendet keine MQTT-Aufträge.
+
+Kopien erhalten eine neue Identität, den vorhandenen kollisionsfreien
+Kopiennamen und enabled=false. Partnerfreigaben, Folgen und andere Regeln
+bleiben erhalten. Verwendete Folgen sind auch bei ausgeschalteten Aufrufern
+nicht löschbar. Die Ablehnung nennt die verwendenden Regeln ausschließlich
+in der geschützten Antwort. Quittungen sind an Sitzung, System und Auftragsinhalt
+gebunden; veraltete Systemfingerabdrücke verlangen weiterhin ein Nachladen.
+Bei unklarer Übernahme abbrechen und die Ansicht aktualisieren, statt eine
+neue Kopie auf Verdacht anzulegen.
+
+Statusfilter werden nur in der Browseransicht angewendet und beim Systemwechsel
+zusammen mit Suchtext und Auswahl beibehalten. Aktiviert/deaktiviert bezeichnet
+das enabled-Feld des Entwurfs. Aktionsfolgen und Katalogeinträge werden davon
+nicht ausgeblendet. Der optionale Filterauftrag liefert ausschließlich Zähler
+für die Debugnachvollziehbarkeit und verändert den Entwurf nicht.

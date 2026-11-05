@@ -1,5 +1,16 @@
 # Unveröffentlicht
 
+## Regelverwaltung im Browserdesigner
+
+- Automationen als ausgeschaltete Kopie anlegen und aus dem lokalen Entwurf
+  löschen. Ein eigener Bestätigungsdialog nennt die Wirkung; vorhandene
+  Z2M-Dateien und laufende Regeln werden dabei nicht verändert.
+- Unbenutzte Aktionsfolgen löschen. Bei verwendeten Folgen werden die
+  betroffenen Automationen angezeigt und das Löschen abgewiesen.
+- Nach aktiviertem oder deaktiviertem Regelschalter im Entwurf filtern; Suche
+  und Filter werden je System getrennt beibehalten. Deutsche Debugmeldungen
+  erklären Übernahme, Ablehnung und wiederholt bestätigte Aufträge.
+
 ## Zentrale Betriebssteuerung
 
 - Gespeicherte Automationen je Z2M-System im nativen Formular und Browserdesigner

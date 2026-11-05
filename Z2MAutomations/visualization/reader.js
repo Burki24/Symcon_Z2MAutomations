@@ -4,6 +4,7 @@ import {installEditing} from './editor.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
 import {installRuntime} from './runtime.js';
+import {installManagement, matchesRuleState} from './management.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -21,6 +22,8 @@ import {installRuntime} from './runtime.js';
     let busy = false;
     let editing = null;
     let systemId = '';
+    let stateFilter = 'all';
+    let management = null;
     const systemViews = new Map();
     const token = location.hash.slice(1);
     const endpoint = new URL('data', location.href);
@@ -112,7 +115,7 @@ import {installRuntime} from './runtime.js';
         const options = category === 'catalog' ? (data?.devices ?? []).map(device => ({key: device.key, title: device.name, subtitle: `${device.target.system ?? data.module.baseTopic} · ${device.target.id}`}))
             : all.filter(entry => entry.kind === category).map(entry => ({key: entryKey(entry), title: entry.name,
                 subtitle: entry.kind === 'sequence' ? `${entry.actions.length} Schritte` : (entry.triggers ?? []).map(triggerSummary).join(' ODER '), enabled: entry.enabled}));
-        const visible = options.filter(entry => `${entry.title} ${entry.subtitle}`.toLocaleLowerCase('de').includes(search));
+        const visible = options.filter(entry => `${entry.title} ${entry.subtitle}`.toLocaleLowerCase('de').includes(search) && matchesRuleState(entry, stateFilter));
         $('#list-count').textContent = `${visible.length} / ${options.length}`;
         $('#entry-list').innerHTML = visible.map(entry => `<button class="entry ${selected === entry.key ? 'active' : ''}" data-entry="${esc(entry.key)}" aria-pressed="${selected === entry.key}"><span class="entry-title-row"><strong>${esc(entry.title)}</strong>${entry.enabled !== undefined ? `<span class="enabled-dot ${entry.enabled ? 'on' : ''}" title="Im Entwurf ${entry.enabled ? 'eingeschaltet' : 'ausgeschaltet'}"></span>` : ''}</span><small>${esc(entry.subtitle)}</small></button>`).join('')
             || '<p class="empty-list">Keine passenden Einträge. Die Ansicht verwendet ausschließlich vorhandene Moduldaten.</p>';
@@ -190,7 +193,7 @@ import {installRuntime} from './runtime.js';
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
-    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); }
+    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); }
     function selectEntry(key) { selected = key; selectedPart = null; render(); }
     function chooseArea(area) {
         category = area; selectedPart = null;
@@ -232,8 +235,9 @@ import {installRuntime} from './runtime.js';
             const previousSystem = data?.workspaceContext?.systemId ?? '';
             const nextSystem = next.workspaceContext?.systemId ?? '';
             if (previousSystem !== nextSystem) {
-                if (previousSystem) systemViews.set(previousSystem, {category, selected, selectedPart, search: $('#search').value});
+                if (previousSystem) systemViews.set(previousSystem, {category, selected, selectedPart, stateFilter, search: $('#search').value});
                 const view = systemViews.get(nextSystem);
+                stateFilter = view?.stateFilter ?? 'all';
                 category = view?.category ?? 'device'; selected = view?.selected ?? null; selectedPart = view?.selectedPart ?? null;
                 $('#search').value = view?.search ?? '';
             }
@@ -273,7 +277,7 @@ import {installRuntime} from './runtime.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); management?.refresh(category, stateFilter); }
     }
     installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
         const refreshed = await load(ruleId);
@@ -289,6 +293,8 @@ import {installRuntime} from './runtime.js';
         message(refreshed ? 'Aktionsfolge im lokalen Symcon-Entwurf übernommen. Sie kann als Aktion einer Automation verwendet werden. In Z2M wurde nichts geändert.'
             : 'Die Aktionsfolge wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
     }});
+    management = installManagement({getData: () => data, getEntry: current, isLoading: () => busy, reload: () => load(), copied: ruleId => load(ruleId), message,
+        filterChanged: value => { stateFilter = value; renderNavigation(); }});
     render();
     load();
 })();

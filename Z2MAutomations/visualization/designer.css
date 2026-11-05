@@ -215,3 +215,11 @@ dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .system-runtime input[type="checkbox"] { width: auto; margin-right: 6px; }
 .system-runtime select { display: block; width: min(100%, 620px); margin-top: 7px; padding: 9px; border: 1px solid #cad6e3; border-radius: 7px; background: #fff; }
 .system-runtime p { overflow-wrap: anywhere; }
+
+/* Local draft management and state filter. */
+.rule-state-filter { display: flex; flex-direction: column; gap: 6px; margin: 0 20px 12px; font-size: 12px; }
+.rule-state-filter[hidden] { display: none; }
+.rule-state-filter select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: inherit; }
+.management-dialog { width: min(580px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); overflow: auto; }
+.management-users { max-height: 200px; overflow: auto; overflow-wrap: anywhere; }
+.entry-tools { flex-wrap: wrap; }

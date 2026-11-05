@@ -8,6 +8,16 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 1 ergänzt lokal die Browser-Regelverwaltung: ausgeschaltete
+  Kopien, bestätigtes Löschen von Regeln und unbenutzten Aktionsfolgen sowie
+  Statusfilter je System. Verwendete Folgen bleiben geschützt. Eigene
+  manage-Berechtigung, Kontext-/Systembindung und Wiederholungsquittungen;
+  keine MQTT-Ausgabe. Offline- und isolierte Browserprüfung siehe
+  docs/DEVELOPMENT.md. Reale Testabnahme nach Modulupdate bleibt offen.
+- Weitere Designeragenda in dieser Reihenfolge: Gerätedaten direkt nachladen;
+  vollständigen Erstell-/Bearbeitungsablauf und Aktionssortierung vereinheitlichen;
+  Symcon-Ereignisimport zentralisieren; Systeme und Diagnose ergänzen.
+
 - Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet
   instance_busy mit verständlichem Hinweis auf die nicht ausgeführte Aktion,
   echte Besitzersperren bleiben ownership_conflict. HTTP und native Formulare

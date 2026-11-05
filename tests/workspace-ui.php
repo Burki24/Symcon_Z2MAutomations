@@ -255,6 +255,23 @@ $manager->requestBody = json_encode(['requestId' => '22222222-2222-4222-8222-222
 $check($code === 200, 'Browser creates a disabled system-local rule: ' . $raw);
 $createdB = $detail($b)['data']['document']['editorDraft']['configuration'];
 $check(count($createdB['automations']) === 2 && !$createdB['automations'][1]['enabled'] && $createdB['mesh_peers'] === ['synthetic/system_0'], 'Creation preserves grants and other rules');
+// Management is bound to one system, even when another system has the same rule ID.
+$manageA = $detail($a)['data'];
+$browserB = $decode($manager->GetDesignerData());
+$headerB['HTTP_X_Z2MA_FINGERPRINT'] = $detail($b)['fingerprint'];
+$manager->requestBody = json_encode(['requestId' => '33333333-3333-4333-8333-333333333333', 'context' => $browserB['createContext'], 'operation' => 'copy-rule', 'id' => 'same_rule']);
+[$code, $raw] = $manager->Hook('manage', $token, $headerB, 'POST');
+$check($code === 200, 'Central browser can copy a rule within its bound system: ' . $raw);
+$manageCopy = $decode($raw)['ruleId'];
+$check($detail($a)['data'] === $manageA && count($detail($b)['data']['document']['editorDraft']['configuration']['automations']) === 3, 'Copy leaves the other system byte-identical');
+$beforeReplay = $manager->RawWorkspace();
+$check($manager->Hook('manage', $token, $headerB, 'POST')[0] === 409 && $manager->RawWorkspace() === $beforeReplay, 'Stale central binding requires an explicit refresh');
+$headerB['HTTP_X_Z2MA_FINGERPRINT'] = $detail($b)['fingerprint'];
+$check($manager->Hook('manage', $token, $headerB, 'POST')[0] === 200 && $manager->RawWorkspace() === $beforeReplay, 'Current central binding confirms a previous receipt without another copy');
+$browserB = $decode($manager->GetDesignerData());
+$manager->requestBody = json_encode(['requestId' => '44444444-4444-4444-8444-444444444444', 'context' => $browserB['createContext'], 'operation' => 'delete-rule', 'id' => $manageCopy]);
+[$code, $raw] = $manager->Hook('manage', $token, $headerB, 'POST');
+$check($code === 200 && $detail($a)['data'] === $manageA && count($parent->sent) === $sent, 'Central deletion is local, system-isolated and sends no MQTT');
 // Missing bindings affect only that system; the draft is still readable.
 $beforeOffline = $detail($systems[7])['data'];
 IPS_DisconnectInstance($connections[7]);

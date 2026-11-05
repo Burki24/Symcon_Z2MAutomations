@@ -80,7 +80,7 @@ class DesignerProbe extends Z2MAutomations
     {
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
         foreach ($sessions as &$session) {
-            if ($session['hash'] === hash('sha256', $token)) unset($session['create'], $session['edit'], $session['sequences']);
+            if ($session['hash'] === hash('sha256', $token)) unset($session['create'], $session['edit'], $session['sequences'], $session['manage']);
         }
         unset($session);
         $this->SetBuffer('DesignerSessions', json_encode($sessions));
@@ -179,14 +179,14 @@ $check($module->Hook('data', 'POST', $token)[0] === 405 && $module->Hook('data?t
 $check($module->Hook('data', 'GET', $token)[0] === 200, 'Valid capability reads module data');
 $page = $module->Hook('index.html');
 $lockScenario = \Z2MAutomations\DesignerLockScenario::class;
-foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'workspace.js', 'designer.css'] as $asset) {
+foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'management.js', 'workspace.js', 'designer.css'] as $asset) {
     $lockScenario::$lock = 'Z2MA.Owner.' . $id;
     $lockScenario::$release = true;
     $lockScenario::$waits = [];
     $check($module->Hook($asset)[0] === 200, 'Parallel designer assets wait for a short competing owner entry: ' . $asset);
     $check($lockScenario::$waits[0] === 0 && count($lockScenario::$waits) === 2 && $lockScenario::$waits[1] > 0 && $lockScenario::$waits[1] <= 5000, 'Asset waiting is bounded and only happens on contention.');
 }
-foreach (['data', 'devices', 'create', 'edit', 'sequence', 'select-system', 'runtime', 'runtime-status', 'transfer', 'transfer-status', 'index.html?other=1', '../module.php'] as $asset) {
+foreach (['data', 'devices', 'create', 'edit', 'sequence', 'manage', 'select-system', 'runtime', 'runtime-status', 'transfer', 'transfer-status', 'index.html?other=1', '../module.php'] as $asset) {
     $lockScenario::$lock = 'Z2MA.Owner.' . $id;
     $lockScenario::$waits = [];
     [$http, $body] = $module->Hook($asset);
@@ -214,6 +214,7 @@ require __DIR__ . '/designer-create.inc.php';
 require __DIR__ . '/designer-schedule.inc.php';
 require __DIR__ . '/designer-edit.inc.php';
 require __DIR__ . '/designer-sequence.inc.php';
+require __DIR__ . '/designer-manage.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');

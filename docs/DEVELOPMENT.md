@@ -1,3 +1,34 @@
+## Browser-Regelverwaltung lokal geprüft am 05.11.2026
+
+Punkt 1 der Designeragenda ergänzt die feste POST-manage-Route mit eigener
+Sitzungsberechtigung. Bestehende Helper geprüft: DebugFlowHelper bleibt für
+Abläufe kanonisch; HttpResponseHelper und VisualizationAssetHelper werden über
+den vorhandenen Hook-/Assetpfad weiterverwendet. Keine Helperkopie oder Änderung
+an zentralen Quellen. Fachliche Verwaltung bleibt librarylokal.
+
+Synthetische Hooktests prüfen ausgeschaltete Kopien aktivierter Regeln,
+identische Nutzdaten und Freigaben, kollisionsfreie Identitäten, Löschung,
+Folgenabhängigkeiten, Wiederholungsquittungen, volle Entwürfe, veraltete
+Ansichten, offene native Eingaben, Berechtigungen, Herkunft, Inhaltstyp und
+Anfragegrenzen. Mehrsystemtests erhalten den zweiten Entwurf byteidentisch,
+auch bei gleichen Regel-IDs. Alle Verwaltungsaufrufe erzeugen null MQTT-Pakete.
+Filtertests unterscheiden true/false und erhalten Katalog-/Folgeneinträge.
+
+Ein separater unsichtbarer Edge-Testprozess hat die echten Designerdateien
+gegen einen ausschließlich lokalen synthetischen HTTP-Server geladen:
+Bestätigen/Abbrechen, Kopieren, Löschen, Schutz verwendeter Folgen, Löschen
+unbenutzter Folgen, Statusfilter und Mausrad in beiden Richtungen geprüft.
+Die Darstellung bei 900 Pixeln Breite visuell kontrolliert. Dieser Nachweis
+ersetzt keine Abnahme im echten Symcon-Host. Keine Verbindung zu Test-/Live-
+Symcon, keine privaten Daten und keine Änderungen an Z2M. Erweiterungsupdate
+nicht erforderlich; reale Testabnahme nach Modulupdate bleibt offen.
+
+Abschließend php tests/run.php einschließlich 153 JavaScript-Tests und der
+PHP-/JavaScript-Integration bestanden. Separate Struktur- und Kodierungsprüfung,
+offizielle JSON-Styleprüfung der 18 eigenen Dateien in isolierter Kopie und
+PHP CS Fixer 3.95.27 im Prüfmodus (0/131) grün. Synthetische Tests verwenden
+PHP 8.5.10 und Node 24; unverändertes Erweiterungsartefakt geprüft.
+
 ## Parallele Aufrufe und Besitzermeldungen lokal geprüft am 05.11.2026
 
 Eine belegte Z2MA.Owner-Eintrittssperre wurde bisher wie eine tatsächliche

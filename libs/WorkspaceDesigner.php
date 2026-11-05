@@ -22,7 +22,7 @@ trait WorkspaceDesigner
         $token = bin2hex(random_bytes(32));
         $sessions = $this->DesignerSessions();
         $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->DesignerAccessScope(),
-            'create'          => true, 'edit' => true, 'sequences' => true, 'runtime' => true, 'receipts' => []];
+            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'receipts' => []];
         $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
         $this->DebugEvent('AKTION', 'Gemeinsamen Browserdesigner für die zugeordneten Systeme geöffnet. Jeder Auftrag benötigt den passenden Systementwurf; keine Z2M-Aktion.', ['Systeme' => count($this->ReadWorkspace()['systems'])]);
         return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
@@ -118,7 +118,7 @@ trait WorkspaceDesigner
                 return $this->WithWorkspaceEditor($system, (int) $rawGeneration, $fingerprint, true, function () use ($asset): array
                 {
                     return match ($asset) {
-                        'create' => $this->DesignerCreateRequest(), 'edit' => $this->DesignerEditRequest(), 'sequence' => $this->DesignerSequenceRequest(), default => [404, ['message' => 'Diese Designeraktion ist nicht verfügbar.']]
+                        'create' => $this->DesignerCreateRequest(), 'edit' => $this->DesignerEditRequest(), 'sequence' => $this->DesignerSequenceRequest(), 'manage' => $this->DesignerManageRequest(), default => [404, ['message' => 'Diese Designeraktion ist nicht verfügbar.']]
                     };
                 });
             } catch (Throwable $exception) {
