@@ -392,3 +392,33 @@ zusammen mit Suchtext und Auswahl beibehalten. Aktiviert/deaktiviert bezeichnet
 das enabled-Feld des Entwurfs. Aktionsfolgen und Katalogeinträge werden davon
 nicht ausgeblendet. Der optionale Filterauftrag liefert ausschließlich Zähler
 für die Debugnachvollziehbarkeit und verändert den Entwurf nicht.
+
+## Gerätedaten aus dem Designer nachladen
+
+RequestWorkspaceDeviceCatalog startet je System einen begrenzten Leseauftrag:
+Health-Prüfung über Z2MConnection, anschließend dessen unveränderten bestehenden
+Status-/Katalogablauf. Die feste POST-catalog-refresh-Route benötigt eine eigene
+catalog-Sitzungsberechtigung, aktuellen System-/Generations-/Fingerabdruckbezug,
+JSON, passenden Ursprung und eine UUID. GET-catalog-status zeigt ausschließlich
+den lokalen Auftragsstand. GET-data und GET-devices starten keine Aktualisierung.
+
+WorkspaceCatalogRefresh hält höchstens acht flüchtige Jobs und 32 Quittungen
+im Modulbuffer. Der Ein-Sekunden-Timer startet nur den nächsten ausdrücklich
+beauftragten Leseschritt. Er prüft aktuelle Verbindung, passende Transaktionen,
+Frist und vollständigen Katalogabschluss. Keine fremden, retained oder verspäteten
+Antworten bestätigen einen Auftrag. Die Wartezeit ist begrenzt; Modulupdate und
+Neustart setzen die Jobs zurück, ohne sie erneut zu senden. Ein neuer Abruf
+benötigt einen neuen ausdrücklichen Auftrag.
+
+Die lokale Übernahme nutzt RefreshWorkspaceCatalog mit dem inzwischen aktuellen
+Datensatz. Dadurch bleiben auch zwischenzeitliche Entwurfsänderungen, Auswahl
+und offene Eingaben erhalten. Die Aktualisierung ersetzt nur catalog und
+nativeBindings des gewählten Systems. Schaltrechte bleiben an reale native
+Variablen gebunden. Andere Systeme, die Automationsdatei, Revisionsbasis und
+Betriebsfreigaben werden nicht verändert. Alte Kataloge bleiben bei Fehlern
+unverändert gespeichert und werden nicht fälschlich als frisch bestätigt.
+
+Der Browser zeigt Ladephase, Zeitpunkt und Zähler an und verwirft verspätete
+Rückmeldungen eines anderen Systems. Eine offene Browserbearbeitung wird bei
+Fertigstellung nicht automatisch neu geladen; ihre Eingaben bleiben erhalten.
+Der Hinweis fordert danach ein ausdrückliches Aktualisieren der Ansicht.

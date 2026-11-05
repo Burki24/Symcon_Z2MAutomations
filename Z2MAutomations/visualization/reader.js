@@ -4,6 +4,7 @@ import {installEditing} from './editor.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
 import {installRuntime} from './runtime.js';
+import {installCatalogRefresh} from './catalog.js';
 import {installManagement, matchesRuleState} from './management.js';
 (() => {
     'use strict';
@@ -75,6 +76,7 @@ import {installManagement, matchesRuleState} from './management.js';
         if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
     }});
     const updateTransfers = installTransfers({getData: () => data, reload: () => load(), isLoading: () => busy, message});
+    const updateCatalog = installCatalogRefresh({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});
     function renderRuntimeStatus() {
         $('#runtime-status').textContent = data?.status?.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision ?? '—'}` : 'Betrieb noch nicht bestätigt';
@@ -252,7 +254,7 @@ import {installManagement, matchesRuleState} from './management.js';
             const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
                 ? new Date(data.catalogLoadedAt * 1000).toLocaleString('de-DE') : null;
             notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
-            if (!data.catalogAvailable) notices.push(data.workspace ? 'Gerätedaten fehlen für dieses System. Zuerst an seiner Z2M-Verbindung bestätigen, dann im nativen Systembereich „Bestätigte Gerätedaten dieses Systems einlesen“ wählen und diese Ansicht aktualisieren.' : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
+            if (!data.catalogAvailable) notices.push(data.workspace ? 'Gerätedaten fehlen für dieses System. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.' : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
             if (!data.draftAvailable && !data.draftMismatch) notices.push(data.workspace ? 'Für dieses System fehlt noch ein lokaler Entwurf. Im nativen Formular „Direkt aus Z2M einrichten“ öffnen: Automationen sicher einlesen, Vorschau prüfen und Verbindung übernehmen. Z2M läuft dabei unverändert weiter.' : 'Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
             if (data.draftMismatch) notices.push('Der YAML-Entwurf weicht vom geladenen Editorstand ab. Bitte im nativen Formular prüfen; hier wird nichts ersetzt.');
             if (data.openFormEdits) notices.push('Im nativen Formular gibt es noch nicht in den Entwurf übernommene Eingaben. Diese sind hier noch nicht enthalten und bleiben erhalten.');
@@ -277,7 +279,7 @@ import {installManagement, matchesRuleState} from './management.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); management?.refresh(category, stateFilter); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); management?.refresh(category, stateFilter); }
     }
     installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
         const refreshed = await load(ruleId);

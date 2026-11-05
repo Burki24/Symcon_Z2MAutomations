@@ -19,7 +19,7 @@ trait AutomationDesigner
     use AutomationDesignerSequences;
     use AutomationDesignerManagement;
     private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'startup.js' => 'application/javascript',
-        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript'];
+        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
     {
@@ -54,24 +54,24 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = self::DESIGNER_ASSETS + ['runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json'];
+            $types = self::DESIGNER_ASSETS + ['runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
-                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'transfer-status', 'runtime', 'runtime-status'], true)) {
+                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'transfer-status', 'runtime', 'runtime-status', 'catalog-refresh', 'catalog-status'], true)) {
                     [$status, $result] = $this->WorkspaceDesignerRequest($asset);
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;
                 }
-                if (in_array($asset, ['select-system', 'devices', 'transfer', 'transfer-status', 'runtime', 'runtime-status'], true)) {
+                if (in_array($asset, ['select-system', 'devices', 'transfer', 'transfer-status', 'runtime', 'runtime-status', 'catalog-refresh', 'catalog-status'], true)) {
                     $this->DesignerResponse(404, 'text/plain', 'Bitte zuerst Systeme zuordnen.');
                     return;
                 }
@@ -194,6 +194,7 @@ trait AutomationDesigner
             $data['devicePage'] = ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)];
             $data['transfer'] = $this->WorkspaceTransferView($ctx['record']);
             $data['runtime'] = $this->WorkspaceRuntimeView($ctx['record']);
+            $data['catalogRefresh'] = $this->WorkspaceCatalogView($ctx['record']);
             $data['status'] = ['confirmed' => $ctx['info']['state']['runtimeConfirmed'] ?? false,
                 'mqttConnected'            => $ctx['info']['state']['mqttConnected'] ?? false, 'executing' => $ctx['info']['state']['extension']['executing'] ?? false,
                 'storedRevision'           => $ctx['info']['state']['extension']['storedRevision'] ?? 0, 'activeRevision' => $ctx['info']['state']['extension']['activeRevision'] ?? 0];

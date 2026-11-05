@@ -18,6 +18,7 @@ require_once __DIR__ . '/../libs/WorkspaceDesigner.php';
 require_once __DIR__ . '/../libs/WorkspaceTransfer.php';
 require_once __DIR__ . '/../libs/WorkspaceSetup.php';
 require_once __DIR__ . '/../libs/WorkspaceRuntime.php';
+require_once __DIR__ . '/../libs/WorkspaceCatalogRefresh.php';
 require_once __DIR__ . '/../libs/WorkspaceRuntimeForm.php';
 require_once __DIR__ . '/../libs/SystemMigration.php';
 require_once __DIR__ . '/../libs/SystemOwnership.php';
@@ -75,6 +76,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\WorkspaceTransfer;
     use Z2MAutomations\WorkspaceSetup;
     use Z2MAutomations\WorkspaceRuntime;
+    use Z2MAutomations\WorkspaceCatalogRefresh;
     use Z2MAutomations\WorkspaceRuntimeForm;
     use Z2MAutomations\SystemMigration;
     use Z2MAutomations\SystemOwnership;
@@ -148,6 +150,7 @@ class Z2MAutomations extends IPSModuleStrict
             $this->RegisterTimer('WorkspaceTransferRefresh', 0, 'Z2MA_RefreshWorkspaceTransfers($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceSetupRefresh', 0, 'Z2MA_RefreshWorkspaceSetup($_IPS[\'TARGET\']);');
             $this->RegisterTimer('WorkspaceRuntimeRefresh', 0, 'Z2MA_RefreshWorkspaceRuntime($_IPS[\'TARGET\']);');
+            $this->RegisterTimer('WorkspaceCatalogRefresh', 0, 'Z2MA_RefreshWorkspaceDeviceCatalogs($_IPS[\'TARGET\']);');
             $this->RegisterVariableString('RuntimeSystem', 'Gewähltes Z2M-System für Betriebssteuerung', $this->TextPresentation(), 230);
             $this->RegisterVariableString('RuntimeStatus', 'Betriebssteuerung und Einzelstart', $this->TextPresentation(), 240);
             $this->RegisterVariableString('TransferSystem', 'Gewähltes Z2M-System für Prüfung und Übertragung', $this->TextPresentation(), 200);
@@ -181,6 +184,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::ApplyChanges();
+            $this->ResetWorkspaceCatalogRefresh();
             $this->SetBuffer('DesignerSessions', '');
             $this->SetBuffer('GatewayTopicReview', '');
             $this->SetReceiveDataFilter($this->ReadPropertyBoolean('Active') ? Z2MProtocol::ReceiveFilter($this->ReadPropertyString('BaseTopic')) : Z2MProtocol::BLOCK_RECEIVE_FILTER);

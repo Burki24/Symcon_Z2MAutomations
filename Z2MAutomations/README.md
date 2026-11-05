@@ -1522,3 +1522,31 @@ Ansichten verhindern widersprüchliche Änderungen. Nach fehlender Bestätigung
 kann derselbe unveränderte Auftrag erneut bestätigt werden; er wird nicht
 zweimal ausgeführt. Native Debugmeldungen erklären den Vorgang ohne
 Regelinhalte oder Zugangsdaten.
+
+## Gerätedaten direkt im Browserdesigner aktualisieren
+
+1. Oben das gewünschte **Z2M-System** auswählen.
+2. Im Bereich **Gerätedaten** auf **Gerätedaten aktualisieren** klicken.
+3. Die Anzeige meldet zuerst die Verbindungsprüfung und danach das Laden der
+   Geräte, Kanäle, Gruppen und Szenen. Währenddessen ist der Ladebutton gesperrt.
+4. Nach erfolgreichem Abschluss erscheinen Ladezeit und Anzahl der Geräte,
+   Gruppen und Szenen. Die Geräteauswahl wird automatisch nachgeladen.
+
+Dabei werden ausschließlich Gerätedaten dieses Systems abgefragt. Vorhandene
+Entwürfe, Namen, Regelaktivierungen, Aktionsfolgen und Partnerfreigaben bleiben
+erhalten. In Z2M wird keine Automation gespeichert, gestartet oder gestoppt.
+Auch offene Eingaben im nativen Formular bleiben erhalten.
+
+**Ladestatus prüfen** liest nur die vorhandene Rückmeldung und startet keinen
+neuen Abruf. Bei fehlender Antwort, ungültigen Daten oder einer geänderten
+Verbindung nennt die Anzeige den nächsten Schritt. Der bisherige Katalog und
+alle Entwürfe bleiben erhalten. Es wird nichts automatisch erneut gesendet.
+
+Ist während des Ladens eine Browserbearbeitung geöffnet worden, wird diese
+nicht überschrieben. Nach Abschluss die Bearbeitung schließen und **Ansicht
+aktualisieren** wählen. Veraltete Bearbeitungen können eine erneute Geräteauswahl
+erfordern; ihre Eingaben werden bei einer Ablehnung nicht verworfen.
+
+**Ansicht aktualisieren** lädt weiterhin nur den bereits vorhandenen Stand aus
+Symcon. Für neue Gerätedaten aus Z2M verwenden Sie **Gerätedaten aktualisieren**.
+Beim Öffnen des Designers wird kein Geräteabruf automatisch gestartet.

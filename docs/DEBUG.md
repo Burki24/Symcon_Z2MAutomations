@@ -1,5 +1,22 @@
 # Debug und MQTT-Diagnose
 
+## Systemgebundene Gerätedatenaktualisierung
+
+RequestWorkspaceDeviceCatalog, GetWorkspaceDeviceCatalogStatus und der Timer
+RefreshWorkspaceDeviceCatalogs verwenden TraceModuleCall und den kanonischen
+DebugFlowHelper. Meldungen erklären Verbindung prüfen, frischen Katalog
+anfordern, Daten samt nativen Variablenzuordnungen übernehmen und den Abschluss.
+Ablehnungen nennen Systembezug und einen festen Fehlercode. Kataloginhalte,
+Namen, Transaktionen, Entwürfe und Browserzugänge werden nicht protokolliert.
+
+Wiederholungsquittungen bestätigen nur den bestehenden Auftrag. GET-Status und
+Designeröffnung senden keine neue MQTT-Anfrage. Nur der ausdrücklich gestartete
+Ablauf darf nach seiner passenden Health-Antwort den Geräteabruf auslösen.
+Die letzte Katalogübernahme erfolgt über RefreshWorkspaceCatalog und erklärt
+separat, dass dieser lokale Schritt keine weitere MQTT-Abfrage versendet.
+Modulupdate verwirft die flüchtigen Aufträge; bestehende Entwürfe und Kataloge
+bleiben erhalten. Es gibt keinen automatischen Wiederanlauf eines Ladeauftrags.
+
 ## Browser-Regelverwaltung
 
 Die feste POST-manage-Route erklärt Kopieren, Löschen und Statusfilter mit dem

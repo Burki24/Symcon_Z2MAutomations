@@ -39,7 +39,7 @@ trait AutomationDesignerCreation
 
     private function DesignerCreateBlock(bool $creating = true): string
     {
-        if ($this->workspaceEditorContext !== null && $creating && !$this->workspaceEditorContext['catalogAvailable']) return 'Bitte die Gerätedaten an dieser Z2M-Verbindung bestätigen und im nativen Systembereich einlesen. Vorhandene Entwürfe bleiben erhalten.';
+        if ($this->workspaceEditorContext !== null && $creating && !$this->workspaceEditorContext['catalogAvailable']) return 'Bitte zuerst „Gerätedaten aktualisieren“ für dieses System wählen. Vorhandene Entwürfe bleiben erhalten.';
         $snapshot = $this->workspaceEditorContext['snapshot'] ?? json_decode($this->ReadEditorAttribute('EditorSnapshot') ?: '[]', true, 32, JSON_THROW_ON_ERROR);
         $draft = $this->ReadEditorDraft();
         $state = json_decode($this->ReadEditorBuffer('TransportState') ?: '[]', true, 32, JSON_THROW_ON_ERROR);

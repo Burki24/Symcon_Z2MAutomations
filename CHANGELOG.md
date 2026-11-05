@@ -1,5 +1,17 @@
 # Unveröffentlicht
 
+## Gerätedaten im Browserdesigner
+
+- Gerätedaten je Z2M-System direkt im Designer aktualisieren. Ladeanzeige,
+  Verbindungsschritt, Abschlusszeit und Anzahl der Geräte, Gruppen und Szenen
+  machen den Fortschritt sichtbar. „Ladestatus prüfen“ fragt nur die Rückmeldung ab.
+- Ausschließlich aktuelle, passend bestätigte Kataloge übernehmen. Fehler,
+  Zeitüberschreitung und geänderte Verbindungen erhalten den bisherigen Bestand;
+  kein automatischer Neuversand nach Modulupdate oder fehlender Bestätigung.
+- Entwürfe, Partnerfreigaben, Auswahl und offene Eingaben bleiben erhalten.
+  Deutsche Debugmeldungen erklären die Schritte. Keine Speicherung oder
+  Aktivierung von Automationen und kein Erweiterungsupdate erforderlich.
+
 ## Regelverwaltung im Browserdesigner
 
 - Automationen als ausgeschaltete Kopie anlegen und aus dem lokalen Entwurf

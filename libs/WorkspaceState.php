@@ -17,6 +17,9 @@ final class WorkspaceState
     public const MAX_DATA = 524288;
     public const JSON_FLAGS = JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
     public const MESSAGES = [
+        'catalog_refresh_failed'       => 'Keine vollständigen aktuellen Gerätedaten bestätigt. Bitte Verbindung und Z2M-Erweiterung prüfen und bei Bedarf erneut aktualisieren.',
+        'catalog_refresh_timeout'      => 'Die Wartezeit auf neue Gerätedaten ist abgelaufen. Bitte Verbindung prüfen und bei Bedarf erneut aktualisieren.',
+        'catalog_refresh_changed'      => 'Die Verbindung bearbeitet inzwischen einen anderen Auftrag. Bitte dessen Abschluss abwarten und erneut aktualisieren.',
         ''                             => '',
         'invalid_request'              => 'Die Angaben sind ungültig oder zu umfangreich. Bitte die Auswahl neu laden.',
         'workspace_corrupt'            => 'Der gespeicherte Arbeitsbereich konnte nicht gelesen werden. Er wurde nicht ersetzt. Bitte die Sicherung und Modulversion prüfen.',

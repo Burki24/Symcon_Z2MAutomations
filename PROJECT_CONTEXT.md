@@ -8,14 +8,21 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 2 lokal ergänzt: Gerätedaten je System direkt im Browserdesigner
+  aktualisieren, mit Ladephasen, Abschlusszeit, Zählern und lesender Statusabfrage.
+  Eigene catalog-Berechtigung, befristete flüchtige Jobs und exakte Korrelation.
+  Bestehende Z2MConnection-Health-/Katalogpfade und lokale Katalogübernahme werden
+  wiederverwendet. Dokumente, offene Eingaben, Freigaben und Z2M-Betrieb bleiben
+  erhalten. Keine Änderung an Test-/Live-System; reale Abnahme nach Modulupdate
+  noch offen. Erweiterungsupdate nicht erforderlich.
+
 - Agenda Punkt 1 ergänzt lokal die Browser-Regelverwaltung: ausgeschaltete
   Kopien, bestätigtes Löschen von Regeln und unbenutzten Aktionsfolgen sowie
   Statusfilter je System. Verwendete Folgen bleiben geschützt. Eigene
   manage-Berechtigung, Kontext-/Systembindung und Wiederholungsquittungen;
   keine MQTT-Ausgabe. Offline- und isolierte Browserprüfung siehe
   docs/DEVELOPMENT.md. Reale Testabnahme nach Modulupdate bleibt offen.
-- Weitere Designeragenda in dieser Reihenfolge: Gerätedaten direkt nachladen;
-  vollständigen Erstell-/Bearbeitungsablauf und Aktionssortierung vereinheitlichen;
+- Weitere Designeragenda in dieser Reihenfolge: vollständigen Erstell-/Bearbeitungsablauf und Aktionssortierung vereinheitlichen;
   Symcon-Ereignisimport zentralisieren; Systeme und Diagnose ergänzen.
 
 - Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet

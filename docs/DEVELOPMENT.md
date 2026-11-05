@@ -1,3 +1,45 @@
+## Gerätedaten im Browserdesigner lokal geprüft am 05.11.2026
+
+Agenda Punkt 2 ergänzt WorkspaceCatalogRefresh und die festen catalog-refresh-
+und catalog-status-Routen. Neue Sitzungen erhalten eine eigene catalog-Freigabe.
+Health- und Katalogablauf von Z2MConnection bleiben unverändert; die bestätigte
+Übernahme verwendet RefreshWorkspaceCatalog samt aktueller nativer Bindungen.
+Der flüchtige Jobbuffer hält höchstens acht Systeme und 32 Quittungen. Nach
+Modulupdate werden Aufträge nicht wiederholt. GET und Designerstart lesen nur.
+
+Vor der Umsetzung passende Helper geprüft: DebugFlowHelper bleibt kanonisch;
+HttpResponseHelper und VisualizationAssetHelper werden über die vorhandenen
+Pfadgrenzen weiterverwendet. PersistentJsonCacheHelper ist für den bewusst
+flüchtigen Auftragszustand kein Ersatz für Systembindung und Korrelation.
+Keine Helperdateien oder Erweiterungsquellen geändert.
+
+Der erste gezielte Test scheiterte am noch fehlenden öffentlichen Einstieg.
+Die anschließenden synthetischen Prüfungen verwenden acht Systeme an zwei
+nativen MQTT-Parents. Unbestätigte Starts, passende Health-/Status-/Katalog-
+Antworten, parallele Anfragen, Replays, falsche und retained Antworten,
+zwischenzeitliche Eingaben, ungültige Kataloge, Fristen, späte Antworten,
+geänderte Bindungen, Modulupdate und HTTP-Grenzen sind abgedeckt. Exakte YAML,
+Freigaben, Auswahl und offene Eingaben bleiben erhalten. Alle beobachteten
+MQTT-Aufträge sind ausschließlich health_check, status und catalog.
+
+Ein separater unsichtbarer Edge-Prozess lädt die echten Designerdateien gegen
+einen rein lokalen synthetischen Server mit zwei Systemen. Sichtbare Ladephase,
+Fehler mit erhaltenen Geräten, erneuter ausdrücklicher Abruf, Systemtrennung,
+offene Browserbearbeitung sowie ausbleibende Entwurfsänderungen geprüft.
+Eine überlappende Hinweisanordnung korrigiert und bei 900 Pixeln Breite erneut
+kontrolliert, einschließlich Abständen und echter Mausradbedienung in beiden
+Richtungen. Node-Vertragstests prüfen zusätzlich verspätete fremde Antworten,
+Transportfehler und den ausgebliebenen automatischen POST-Neuversand.
+
+php tests/run.php einschließlich 157 JavaScript-Tests und PHP-/JavaScript-
+Integration erfolgreich. Gezielte Katalog- und Designertests nach dem letzten
+Hinweisabgleich erneut geprüft. Separate Struktur-/Kodierungsprüfung,
+offizielle JSON-Styleprüfung und php-cs-fixer im Prüfmodus grün.
+
+Keine Test-/Live-Installation angesprochen, kein Gerät geschaltet und keine
+Automationsdatei gespeichert oder aktiviert. Praxisabnahme im echten Symcon-
+Host nach Modulupdate steht noch aus. Erweiterungsupdate nicht erforderlich.
+
 ## Browser-Regelverwaltung lokal geprüft am 05.11.2026
 
 Punkt 1 der Designeragenda ergänzt die feste POST-manage-Route mit eigener

@@ -223,3 +223,14 @@ dialog p { font-size: 12px; line-height: 1.7; color: #708095; }
 .management-dialog { width: min(580px, calc(100vw - 40px)); max-height: calc(100dvh - 40px); overflow: auto; }
 .management-users { max-height: 200px; overflow: auto; overflow-wrap: anywhere; }
 .entry-tools { flex-wrap: wrap; }
+
+/* Per-system device refresh stays readable without opening the native form. */
+.system-catalog { margin: 0 20px 12px; padding: 14px 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+.system-catalog[hidden] { display: none; }
+.system-catalog p { margin: 8px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.system-catalog .field-help { font-size: 12px; }
+.catalog-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.system-catalog.is-loading { border-color: var(--primary); }
+.system-catalog.is-loading > strong::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 2px solid var(--primary-soft); border-top-color: var(--primary); border-radius: 50%; animation: catalog-spin 1s linear infinite; }
+@keyframes catalog-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .system-catalog.is-loading > strong::before { animation: none; } }
