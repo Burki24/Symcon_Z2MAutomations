@@ -1,3 +1,44 @@
+## Parallele Aufrufe und Besitzermeldungen lokal geprüft am 05.11.2026
+
+Eine belegte Z2MA.Owner-Eintrittssperre wurde bisher wie eine tatsächliche
+Besitzersperre beantwortet. Die Ablehnung erfolgt jetzt vor dem Callback mit
+instance_busy und einer deutschen Erklärung: Das Modul ist gerade beschäftigt;
+die Aktion wurde nicht ausgeführt und wird nicht automatisch wiederholt.
+Erst nach erfolgreichem Sperrerwerb werden Besitzer und Übernahmezustand geprüft.
+Deren Ablehnungen bleiben ownership_conflict mit dem vorhandenen sicheren Hinweis.
+HTTP 409, Boolean-/Void-Rückgaben und das native Formularformat bleiben erhalten.
+HTTP-Fehler enthalten zusätzlich den unterscheidbaren Fehlercode.
+
+Nur feste Designerdateien dürfen weiterhin höchstens fünf Sekunden warten.
+Bei Fristablauf wird ebenfalls Belegung gemeldet. Daten- und Betriebsaufträge
+erhalten weder eine neue Wartefreigabe noch eine automatische Wiederholung.
+Debug nennt Aufruf und Grund im unveränderten kanonischen DebugFlowHelper.
+Vorhandene Helper und deren Verträge geprüft: DebugFlowHelper bleibt kanonisch;
+die fachliche Besitzerprüfung wird nicht durch die anders gebundene Sperre des
+ChunkedJsonTransferHelper ersetzt. Keine Helperdatei verändert.
+
+Der neue Regressionstest schlug zunächst an der falschen Besitzermeldung fehl.
+Nach der Korrektur sind synthetische Zentralen mit 1/2/8 Systemen und gemeinsamen
+oder getrennten MQTT-Parents geprüft: öffentliche Lese-/Schreibaufrufe, native
+Formulare, Timer, Boolean-Rückgabe und alle Browser-Betriebsarten. Die fremde
+Sperre bleibt gehalten; keine MQTT-Pakete, Änderungen an Entwürfen, Auswahl,
+Freigaben, Journalen oder Empfängerzuständen und kein nachträglicher Auftrag.
+Ein neuer ausdrücklicher Aufruf funktioniert nach Freigabe. Echte fremde sowie
+beschädigte Besitzzuordnungen bleiben geschützt. Debugpaare sind ausgeglichen,
+Tokens, Auftragskennungen und private Testwerte fehlen. Dateiprüfungen sichern
+die bisherigen Wartegrenzen; der JavaScript-Vertrag zeigt den Busy-Hinweis ohne
+erneuten Versand und erlaubt einen späteren ausdrücklichen Auftrag.
+
+Keine Test-/Live-Installation angesprochen oder verändert. Reale Abnahme nach
+Modulupdate bleibt offen; Erweiterungsupdate nicht erforderlich.
+
+Abschließende lokale Prüfung: php tests/run.php einschließlich 151 JavaScript-
+Tests und PHP-/JavaScript-Integration bestanden. Separate Struktur- und zentrale
+Kodierungsprüfung erfolgreich. Offizieller StylePHP-Check aller 18 eigenen
+JSON-Dateien in isolierter Kopie grün; Fremdquellen unverändert. PHP CS Fixer
+3.95.27 im Prüfmodus ohne Befund für 129 Dateien. Ziel bleibt Symcon 9.0;
+synthetische Tests unter PHP 8.5.10 ersetzen keine reale Symcon-Abnahme.
+
 ## Erste Mehrsystem-Verträge lokal geprüft am 04.11.2026
 
 Schritt 1 aus ADR 0026: SystemContract v1 definiert stabile UUID-Systemkennungen,

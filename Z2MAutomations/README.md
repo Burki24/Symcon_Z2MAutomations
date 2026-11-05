@@ -58,6 +58,14 @@ sich zwischen Anzeige und Übernehmen eine Verbindung oder ihr Besitzer geänder
 wird die Auswahl nicht gespeichert. Das Formular neu öffnen und die Angaben
 erneut prüfen. Die Liste liest lokale Instanzdaten und sendet keine MQTT-Anfrage.
 
+Erscheint „Das Modul ist gerade beschäftigt“, läuft noch ein anderer Vorgang.
+Die angeforderte Aktion wurde nicht ausgeführt. Kurz warten und anschließend
+erneut auslösen; beim Öffnen des Formulars dieses erneut öffnen. Entwürfe bleiben
+erhalten. Das Modul wiederholt die abgewiesene Aktion nicht automatisch.
+Ein Hinweis auf eine andere zuständige Verwaltungsinstanz bedeutet dagegen
+einen tatsächlichen Besitzerkonflikt und verlangt die dortige Bearbeitung oder
+den vorgesehenen gesicherten Rückweg.
+
 ## Direkt aus Z2M einrichten
 
 Dieser Weg benötigt keine alten Automationsinstanzen. Nach dem Zuordnen der

@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet
+  instance_busy mit verständlichem Hinweis auf die nicht ausgeführte Aktion,
+  echte Besitzersperren bleiben ownership_conflict. HTTP und native Formulare
+  unterscheiden beide Fälle; deutsche Debugausgaben nennen Aufruf und Grund.
+  Keine zusätzliche Wartefreigabe oder automatische Wiederholung. Regression
+  mit synthetischen Zentralen, Browseraufträgen, Timern und unverändertem Zustand.
+  Keine Test-/Live-Installation geändert; Praxisabnahme nach Modulupdate offen.
+  Erweiterungsartefakt und zentrale Helper unverändert.
+
 - Zentrale Betriebssteuerung lokal ergänzt: Aktivierung mit wählbarem Wiederanlauf,
   globaler Stopp, bedingungsgeprüfter Einzelstart und Stopp genau eines Laufs je
   System im nativen Formular und Browserdesigner. Eigene dauerhafte Aufträge,

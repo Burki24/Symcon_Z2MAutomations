@@ -17,6 +17,11 @@
 
 ## Korrigiert
 
+- Parallele Aufrufe melden verständlich, wenn das Modul gerade beschäftigt ist.
+  Die irreführende Meldung über eine fremde Verwaltung entfällt in diesem Fall.
+  Abgewiesene Aktionen werden nicht ausgeführt oder automatisch wiederholt;
+  tatsächliche Besitzerkonflikte bleiben geschützt.
+
 - Nach der lokalen Übernahme einer Z2M-Verbindung wird das Formular erst nach
   Abschluss des laufenden Aufrufs neu aufgebaut. Dadurch erscheint keine falsche
   Sperrmeldung mehr. Dieselbe Aktualisierung gilt für Rückweg, Systemauswahl und

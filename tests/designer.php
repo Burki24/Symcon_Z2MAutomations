@@ -186,14 +186,17 @@ foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'w
     $check($module->Hook($asset)[0] === 200, 'Parallel designer assets wait for a short competing owner entry: ' . $asset);
     $check($lockScenario::$waits[0] === 0 && count($lockScenario::$waits) === 2 && $lockScenario::$waits[1] > 0 && $lockScenario::$waits[1] <= 5000, 'Asset waiting is bounded and only happens on contention.');
 }
-foreach (['data', 'devices', 'create', 'edit', 'sequence', 'select-system', 'index.html?other=1', '../module.php'] as $asset) {
+foreach (['data', 'devices', 'create', 'edit', 'sequence', 'select-system', 'runtime', 'runtime-status', 'transfer', 'transfer-status', 'index.html?other=1', '../module.php'] as $asset) {
     $lockScenario::$lock = 'Z2MA.Owner.' . $id;
     $lockScenario::$waits = [];
-    $check($module->Hook($asset)[0] === 409 && $lockScenario::$waits === [0], 'Data, writes and unknown paths keep their immediate entry fence: ' . $asset);
+    [$http, $body] = $module->Hook($asset);
+    $check($http === 409 && json_decode($body, true)['error'] === 'instance_busy' && $lockScenario::$waits === [0], 'Data, writes and unknown paths keep their immediate busy entry fence: ' . $asset);
 }
 $lockScenario::$lock = 'Z2MA.Owner.' . $id;
 $lockScenario::$release = false;
-$check($module->Hook('reader.js')[0] === 409, 'A permanently occupied entry remains protected after the asset deadline.');
+[$http, $body] = $module->Hook('reader.js');
+$reply = json_decode($body, true);
+$check($http === 409 && $reply['error'] === 'instance_busy' && str_contains($reply['message'], 'Designerdatei') && !str_contains($reply['message'], 'Zentrale Verwaltungsinstanz'), 'An asset deadline reports waiting, never a false ownership conflict.');
 $lockScenario::$lock = '';
 $lockScenario::$release = true;
 $check($module->Fingerprint() === $before, 'Contended asset reads and rejected operations preserve all drafts and runtime state.');

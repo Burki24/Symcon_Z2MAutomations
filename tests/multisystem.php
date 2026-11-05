@@ -110,7 +110,7 @@ $check(str_contains(implode('', $probe->debug), 'Die Vorschau liest den Bestand 
 $ownLock = 'Z2MA.Owner.' . $ids[0];
 $check(IPS_SemaphoreEnter($ownLock, 0), 'An independent caller holds this source entry lock');
 try {
-    $check(json_decode($probe->PreviewSystemMigration(json_encode([$ids[0]])), true)['error'] === 'ownership_conflict', 'An independent preview still cannot bypass the held owner lock');
+    $check(json_decode($probe->PreviewSystemMigration(json_encode([$ids[0]])), true)['error'] === 'instance_busy', 'An independent preview reports contention and cannot bypass the held owner lock');
 } finally {
     IPS_SemaphoreLeave($ownLock);
 }

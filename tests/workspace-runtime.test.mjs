@@ -37,6 +37,22 @@ test('polling is GET-only; failed commands are never retried and foreign replies
     }
 });
 
+test('a busy HTTP response explains contention, never retries, and allows a new explicit request', async () => {
+    const data = model(); const requests = [];
+    const message = 'Das Modul ist gerade beschäftigt. Ein anderer Vorgang läuft noch. Diese Aktion wurde nicht ausgeführt und wird nicht automatisch wiederholt. Bitte kurz warten und erneut versuchen.';
+    await assert.rejects(runtimeRequest(data, 'activate', {base: endpoint, request: async (_url, init) => {
+        requests.push(JSON.parse(init.body).requestId);
+        return {ok: false, json: async () => ({ok: false, error: 'instance_busy', message})};
+    }}), error => error.message === message);
+    assert.equal(requests.length, 1, 'Busy commands are not repeated automatically');
+    const view = await runtimeRequest(data, 'activate', {base: endpoint, request: async (_url, init) => {
+        requests.push(JSON.parse(init.body).requestId);
+        return {ok: true, json: async () => ({ok: true, runtime: data.runtime})};
+    }});
+    assert.equal(view, data.runtime); assert.equal(requests.length, 2);
+    assert.notEqual(requests[0], requests[1], 'The later explicit request has a new identity');
+});
+
 class Element {
     constructor() { this.children = []; this.events = {}; this.disabled = false; this.hidden = false; this.textContent = ''; this.value = ''; }
     append(...nodes) { this.children.push(...nodes); }

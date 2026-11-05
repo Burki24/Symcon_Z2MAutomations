@@ -52,9 +52,9 @@ trait SystemOwnership
         $lock = 'Z2MA.Owner.' . $this->InstanceID;
         if (!$nested && !$receive && !IPS_SemaphoreEnter($lock, 0)) {
             $asset = $function === 'ProcessHookData' && method_exists($this, 'DesignerAssetRequest') && $this->DesignerAssetRequest();
-            if (!$asset) return $this->OwnershipRejected($function);
+            if (!$asset) return $this->OwnershipBusy($function);
             $this->DebugEvent('AKTION', 'Paralleler Designer-Dateiaufruf wartet kurz auf den laufenden Aufruf. Entwürfe und Z2M bleiben unverändert.', ['HöchstensMillisekunden' => 5000]);
-            if (!IPS_SemaphoreEnter($lock, 5000)) return $this->OwnershipRejected($function, true);
+            if (!IPS_SemaphoreEnter($lock, 5000)) return $this->OwnershipBusy($function, true);
             $this->DebugEvent('AKTION', 'Designer-Dateiaufruf nach der Wartezeit freigegeben; Besitzerprüfung folgt unverändert.');
         }
         $this->ownershipEntry = $nested || !$receive;
@@ -123,26 +123,37 @@ trait SystemOwnership
         }
     }
 
-    private function OwnershipRejected(string $function, bool $assetTimeout = false): mixed
+    private function OwnershipBusy(string $function, bool $assetTimeout = false): mixed
     {
         $message = $assetTimeout
             ? 'Die Designerdatei konnte noch nicht geladen werden, weil ein anderer Aufruf länger läuft. Bitte den Designer erneut öffnen. Ihre Entwürfe bleiben erhalten.'
-            : 'Diese Instanz ist für eine lokale Übernahme gesperrt oder gehört bereits zur zentralen Verwaltung. Bitte dort weiterarbeiten oder den gesicherten Rückweg verwenden.';
+            : 'Das Modul ist gerade beschäftigt. Ein anderer Vorgang läuft noch. Diese Aktion wurde nicht ausgeführt und wird nicht automatisch wiederholt. Bitte kurz warten und erneut versuchen.';
+        return $this->OwnershipFailure($function, 'instance_busy', $message);
+    }
+
+    private function OwnershipRejected(string $function): mixed
+    {
+        $message = 'Diese Instanz ist für eine lokale Übernahme gesperrt oder gehört bereits zur zentralen Verwaltung. Bitte dort weiterarbeiten oder den gesicherten Rückweg verwenden.';
         try {
             $owner = $this->OwnershipMarker()['owner'] ?? 0;
             if ($owner > 0) $message .= ' Zentrale Verwaltungsinstanz: ' . $owner . '.';
         } catch (Throwable) { /* Keep the safe generic explanation for unreadable markers. */
         }
-        $this->DebugEvent('FEHLER', $message, ['Aufruf' => $function]);
+        return $this->OwnershipFailure($function, 'ownership_conflict', $message);
+    }
+
+    private function OwnershipFailure(string $function, string $error, string $message): mixed
+    {
+        $this->DebugEvent('FEHLER', $message, ['Aufruf' => $function, 'Grund' => $error]);
         if ($function === 'ProcessHookData') {
             http_response_code(409);
-            echo json_encode(['ok' => false, 'message' => $message], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['ok' => false, 'error' => $error, 'message' => $message], JSON_UNESCAPED_UNICODE);
             return null;
         }
         if ($function === 'GetConfigurationForm') return json_encode(['elements' => [['type' => 'Label', 'caption' => $message]], 'actions' => []], JSON_UNESCAPED_UNICODE);
         return match ((string) (new \ReflectionMethod($this, $function))->getReturnType()) {
             'void'  => null, 'bool' => false,
-            default => json_encode(['ok' => false, 'error' => 'ownership_conflict', 'message' => $message], JSON_UNESCAPED_UNICODE)
+            default => json_encode(['ok' => false, 'error' => $error, 'message' => $message], JSON_UNESCAPED_UNICODE)
         };
     }
 

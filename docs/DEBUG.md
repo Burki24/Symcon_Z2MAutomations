@@ -1,5 +1,23 @@
 # Debug und MQTT-Diagnose
 
+## Parallele Aufrufe und Besitzerkonflikte
+
+Ist die instanzeigene Eintrittssperre belegt, nennt die deutsche Fehlermeldung
+den noch laufenden Vorgang und die nicht ausgeführte Aktion. Der Bezug enthält
+Aufruf und Grund instance_busy. Es wird kein Besitzer ausgelesen oder als
+fälschlich zuständige Fremdverwaltung genannt. Native Formulare und HTTP-409-
+Antworten erklären denselben Fall; String-Rückgaben enthalten den Fehlercode,
+Boolean-/Void-Verträge bleiben erhalten. Auch Timerdurchläufe werden nicht als
+Besitzerwechsel fehlgedeutet. Kein angeforderter Callback, MQTT-Auftrag oder
+automatischer Wiederholungsversand wird aus dieser Ablehnung gestartet.
+
+Nur erlaubte statische Designerdateien warten weiterhin höchstens fünf Sekunden.
+Ihr Fristablauf verwendet ebenfalls instance_busy. Nach erfolgreichem Warten
+folgt unverändert die Besitzerprüfung. Tatsächlich fremde, beschädigte oder
+gesperrte Besitzzuordnungen bleiben ownership_conflict; Debug nennt dabei die
+vorhandene sichere Erklärung. Beide Gründe nutzen den kanonischen DebugFlowHelper
+mit ausgeglichenen START-/ENDE-Meldungen. Tokens und Anfrageinhalte fehlen.
+
 ## Automatischer Formularneuaufbau der Zentrale
 
 Formularaktualisierungen erklären zunächst ihre Vormerkung im laufenden Aufruf.

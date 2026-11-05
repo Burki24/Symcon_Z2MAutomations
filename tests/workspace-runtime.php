@@ -184,6 +184,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $topic = $first['binding']['baseTopic'];
     $original = $details($first)['data'];
     $before = $metadata;
+    require __DIR__ . '/ownership-contention.inc.php';
     $check($decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'Local return is initially available.');
     $request($first, 'status');
     $check($decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'Pure runtime status does not block local return.');
