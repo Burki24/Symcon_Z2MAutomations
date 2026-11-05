@@ -7,7 +7,8 @@ const data = {workspaceContext: {systemId: '11111111-1111-4111-8111-111111111111
 const base = 'http://localhost/hook/designer/#PRIVATE_TOKEN';
 const view = () => ({...data.workspaceContext, context: 'b'.repeat(64), status: 'checking', pending: true, canInstall: false,
     blocked: 'installation_pending', message: 'Verbindung wird geprüft.', runtimeMessage: 'Automatikbetrieb aktiv.', notice: 'Abläufe können enden.',
-    mayHaveUploaded: false, installedBuild: 'c'.repeat(64), bundledBuild: 'd'.repeat(64), executing: true});
+    mayHaveUploaded: false, installedBuild: 'c'.repeat(64), bundledBuild: 'd'.repeat(64), executing: true,
+    devices: {phase: 'none', pending: false, message: 'Nach Installation werden Gerätedaten geladen.', counts: {devices: 0, groups: 0, scenes: 0}}});
 const response = v => ({ok: true, text: async () => JSON.stringify({ok: true, installation: v})});
 
 test('installation uses only fixed scoped routes and explicit consent without code or MQTT topics', async () => {
@@ -41,4 +42,19 @@ test('foreign, malformed, oversized or failed installation replies never cause a
 test('pending, installed and interrupted states remain distinct and install status cannot replace another system diagnostics', async () => {
     for (const status of ['idle', 'checking', 'prepared', 'pending', 'installed', 'error', 'interrupted']) assert.equal(checkedInstallation({...view(), status}, data.workspaceContext), true);
     await assert.rejects(diagnosticsRequest(data, null, {base, request: async () => response({...view(), generation: 2})}));
+});
+
+test('installation remains busy through its device refresh and preserves a separate partial error', async () => {
+    const loading = {...view(), status: 'refreshing', devices: {...view().devices, phase: 'loading', pending: true, message: 'Gerätedaten werden geladen.'}};
+    assert.equal(checkedInstallation(loading, data.workspaceContext), true);
+    const result = await installationRequest(data, null, {base, request: async () => response(loading)});
+    assert.equal(result.installation.pending, true); assert.equal(result.installation.canInstall, false);
+    for (const phase of ['loaded', 'error', 'interrupted']) {
+        const v = {...view(), status: 'installed', pending: false, devices: {...view().devices, phase, message: phase === 'loaded' ? 'Gerätedaten aktuell.' : 'Erweiterung installiert, Gerätedaten nicht geladen.'}};
+        assert.equal(checkedInstallation(v, data.workspaceContext), true);
+    }
+    for (const devices of [undefined, {...loading.devices, pending: false}, {...loading.devices, counts: {devices: -1, groups: 0, scenes: 0}}, {...loading.devices, phase: 'wrong'}]) {
+        assert.equal(checkedInstallation({...loading, devices}, data.workspaceContext), false);
+    }
+    assert.equal(checkedInstallation({...loading, status: 'installed'}, data.workspaceContext), false);
 });

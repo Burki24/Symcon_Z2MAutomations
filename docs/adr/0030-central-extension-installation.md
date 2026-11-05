@@ -34,6 +34,21 @@ Der reine Authority-Callback liest nur lokale Daten und fordert keinen zweiten
 Besitzerlock an. Der lokale Übernahmerückweg wird gesperrt, sobald ein Upload
 für die betreffende Übernahme möglicherweise begonnen hat.
 
+Der bestätigte Upload erhält einen getrennten Geräteabruf als Folgeschritt.
+WorkspaceInstallationDevices delegiert an WorkspaceCatalogRefresh statt einen
+zweiten MQTT-Ablauf einzuführen. Vor dem Aufruf wird der Vorgangsbezug dauerhaft
+festgehalten; ein bereits laufender Abruf derselben Bindung wird mitbenutzt.
+Nur der Timer startet ihn, GETs beobachten. Sitzung, Bindung und bestätigter
+Katalog begrenzen die Zuordnung. Gerätefehler widerrufen keinen Installationserfolg
+und starten keinen erneuten Upload. Modulupdate beendet den Folgeschritt;
+ein neuer manueller Geräteabruf bleibt möglich. Historische Abschlussaufträge
+ohne Folgeschritt werden nicht rückwirkend ausgeführt.
+
+Katalogänderungen dürfen weder Entwürfe noch offene Formulareingaben ersetzen.
+Native Fingerabdruckfelder werden deshalb nur bei gleicher Bindung und identischem
+Dokument aktualisiert; kein automatischer Formularneuaufbau. Die schon bestehende
+Prüfung veralteter Bearbeitungsstände bleibt bei parallelen Entwurfsänderungen aktiv.
+
 ## Folgen und Prüfung
 
 Die Bestätigung erklärt mögliche Unterbrechungen von Abläufen und Aufzeichnungen.

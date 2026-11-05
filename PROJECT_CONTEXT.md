@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Nach bestätigter zentraler Erweiterungsinstallation werden Gerätedaten desselben
+  Systems automatisch über den vorhandenen Geräteabruf nachgeladen. Der Status
+  bleibt bis zum Abschluss sichtbar; ein Gerätefehler lässt den Installationserfolg
+  bestehen. Entwürfe, Freigaben und offene Eingaben bleiben erhalten. GETs senden
+  kein MQTT, Modulupdates wiederholen keinen Upload oder Abruf. Native Formularbezüge
+  folgen reinen Katalogänderungen ohne Neuaufbau; zwischenzeitliche Entwurfsänderungen
+  werden nicht stillschweigend übergangen. Synthetische Prüfung, kein Live-Zugriff.
+
 - Erweiterungsinstallation je System lokal integriert: nativer Zentralenbutton
   und eigener Bestätigungsdialog unter „Systeme und Diagnose“ im Designer.
   Health-Prüfung, festes Artefakt, neue Empfängersitzung und erwarteter Build;

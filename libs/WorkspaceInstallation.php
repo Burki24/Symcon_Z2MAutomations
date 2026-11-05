@@ -43,10 +43,12 @@ trait WorkspaceInstallation
                         if ($j['receipts'][$OperationID] !== $op['request']) throw new RuntimeException('operation_conflict');
                         return false;
                     }
-                    if (in_array($j['systems'][$SystemID]['status'] ?? '', InstallationProtocol::PENDING, true)) throw new RuntimeException('installation_pending');
+                    if (in_array($j['systems'][$SystemID]['status'] ?? '', InstallationProtocol::PENDING, true)
+                        || $this->InstallationDevicesPending($j['systems'][$SystemID] ?? [])) throw new RuntimeException('installation_pending');
                     $j['systems'] = array_intersect_key($j['systems'], $this->ReadWorkspace()['systems']);
                     $j['systems'][$SystemID] = ['request' => $r, 'status' => 'checking', 'error' => '', 'mayHaveUploaded' => false,
-                        'deadline'                        => $this->Now() + (int) IPS_GetProperty($r['binding']['connectionInstance'], 'RequestTimeout') + 5];
+                        'deadline'                        => $this->Now() + (int) IPS_GetProperty($r['binding']['connectionInstance'], 'RequestTimeout') + 5,
+                        'devices'                         => ['phase' => 'waiting', 'operation' => '', 'session' => '', 'error' => '']];
                     $j['receipts'][$OperationID] = $op['request'];
                     $j['receipts'] = array_slice($j['receipts'], -32, null, true);
                     $this->WriteWorkspaceInstallations($j);
@@ -104,6 +106,7 @@ trait WorkspaceInstallation
         {
             try {
                 $this->SyncWorkspaceInstallation($SystemID);
+                $this->RefreshInstallationDevices($SystemID, false);
                 $record = $this->WorkspaceRecord($this->ReadWorkspace(), $SystemID);
                 $view = $this->WorkspaceInstallationView($record);
                 $this->UpdateWorkspaceInstallationDisplay($SystemID, $view);
@@ -152,9 +155,10 @@ trait WorkspaceInstallation
                         $this->FinishWorkspaceInstallation($system, 'error', $this->InstallationErrorCode($e), $job['request']['operation']);
                     }
                 } else $this->SyncWorkspaceInstallation($system);
+                $this->RefreshInstallationDevices($system, true);
                 $this->UpdateWorkspaceInstallationDisplay($system, $this->WorkspaceInstallationView($this->WorkspaceRecord($this->ReadWorkspace(), $system)));
             }
-            $pending = array_any($this->ReadWorkspaceInstallations()['systems'], static fn (array $j): bool => in_array($j['status'], InstallationProtocol::PENDING, true));
+            $pending = array_any($this->ReadWorkspaceInstallations()['systems'], fn (array $j): bool => in_array($j['status'], InstallationProtocol::PENDING, true) || $this->InstallationDevicesPending($j));
             $this->SetTimerInterval('WorkspaceInstallationRefresh', $pending ? 1000 : 0);
         });
     }
@@ -229,31 +233,36 @@ trait WorkspaceInstallation
         $artifact = $this->BundledExtensionIdentity();
         $job = $this->ReadWorkspaceInstallations()['systems'][$record['binding']['systemId']] ?? null;
         $matches = $job === null || $job['request']['binding'] === $record['binding'];
-        $pending = $matches && in_array($job['status'] ?? '', InstallationProtocol::PENDING, true);
+        $devices = $this->InstallationDevicesView($matches ? $job : null, $record);
+        $pending = $matches && (in_array($job['status'] ?? '', InstallationProtocol::PENDING, true) || $devices['pending']);
         if ($blocked === '') $blocked = match (true) {
             !($state['mqttConnected'] ?? false)                                                           => 'not_connected', $artifact === null => 'artifact_unavailable',
             ($state['externalJS'] ?? null) === false                                                      => 'external_js_disabled', $pending => 'installation_pending',
             ($state['health'] ?? '') === 'pending' || ($state['operation']['status'] ?? '') === 'pending' => 'busy', default => ''
         };
-        $status = !$matches ? 'interrupted' : ($job['status'] ?? 'idle');
+        $status = !$matches ? 'interrupted' : ($devices['pending'] ? 'refreshing' : ($job['status'] ?? 'idle'));
         $error = !$matches ? 'binding_changed' : ($job['error'] ?? '');
         $message = match ($status) {
             'checking'             => 'Installation bestätigt. Zigbee2MQTT-Verbindung wird frisch geprüft; noch keine Datei hochgeladen.',
             'prepared', 'pending'  => 'Erweiterung wird übertragen und neu geladen. Die Bestätigung des neuen Erweiterungsstands steht noch aus.',
             'installed'            => 'Installation erfolgreich: Neue Erweiterungssitzung und erwarteter Build von Z2M bestätigt.',
+            'refreshing'           => 'Erweiterung erfolgreich installiert. Die automatische Gerätedatenaktualisierung läuft noch.',
             'error', 'interrupted' => $this->InstallationErrorText($error ?: 'installation_interrupted'),
             default                => 'Die mitgelieferte Erweiterung kann für genau dieses System installiert oder aktualisiert werden.'
         };
+        if ($status === 'installed' && $devices['phase'] !== 'none') $message = $devices['phase'] === 'loaded'
+            ? 'Installation erfolgreich: Neue Erweiterungssitzung, erwarteter Build und aktuelle Gerätedaten bestätigt.'
+            : 'Installation erfolgreich; Gerätedaten nicht aktualisiert. Bitte den folgenden Hinweis beachten.';
         if ($status === 'idle' && $blocked !== '') $message = $this->InstallationErrorText($blocked);
         $confirmed = ($state['extensionConfirmed'] ?? false) && ($state['extension']['ready'] ?? false);
         $executing = $confirmed ? ($state['extension']['executing'] ?? false) : null;
         return ['systemId' => $record['binding']['systemId'], 'generation' => $record['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($record),
             'context'      => hash('sha256', json_encode([$record['binding'], $record['ownershipEpoch'] ?? '', WorkspaceState::Fingerprint($record), $artifact, InstallationProtocol::Before($state)], JSON_THROW_ON_ERROR)),
             'status'       => $status, 'pending' => $pending, 'canInstall' => $blocked === '', 'blocked' => $blocked, 'error' => $error, 'message' => $message,
-            'operation'    => $job['request']['operation'] ?? '', 'mayHaveUploaded' => $job['mayHaveUploaded'] ?? false,
+            'operation'    => $job['request']['operation'] ?? '', 'mayHaveUploaded' => $job['mayHaveUploaded'] ?? false, 'devices' => $devices,
             'bundledBuild' => $artifact['build'] ?? null, 'installedBuild' => $confirmed ? ($state['extension']['build'] ?? null) : null,
             'executing'    => $executing, 'runtimeMessage' => $executing === null ? 'Automatikbetrieb noch nicht bestätigt.' : ($executing ? 'Automatikbetrieb von Z2M als aktiv bestätigt.' : 'Automatikbetrieb von Z2M als gestoppt bestätigt.'),
-            'notice'       => 'Die Datei „' . ExtensionContract::NAME . '“ wird ersetzt. Laufende Abläufe und Aufzeichnungen können enden. Bei eingeschaltetem Wiederanlauf können freigegebene Automationen danach wieder bereit sein. Automationsdateien und lokale Entwürfe werden nicht übertragen.'];
+            'notice'       => 'Die Datei „' . ExtensionContract::NAME . '“ wird ersetzt. Laufende Abläufe und Aufzeichnungen können enden. Bei eingeschaltetem Wiederanlauf können freigegebene Automationen danach wieder bereit sein. Nach der Installation werden die Gerätedaten automatisch aktualisiert. Automationsdateien und lokale Entwürfe werden nicht übertragen.'];
     }
 
     private function InstallationErrorCode(Throwable $e): string
@@ -296,7 +305,7 @@ trait WorkspaceInstallation
             || count($j['receipts']) > 32 || !is_array($j['changedEpochs'] ?? null) || strlen($raw) > 1048576) throw new RuntimeException('installation_unavailable');
         foreach ($j['systems'] as $id => $job) if (!InstallationProtocol::Valid($job['request'] ?? null) || $job['request']['binding']['systemId'] !== $id
             || !in_array($job['status'] ?? null, InstallationProtocol::STATES, true) || !is_string($job['error'] ?? null) || !is_bool($job['mayHaveUploaded'] ?? null)
-            || !is_int($job['deadline'] ?? null)) throw new RuntimeException('installation_unavailable');
+            || !is_int($job['deadline'] ?? null) || (isset($job['devices']) && !InstallationProtocol::ValidDevices($job['devices']))) throw new RuntimeException('installation_unavailable');
         foreach ($j['receipts'] as $key => $value) if (!DraftTransferProtocol::Operation($key) || !ExtensionContract::Checksum($value)) throw new RuntimeException('installation_unavailable');
         foreach ($j['changedEpochs'] as $key => $value) if (!DraftTransferProtocol::Operation($key) || $value !== true) throw new RuntimeException('installation_unavailable');
         return $j;
@@ -318,6 +327,11 @@ trait WorkspaceInstallation
             foreach ($j['systems'] as &$job) if (in_array($job['status'], InstallationProtocol::PENDING, true)) {
                 $job['status'] = 'interrupted';
                 $job['error'] = 'installation_interrupted';
+            }
+            unset($job);
+            foreach ($j['systems'] as &$job) if ($this->InstallationDevicesPending($job)) {
+                $job['devices']['phase'] = 'interrupted';
+                $this->DebugEvent('AKTION', 'Nachladen der Gerätedaten nach Modulupdate als unterbrochen markiert. Installationserfolg und Entwürfe bleiben erhalten; kein automatischer Neuversand.', ['Systembezug' => $job['request']['binding']['systemId']]);
             }
             unset($job);
             if ($this->ReadAttributeString('WorkspaceInstallations') !== '') $this->WriteWorkspaceInstallations($j);

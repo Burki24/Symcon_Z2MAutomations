@@ -10,7 +10,7 @@ trait WorkspaceInstallationForm
     {
         $v = $this->WorkspaceInstallationView($record);
         $id = $record['binding']['systemId'];
-        $this->SetBuffer('WorkspaceInstallationForm', json_encode(['system' => $id, 'context' => $v['context']], JSON_THROW_ON_ERROR));
+        $this->SetBuffer('WorkspaceInstallationForm', json_encode(['system' => $id, 'context' => $v['context'], 'binding' => $record['binding'], 'dataHash' => WorkspaceState::Fingerprint($record['data'])], JSON_THROW_ON_ERROR));
         $prefix = 'Z2MA_RequestWorkspaceInstallation($id, ' . var_export($id, true) . ', ' . $record['binding']['generation'] . ', '
             . var_export($v['fingerprint'], true) . ', bin2hex(random_bytes(16)), ' . var_export($v['context'], true) . ', true)';
         $input = $record['data']['document'] === null ? "''" : EditorWorkInput::Callback();
@@ -21,6 +21,7 @@ trait WorkspaceInstallationForm
             ['type' => 'Label', 'name' => 'WorkspaceInstallationInstalled', 'caption' => $this->InstallationBuildLabel('Installierter Build', $v['installedBuild'])],
             ['type' => 'Label', 'name' => 'WorkspaceInstallationBundled', 'caption' => $this->InstallationBuildLabel('Mitgelieferter Build', $v['bundledBuild'])],
             ['type' => 'Label', 'name' => 'WorkspaceInstallationMessage', 'caption' => $v['message']],
+            ['type' => 'Label', 'name' => 'WorkspaceInstallationDevices', 'caption' => $v['devices']['message']],
             ['type' => 'Label', 'name' => 'WorkspaceInstallationRuntime', 'caption' => $v['runtimeMessage']],
             ['type' => 'Label', 'caption' => $v['notice']],
             ['type'       => 'Button', 'name' => 'WorkspaceInstallationStart', 'caption' => 'Mitgelieferte Erweiterung auf diesem System installieren oder aktualisieren', 'enabled' => $v['canInstall'],
@@ -41,7 +42,7 @@ trait WorkspaceInstallationForm
         if ($this->ReadWorkspace()['selectedSystem'] !== $system) return;
         $shown = json_decode($this->GetBuffer('WorkspaceInstallationForm') ?: '[]', true, 8, JSON_THROW_ON_ERROR);
         $same = ($shown['system'] ?? '') === $system && ($shown['context'] ?? '') === $v['context'];
-        foreach (['WorkspaceInstallationMessage' => $v['message'], 'WorkspaceInstallationRuntime' => $v['runtimeMessage'],
+        foreach (['WorkspaceInstallationMessage' => $v['message'], 'WorkspaceInstallationDevices' => $v['devices']['message'], 'WorkspaceInstallationRuntime' => $v['runtimeMessage'],
             'WorkspaceInstallationInstalled'     => $this->InstallationBuildLabel('Installierter Build', $v['installedBuild']),
             'WorkspaceInstallationBundled'       => $this->InstallationBuildLabel('Mitgelieferter Build', $v['bundledBuild'])] as $field => $text) $this->UpdateFormField($field, 'caption', $text);
         $this->UpdateFormField('WorkspaceInstallationStart', 'enabled', $same && $v['canInstall']);

@@ -90,7 +90,17 @@ Z2M-Erweiterungsupdate ist nicht erforderlich.
 5. Die Rückmeldung abwarten. **Installation erfolgreich** erscheint erst nach
    Bestätigung einer neuen Erweiterungssitzung mit erwartetem Build. Ist der
    vorherige Speicherstand bekannt, müssen dessen Revision und Prüfsumme weiter
-   passen. Der bestätigte Automatikzustand wird daneben angezeigt.
+   passen. Danach werden Geräte, Kanäle, Gruppen und Szenen dieses Systems
+   automatisch aktualisiert. Währenddessen steht dort **Gerätedaten werden
+   automatisch nachgeladen**. Erst nach dieser Rückmeldung ist der gesamte
+   Ablauf abgeschlossen. Der bestätigte Automatikzustand wird daneben angezeigt.
+
+Scheitert nur das Nachladen, steht dort ausdrücklich **Erweiterung installiert.
+Gerätedaten nicht aktualisiert** samt Ursache. Die Installation muss deshalb
+nicht wiederholt werden. Die Gerätedaten können später über **Gerätedaten
+aktualisieren** erneut geladen werden. Entwürfe, Partnerfreigaben und offene
+Eingaben bleiben erhalten. Ein Modulupdate unterbricht einen noch offenen
+Geräteabruf; danach bei Bedarf manuell nachladen.
 
 Ein Erweiterungswechsel kann laufende Abläufe und Aufzeichnungen beenden.
 Ist der automatische Wiederanlauf in Z2M eingeschaltet, können die gespeicherten

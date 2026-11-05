@@ -281,6 +281,7 @@ dialog.diagnostics-dialog .field-help { margin-top: 12px; line-height: 1.6; }
 .diagnostics-dialog .debug-end { font-weight: 600; }
 .installation-start { max-width: 100%; white-space: normal; text-align: left; }
 .installation-status[data-phase="error"], .installation-status[data-phase="interrupted"] { color: #a43c32; }
+.installation-devices[data-phase="error"], .installation-devices[data-phase="interrupted"] { color: #a43c32; }
 dialog.installation-confirm { width: min(720px, calc(100vw - 32px)); max-height: 88vh; overflow: auto; }
 .installation-confirm p, .installation-confirm dd { overflow-wrap: anywhere; line-height: 1.6; }
 .installation-builds dd { margin: 5px 0 16px; font-family: monospace; }

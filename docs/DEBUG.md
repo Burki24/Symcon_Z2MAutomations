@@ -15,6 +15,16 @@ Wiederholungen und Modulupdates erklären ausdrücklich, dass kein zweiter Uploa
 erfolgt. Ein fehlendes ACK ist kein Erfolg; neue Sitzung und erwarteter Build
 müssen bestätigt sein. Statusabfragen senden keinen Installationsauftrag.
 
+Nach bestätigter Installation erklärt „Gerätedaten dieses Systems automatisch
+nachladen“ den Übergang zum bestehenden Geräteabruf. Ein bereits laufender Abruf
+wird ausdrücklich mitbenutzt. Die Abschlussmeldung bestätigt frische Gerätedaten
+und den Erhalt von Entwurf, Auswahl, Partnerfreigaben und offenen Eingaben.
+Fehler unterscheiden den bestätigten Installationserfolg vom fehlgeschlagenen
+Geräteabruf mit deutscher Ursache. Modulupdate und Zeitüberschreitung erklären
+den unterbliebenen Neuversand. Keine Gerätebezeichnungen, Eingaben oder rohen
+Sitzungskennungen werden zusätzlich protokolliert. Ein reiner Katalogwechsel
+aktualisiert die nativen Formularbezüge ohne Neuaufbau und wird ebenfalls erklärt.
+
 ## Zentrale Browserdiagnose
 
 GetWorkspaceDiagnostics, RequestWorkspaceDiagnostics und GetConnectionDiagnostics

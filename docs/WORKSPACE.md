@@ -28,6 +28,22 @@ und Aufzeichnungen können durch den Erweiterungswechsel enden; der vorhandene
 Wiederanlauf in Z2M gilt unverändert. Keine zusätzliche Speicherung oder
 Aktivierung aus Symcon. Details und Grenzen: ADR 0030.
 
+Nach bestätigter Installation delegiert WorkspaceInstallationDevices einmalig an
+den vorhandenen WorkspaceCatalogRefresh-Ablauf. Ein laufender Abruf derselben
+Bindung wird mitbenutzt. Das Installationsjournal hält den Geräteabruf getrennt
+vom bereits bestätigten Upload; die Oberflächen bleiben währenddessen im
+Ladezustand. Gerätefehler lassen den Installationserfolg bestehen. GETs beobachten
+nur; allein der Timer beginnt den Abruf. Sitzung, Bindung, Vorgang und bestätigter
+Katalog müssen zusammenpassen. Modulupdate oder verlorener Auftrag führen zu
+keiner automatischen Wiederholung. Alte abgeschlossene Installationsaufträge
+lösen nach einem Modulupdate keinen rückwirkenden Abruf aus.
+
+Der vorhandene Geräteabruf ersetzt nur Katalog und Variablenzuordnungen. Entwurf,
+Partnerfreigaben und offene Eingaben bleiben erhalten. Nach reiner Katalogänderung
+werden native Formularbezüge nur bei unverändertem Dokument und gleicher Bindung
+erneuert, ohne das Formular neu aufzubauen. Bei zwischenzeitlicher Bearbeitung
+greift weiterhin die normale Prüfung auf einen veralteten Bearbeitungsstand.
+
 ## Systemdiagnose
 
 Die zusätzliche Systemdiagnose beschreibt [ADR 0029](adr/0029-central-browser-diagnostics.md).

@@ -43,4 +43,11 @@ final class InstallationProtocol
         return ($state['extensionConfirmed'] ?? false) && is_array($m) ? ['session' => $m['session'], 'revision' => $m['storedRevision'],
             'checksum'                                                              => $m['checksum'], 'executing' => $m['executing'], 'resume' => $m['resumeEnabled'] ?? false] : null;
     }
+
+    public static function ValidDevices(mixed $d): bool
+    {
+        return is_array($d) && count($d) === 4 && in_array($d['phase'] ?? '', ['waiting', 'loading', 'loaded', 'error', 'interrupted'], true)
+            && is_string($d['operation'] ?? null) && ($d['operation'] === '' || DraftTransferProtocol::Operation($d['operation']))
+            && is_string($d['session'] ?? null) && ($d['session'] === '' || ExtensionContract::Checksum($d['session'])) && is_string($d['error'] ?? null);
+    }
 }

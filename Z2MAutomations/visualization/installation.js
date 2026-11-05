@@ -3,11 +3,15 @@ import {systemHeaders} from './workspace.js';
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 export function checkedInstallation(v, ctx) {
     return v?.systemId === ctx?.systemId && v?.generation === ctx?.generation && digest(v.fingerprint) && digest(v.context)
-        && ['idle', 'checking', 'prepared', 'pending', 'installed', 'error', 'interrupted'].includes(v.status)
+        && ['idle', 'checking', 'prepared', 'pending', 'refreshing', 'installed', 'error', 'interrupted'].includes(v.status)
         && ['pending', 'canInstall', 'mayHaveUploaded'].every(key => typeof v[key] === 'boolean')
         && ['message', 'blocked', 'runtimeMessage', 'notice'].every(key => typeof v[key] === 'string')
         && [v.bundledBuild, v.installedBuild].every(value => value === null || digest(value))
-        && (v.executing === null || typeof v.executing === 'boolean');
+        && (v.executing === null || typeof v.executing === 'boolean')
+        && (['none', 'waiting', 'loading', 'loaded', 'error', 'interrupted'].includes(v.devices?.phase)
+            && typeof v.devices.pending === 'boolean' && typeof v.devices.message === 'string'
+            && v.devices.pending === ['waiting', 'loading'].includes(v.devices.phase) && (v.status === 'refreshing') === v.devices.pending
+            && ['devices', 'groups', 'scenes'].every(key => Number.isSafeInteger(v.devices.counts?.[key]) && v.devices.counts[key] >= 0));
 }
 
 export async function installationRequest(data, payload, {token, base = location.href, request = fetch} = {}) {
@@ -34,7 +38,8 @@ export function installExtensionControl({container, getData, getResult, isBusy, 
     action.textContent = 'Mitgelieferte Erweiterung auf diesem System installieren oder aktualisieren';
     const status = document.createElement('p'); status.className = 'installation-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     const runtime = document.createElement('p'); runtime.className = 'installation-runtime';
-    container.append(status, runtime, action);
+    const devices = document.createElement('p'); devices.className = 'installation-devices'; devices.setAttribute('role', 'status'); devices.setAttribute('aria-live', 'polite');
+    container.append(status, devices, runtime, action);
     const dialog = document.createElement('dialog'); dialog.className = 'creation-dialog installation-confirm'; dialog.id = 'installation-confirm';
     dialog.setAttribute('aria-labelledby', 'installation-title');
     dialog.innerHTML = '<h2 id="installation-title">Erweiterung installieren oder aktualisieren?</h2><p class="installation-target"></p><dl class="installation-builds"></dl><p class="installation-notice"></p>'
@@ -49,6 +54,8 @@ export function installExtensionControl({container, getData, getResult, isBusy, 
         action.disabled = isBusy() || !v?.canInstall || !current(getData());
         status.textContent = v?.message ?? 'Installationsstand noch nicht verfügbar. Bitte den Diagnosestand neu laden.';
         status.dataset.phase = v?.status ?? 'idle'; runtime.textContent = v?.runtimeMessage ?? '';
+        devices.textContent = v?.devices?.message ?? ''; devices.dataset.phase = v?.devices?.phase ?? 'none';
+        if (v?.devices?.phase === 'loaded') devices.textContent += ` Geräte: ${v.devices.counts.devices} · Gruppen: ${v.devices.counts.groups} · Szenen: ${v.devices.counts.scenes}.`;
     }
     action.addEventListener('click', () => {
         const result = getResult(); const v = result?.installation; const data = getData();

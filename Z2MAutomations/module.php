@@ -39,6 +39,7 @@ require_once __DIR__ . '/../libs/SymconEventImport.php';
 require_once __DIR__ . '/../libs/WorkspaceEventImport.php';
 require_once __DIR__ . '/../libs/WorkspaceDiagnostics.php';
 require_once __DIR__ . '/../libs/WorkspaceInstallation.php';
+require_once __DIR__ . '/../libs/WorkspaceInstallationDevices.php';
 require_once __DIR__ . '/../libs/WorkspaceInstallationForm.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
 require_once __DIR__ . '/../libs/ExtensionContract.php';
@@ -99,6 +100,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\WorkspaceEventImport;
     use Z2MAutomations\WorkspaceDiagnostics;
     use Z2MAutomations\WorkspaceInstallation;
+    use Z2MAutomations\WorkspaceInstallationDevices;
     use Z2MAutomations\WorkspaceInstallationForm;
     use Z2MAutomations\ExtensionIntegration;
     use Z2MAutomations\AutomationEditor;

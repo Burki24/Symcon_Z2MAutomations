@@ -1,3 +1,42 @@
+## Automatischer Geräteabruf nach Installation lokal geprüft am 05.11.2026
+
+WorkspaceInstallationDevices ergänzt den bestehenden zentralen Installer um
+einen getrennten Folgeschritt über WorkspaceCatalogRefresh. Vor Umsetzung die
+kanonischen ConfigurationFormHelper-/DebugFlowHelper-Verträge und vorhandenen
+Installations-/Katalogabläufe geprüft. Ein neuer Nachweis genau eines automatischen
+Abrufs scheiterte zunächst am fehlenden Folgeschritt. Quellen der Erweiterung,
+Artefakt, zentrale Helper und Fremdquellen bleiben unverändert.
+
+Der synthetische Kerneltest verwendet acht Systeme und echte Modul-Einstiege.
+Er prüft bestätigte Sitzung/Build vor dem Abruf, GET ohne MQTT, genau einen Abruf,
+Mitbenutzung eines laufenden Abrufs, Wiederholungsquittungen, verzögerte Antwort,
+Ablehnung, ungültige Daten, Sitzungstausch, Zeitüberschreitung und Modulupdate.
+Entwurf, Partnerfreigaben, Auswahl und zwischenzeitliche Arbeit bleiben gleich;
+es gibt keinen zusätzlichen Speicher-, Aktivierungs- oder Gerätebefehl. Ein
+Gerätefehler lässt die Installation bestätigt und löst keinen zweiten Upload aus.
+Native Formularbezüge werden nur bei unverändertem Dokument erneuert; kein
+Neuaufbau offener Eingaben. Bestehende Installations- und Geräteabrufprüfungen
+bleiben Teil der Gesamtsuite.
+
+Ein eigener unsichtbarer Edge-Prozess lädt die echten Diagnose-/Installationsassets
+von einem lokalen synthetischen Server. Auf zwei Systemen sind Ladezustand,
+weiterlaufende Statusabfragen, gesperrter zweiter Upload, Geräteanzahlen und
+getrennte Gerätefehler sichtbar geprüft. Abbruch/Escape ohne POST, Aktualisierung
+ohne Neuversand und Neuladen nach Abschluss bestehen. 900-Pixel-Diagnose und
+600-Pixel-Bestätigung passen in die Breite; echtes Mausrad funktioniert im kleinen
+Dialog in beiden Richtungen. Keine JavaScriptfehler, kein Desktop oder persönliches
+Browserprofil bedient. Testskript und Bilder liegen ausschließlich temporär.
+
+Gesamtsuite php tests/run.php einschließlich 174 JavaScript-Tests bestanden.
+Fokussierte Installations-/Katalog-/Diagnoseprüfungen, Strukturprüfung, zentrale
+Kodierungsprüfung und npm run check:extension erfolgreich. Offizieller StylePHP-
+Check der 18 eigenen JSON-Dateien in isolierter Kopie ohne Fremdquellen bestanden;
+PHP CS Fixer im Prüfmodus ohne Befund für 146 Dateien. Eigene Änderungen sind
+UTF-8 ohne BOM/LF; git diff --check sauber.
+
+Keine Test-/Produktivinstallation kontaktiert oder verändert. Die reale Abnahme
+nach Modulupdate bleibt separat; keine neue Z2M-Version als geprüft eingetragen.
+
 ## Erweiterungsinstallation je System lokal geprüft am 05.11.2026
 
 WorkspaceInstallation, ConnectionInstallation und der native Formularbereich

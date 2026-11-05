@@ -1,5 +1,16 @@
 # Unveröffentlicht
 
+## Gerätedaten nach Erweiterungsinstallation automatisch aktualisieren
+
+- Nach bestätigter Installation die Geräte, Kanäle, Gruppen und Szenen desselben
+  Systems automatisch nachladen. Native Zentrale und Designer zeigen den
+  Ladezustand, Erfolg oder einen getrennten Fehler des Geräteabrufs.
+- Entwürfe, Partnerfreigaben und offene Eingaben erhalten. Ein bereits laufender
+  Geräteabruf wird mitbenutzt. Bei Zeitüberschreitung oder Modulupdate erfolgt
+  weder ein zweiter Upload noch eine automatische Wiederholung.
+- Deutsche Debugmeldungen erklären den Ablauf. Kein zusätzlicher Speicher-,
+  Aktivierungs- oder Schaltbefehl; kein Update der Z2M-Erweiterung erforderlich.
+
 ## Erweiterung je System installieren und aktualisieren
 
 - Mitgelieferte Erweiterung im nativen Zentralenformular und unter „Systeme und
