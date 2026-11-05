@@ -1,3 +1,4 @@
+import {createUUID} from './identity.js';
 /* Local-only rule management. Confirmation captures its system and exact draft. */
 export function matchesRuleState(entry, state) {
     return state === 'all' || entry.enabled === undefined || entry.enabled === (state === 'enabled');
@@ -46,7 +47,7 @@ export function installManagement({getData, getEntry, isLoading, reload, copied,
     function open(operation) {
         if (busy || isLoading() || !getData()?.manageAllowed || !getEntry()) return;
         const entry = getEntry();
-        pending = {payload: {requestId: crypto.randomUUID(), context: getData().createContext, operation, id: entry.id}, headers: binding()};
+        pending = {payload: {requestId: createUUID(), context: getData().createContext, operation, id: entry.id}, headers: binding()};
         const users = operation === 'delete-sequence' ? sequenceUsers(getData().configuration, entry.id) : [];
         $('#management-title').textContent = operation === 'copy-rule' ? 'Automation kopieren' : operation === 'delete-sequence' ? 'Aktionsfolge löschen' : 'Automation löschen';
         $('.management-description').textContent = users.length ? `„${entry.name}“ wird noch von folgenden Automationen verwendet. Entfernen Sie zuerst dort den Folgenaufruf. Die Aktionsfolge bleibt erhalten.`
@@ -77,7 +78,7 @@ export function installManagement({getData, getEntry, isLoading, reload, copied,
     filter.addEventListener('change', async () => {
         filterChanged(filter.value);
         if (!getData()?.manageAllowed || isLoading()) return;
-        const payload = {requestId: crypto.randomUUID(), context: getData().createContext, operation: 'filter', id: filter.value};
+        const payload = {requestId: createUUID(), context: getData().createContext, operation: 'filter', id: filter.value};
         try { const {ok, result} = await send(payload, binding()); message(ok ? 'Übersicht gefiltert. „Aktiviert“ bezieht sich auf den Regelschalter im Entwurf.' : result.message); }
         catch { message('Die Übersicht wurde lokal gefiltert. Die Bestätigung für das Modul-Debug fehlt; Entwurf und Betrieb bleiben erhalten.'); }
     });

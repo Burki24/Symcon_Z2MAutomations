@@ -1,5 +1,14 @@
 # Unveröffentlicht
 
+## Designer über HTTP im LAN bedienen
+
+- Systemwechsel und weitere Designeraktionen brechen über HTTP-Adressen im LAN
+  nicht mehr an der fehlenden Browserfunktion randomUUID ab. Alle Kennungen
+  entstehen gemeinsam aus sicheren Zufallswerten mit getRandomValues.
+- Auch Erstellen, Bearbeiten und die lokale Vorschau verwenden denselben Weg.
+  Fehlen sichere Zufallswerte, erscheint eine deutsche Meldung; der Auftrag wird
+  nicht versendet. Keine Änderung an Entwürfen, Zugriffsrechten oder Z2M nötig.
+
 ## Gerätedaten nach Erweiterungsinstallation automatisch aktualisieren
 
 - Nach bestätigter Installation die Geräte, Kanäle, Gruppen und Szenen desselben

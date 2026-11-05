@@ -1,7 +1,8 @@
+import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
 /* A POST is sent only after an explicit click. Polling reads cached module results. */
-export async function transferRequest(data, action, {token, request = fetch, base = location.href, requestId = crypto.randomUUID()} = {}) {
+export async function transferRequest(data, action, {token, request = fetch, base = location.href, requestId = createUUID()} = {}) {
     const context = data?.workspaceContext;
     if (!context || (action !== 'status' && !['validate', 'store'].includes(action))) throw new Error('Ungültiger Systemauftrag. Bitte die Ansicht aktualisieren.');
     const endpoint = new URL(action === 'status' ? 'transfer-status' : 'transfer', base); endpoint.hash = '';

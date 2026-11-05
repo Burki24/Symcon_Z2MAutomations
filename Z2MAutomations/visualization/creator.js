@@ -1,4 +1,5 @@
 /* Shared typed metadata and scheduling helpers for the rule editor. */
+export {createUUID as requestIdentity} from './identity.js';
 export function creationProperties(device, side) {
     return (device?.properties ?? []).filter(property => side === 'source' ? property.readable && property.type !== 'color' : property.writable);
 }
@@ -47,11 +48,4 @@ export function creationSchedule(type, values) {
     const offset_minutes = number(values.offset, 720, 'Bitte einen Zeitversatz zwischen -720 und 720 Minuten angeben.');
     if (!Number.isInteger(offset_minutes)) throw new Error('Bitte den Zeitversatz in ganzen Minuten angeben.');
     return {type, event: values.event, latitude, longitude, offset_minutes, timezone};
-}
-
-export function requestIdentity() {
-    const bytes = crypto.getRandomValues(new Uint8Array(16));
-    bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
-    const hex = [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('');
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }

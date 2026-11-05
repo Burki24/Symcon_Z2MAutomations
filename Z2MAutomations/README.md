@@ -559,6 +559,10 @@ Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zuga
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen
 können. Ein Modulupdate genügt, die Z2M-Erweiterung bleibt unverändert.
 
+Der Designer kann auch über die HTTP-Adresse des Symcon-Servers im lokalen Netz
+verwendet werden. Nach einem Modulupdate den Designer schließen und erneut im
+Modul öffnen, damit alle aktualisierten Browserdateien geladen werden.
+
 Die [Offline-Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
 bleibt zusätzlich mit erfundenen Beispielen zum Ausprobieren verfügbar. Ihre
 simulierten Speicher- und Betriebsbuttons sind vom echten Moduldesigner

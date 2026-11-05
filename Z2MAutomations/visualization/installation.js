@@ -1,3 +1,4 @@
+import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
@@ -60,7 +61,7 @@ export function installExtensionControl({container, getData, getResult, isBusy, 
     action.addEventListener('click', () => {
         const result = getResult(); const v = result?.installation; const data = getData();
         if (isBusy() || !data?.installationAllowed || !v?.canInstall || !checkedInstallation(v, data.workspaceContext)) return;
-        captured = {data: {...data, workspaceContext: {...data.workspaceContext, fingerprint: v.fingerprint}}, context: v.context, requestId: crypto.randomUUID()};
+        captured = {data: {...data, workspaceContext: {...data.workspaceContext, fingerprint: v.fingerprint}}, context: v.context, requestId: createUUID()};
         const row = result.diagnostics;
         $('.installation-target').textContent = `${row.name} · Basistopic ${row.baseTopic} · Z2M-Verbindung #${row.connection} · MQTT-Gateway #${row.mqttParent}`;
         const builds = $('.installation-builds'); builds.replaceChildren();

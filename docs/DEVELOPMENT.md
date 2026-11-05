@@ -1,3 +1,35 @@
+## Designer-UUIDs über HTTP lokal geprüft am 05.11.2026
+
+Der Systemwechsel scheiterte vor dem POST, wenn randomUUID auf einer HTTP-LAN-
+Adresse fehlt. Ein neuer Regressionstest ohne diese Methode reproduzierte genau
+„crypto.randomUUID is not a function“. Vor Umsetzung zentrale Helper und vorhandene
+Browserkennungen geprüft: requestIdentity im Creator nutzte bereits getRandomValues.
+Die Implementierung liegt nun gemeinsam in identity.js; der bisherige Export bleibt
+als Alias erhalten. Alle bisherigen randomUUID-Aufrufer einschließlich Vorschau
+verwenden denselben Weg. Keine Math.random-, Zeitstempel- oder schwachen Ersatzwerte.
+
+Die neuen Prüfungen decken UUID-Version/Variante und bekannte Bitmuster, frische
+Zufallswerte, fehlende/abgelehnte Browserzufallswerte mit bereinigter deutscher
+Meldung, beide Wechselrichtungen und drei öffentliche Auftragswege ohne explizite
+Kennung ab. Die PHP-Designerprüfung lädt auch das neue freigegebene Asset.
+
+Ein separater unsichtbarer Edge-Prozess verwendet eine ausschließlich lokale,
+synthetische HTTP-Testdomain. Dort sind isSecureContext=false und randomUUID
+tatsächlich nicht verfügbar; es wird keine Browser-API künstlich freigeschaltet.
+Sichtbarer Quellenwechsel in beide Richtungen, gültige unterschiedliche Kennungen
+für Katalog/Prüfung/Betriebsstatus und Sperre bei offenem Dialog bestehen. Die lokale
+Vorschau legt über dieselbe HTTP-Adresse eine Beispielregel an. Keine JavaScriptfehler;
+die Systemauswahl passt bei 900 Pixeln in die sichtbare Breite. Keine Live-Zugriffe,
+Gerätebefehle oder Arbeit im persönlichen Browserprofil für die Korrektur.
+
+Gesamtsuite php tests/run.php einschließlich 178 JavaScript-Tests erfolgreich;
+die fokussierten Identitäts-, Bearbeitungs- und HTTP-Grenzprüfungen bestehen.
+Struktur- und zentrale Kodierungsprüfung sowie npm run check:extension bestanden.
+Offizieller StylePHP-Check der 18 eigenen JSON-Dateien in isolierter Kopie ohne
+Fremdquellen erfolgreich; PHP CS Fixer im Prüfmodus ohne Befund für 146 Dateien.
+Eigene Änderungen UTF-8 ohne BOM/LF; git diff --check sauber. Reale Abnahme nach
+Modulupdate und erneutem Öffnen des Designers separat; Live-System unverändert.
+
 ## Automatischer Geräteabruf nach Installation lokal geprüft am 05.11.2026
 
 WorkspaceInstallationDevices ergänzt den bestehenden zentralen Installer um

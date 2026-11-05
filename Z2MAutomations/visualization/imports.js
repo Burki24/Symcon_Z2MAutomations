@@ -1,3 +1,4 @@
+import {createUUID} from './identity.js';
 /* Explicit, local-only event migration. Never execute a Symcon event or send a Z2M command. */
 import {systemHeaders} from './workspace.js';
 
@@ -83,7 +84,7 @@ export function installEventImport({getData, isLoading, reload, onImported, mess
         if (action === 'import' && !view.selected.canImport) return;
         const context = view.context; const previewToken = view.selected.token;
         if (!pending || pending.action !== action || pending.eventId !== eventId || pending.previewToken !== previewToken || pending.context !== context) {
-            pending = {requestId: crypto.randomUUID(), context, action, ...(action === 'scan' ? {} : {eventId}), ...(action === 'import' ? {previewToken} : {})};
+            pending = {requestId: createUUID(), context, action, ...(action === 'scan' ? {} : {eventId}), ...(action === 'import' ? {previewToken} : {})};
         }
         busy = true; paint(); hint(action === 'scan' ? 'Ereignisse dieses Systems werden geprüft …' : action === 'preview' ? 'Auslöser und Aktion werden geprüft. Das Original bleibt unverändert …' : 'Ereignis wird erneut geprüft und ausgeschaltet zum lokalen Entwurf hinzugefügt …');
         try {

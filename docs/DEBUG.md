@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Browserkennungen bei HTTP-Zugriff
+
+Systemwechsel und Designeraktionen erzeugen ihre UUIDs gemeinsam über identity.js
+mit getRandomValues. Auch auf HTTP-LAN-Adressen erreichen sie dadurch die
+bestehenden systemgebundenen Moduleinstiege und deren deutsche native Debugmeldungen.
+Fehlen sichere Zufallswerte, zeigt der Browser „Die Aktion konnte nicht vorbereitet
+werden“ mit einem Hinweis zum erneuten Öffnen in einem aktuellen Browser. In diesem
+Fall wird nichts gesendet; daher gibt es auch keinen nativen Auftragsbeginn.
+Kein eigener Logkanal, keine neuen MQTT-Aufträge und keine Ausgabe roher Browserfehler.
+
 ## Erweiterungsinstallation je System
 
 RequestWorkspaceInstallation, RefreshWorkspaceInstallations und die zugehörigen

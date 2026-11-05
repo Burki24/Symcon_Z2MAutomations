@@ -1,3 +1,4 @@
+import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 import {checkedInstallation, installExtensionControl} from './installation.js';
 
@@ -128,7 +129,7 @@ export function installDiagnostics({getData, isLoading = () => false, chooseSyst
         error = ''; busy = true; clearTimeout(timer); paint();
         try {
             const model = v ? {...data, workspaceContext: {...data.workspaceContext, fingerprint: v.fingerprint}} : data;
-            const reply = await diagnosticsRequest(model, action ? {requestId: crypto.randomUUID(), action, seconds: action === 'debug_start' ? Number($('.diagnostics-duration').value) : 0, context: v.context} : null, {token: location.hash.slice(1)});
+            const reply = await diagnosticsRequest(model, action ? {requestId: createUUID(), action, seconds: action === 'debug_start' ? Number($('.diagnostics-duration').value) : 0, context: v.context} : null, {token: location.hash.slice(1)});
             if (!dialog.open || !current(data)) return;
             result = reply;
             if (action) message(action.startsWith('debug_') ? reply.diagnostics.debug.message : reply.diagnostics.message);

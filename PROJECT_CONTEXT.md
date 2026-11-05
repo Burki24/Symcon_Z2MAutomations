@@ -8,6 +8,12 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- HTTP-LAN-Korrektur im Designer: identity.js erzeugt UUID-v4-Kennungen über
+  getRandomValues; die Abhängigkeit von randomUUID entfällt in allen Aktionen
+  einschließlich der lokalen Vorschau. Der bisherige requestIdentity-Export
+  delegiert an denselben Weg. Neue Assetfreigabe und Regressionstests ohne
+  randomUUID; keine Änderung an Live-System, Helpern oder Z2M-Erweiterung.
+
 - Nach bestätigter zentraler Erweiterungsinstallation werden Gerätedaten desselben
   Systems automatisch über den vorhandenen Geräteabruf nachgeladen. Der Status
   bleibt bis zum Abschluss sichtbar; ein Gerätefehler lässt den Installationserfolg

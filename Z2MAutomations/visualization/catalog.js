@@ -1,7 +1,8 @@
+import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
 /* An explicit POST starts the read workflow. Polling never starts or repeats MQTT. */
-export async function catalogRequest(data, action, {token, request = fetch, base = location.href, requestId = crypto.randomUUID()} = {}) {
+export async function catalogRequest(data, action, {token, request = fetch, base = location.href, requestId = createUUID()} = {}) {
     const ctx = data?.workspaceContext;
     if (!ctx || !['refresh', 'status'].includes(action)) throw new Error('Bitte zuerst ein Z2M-System auswählen.');
     const endpoint = new URL(action === 'refresh' ? 'catalog-refresh' : 'catalog-status', base); endpoint.hash = '';

@@ -1,11 +1,12 @@
 /* Own, offline interaction prototype. No Symcon, MQTT or device access. */
-(() => {
+(async () => {
     'use strict';
+    const {createUUID} = await import('./identity.js');
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character]));
     const icon = name => `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
     const clone = value => structuredClone(value);
-    const uid = () => crypto.randomUUID();
+    const uid = () => createUUID();
     const property = (id, label, type, values, writable = false) => ({id, label, type, values, writable});
     const catalog = [
         {id: 'demo.motion', name: 'Demo-Bewegungsmelder', room: 'Eingangsbereich', properties: [property('occupancy', 'Bewegung', 'boolean', [true, false])]},

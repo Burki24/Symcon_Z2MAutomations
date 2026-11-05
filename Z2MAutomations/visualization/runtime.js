@@ -1,8 +1,9 @@
+import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
 /* Polling is read-only. Every MQTT request, including a fresh status, needs a click. */
 export async function runtimeRequest(data, action, {token, rule = '', run = '', resume = true,
-    request = fetch, base = location.href, requestId = crypto.randomUUID()} = {}) {
+    request = fetch, base = location.href, requestId = createUUID()} = {}) {
     const ctx = data?.workspaceContext;
     if (!ctx || !data.runtime || !['poll', 'status', 'activate', 'deactivate', 'run_once', 'stop_rule'].includes(action)) throw new Error('Bitte zuerst ein Z2M-System auswählen.');
     const endpoint = new URL(action === 'poll' ? 'runtime-status' : 'runtime', base); endpoint.hash = '';

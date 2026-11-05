@@ -1,3 +1,4 @@
+import {createUUID} from './identity.js';
 /* Explicit system identity accompanies every local draft write. */
 export function systemHeaders(data) {
     const context = data?.workspaceContext;
@@ -44,7 +45,7 @@ export function installSystemSelection({getData, select, message, isLoading = ()
         try {
             const endpoint = new URL('select-system', location.href); endpoint.hash = '';
             const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1)},
-                body: JSON.stringify({systemId, fingerprint: data.workspace.fingerprint, requestId: crypto.randomUUID()}),
+                body: JSON.stringify({systemId, fingerprint: data.workspace.fingerprint, requestId: createUUID()}),
                 credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
             const result = await response.json();
             if (!response.ok || !result.ok) throw new Error(result.message || 'System konnte nicht gewechselt werden. Bitte die Ansicht aktualisieren.');
