@@ -157,6 +157,17 @@ class Z2MConnection extends IPSModuleStrict
         });
     }
 
+    public function GetConnectionDiagnostics(): string
+    {
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->WithTransportLock(function (): string
+        {
+            $state = $this->RefreshState();
+            return json_encode(['version' => SystemContract::VERSION, 'systemId' => $this->ReadPropertyString('SystemID'),
+                'generation'              => $this->ReadPropertyInteger('Generation'), 'mqttParent' => $this->GetParentID(), 'baseTopic' => $this->ReadPropertyString('BaseTopic'),
+                'build'                   => $this->ExtensionBuildInfo($state), 'debug' => $this->RuntimeDebugView($state)], JSON_THROW_ON_ERROR);
+        }));
+    }
+
     public function GetDeviceCatalog(): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): string

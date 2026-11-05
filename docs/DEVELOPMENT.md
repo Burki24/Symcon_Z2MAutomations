@@ -1,3 +1,60 @@
+## Systeme und Diagnose lokal geprüft am 05.11.2026
+
+Agenda Punkt 5 ergänzt WorkspaceDiagnostics sowie die feste diagnostics-
+Browserberechtigung und die GET-/POST-Routen. Der erste fokussierte Kerneltest
+scheiterte ausdrücklich an den noch fehlenden öffentlichen Diagnoseeinstiegen.
+GetConnectionDiagnostics verwendet den vorhandenen ExtensionBuildInfo-Vergleich
+und eine bereinigte Ansicht der RuntimeDebug-Lease. Health, Status, Start und
+Stopp verwenden die bisherigen Verbindungseinstiege. Es gibt keine zweite
+MQTT-Verbindung, Laufzeitsteuerung oder Speicherung von Ablaufmeldungen.
+
+Vor Umsetzung DebugFlowHelper, HttpResponseHelper, VisualizationAssetHelper
+und die vorhandenen WorkspaceCatalog-/Runtime-Verträge geprüft. Zentrale
+Helper und Erweiterungsquellen bleiben unverändert. Native Konsole und Browser
+bedienen dieselbe begrenzte Aufzeichnung je Z2MConnection. Die Meldungen bleiben
+im nativen Debugkanal; der Designer zeigt Status, absolute Endzeit und Instanz.
+
+php tests/workspace-diagnostics.php prüft acht Systeme an zwei Brokern mit
+dem echten PHP-Verbindungs- und MQTT-Datenfluss gegen synthetische Peers.
+Öffnen/Nachladen bleibt ohne MQTT; nur ausdrücklich angeforderte Health-,
+Status- und Debugbefehle werden versendet. Bestätigung, fehlende Antwort,
+ausdrückliche Ablehnung, verspäteter Start nach Stopp, Ablauf und Generation-
+bzw. Verbindungswechsel sind abgedeckt. Quittungen verhindern Doppelversand
+und Verlängerung; ein Zentralenupdate erhält die ursprüngliche Endzeit. Stopp
+während einer Statusprüfung lässt deren Antwort und die zweite Aufzeichnung
+unverändert. Passender, abweichender, alter und unbestätigter Build werden
+unterschieden. Alle Dokumente und offenen nativen Eingaben bleiben bytegleich.
+
+Die HTTP-Prüfung deckt eigene Berechtigung, feste Aktionstypen, Größenbudget,
+veränderte Generationen, beliebige Parameter/Topics und wiederholte Aufträge
+ab. Der Browservertrag prüft zusätzlich fremde oder übergroße Antworten,
+absolute Endzeit und unverändertes Anfragemodell. Installationshinweise führen
+aus der zentralen Ansicht ausdrücklich nicht zum gesperrten Uploadbutton einer
+übernommenen Verbindung; der zentrale Installationsablauf ist kein Teil dieses
+Diagnoseschritts und bleibt gesondert offen.
+
+Ein separater unsichtbarer Edge-Prozess lädt die echten Designerassets gegen
+einen lokalen synthetischen Server. Acht Systeme, sichere wörtliche HTML-Namen,
+Systemwechsel über den bestehenden Auswahlweg, Updatehinweis, sichtbare
+Prüfphasen sowie Aufzeichnung mit unveränderter Endzeit und gezieltem Stopp
+während Statusprüfung bestehen. Schließen lässt die begrenzte Aufzeichnung
+laufen; erneutes Öffnen und lesender Abruf zeigen sie bis zum Ablauf. Echtes
+Mausrad scrollt Systemtabelle und Dialog jeweils in beide Richtungen. Ansichten
+mit 900 und 600 Pixeln Breite haben keine abgeschnittenen Bedienelemente.
+Keine JavaScriptfehler; POSTs ausschließlich für Diagnose und Systemwahl.
+
+Prüfnachweis: php tests/run.php erfolgreich einschließlich 170 JavaScript-Tests
+und synthetischer Modul-/Erweiterungsintegration. Nach dem abschließenden
+Fehlertext-/Ansichtsabgleich betroffene PHP- und Browsertests erneut bestanden.
+Struktur und zentrale Kodierungsprüfung grün. Offizieller StylePHP-Check für
+18 eigene JSON-Dateien in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus
+für 139 Dateien ohne Befund. Eigene Änderungen UTF-8 ohne BOM mit LF;
+Fremdquellen und Z2M-Erweiterungsartefakt unverändert.
+
+Keine Test- oder Live-Installation angesprochen, keine Geräte geschaltet und
+keine Automationen gespeichert oder aktiviert. Reale Abnahme nach dem
+Library-Modulupdate bleibt offen. Kein Z2M-Erweiterungsupdate erforderlich.
+
 ## Zentraler Ereignisimport lokal geprüft am 05.11.2026
 
 Agenda Punkt 4 integriert den vorhandenen SymconEventImport-Konverter in

@@ -22,6 +22,57 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
 [Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
 
+## Systeme und Diagnose im Browserdesigner
+
+**Systeme und Diagnose** zeigt alle der Zentrale zugeordneten Z2M-Systeme in
+einer Übersicht. Sichtbar sind Name, Basistopic, Z2M-Verbindung und MQTT-Gateway,
+Verbindungslage, Erweiterungsstand und Aufzeichnung. Durch Anklicken eines
+Systemnamens wechseln Sie über die vorhandene Systemauswahl zu dessen Diagnose.
+Offene native Eingaben werden dabei weiterhin geschützt.
+
+1. Den Designer im Zentralenformular öffnen und **Systeme und Diagnose** wählen.
+   Die Anzeige verwendet zunächst die zuletzt bekannten Daten aus Symcon.
+2. **Zigbee2MQTT-Verbindung prüfen** sendet eine neue Verbindungsprüfung an
+   genau dieses System. Erst die passende Antwort bestätigt den Erfolg.
+   Eine ausbleibende Antwort wird als Fehler angezeigt.
+3. **Erweiterungsstatus abfragen** bestätigt den Empfänger und aktualisiert
+   installierten Stand, mitgelieferten Stand und Updatehinweis. „Noch nicht
+   bestätigt“ bedeutet, dass der Stand zunächst geprüft werden muss. Es bedeutet
+   nicht automatisch, dass die Erweiterung fehlt. Ein fehlender Build einer
+   älteren Erweiterung wird gesondert erklärt.
+4. Für eine Ablaufprüfung das **native Debugfenster der angegebenen
+   Z2M-Verbindung** öffnen und dort die Anzeige starten. Im Designer eine Dauer
+   von 1, 5, 10 oder 15 Minuten wählen und **Aufzeichnung starten** drücken.
+   Die bestätigte Aufzeichnung und ihre absolute Endzeit werden angezeigt.
+5. Bei Aktionen zwischen zwei Z2M-Systemen auf beiden Seiten aufzeichnen.
+   Systembezug, gemeinsamer Regellauf und Aktionsschritt ermöglichen den Vergleich
+   der Meldungen in den beiden Debugfenstern. Die Aufzeichnungen sind voneinander
+   unabhängig; beide sind jeweils der zugehörigen Verbindung zugeordnet.
+6. **Eigene Aufzeichnung stoppen** beendet nur diese Aufzeichnung. Auch während
+   einer noch laufenden Statusprüfung ist ein Stopp möglich. Er stoppt keine
+   Automation und beendet keine Aufzeichnung einer anderen Verbindung.
+
+Die Aufzeichnung endet automatisch. Diagnoseabfragen verlängern sie nicht.
+Das Schließen des Dialogs beendet sie ebenfalls nicht; beim erneuten Öffnen
+wird die verbleibende Aufzeichnung angezeigt. Native Konsole und Browser
+bedienen dieselbe Aufzeichnung der jeweiligen Z2M-Verbindung.
+
+**Diagnosestand neu laden** liest nur den vorhandenen Stand aus Symcon.
+Solange der Dialog offen ist, wird dieser bei einer laufenden Prüfung oder
+Aufzeichnung regelmäßig nachgeladen. Es wird dabei kein Prüf- oder Startauftrag
+wiederholt. Nach einer unklaren Rückmeldung zuerst diesen Diagnosestand laden.
+Ein zwischenzeitlich geändertes System oder eine neue Aufzeichnung erfordert
+eine aktuelle Anzeige, bevor ein weiterer Auftrag angenommen wird.
+
+Entwürfe, offene Eingaben, Empfangsfreigaben und laufende Automationen bleiben
+bei diesen Diagnoseaktionen erhalten. Der Browser speichert keine eigene
+Kopie der Ablaufmeldungen. Bei einem Updatehinweis ist eine gesonderte
+Aktualisierung der Erweiterung erforderlich. Für zentral verwaltete Verbindungen
+ist die Installation in dieser Ansicht noch nicht verfügbar. Der Hinweis führt
+deshalb nicht zu einem gesperrten Uploadbutton der Verbindung.
+Für die neue Diagnoseansicht genügt ein Library-Modulupdate; ein
+Z2M-Erweiterungsupdate ist nicht erforderlich.
+
 ## Automationszentrale anlegen
 
 1. Z2MAutomations in der Symcon-Modulverwaltung aktualisieren. Ein Update der

@@ -34,11 +34,10 @@ export function installSystemSelection({getData, select, message, isLoading = ()
     const note = document.createElement('span'); note.textContent = 'Eigener Entwurf je System · Bearbeiten verändert Z2M nicht';
     row.append(label, picker, note); document.querySelector('.preview-notice').after(row);
     let busy = false;
-    picker.addEventListener('change', async () => {
+    async function choose(systemId) {
         const data = getData(); const previous = data?.workspaceContext?.systemId ?? '';
-        const systemId = picker.value;
         if (busy || isLoading() || document.querySelector('dialog[open]')) {
-            picker.value = previous; message('Bitte die offene Bearbeitung zuerst übernehmen oder schließen. Ihre Eingaben bleiben erhalten.'); return;
+            picker.value = previous; message('Bitte die offene Bearbeitung zuerst übernehmen oder schließen. Ihre Eingaben bleiben erhalten.'); return false;
         }
         busy = true; picker.disabled = true;
         const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
@@ -50,12 +49,16 @@ export function installSystemSelection({getData, select, message, isLoading = ()
             const result = await response.json();
             if (!response.ok || !result.ok) throw new Error(result.message || 'System konnte nicht gewechselt werden. Bitte die Ansicht aktualisieren.');
             await select(systemId);
-        } catch (error) { picker.value = previous; message(error.name === 'AbortError' ? 'Systemwechsel nicht bestätigt. Bitte die Ansicht aktualisieren.' : error.message); }
+            return true;
+        } catch (error) { picker.value = previous; message(error.name === 'AbortError' ? 'Systemwechsel nicht bestätigt. Bitte die Ansicht aktualisieren.' : error.message); return false; }
         finally { clearTimeout(timeout); busy = false; picker.disabled = false; }
-    });
-    return data => {
+    }
+    picker.addEventListener('change', () => choose(picker.value));
+    const update = data => {
         row.hidden = !data?.workspace;
         picker.replaceChildren(...(data?.workspace?.systems ?? []).map(system => new Option(`${system.name} · ${system.binding.baseTopic}`, system.binding.systemId)));
         picker.value = data?.workspaceContext?.systemId ?? '';
     };
+    update.choose = choose;
+    return update;
 }

@@ -10,6 +10,10 @@ Z2MAutomations vereinfacht die Einrichtung von Zigbee2MQTT-Automationen in Symco
 Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
+Im Browserdesigner fasst [Systeme und Diagnose](Z2MAutomations/README.md#systeme-und-diagnose-im-browserdesigner)
+die Verbindungs- und Erweiterungsstände zusammen. Dort lassen sich Prüfungen
+ausdrücklich starten und Z2M-Abläufe je System zeitlich begrenzt aufzeichnen.
+
 Bei erneuter Auslösung einer laufenden Automation lässt sich wählen, ob die
 Auslösung ignoriert, die Folge von vorn begonnen oder nur die aktuelle Wartezeit
 zurückgesetzt wird. Siehe [Bedienung](Z2MAutomations/README.md#wenn-eine-laufende-automation-erneut-ausgelöst-wird).

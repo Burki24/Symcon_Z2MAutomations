@@ -1,5 +1,21 @@
 # Debug und MQTT-Diagnose
 
+## Zentrale Browserdiagnose
+
+GetWorkspaceDiagnostics, RequestWorkspaceDiagnostics und GetConnectionDiagnostics
+verwenden TraceModuleCall und den kanonischen DebugFlowHelper. Auftragsmeldungen
+erklären auf Deutsch Systembezug, Verbindungsinstanz, Prüfart bzw. Aufzeichnungsdauer.
+Wiederholungsquittungen erklären ausdrücklich den unterbliebenen Neuversand und
+die nicht verlängerte Aufzeichnung. Ablehnungen nennen feste deutsche Ursachen.
+Eingaben, Entwürfe, Gerätebezeichnungen, Client-/Sitzungskennungen, Anfragekörper
+und Browserzugänge werden nicht protokolliert.
+
+Der eigentliche Debugempfang bleibt unverändert in RuntimeDebug der jeweils
+zugeordneten Z2MConnection. Der Designer nennt diese Instanz und die unveränderte
+absolute Endzeit. Systemübergreifende Abläufe werden weiterhin mit gemeinsamem
+Regellauf, Aktionsschritt und Ursprungssystem in den beiden nativen Debugfenstern
+verglichen. Es gibt keinen parallelen persistenten Browser-Diagnosespeicher.
+
 ## Systemgebundene Gerätedatenaktualisierung
 
 RequestWorkspaceDeviceCatalog, GetWorkspaceDeviceCatalogStatus und der Timer

@@ -1,5 +1,20 @@
 # Unveröffentlicht
 
+## Systeme und Diagnose im Browserdesigner
+
+- Alle zugeordneten Z2M-Systeme mit MQTT-Zuordnung, Verbindungsprüfung,
+  Erweiterungsstand und laufender Aufzeichnung gemeinsam anzeigen. Systemwechsel
+  verwendet den bestehenden abgesicherten Auswahlweg.
+- Installierten und mitgelieferten Build samt Updatehinweis aus der vorhandenen
+  Verbindungsdiagnose übernehmen. Unbestätigte Stände bleiben ausdrücklich offen.
+- Verbindung und Erweiterung auf Klick prüfen; Ablaufaufzeichnung je Verbindung
+  für 1, 5, 10 oder 15 Minuten starten und gezielt stoppen. Die absolute Endzeit
+  bleibt bei Statusabfragen erhalten. Meldungen erscheinen im nativen Debugfenster
+  der benannten Z2M-Verbindung.
+- Diagnoseöffnung und Nachladen lesen nur vorhandene Daten. Aufträge sind system-
+  und kontextgebunden; Wiederholungen senden nicht erneut. Entwürfe, offene
+  Eingaben und Automatikbetrieb bleiben erhalten. Kein Erweiterungsupdate nötig.
+
 ## Ereignisimport in Zentrale und Browserdesigner
 
 - Symcon-Ereignisse je Z2M-System automatisch anhand von MQTT-Verbindung,

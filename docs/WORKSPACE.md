@@ -7,6 +7,35 @@ inzwischen die ausdrückliche [Sicherung, Übernahme und den Rückweg](MIGRATION
 Prüfung, Speicherung und die ausdrückliche Betriebssteuerung je System sind
 inzwischen angebunden; siehe die entsprechenden Abschnitte unten.
 
+## Systemdiagnose
+
+Die zusätzliche Systemdiagnose beschreibt [ADR 0029](adr/0029-central-browser-diagnostics.md).
+GetWorkspaceDiagnostics liest höchstens acht aktuelle Bindungen samt bereinigten
+Verbindungs-/Build-/Aufzeichnungsansichten. Öffnen und Nachladen senden kein MQTT.
+Die eigene diagnostics-Sitzungsberechtigung schützt die festen Routen
+GET diagnostics-status und POST diagnostics. POST verlangt System-ID, Generation,
+Dokumentfingerabdruck und einen Kontext aus Bindung und aktueller Aufzeichnung.
+Der einzige Body besteht aus requestId, action, seconds und context; akzeptiert
+werden health, extension, debug_start und debug_stop. Kein Upload, Regelstart,
+beliebiges Topic oder allgemeiner RPC-Aufruf ist darüber möglich.
+
+RequestWorkspaceDiagnostics begrenzt flüchtige Prüfzuordnungen auf acht Systeme
+und Wiederholungsquittungen auf 32. Fehlgeschlagene Sendungen werden ebenfalls
+nicht automatisch wiederholt. Passende Health-/Status-Transaktionen unterscheiden
+ausstehende Antworten, bestätigten Erfolg und inzwischen ersetzte Aufträge.
+Quittungswiederholung verlängert keine Lease. Die originalen Verbindungs-Timer
+behandeln Zeitablauf und Empfängerwechsel; ein zusätzlicher zentraler Sendetimer
+ist nicht nötig. Ein Debugstopp überschreibt keine parallele Statusprüfung.
+
+Der Lease-Kontext enthält nur einen Fingerabdruck; Empfängersitzung, Client und
+MQTT-Transaktion werden nicht an den Browser ausgegeben. Der Kontext bleibt beim
+Übergang von Startbestätigung zur aktiven Aufzeichnung stabil, ändert sich aber
+bei anderer Bindung, Sitzung oder Aufzeichnung. Native Konsole und Browser
+bedienen dieselbe Lease der Verbindung. Ein Update der Zentrale verwirft ihre
+flüchtigen Diagnosequittungen, erhält aber die unabhängigen Verbindungs-Leases.
+Der Browser begrenzt Antworten auf 32 KiB und prüft System, Generation und Form.
+Ein verspätetes fremdes Ergebnis ersetzt keine aktuelle Ansicht.
+
 ## Gemeinsame Bearbeitung
 
 Das native Formular ermittelt vorhandene Verbindungsinstanzen ausschließlich

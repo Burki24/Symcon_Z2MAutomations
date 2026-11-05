@@ -8,6 +8,18 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 5 lokal umgesetzt: „Systeme und Diagnose“ im Browserdesigner mit
+  bis zu acht Systemen, bestehendem Systemwechsel, MQTT-/Z2M-Status, deutschem
+  Gesundheitszustand und kanonischem Buildvergleich. Feste Diagnose-POSTs rufen
+  ausschließlich bestehende Health-, Status- und RuntimeDebug-Einstiege der
+  jeweiligen Verbindung auf; GET bleibt ohne MQTT. Befristete Aufzeichnung mit
+  absoluter Endzeit und Stopp auch während einer Statusprüfung. Browser zeigt
+  den Status und die zuständige native Debuginstanz, keinen zweiten Logspeicher.
+  Neue diagnostics-Berechtigung, System-/Generations-/Kontextbindung und begrenzte
+  flüchtige Quittungen; Dokumente und Betrieb bleiben erhalten. Lokal mit
+  synthetischen Daten geprüft; reale Abnahme nach Modulupdate offen.
+  Erweiterungsartefakt und zentrale Helper unverändert.
+
 - Agenda Punkt 4 lokal umgesetzt: Symcon-Ereignisimport im nativen
   Zentralenformular und Browserdesigner. Vorhandener Konverter verwendet
   systemgebundene Speicher, Kataloge und native Variablenbindungen. Quellen
@@ -41,7 +53,8 @@ sie persistent und führt sie unabhängig von Symcon aus.
   manage-Berechtigung, Kontext-/Systembindung und Wiederholungsquittungen;
   keine MQTT-Ausgabe. Offline- und isolierte Browserprüfung siehe
   docs/DEVELOPMENT.md. Reale Testabnahme nach Modulupdate bleibt offen.
-- Weitere Designeragenda in dieser Reihenfolge: Systeme und Diagnose ergänzen.
+- Die fünf Punkte der Designeragenda sind lokal umgesetzt. Reale Abnahme der
+  neuen Systemdiagnose nach Modulupdate bleibt offen.
 
 - Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet
   instance_busy mit verständlichem Hinweis auf die nicht ausgeführte Aktion,

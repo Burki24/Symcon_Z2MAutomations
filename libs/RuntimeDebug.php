@@ -36,6 +36,22 @@ trait RuntimeDebug
         return $text === '' ? [] : json_decode($text, true, 16, JSON_THROW_ON_ERROR);
     }
 
+    /** Cached observation only. Never expose the receiver session, client or transaction. */
+    private function RuntimeDebugView(array $state): array
+    {
+        $this->SyncRuntimeDebug($state);
+        $lease = $this->RuntimeDebugLease();
+        $pending = ($lease['pending'] ?? '') !== '';
+        $phase = $lease === [] ? 'idle' : ($pending ? ($lease['seconds'] === 0 ? 'stopping' : 'starting') : 'active');
+        return ['phase' => $phase, 'pending' => $pending, 'active' => ($lease['active'] ?? false),
+            'until'     => ($lease['seconds'] ?? 0) > 0 ? $lease['until'] : null,
+            'remaining' => ($lease['seconds'] ?? 0) > 0 ? max(0, $lease['until'] - $this->Now()) : 0,
+            'context'   => hash('sha256', json_encode([$state['scope'], $state['extension']['session'] ?? '', $lease['client'] ?? '', $lease['until'] ?? 0, $lease['seconds'] ?? 0], JSON_THROW_ON_ERROR)),
+            'canStart'  => $lease === [] && $state['mqttConnected'] && $state['extensionConfirmed'] && ($state['extension']['debugVersion'] ?? 0) === 1,
+            'canStop'   => $lease !== [] && $state['mqttConnected'] && $phase !== 'stopping',
+            'message'   => $this->RuntimeDebugText()];
+    }
+
     private function ResetRuntimeDebug(string $message): void
     {
         $lease = $this->RuntimeDebugLease();

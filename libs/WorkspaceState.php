@@ -17,6 +17,8 @@ final class WorkspaceState
     public const MAX_DATA = 524288;
     public const JSON_FLAGS = JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
     public const MESSAGES = [
+        'diagnostics_changed'          => 'Die Verbindung oder die Aufzeichnung hat sich geändert. Bitte den Diagnosestand neu laden und danach erneut wählen.',
+        'diagnostics_unavailable'      => 'Die Diagnose ist derzeit nicht verfügbar. Bitte die Z2M-Verbindung und ihren Erweiterungsstatus prüfen; gegebenenfalls das Verbindungsmodul aktualisieren.',
         'catalog_refresh_failed'       => 'Keine vollständigen aktuellen Gerätedaten bestätigt. Bitte Verbindung und Z2M-Erweiterung prüfen und bei Bedarf erneut aktualisieren.',
         'catalog_refresh_timeout'      => 'Die Wartezeit auf neue Gerätedaten ist abgelaufen. Bitte Verbindung prüfen und bei Bedarf erneut aktualisieren.',
         'catalog_refresh_changed'      => 'Die Verbindung bearbeitet inzwischen einen anderen Auftrag. Bitte dessen Abschluss abwarten und erneut aktualisieren.',

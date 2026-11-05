@@ -1,5 +1,16 @@
 # Architektur
 
+## Systemdiagnose im Browserdesigner
+
+WorkspaceDiagnostics delegiert die ausdrücklich gestarteten Beobachtungen an
+die bestehenden Z2MConnection-Einstiege CheckHealth, RequestExtensionStatus,
+StartRuntimeDebug und StopRuntimeDebug. GetConnectionDiagnostics verwendet
+ExtensionBuildInfo und eine bereinigte Ansicht der vorhandenen RuntimeDebug-
+Lease. Es entsteht weder ein zweiter MQTT-Client noch eine neue Aufzeichnung
+oder Laufzeitsteuerung. Der Browser erhält Status und Instanzzuordnung; die
+Ablaufmeldungen verbleiben im kanonischen nativen Debugkanal der Verbindung.
+GET startet keine MQTT-Abfrage. Einzelheiten in ADR 0029 und WORKSPACE.md.
+
 ## Gemeinsamer Ereignisimport
 
 Der bestehende SymconEventImport-Konverter arbeitet auch in der Zentrale über

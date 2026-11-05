@@ -47,6 +47,14 @@ keine MQTT-Anfrage. Die Prüfung wird über die beschriebenen Buttons gestartet.
 
 ## Einstellungen
 
+Die zentrale Browseransicht **Systeme und Diagnose** kann die vorhandenen
+Verbindungs- und Erweiterungsprüfungen sowie die befristete Ablaufaufzeichnung
+dieser Verbindung bedienen. Sie verwendet dieselbe Aufzeichnung wie das native
+Formular. Ablaufmeldungen erscheinen weiterhin im Debugfenster dieser Instanz.
+Die Anzeige nennt dafür ausdrücklich Name und Instanz-ID der Z2M-Verbindung.
+Statusabfragen und ein Update der Zentrale verlängern die gewählte Endzeit nicht.
+Siehe [Bedienung](../Z2MAutomations/README.md#systeme-und-diagnose-im-browserdesigner).
+
 | Feld / Property | Typ | Standard | Bedeutung |
 | --- | --- | --- | --- |
 | MQTT-Anbindung aktivieren / `Active` | Boolean | false | Empfang und Anfragen dieser Verbindung einschalten. |
@@ -111,6 +119,7 @@ von der Erreichbarkeit von Symcon weiter.
 | `Z2MC_RequestDeviceCatalog(int InstanceID): string` | Auftragskennung oder leer. Prüft zuerst den Empfänger, lädt danach Geräte, Kanäle, Gruppen und Szenen. Überträgt keine Entwürfe. |
 | `Z2MC_InstallExtension(int InstanceID, bool Notify = false): string` | Auftragskennung oder leer. Lädt ausschließlich die mitgelieferte Datei hoch und prüft anschließend die Bereitschaft. `Notify` aktiviert die Popup-Rückmeldung. |
 | `Z2MC_GetConnectionInfo(int InstanceID): string` | JSON mit Vertragsversion, Systemkennung, Generation, Gateway, Topic und bereinigtem Status; keine neue MQTT-Anfrage. |
+| `Z2MC_GetConnectionDiagnostics(int InstanceID): string` | Lesende Build- und Aufzeichnungsansicht mit Systembindung und absoluter Endzeit. Client, Empfängersitzung und Transaktionen werden nicht ausgegeben. |
 | `Z2MC_GetTransportState(int InstanceID): string` | Bereinigter lokaler Transportstatus als JSON; keine neue MQTT-Anfrage. |
 | `Z2MC_GetDeviceCatalog(int InstanceID): string` | JSON mit Systemkennung, Generation, `available`, Ladezeit und normalisiertem Katalog; keine neue MQTT-Anfrage. Bei `available: false` leere Gerätelisten. |
 | `Z2MC_StartRuntimeDebug(int InstanceID, int Seconds = 600): bool` | Fragt eine eigene Aufzeichnung für 1 bis 900 Sekunden an. True bedeutet Anfrage gesendet, noch nicht von Z2M bestätigt. |

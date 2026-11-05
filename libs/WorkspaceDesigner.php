@@ -22,7 +22,7 @@ trait WorkspaceDesigner
         $token = bin2hex(random_bytes(32));
         $sessions = $this->DesignerSessions();
         $sessions[] = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'scope' => $this->DesignerAccessScope(),
-            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'receipts' => []];
+            'create'          => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'runtime' => true, 'catalog' => true, 'imports' => true, 'diagnostics' => true, 'receipts' => []];
         $this->SetBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
         $this->DebugEvent('AKTION', 'Gemeinsamen Browserdesigner für die zugeordneten Systeme geöffnet. Jeder Auftrag benötigt den passenden Systementwurf; keine Z2M-Aktion.', ['Systeme' => count($this->ReadWorkspace()['systems'])]);
         return 'link:/hook/' . $this->DesignerHookName() . '/index.html#' . $token;
@@ -47,6 +47,14 @@ trait WorkspaceDesigner
             $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
             if (!$this->DesignerTokenAllowed($token)) return [403, ['message' => 'Der Designerzugang ist abgelaufen. Bitte den Designer erneut im Modul öffnen.']];
             if ($asset === 'data') return [200, json_decode($this->WorkspaceDesignerData($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? ''), true, 32, JSON_THROW_ON_ERROR)];
+            if ($asset === 'diagnostics-status') {
+                if (!$this->DesignerWriteAccess($token, 'diagnostics')) return [403, ['message' => 'Bitte den Designer für die Diagnose erneut im Modul öffnen.']];
+                $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
+                $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system);
+                if ((string) $record['binding']['generation'] !== ($_SERVER['HTTP_X_Z2MA_GENERATION'] ?? '')) throw new RuntimeException('binding_changed');
+                $result = json_decode($this->GetWorkspaceDiagnostics($system), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'catalog-status') {
                 $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
                 $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system);
@@ -98,6 +106,14 @@ trait WorkspaceDesigner
                 $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
                 if (!$this->DesignerEditShape($body, ['requestId']) || !RuntimeDebugContract::UUID($body['requestId'])) throw new RuntimeException('invalid_request');
                 $result = json_decode($this->RequestWorkspaceDeviceCatalog($system, (int) $rawGeneration, $fingerprint, str_replace('-', '', $body['requestId'])), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
+            if ($asset === 'diagnostics') {
+                if (!$this->DesignerWriteAccess($token, 'diagnostics')) return [403, ['message' => 'Bitte den Designer für die Diagnose erneut im Modul öffnen.']];
+                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
+                if (!$this->DesignerEditShape($body, ['requestId', 'action', 'seconds', 'context']) || !RuntimeDebugContract::UUID($body['requestId'])
+                    || !is_string($body['action']) || !is_int($body['seconds']) || !ExtensionContract::Checksum($body['context'])) throw new RuntimeException('invalid_request');
+                $result = json_decode($this->RequestWorkspaceDiagnostics($system, (int) $rawGeneration, $fingerprint, $body['action'], $body['seconds'], str_replace('-', '', $body['requestId']), $body['context']), true, 32, JSON_THROW_ON_ERROR);
                 return [$result['ok'] ? 200 : 409, $result];
             }
             if ($asset === 'runtime') {

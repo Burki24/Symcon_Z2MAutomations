@@ -37,6 +37,7 @@ require_once __DIR__ . '/../libs/EditorScenes.php';
 require_once __DIR__ . '/../libs/Z2MInstanceDiscovery.php';
 require_once __DIR__ . '/../libs/SymconEventImport.php';
 require_once __DIR__ . '/../libs/WorkspaceEventImport.php';
+require_once __DIR__ . '/../libs/WorkspaceDiagnostics.php';
 require_once __DIR__ . '/../libs/Z2MProtocol.php';
 require_once __DIR__ . '/../libs/ExtensionContract.php';
 require_once __DIR__ . '/../libs/ValidationFeedback.php';
@@ -94,6 +95,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\Z2MInstanceDiscovery;
     use Z2MAutomations\SymconEventImport;
     use Z2MAutomations\WorkspaceEventImport;
+    use Z2MAutomations\WorkspaceDiagnostics;
     use Z2MAutomations\ExtensionIntegration;
     use Z2MAutomations\AutomationEditor;
     use Z2MAutomations\AutomationOverview;
@@ -187,6 +189,8 @@ class Z2MAutomations extends IPSModuleStrict
         {
             parent::ApplyChanges();
             $this->ResetWorkspaceCatalogRefresh();
+            if ($this->GetBuffer('WorkspaceDiagnosticsJobs') !== '') $this->DebugEvent('AKTION', 'Diagnosequittungen nach Modulupdate oder Einstellungsübernahme verworfen. Es wird nichts erneut gesendet; befristete Aufzeichnungen der Verbindungsinstanzen behalten ihre Endzeit.');
+            $this->SetBuffer('WorkspaceDiagnosticsJobs', '');
             $this->SetBuffer('DesignerSessions', '');
             $this->SetBuffer('GatewayTopicReview', '');
             $this->SetReceiveDataFilter($this->ReadPropertyBoolean('Active') ? Z2MProtocol::ReceiveFilter($this->ReadPropertyString('BaseTopic')) : Z2MProtocol::BLOCK_RECEIVE_FILTER);
