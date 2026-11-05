@@ -89,32 +89,10 @@ trait AutomationDesignerEditing
                 return $this->DesignerCreateFailure(409, 'Diese Automation ist nicht mehr im Entwurf vorhanden. Bitte die Ansicht aktualisieren.');
             }
             $original = $draft['configuration']['automations'][$index];
-            $rule = $original;
-            foreach ($request['changes'] as $key => $value) {
-                if ($key === 'name') {
-                    if (!is_string($value) || !$this->ValidEditorName(trim($value))) {
-                        return $this->DesignerCreateFailure(422, 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.');
-                    }
-                    $value = trim($value);
-                } elseif ($key === 'enabled') {
-                    if (!is_bool($value)) {
-                        return $this->DesignerCreateFailure(422, 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.');
-                    }
-                } elseif ($key === 'retrigger') {
-                    if (!in_array($value, ['ignore', 'restart', 'extend'], true)) {
-                        return $this->DesignerCreateFailure(422, 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.');
-                    }
-                } elseif ($value !== ($original[$key] ?? null)) {
-                    if ($this->DesignerEditSectionError($key, $original[$key]) !== '') {
-                        return $this->DesignerCreateFailure(422, 'Dieser Bereich bleibt geschützt erhalten. Bitte fehlende Gerätedaten oder nicht unterstützte Angaben zuerst im nativen Formular prüfen.');
-                    }
-                    $error = $this->DesignerEditSectionError($key, $value);
-                    if ($error !== '') {
-                        return $this->DesignerCreateFailure(422, $error);
-                    }
-                }
-                $rule[$key] = $value;
-            }
+            $error = '';
+            $fields = $this->DesignerRuleFields($request['changes'], $original, $error);
+            if ($fields === null) return $this->DesignerCreateFailure(422, $error);
+            $rule = array_replace($original, $fields);
             $changed = $rule !== $original;
             $state = $this->RefreshState();
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerWriteAccess($token, 'edit')) {
@@ -126,6 +104,7 @@ trait AutomationDesignerEditing
                     return $this->DesignerCreateFailure(422, 'Die Änderung konnte nicht übernommen werden. Bitte Länge der Aktionsfolge und Entwurfsgröße prüfen.');
                 }
             }
+            if ($changed && array_key_exists('actions', $fields)) $this->DesignerActionOrderDebug($original['actions'], $rule['actions']);
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'edit', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
             $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
@@ -138,6 +117,55 @@ trait AutomationDesignerEditing
             );
             return [200, ['ruleId' => $rule['id'], 'message' => 'Änderung im lokalen Symcon-Entwurf übernommen. Z2M bleibt unverändert.']];
         });
+    }
+
+    private function DesignerRuleFields(array $fields, ?array $original, string &$error): ?array
+    {
+        foreach ($fields as $key => &$value) {
+            $error = match ($key) {
+                'name'      => !is_string($value) || !$this->ValidEditorName(trim($value)) ? 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.' : '',
+                'enabled'   => !is_bool($value) ? 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.' : '',
+                'retrigger' => !in_array($value, ['ignore', 'restart', 'extend'], true) ? 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.' : '',
+                default     => ''
+            };
+            if ($error !== '') return null;
+            if ($key === 'name') $value = trim($value);
+            if (in_array($key, ['triggers', 'conditions', 'actions'], true) && ($original === null || $value !== $original[$key])) {
+                if ($original !== null && $this->DesignerEditSectionError($key, $original[$key]) !== '') {
+                    $error = 'Dieser Bereich bleibt geschützt erhalten. Bitte fehlende Gerätedaten oder nicht unterstützte Angaben zuerst im nativen Formular prüfen.';
+                    return null;
+                }
+                $error = $this->DesignerEditSectionError($key, $value);
+                if ($error !== '') return null;
+            }
+        }
+        unset($value);
+        return $fields;
+    }
+
+    private function DesignerActionOrderDebug(array $before, array $after): void
+    {
+        if ($before === $after) return;
+        $remaining = $before;
+        $positions = [];
+        foreach ($after as $step) {
+            $index = array_search($step, $remaining, true);
+            if ($index === false) {
+                $positions = [];
+                break;
+            }
+            $positions[] = $index + 1;
+            unset($remaining[$index]);
+        }
+        $onlyOrder = $positions !== [] && count($before) === count($after);
+        $this->DebugEvent(
+            'AKTION',
+            $onlyOrder
+            ? 'Reihenfolge der Aktionsschritte im lokalen Entwurf geändert. Wartezeiten bleiben bei ihrem jeweiligen Schritt; es wurde keine Aktion ausgeführt.'
+            : 'Aktionsschritte im lokalen Entwurf geändert. Reihenfolge und Wartezeiten werden gemeinsam übernommen; es wurde keine Aktion ausgeführt.',
+            ['SchritteVorher' => count($before), 'SchritteNachher' => count($after), 'NurReihenfolgeGeändert' => $onlyOrder]
+            + ($onlyOrder ? ['VorherigeSchrittnummernInNeuerReihenfolge' => $positions] : [])
+        );
     }
 
     private function DesignerEditShape(mixed $value, array $required, array $optional = []): bool

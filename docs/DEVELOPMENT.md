@@ -1,3 +1,47 @@
+## Gemeinsamer Browsereditor lokal geprüft am 05.11.2026
+
+Agenda Punkt 3 führt Erstellen und Bearbeiten in editor.js zusammen. Die
+vollständige create-Regel verwendet dieselben Abschnittsprüfungen wie edit.
+Der erste neue PHP-Test scheiterte am fehlenden vollständigen Erstellformat;
+nach dessen Implementierung bestanden Erstellung und anschließende Vorbelegung.
+DesignerRuleFields prüft Rechte, Listen, Zeiten, Bedingungen und Aktionen vor
+dem einzigen Commit. Serverkennung und enabled=false sind nicht vom Browser
+setzbar. Passende zentrale Helper vorab geprüft: vorhandene DebugFlowHelper-,
+HTTP- und Assetpfade bleiben unverändert; die eigene Editor- und Drag-Logik
+wird nur von dieser Library benötigt und bleibt deshalb librarylokal.
+
+Tests prüfen vollständige gemischte Auslöser, Bedingungen, Farbbefehle mit
+Nullwert, Szenen, Folgen und Verzögerungen, unveränderte Partnerfreigaben,
+Ablehnungen ohne Teilcommit, entzogene native Rechte, doppelte Uhrzeiten,
+Listenbegrenzung, veraltete Kontexte und Wiederholungen. Der zentrale
+Workspace-Test erstellt eine vollständige ausgeschaltete Regel in System B
+und vergleicht System A bytegenau unverändert. Alle Aufträge bleiben ohne MQTT.
+
+Reine Node-Tests prüfen komplette typisierte Requests und das Verschieben
+ganzer Schritte, doppelte Schritte, Ablageposition, ungültige Indizes sowie
+fremde, abgebrochene, gesperrte und veraltete Drag-Vorgänge. Ein separater
+unsichtbarer Edge-Prozess lädt die echten Designerassets gegen einen lokalen
+synthetischen Server: Gerätesuche, Kanal/Wert, mehrere Geräte-/Zeit-/Astro-
+Auslöser, Bedingungen und Aktionen im ersten Erstellvorgang, Fehlerrückmeldung
+mit erhaltenen Eingaben, erfolgreiche Übernahme und Vorbelegung. Echte
+Mausbewegungen verschieben Aktionen und Folgendefinitionen; Pfeilbuttons,
+Abbrechen ohne POST, exakte Wartezeiten und Systemheader sind bestätigt.
+Mausrad scrollt den langen Dialog in beide Richtungen; 900-Pixel-Ansicht
+auf sichtbare Breite geprüft. Keine Fehler im Browser. Der synthetische Server
+prüft die Oberfläche; die separaten PHP-Kerneltests prüfen die echte Übernahme.
+
+Prüfnachweis: php tests/run.php erfolgreich einschließlich 161 JavaScript-
+Tests und PHP-/JavaScript-Integration. Nach dem letzten Abgleich der deutschen
+Debugtexte Designer-Kerneltests erneut bestanden. Struktur, zentrale
+Kodierungsprüfung, offizieller StylePHP-Check aller 18 eigenen JSON-Dateien
+in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus für 134 Dateien grün.
+Erweiterungsartefakt aktuell; eigene geänderte Dateien ohne BOM und mit LF.
+git diff --check ohne Befund.
+
+Keine Test-/Live-Installation angesprochen, keine Automationen übertragen oder
+aktiviert und kein Gerät geschaltet. Praxisabnahme nach Modulupdate bleibt
+offen. Erweiterungsartefakt und Fremdquellen bleiben unverändert.
+
 ## Gerätedaten im Browserdesigner lokal geprüft am 05.11.2026
 
 Agenda Punkt 2 ergänzt WorkspaceCatalogRefresh und die festen catalog-refresh-

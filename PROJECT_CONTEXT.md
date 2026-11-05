@@ -8,6 +8,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+- Agenda Punkt 3 lokal umgesetzt: gemeinsamer vollständiger Browsereditor für
+  neue und vorhandene Regeln. Gesamte Regel wird in einem lokalen Commit
+  validiert; neue Regeln bleiben ausgeschaltet. Drag & Drop und Pfeilbuttons
+  verschieben ganze Aktionsschritte samt Wartezeit, auch in Aktionsfolgen.
+  Systembindung, Rechte, Quittungen und Partnerfreigaben bleiben erhalten.
+  Offline- und synthetische Browserprüfung siehe docs/DEVELOPMENT.md.
+  Keine Test-/Live-Installation geändert; reale Abnahme nach Modulupdate offen.
+  Erweiterungsupdate nicht erforderlich.
+
 - Agenda Punkt 2 lokal ergänzt: Gerätedaten je System direkt im Browserdesigner
   aktualisieren, mit Ladephasen, Abschlusszeit, Zählern und lesender Statusabfrage.
   Eigene catalog-Berechtigung, befristete flüchtige Jobs und exakte Korrelation.
@@ -22,8 +31,7 @@ sie persistent und führt sie unabhängig von Symcon aus.
   manage-Berechtigung, Kontext-/Systembindung und Wiederholungsquittungen;
   keine MQTT-Ausgabe. Offline- und isolierte Browserprüfung siehe
   docs/DEVELOPMENT.md. Reale Testabnahme nach Modulupdate bleibt offen.
-- Weitere Designeragenda in dieser Reihenfolge: vollständigen Erstell-/Bearbeitungsablauf und Aktionssortierung vereinheitlichen;
-  Symcon-Ereignisimport zentralisieren; Systeme und Diagnose ergänzen.
+- Weitere Designeragenda in dieser Reihenfolge: Symcon-Ereignisimport zentralisieren; Systeme und Diagnose ergänzen.
 
 - Parallele öffentliche Eintritte lokal korrigiert: belegte Instanzsperre meldet
   instance_busy mit verständlichem Hinweis auf die nicht ausgeführte Aktion,

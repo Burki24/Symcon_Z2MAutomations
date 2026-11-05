@@ -36,7 +36,7 @@ $module->requestBody = json_encode($request);
 $_SERVER['HTTP_ORIGIN'] = 'http://other.invalid';
 $check($module->Hook('create', 'POST', $createToken)[0] === 403 && $module->Fingerprint() === $createBefore, 'Foreign origins cannot create drafts');
 $_SERVER['HTTP_ORIGIN'] = 'http://127.0.0.1:3777';
-$module->requestBody = str_repeat('x', 16385);
+$module->requestBody = str_repeat('x', 65537);
 $check($module->Hook('create', 'POST', $createToken)[0] === 413, 'Oversized creation requests are bounded');
 $module->requestBody = json_encode($request);
 $check(isset($_SERVER['HTTP_CONTENT_TYPE']), 'Real Symcon header remains present during creation');

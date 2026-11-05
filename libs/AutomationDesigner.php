@@ -19,7 +19,7 @@ trait AutomationDesigner
     use AutomationDesignerSequences;
     use AutomationDesignerManagement;
     private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'startup.js' => 'application/javascript',
-        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript'];
+        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'action-order.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
     {

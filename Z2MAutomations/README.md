@@ -364,32 +364,43 @@ angezeigt oder überschrieben. Bitte den vorhandenen Entwurf zuerst im nativen
 Formular prüfen. Noch nicht übernommene Formulareingaben bleiben dort erhalten
 und werden in der Browseransicht lediglich als ausstehend gemeldet.
 
-Mit **„Neue Automation“** legen Sie Geräte-, Zeit- oder Sonnenregeln an:
+Mit **„Neue Automation“** und **„Automation bearbeiten“** verwenden Sie denselben
+Editor. Eine neue Regel kann vor dem ersten Übernehmen vollständig eingerichtet werden:
 
-1. Einen verständlichen Namen eintragen und die **Auslöserart** wählen.
-2. Bei **Geräteereignis** das auslösende Gerät suchen und auswählen. Danach
-   Eigenschaft/Kanal, Vergleich und auslösenden Wert wählen. Lesbare Sensoren
-   sind erlaubt.
-3. Bei **Uhrzeit** eine bis acht unterschiedliche Uhrzeiten eintragen. Jede
-   Uhrzeit kann dieselbe Regel starten. „Uhrzeit hinzufügen“ ergänzt eine Zeile;
-   „Entfernen“ löscht sie. Die Zeitzone gilt für alle eingetragenen Uhrzeiten.
-4. Bei **Sonnenaufgang / Sonnenuntergang** das Sonnenereignis, Breitengrad und
-   Längengrad des Standorts in Dezimalgrad sowie die Zeitzone angeben. Der
-   **Zeitversatz** gilt in ganzen Minuten: 0 zur Sonnenzeit, -30 eine halbe Stunde
-   vorher, 30 eine halbe Stunde danach. Möglich sind bis zu zwölf Stunden davor
-   oder danach. Eine Ortung oder Standortabfrage findet nicht statt.
-5. Das Zielgerät suchen und auswählen. Danach den zu schaltenden Kanal und
-   gewünschten Wert wählen. Angeboten werden nur schaltbare Eigenschaften.
-   Ein vorhandenes zweites Z2M-System erscheint bei seinen Zielgeräten.
-6. „Ausgeschaltet zum Entwurf hinzufügen“ wählen. Die neue Regel erscheint
-   im passenden Bereich und bleibt ausgeschaltet; vorhandene Regeln bleiben erhalten.
+1. Einen verständlichen Namen eintragen. Unter **1. Wenn – Auslöser (ODER)**
+   die **Art des Eintrags** wählen: Geräteereignis, Uhrzeit oder Sonnenzeit.
+   Beim Gerät zuerst suchen und auswählen, danach Eigenschaft/Kanal, Vergleich
+   und auslösenden Wert festlegen. Lesbare Sensoren sind erlaubt.
+2. Mit **Art des neuen Eintrags** und **Eintrag hinzufügen** weitere Auslöser
+   ergänzen. Bis zu acht Auslöser können dieselbe Regel jeweils allein starten.
+   Für mehrere Uhrzeiten je einen Uhrzeit-Eintrag anlegen und die Zeitzone angeben.
+3. Bei **Sonnenzeit** Sonnenaufgang oder Sonnenuntergang, Breitengrad und
+   Längengrad in Dezimalgrad sowie die Zeitzone angeben. Der **Zeitversatz**
+   gilt in ganzen Minuten: -30 bedeutet eine halbe Stunde vorher, 30 eine halbe
+   Stunde danach. Möglich sind bis zu zwölf Stunden davor oder danach.
+4. Unter **2. Nur wenn – Bedingungen (UND)** bei Bedarf Gerätewerte,
+   Wochentage oder Zeitfenster ergänzen. Alle eingetragenen Bedingungen müssen
+   erfüllt sein. Ohne Bedingungen gelten Zeit- und Sonnenregeln täglich.
+5. Unter **3. Dann – Aktionen in dieser Reihenfolge** bis zu 16 Schritte
+   zusammenstellen: Werte setzen, Umschalten, vorhandene Szene oder Aktionsfolge
+   aufrufen. Zielgerät suchen und auswählen, dann Kanal und Wert festlegen.
+   Nur schaltbare Ziele werden angeboten; eingerichtete Partnersysteme sind enthalten.
+   Mehrere Werte eines Schritts werden als gemeinsamer Gerätebefehl gesendet.
+6. Schritte am Griff **Verschieben** mit der Maus ziehen oder mit **Nach oben**
+   und **Nach unten** anordnen. Die Markierung zeigt die Ablageposition.
+   Die Wartezeit bleibt immer bei ihrem Schritt und gilt vor dessen Ausführung.
+   Dasselbe funktioniert beim Erstellen und Bearbeiten von Aktionsfolgen.
+7. **Ausgeschaltet zum Entwurf hinzufügen** wählen. Die neue Regel erscheint
+   vollständig im passenden Bereich und bleibt ausgeschaltet. Bestehende Regeln
+   und Partnerfreigaben bleiben erhalten. Zum späteren Ändern auswählen und
+   **Automation bearbeiten** öffnen; alle unterstützten Angaben sind vorbelegt.
 
-Zeit- und Sonnenregeln gelten zunächst täglich. Als Zeitzone ist Europe/Berlin
-vorbelegt; bitte die zum Standort passende Zone auswählen. Z2M berechnet die
-Sonnenzeiten selbstständig. Verpasste Zeiten werden nicht nachgeholt. Wochentage,
-Bedingungen und weitere Aktionsschritte lassen sich nach dem Anlegen über
-„Automation bearbeiten“ ergänzen. Fehlende Angaben, doppelte Uhrzeiten und
-ungültige Werte verhindern die Übernahme; die Eingaben bleiben im Dialog.
+Als Zeitzone ist Europe/Berlin vorbelegt; bitte die passende Zone eintragen.
+Eine Ortung findet nicht statt. Z2M berechnet die Sonnenzeiten selbstständig;
+verpasste Zeiten werden nicht nachgeholt. Fehlende Angaben, doppelte Uhrzeiten
+und ungültige Werte verhindern die gesamte Übernahme. Die Eingaben bleiben
+im Dialog. Ziehen, Pfeilbuttons und Abbrechen ändern den gespeicherten Entwurf
+noch nicht. Erst das Übernehmen speichert lokal; es schaltet kein Gerät.
 
 Die Erstellung benötigt passende Gerätedaten und einen geladenen Entwurf.
 Fehlt dieser, zuerst im nativen Formular „Geräte und gespeicherte Automationen
@@ -407,7 +418,7 @@ Mit **„Automation bearbeiten“** ändern Sie eine links ausgewählte Regel:
    Geräte, Kanäle und Werte können Sie getrennt auswählen. Uhrzeiten und
    Sonnenzeiten sowie Wochentage und Zeitfenster lassen sich ebenfalls bearbeiten.
 2. Öffnen Sie den gewünschten Bereich. Weitere Einträge hinzufügen oder entfernen;
-   Aktionsschritte mit „Nach oben“ und „Nach unten“ anordnen. Die Wartezeit gilt
+   Aktionsschritte am Griff „Verschieben“ ziehen oder mit „Nach oben“ und „Nach unten“ anordnen. Die Wartezeit gilt
    jeweils vor dem zugehörigen Schritt. Vorhandene Szenen und Aktionsfolgen sind
    auswählbar; deren Definition wird dabei nicht geändert.
 3. „Änderungen in den Entwurf übernehmen“ wählen. Das ändert nur diese Regel
@@ -428,7 +439,7 @@ Mit **„+ Neue Aktionsfolge“** legen Sie einen Ablauf an, den mehrere Automat
 verwenden können. Namen eingeben, Gerät suchen, Kanal und Wert wählen und bei
 Bedarf weitere Schritte ergänzen. Auch Umschalten, vorhandene Szenen und Geräte
 eines eingerichteten Partners sind auswählbar. Die Wartezeit gilt jeweils vor
-dem Schritt. Mit „Nach oben“, „Nach unten“ und „Eintrag entfernen“ ordnen Sie
+dem Schritt. Mit „Verschieben“, „Nach oben“, „Nach unten“ und „Eintrag entfernen“ ordnen Sie
 den Ablauf. Anschließend **„Aktionsfolge in den Entwurf übernehmen“** wählen.
 
 Vorhandene Folgen links unter **„Aktionsfolgen“** auswählen und mit
@@ -445,8 +456,8 @@ Zum Verwenden eine Automation bearbeiten und bei den Aktionen
 haben keinen eigenen Auslöser und keinen Regelschalter.
 
 In der Zentrale sind Prüfen und Übertragen je System direkt im Designer verfügbar.
-Aktivieren und Stoppen sind dort noch nicht angebunden. Im bisherigen Einzelbetrieb
-bleiben diese Funktionen im nativen Formular. Das Erstellen und Bearbeiten
+Die systemgebundenen Betriebsbuttons stehen ebenfalls im Designer zur Verfügung.
+Im bisherigen Einzelbetrieb erfolgen Prüfen, Übertragen und Betriebssteuerung im nativen Formular. Das Erstellen und Bearbeiten
 im Browser schaltet keine Geräte. Nach 15
 Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
 nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen

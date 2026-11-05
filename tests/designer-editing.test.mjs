@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ruleChanges, sequenceChanges, targetDevice, valueIndex} from '../Z2MAutomations/visualization/editor.js';
+import {creationRule, ruleChanges, sequenceChanges, targetDevice, valueIndex} from '../Z2MAutomations/visualization/editor.js';
+
+test('complete creation submits the same typed sections as editing without server-owned fields', () => {
+    const working = {id: 'must-not-submit', enabled: true, mesh_peers: ['must-not-submit'], name: 'Complete', retrigger: 'extend',
+        triggers: [{type: 'time', at: '07:00:00', timezone: 'UTC'}, {type: 'sun', event: 'sunset', offset_minutes: -15, latitude: 0, longitude: 0, timezone: 'UTC'}],
+        conditions: [{type: 'device_value', value: false, start_only: true}],
+        actions: [{type: 'set', values: {level: 0, color: {hex: '#123456'}}, delay_seconds: 5}]};
+    const fields = creationRule(working);
+    assert.deepEqual(Object.keys(fields), ['name', 'retrigger', 'triggers', 'conditions', 'actions']);
+    assert.equal(fields.conditions[0].value, false);
+    assert.deepEqual(fields.actions, working.actions);
+    fields.actions[0].values.level = 70;
+    assert.equal(working.actions[0].values.level, 0);
+    assert.deepEqual(ruleChanges({name: '', retrigger: 'ignore', triggers: [], conditions: [], actions: []}, {...fields, enabled: undefined}), fields);
+});
 
 test('sequence editing submits only changed name and actions without mutating callers or original typed values', () => {
     const original = {id: 'shared', name: 'Shared', actions: [{type: 'set', values: {state: 'OFF', level: 0}, delay_seconds: 5}]};

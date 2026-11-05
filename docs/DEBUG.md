@@ -782,6 +782,21 @@ Meldung grenzt dies vom Stopp laufender Automationen ab. Commit und Rückweg
 melden ausschließlich lokale Wirkung. Kein Schritt sendet store, activate,
 deactivate, Neustarts oder Gerätebefehle.
 
+## Vollständiger Browsereditor und Aktionsreihenfolge
+
+Erstellen und Bearbeiten verwenden dieselben Feldprüfungen. Die bestehenden
+DebugFlowHelper-Eintritte erklären begrenzte Eintragszahlen, eingeschalteten
+Regelschalter und Ablehnungsgrund. Neue Regeln werden immer ausgeschaltet
+übernommen. Keine Namen, Koordinaten, Aktionswerte oder Browserzugänge loggen.
+
+Beim Übernehmen einer geänderten Aktionsliste wird zwischen reiner Umsortierung
+und geänderten Schritten unterschieden. Bei einer Umsortierung nennen die
+Meldungen die bisherigen Schrittnummern in ihrer neuen Reihenfolge, etwa
+[3, 1, 2]. Wartezeiten bleiben beim Schritt. Dies gilt auch für Definitionen
+wiederverwendbarer Folgen. Ziehen oder Abbrechen erzeugt keinen Modulauftrag;
+die sichtbare Browsermeldung erklärt den noch nicht gespeicherten Zwischenstand.
+Die native Debugmeldung entsteht erst bei der lokalen Übernahme, ohne MQTT.
+
 ## Zentrale Betriebssteuerung
 
 Alle öffentlichen Runtime-Einstiege beider Module verwenden TraceModuleCall und

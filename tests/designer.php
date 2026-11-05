@@ -179,7 +179,7 @@ $check($module->Hook('data', 'POST', $token)[0] === 405 && $module->Hook('data?t
 $check($module->Hook('data', 'GET', $token)[0] === 200, 'Valid capability reads module data');
 $page = $module->Hook('index.html');
 $lockScenario = \Z2MAutomations\DesignerLockScenario::class;
-foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'management.js', 'workspace.js', 'designer.css'] as $asset) {
+foreach (['index.html', 'startup.js', 'reader.js', 'creator.js', 'editor.js', 'action-order.js', 'management.js', 'workspace.js', 'designer.css'] as $asset) {
     $lockScenario::$lock = 'Z2MA.Owner.' . $id;
     $lockScenario::$release = true;
     $lockScenario::$waits = [];
@@ -215,6 +215,7 @@ require __DIR__ . '/designer-schedule.inc.php';
 require __DIR__ . '/designer-edit.inc.php';
 require __DIR__ . '/designer-sequence.inc.php';
 require __DIR__ . '/designer-manage.inc.php';
+require __DIR__ . '/designer-full-create.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');

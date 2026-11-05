@@ -248,13 +248,21 @@ $check(str_contains(implode(' ', $manager->debugMessages), 'Systementwurf'), 'De
 // Creating a disabled local rule must preserve the existing document and directed grants.
 $browserB = $decode($manager->GetDesignerData());
 $headerB['HTTP_X_Z2MA_FINGERPRINT'] = $detail($b)['fingerprint'];
-$manager->requestBody = json_encode(['requestId' => '22222222-2222-4222-8222-222222222222', 'context' => $browserB['createContext'], 'name' => 'Disabled local rule',
-    'source'                                     => ['type' => 'time', 'times' => ['07:00:00', '20:30:00'], 'timezone' => 'UTC'],
-    'target'                                     => ['device' => $deviceKey, 'property' => 'state_l2', 'value' => 'OFF']]);
+$completeA = $detail($a)['data'];
+$completeFields = ['name' => 'Disabled local rule', 'retrigger' => 'extend',
+    'triggers'            => [['type' => 'time', 'at' => '07:00:00', 'timezone' => 'UTC'], ['type' => 'time', 'at' => '20:30:00', 'timezone' => 'UTC']],
+    'conditions'          => [['type' => 'weekday', 'weekdays' => [1, 3, 5], 'timezone' => 'UTC']],
+    'actions'             => [['type' => 'set', 'target' => ['type' => 'device', 'id' => $deviceKey], 'values' => ['state_l2' => 'OFF'], 'delay_seconds' => 0],
+        ['type' => 'set', 'target' => ['type' => 'device', 'id' => $deviceKey], 'values' => ['state_l2' => 'ON'], 'delay_seconds' => 5]]];
+$manager->requestBody = json_encode(['requestId' => '22222222-2222-4222-8222-222222222222', 'context' => $browserB['createContext'], 'rule' => $completeFields]);
 [$code, $raw] = $manager->Hook('create', $token, $headerB, 'POST');
 $check($code === 200, 'Browser creates a disabled system-local rule: ' . $raw);
 $createdB = $detail($b)['data']['document']['editorDraft']['configuration'];
 $check(count($createdB['automations']) === 2 && !$createdB['automations'][1]['enabled'] && $createdB['mesh_peers'] === ['synthetic/system_0'], 'Creation preserves grants and other rules');
+$check(
+    $detail($a)['data'] === $completeA && array_replace($completeFields, array_intersect_key($createdB['automations'][1], $completeFields)) === $completeFields,
+    'Complete browser creation preserves all fields in its selected system and leaves another system byte-identical'
+);
 // Management is bound to one system, even when another system has the same rule ID.
 $manageA = $detail($a)['data'];
 $browserB = $decode($manager->GetDesignerData());

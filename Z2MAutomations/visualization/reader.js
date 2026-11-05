@@ -1,5 +1,4 @@
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
-import {installCreation} from './creator.js';
 import {installEditing} from './editor.js';
 import {installSystemSelection, loadSystemDevices} from './workspace.js';
 import {installTransfers} from './transfer.js';
@@ -281,12 +280,11 @@ import {installManagement, matchesRuleState} from './management.js';
             return false;
         } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); management?.refresh(category, stateFilter); }
     }
-    installCreation({getData: () => data, reload: () => load(), onCreated: async ruleId => {
+    editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onCreated: async ruleId => {
         const refreshed = await load(ruleId);
         message(refreshed ? 'Neue Automation ausgeschaltet im lokalen Symcon-Entwurf ergänzt. In Z2M wurde nichts geändert.'
             : 'Die Automation wurde im Entwurf ergänzt. Die Ansicht konnte noch nicht aktualisiert werden; bitte „Ansicht aktualisieren“ wählen.');
-    }});
-    editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onEdited: async ruleId => {
+    }, onEdited: async ruleId => {
         const refreshed = await load(ruleId);
         message(refreshed ? 'Änderung im lokalen Symcon-Entwurf übernommen. In Z2M wurde nichts gespeichert oder aktiviert.'
             : 'Die Änderung wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');

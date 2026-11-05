@@ -1,5 +1,19 @@
 # Unveröffentlicht
 
+## Vollständiger Regeleditor im Browserdesigner
+
+- Neue und vorhandene Automationen im selben Dialog vollständig erstellen und
+  bearbeiten: mehrere Geräte-, Uhrzeit- und Sonnenauslöser, Bedingungen sowie
+  mehrere Aktionen einschließlich Szenen, Aktionsfolgen und Wartezeiten.
+  Neue Regeln beginnen immer ausgeschaltet.
+- Aktionsschritte am Griff per Drag & Drop oder über die Pfeilbuttons anordnen,
+  auch in wiederverwendbaren Folgen. Werte und Wartezeiten bleiben beim Schritt.
+  Erst das Übernehmen ändert den lokalen Entwurf.
+- Gemeinsame Validierung mit vollständiger Ablehnung fehlerhafter Eingaben.
+  Vorbelegung, Systemtrennung und Partnerfreigaben bleiben erhalten. Deutsche
+  Debugmeldungen erklären Übernahme und neue Reihenfolge ohne Aktionswerte.
+  Kein Erweiterungsupdate erforderlich.
+
 ## Gerätedaten im Browserdesigner
 
 - Gerätedaten je Z2M-System direkt im Designer aktualisieren. Ladeanzeige,

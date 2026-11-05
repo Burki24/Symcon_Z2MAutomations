@@ -1,5 +1,16 @@
 # Architektur
 
+## Gemeinsamer Browsereditor
+
+Der aktive editor.js ist für neue und vorhandene Regeln sowie Definitionen
+wiederverwendbarer Aktionsfolgen zuständig. Er erstellt ausschließlich lokale
+Dialogkopien. Erstellen und Bearbeiten verwenden dieselbe serverseitige
+Feldvalidierung und den bestehenden atomaren Entwurfscommit. Neue Regelkennung
+und ausgeschalteter Anfangszustand bleiben serverseitig. Aktionssortierung ist
+eine lokale Reihenfolgeänderung ganzer Schritte; Griff und Pfeilbuttons verwenden
+dieselbe Funktion. Es entsteht kein zusätzlicher MQTT- oder Laufzeitweg.
+Details zu Systembindung, Kontext und Quittungen stehen in WORKSPACE.md.
+
 ## Geplanter Umbau auf mehrere Systeme
 
 Die zentrale Instanz wird als „Zigbee2MQTT Automationszentrale“ angeboten.

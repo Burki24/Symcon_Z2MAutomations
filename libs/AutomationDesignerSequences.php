@@ -100,6 +100,7 @@ trait AutomationDesignerSequences
             $state = $this->RefreshState();
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerWriteAccess($token, 'sequences')) return $this->DesignerCreateFailure(409, 'Die Verbindung oder der Zugang wurde geändert. Bitte den Designer erneut im Modul öffnen.');
             if ($changed && !$this->CommitEditorChange($state, $draft, $new ? 'sequence_created' : 'sequence_updated', $this->EditorSelection()['id'] ?? '')) return $this->DesignerCreateFailure(422, 'Die Aktionsfolge konnte nicht übernommen werden. Bitte Entwurfsgröße und Schrittliste prüfen.');
+            if ($changed && !$new) $this->DesignerActionOrderDebug($original['actions'], $sequence['actions']);
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'sequence', 'digest' => $digest, 'sequence' => $sequence['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
             $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));

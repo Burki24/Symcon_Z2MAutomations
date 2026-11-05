@@ -98,17 +98,20 @@ trait AutomationDesignerCreation
                 return $this->DesignerCreateFailure(403, 'Der Zugang zur Regelerstellung ist abgelaufen. Bitte den Designer erneut im Modul öffnen.');
             }
             $text = $this->DesignerRequestBody();
-            if (strlen($text) > 16384) {
-                return $this->DesignerCreateFailure(413, 'Die Eingaben sind zu umfangreich. Bitte höchstens acht Uhrzeiten und eine Aktion anlegen.');
+            if (strlen($text) > 65536) {
+                return $this->DesignerCreateFailure(413, 'Die Eingaben sind zu umfangreich. Bitte höchstens acht Auslöser und 16 Aktionsschritte eintragen.');
             }
             try {
-                $request = json_decode($text, true, 8, JSON_THROW_ON_ERROR);
+                $request = json_decode($text, true, 16, JSON_THROW_ON_ERROR);
             } catch (JsonException) {
                 return $this->DesignerCreateFailure(400, 'Die Eingaben konnten nicht gelesen werden. Bitte die Auswahl erneut vornehmen.');
             }
-            if (!is_array($request) || count($request) !== 5 || array_diff(array_keys($request), ['requestId', 'context', 'name', 'source', 'target']) !== []
-                || !is_string($request['requestId'] ?? null) || !RuntimeDebugContract::UUID($request['requestId'])
-                || !is_string($request['context'] ?? null) || !is_string($request['name'] ?? null)) {
+            $complete = $this->DesignerEditShape($request, ['requestId', 'context', 'rule']);
+            $simple = $this->DesignerEditShape($request, ['requestId', 'context', 'name', 'source', 'target']);
+            if ((!$complete && !$simple) || !is_string($request['requestId'] ?? null) || !RuntimeDebugContract::UUID($request['requestId'])
+                || !is_string($request['context'] ?? null)
+                || ($complete && !$this->DesignerEditShape($request['rule'], ['name', 'retrigger', 'triggers', 'conditions', 'actions']))
+                || ($simple && !is_string($request['name'] ?? null))) {
                 return $this->DesignerCreateFailure(400, 'Die Angaben zur neuen Automation sind unvollständig. Bitte die Auswahl prüfen.');
             }
             $sessions = $this->DesignerSessions();
@@ -118,7 +121,7 @@ trait AutomationDesignerCreation
             }
             // A view refresh may replace its optimistic context after a lost success response.
             // Retrying the same intended rule must still return its original receipt.
-            $digest = hash('sha256', json_encode([$request['name'], $request['source'], $request['target']], JSON_THROW_ON_ERROR));
+            $digest = hash('sha256', json_encode($complete ? ['rule' => $request['rule']] : [$request['name'], $request['source'], $request['target']], JSON_THROW_ON_ERROR));
             foreach ($sessions[$sessionIndex]['receipts'] ?? [] as $receipt) {
                 if ($receipt['request'] === $request['requestId']) {
                     if (($receipt['kind'] ?? 'create') !== 'create' || $receipt['digest'] !== $digest) {
@@ -135,28 +138,32 @@ trait AutomationDesignerCreation
             if ($blocked !== '') {
                 return $this->DesignerCreateFailure(409, $blocked);
             }
-            $snapshot = $this->EditorSnapshot();
-            $target = $request['target'];
-            if (!$this->ValidEditorName(trim($request['name']))) {
-                return $this->DesignerCreateFailure(422, 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.');
+            if ($complete) {
+                $fields = $request['rule'];
+            } else {
+                // The compact request is normalised into the same full rule validation path.
+                $snapshot = $this->EditorSnapshot();
+                $reason = '';
+                $triggers = $this->DesignerCreationTriggers($snapshot, $request['source'], $reason);
+                if ($triggers === null) return $this->DesignerCreateFailure(422, $reason);
+                if (!$this->DesignerChoiceAllowed($snapshot, $request['target'], 'Target')) return $this->DesignerCreateFailure(422, 'Bitte Zielgerät, Kanal und Wert prüfen. Als Ziel sind nur aktuell schaltbare Variablen erlaubt.');
+                $fields = ['name' => $request['name'], 'retrigger' => 'ignore', 'triggers' => $triggers, 'conditions' => [],
+                    'actions'     => [$this->BuildEditorAction($request['target']['device'], $request['target'])]];
             }
             $reason = '';
-            $triggers = $this->DesignerCreationTriggers($snapshot, $request['source'], $reason);
-            if ($triggers === null) {
-                return $this->DesignerCreateFailure(422, $reason);
-            }
-            if (!$this->DesignerChoiceAllowed($snapshot, $target, 'Target')) {
-                return $this->DesignerCreateFailure(422, 'Bitte Zielgerät, Kanal und Wert prüfen. Als Ziel sind nur aktuell schaltbare Variablen erlaubt.');
-            }
+            $fields = $this->DesignerRuleFields($fields, null, $reason);
+            if ($fields === null) return $this->DesignerCreateFailure(422, $reason);
             $draft = $this->ReadEditorDraft();
-            $rule = $this->NewEditorRule(trim($request['name']), false, $triggers, [$this->BuildEditorAction($target['device'], $target)]);
+            do {
+                $rule = array_replace($this->NewEditorRule($fields['name'], false, $fields['triggers'], $fields['actions']), $fields);
+            } while ($this->EditorRuleIndex($draft, $rule['id']) !== null);
             $draft['configuration']['automations'][] = $rule;
             $state = $this->RefreshState();
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerTokenAllowed($token, true)) {
                 return $this->DesignerCreateFailure(409, 'Die Verbindung oder der Zugang wurde inzwischen geändert. Bitte den Designer erneut im Modul öffnen.');
             }
             if (!$this->CommitEditorChange($state, $draft, 'draft_created', $rule['id'])) {
-                return $this->DesignerCreateFailure(422, 'Die Automation konnte nicht in den Entwurf übernommen werden. Bitte Größe und Angaben im nativen Formular prüfen.');
+                return $this->DesignerCreateFailure(422, 'Die Automation konnte nicht übernommen werden. Bitte Aktionsfolgen und Entwurfsgröße prüfen; einschließlich aufgerufener Folgen sind höchstens 16 Schritte erlaubt.');
             }
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'create', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
@@ -164,9 +171,9 @@ trait AutomationDesignerCreation
             $this->DebugEvent(
                 'AKTION',
                 'Neue Automation aus der Browserauswahl ausgeschaltet im lokalen Entwurf ergänzt. Bestehende Regeln erhalten; keine Übertragung oder Aktivierung.',
-                ['Automationen'   => count($draft['configuration']['automations']), 'Auslöser' => count($triggers), 'Aktionen' => 1,
-                    'Auslöserart' => ['device' => 'Geräteereignis', 'time' => 'Uhrzeit', 'sun' => 'Sonnenzeit'][$triggers[0]['type']]]
-                + ($triggers[0]['type'] === 'sun' ? ['Sonnenereignis' => $triggers[0]['event'] === 'sunrise' ? 'Sonnenaufgang' : 'Sonnenuntergang', 'ZeitversatzMinuten' => $triggers[0]['offset_minutes']] : [])
+                ['Automationen'     => count($draft['configuration']['automations']), 'Auslöser' => count($rule['triggers']), 'Bedingungen' => count($rule['conditions']), 'Aktionen' => count($rule['actions']), 'RegelEingeschaltet' => false,
+                    'Auslöserarten' => array_values(array_unique(array_map(static fn (array $trigger): string => ['device' => 'Geräteereignis', 'time' => 'Uhrzeit', 'sun' => 'Sonnenzeit'][$trigger['type']], $rule['triggers'])))]
+                + ($rule['triggers'][0]['type'] === 'sun' ? ['Sonnenereignis' => $rule['triggers'][0]['event'] === 'sunrise' ? 'Sonnenaufgang' : 'Sonnenuntergang', 'ZeitversatzMinuten' => $rule['triggers'][0]['offset_minutes']] : [])
             );
             return [200, ['ruleId' => $rule['id'], 'message' => $this->workspaceEditorContext !== null ? 'Automation ausgeschaltet im gewählten Systementwurf ergänzt. In Z2M wurde nichts geändert.' : 'Automation ausgeschaltet im Symcon-Entwurf ergänzt. Prüfen, Übertragen und Aktivieren erfolgen weiterhin im nativen Formular.']];
         });

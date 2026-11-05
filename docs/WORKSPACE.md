@@ -393,6 +393,27 @@ das enabled-Feld des Entwurfs. Aktionsfolgen und Katalogeinträge werden davon
 nicht ausgeblendet. Der optionale Filterauftrag liefert ausschließlich Zähler
 für die Debugnachvollziehbarkeit und verändert den Entwurf nicht.
 
+## Gemeinsames Erstellen und Bearbeiten im Designer
+
+editor.js stellt neue und vorhandene Regeln mit denselben Bausteinen dar.
+POST-create akzeptiert eine vollständige Regel mit name, retrigger, triggers,
+conditions und actions; Kennung und enabled=false legt ausschließlich das Modul
+fest. Der kompakte Erstellauftrag wird in dieselben geprüften Felder normalisiert.
+DesignerRuleFields nutzt die vorhandenen Abschnitts-, Katalog- und nativen
+Rechteprüfungen auch beim Erstellen. CommitEditorChange übernimmt die gesamte
+Regel atomar in den ausgewählten lokalen Systementwurf; andere Dokumente,
+Partnerfreigaben und Folgen bleiben erhalten. Kein MQTT-Auftrag wird gesendet.
+Die 64-KiB-Grenze, begrenzte Listen, Systembindung, Ablaufzeit, Kontextprüfung
+und Wiederholungsquittungen gelten für den vollständigen Auftrag ebenfalls.
+
+action-order.js verschiebt komplette Aktionsobjekte ausschließlich im offenen
+Browserdialog. Griff und Pfeilbuttons nutzen dieselbe Positionsfunktion.
+Eigener Drag-Typ und lokale Ausgangsbindung verwerfen fremde, veraltete,
+abgebrochene oder während eines Auftrags gestartete Ziehversuche. Werte und
+Wartezeiten bleiben an ihrem Schritt. Erst Übernehmen sendet die neue Liste
+über die unveränderte edit- oder sequence-Route; es gibt keinen Sortier-Endpunkt.
+Neue Regeln senden die fertige Reihenfolge mit create. Abbrechen schreibt nichts.
+
 ## Gerätedaten aus dem Designer nachladen
 
 RequestWorkspaceDeviceCatalog startet je System einen begrenzten Leseauftrag:
