@@ -1,5 +1,11 @@
 # Unveröffentlicht
 
+## Fixes
+
+- Die Änderungsübersicht der Partnerfreigaben verwendet bei einem Treffer
+  „1 lokale Automation verwendet diese Verbindung“. Auch genau eine weitere,
+  nicht einzeln angezeigte Automation wird korrekt in der Einzahl beschrieben.
+
 ## Partnerfreigaben im Browserdesigner verwalten
 
 - Beim empfangenden System per Häkchen auswählen, welche anderen zugeordneten

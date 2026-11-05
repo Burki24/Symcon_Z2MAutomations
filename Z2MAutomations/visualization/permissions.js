@@ -102,9 +102,13 @@ export function installPermissions({getData, reload, message, isLoading = () => 
             for (const row of changes.added) paragraph(content, `Neu erlauben: ${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`);
             for (const row of changes.removed) {
                 paragraph(content, `Freigabe entziehen: ${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`);
-                paragraph(content, row.assigned ? `${row.affectedCount} lokale Automationen verwenden diese Verbindung. Nach Übertragung des Entzugs werden ihre Befehle abgelehnt.` : 'Nicht zugeordnetes System: Betroffene Automationen sind unbekannt.');
+                paragraph(content, row.assigned ? (row.affectedCount === 1 ? '1 lokale Automation verwendet diese Verbindung.' : `${row.affectedCount} lokale Automationen verwenden diese Verbindung.`)
+                    + ' Nach Übertragung des Entzugs werden ihre Befehle abgelehnt.' : 'Nicht zugeordnetes System: Betroffene Automationen sind unbekannt.');
                 for (const rule of row.affected) paragraph(content, `• ${rule.name} (im Entwurf ${rule.enabled ? 'eingeschaltet' : 'ausgeschaltet'})`);
-                if (row.affectedCount > row.affected.length) paragraph(content, `Weitere ${row.affectedCount - row.affected.length} Automationen sind betroffen.`);
+                if (row.affectedCount > row.affected.length) {
+                    const remaining = row.affectedCount - row.affected.length;
+                    paragraph(content, remaining === 1 ? 'Eine weitere Automation ist betroffen.' : `Weitere ${remaining} Automationen sind betroffen.`);
+                }
             }
             if (!changes.added.length && !changes.removed.length) paragraph(content, 'Die Auswahl ist unverändert. Der Entwurf wird nicht neu geschrieben.');
             pending = {requestId: createUUID(), context: view.context, peers, confirmed: true}; stage(true); feedback('Nur der lokale Entwurf des empfangenden Systems wird geändert. Der laufende Betrieb bleibt unverändert.');
