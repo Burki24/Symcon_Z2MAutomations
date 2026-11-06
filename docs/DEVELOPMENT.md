@@ -1,3 +1,17 @@
+## Reguläres Mausrad-Helper-Paket eingebunden – 06.11.2026
+
+Nach Benutzerfreigabe wurde Helper-Bundle 3.30.7 automatisch verteilt und
+als Consumer-Commit e65fd7d regulär gepullt. VisualizationAssetHelper 1.1.4 und
+alle drei Assets stimmen mit ihren lokalen SHA-256-Angaben sowie dem zentralen
+Manifest bei cb8906845b8fe3acb25ae0f3e8233c0382a66816 überein. Keine lokalen
+Testkopien, Protokolländerungen oder manuell gesetzten Metadaten erforderlich.
+Die vollständige Gesamtsuite am regulär verteilten Paket besteht unter PHP
+8.5.10 einschließlich aller 221 JavaScript-Tests. Struktur, PHP CS Fixer
+(152 Dateien), offizieller JSON-Stilcheck, Kodierung und Erweiterungsartefakt-
+prüfung bestanden. Die Testinstallation enthielt beim
+ersten Leseabruf noch den alten Helper; das Test-Modulupdate wurde angefordert.
+Der native Nachweis des tatsächlich installierten Pakets bleibt bis dahin offen.
+
 ## Zentraler Mausrad-Helper korrigiert – 06.11.2026
 
 Der Folgeauftrag zu B4 korrigiert VisualizationAssetHelper in der zentralen

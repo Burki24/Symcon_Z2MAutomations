@@ -11,8 +11,12 @@ Ressource wieder in beide Richtungen. Dokumente, Bindungen, Auswahl und offene
 Arbeit beider Systeme blieben beim Vorher-/Nachher-Vergleich unverändert.
 Der Server behält sein bisheriges Paket; keine Geräte-/Z2M-Befehle gesendet.
 
-**B4 bleibt bis zur regulären Helper-Verteilung und abschließenden Prüfung des
-installierten Pakets offen.** Kein lokales Testbundle im normalen Arbeitsbaum.
+Die reguläre Verteilung ist inzwischen angekommen: VisualizationAssetHelper
+1.1.4 in Helper-Bundle 3.30.7, Consumer-Commit e65fd7d. Herkunft, Helper und
+alle drei Assets stimmen mit dem veröffentlichten zentralen Manifest überein.
+**B4 bleibt bis zur abschließenden Prüfung des installierten Pakets offen.**
+Das Testmodul enthielt beim ersten Leseabruf noch den alten Helper; das
+Test-Modulupdate wurde angefordert. Kein lokales Testbundle im Arbeitsbaum.
 Einzelheiten und Verteilungsreihenfolge stehen im Beta-Abnahmebericht.
 
 ## Beta-Abnahme – aktueller Nachtrag vom 06.11.2026
@@ -140,7 +144,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| B4 | Nativer Mausradfehler an innerer Scrollgrenze; zentrale Korrektur lokal geprüft | Reguläre Helper-Verteilung und abschließende Prüfung des installierten Pakets fehlen. Isoliertes Consumer-Paket und echter Kachelclient mit Testbrowser-Ressourcenaustausch geprüft; noch kein installierter Freigabestand. Einzelheiten im Beta-Abnahmebericht. |
+| B4 | Nativer Mausradfehler an innerer Scrollgrenze; Korrektur regulär eingebunden | Helper-Bundle 3.30.7 samt Herkunft und Assets bestätigt. Native Nachprüfung nach Test-Modulupdate fehlt; Testbrowser-Ressourcenaustausch ersetzt diesen Nachweis nicht. Einzelheiten im Beta-Abnahmebericht. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 

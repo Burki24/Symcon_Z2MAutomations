@@ -17,9 +17,12 @@ Die Gesamtbewertung lautet deshalb nicht einreichungsreif. Der anschließende
 Korrekturauftrag behebt die Ursache in Symcon_ModuleHelper, mit Regressionen
 und nativer Debugmeldung beim Laden der Interaktionsressource. Isoliertes
 Consumer-Paket und echte Testkachel mit ausschließlich im Testbrowser ersetzter
-Ressource geprüft; kein Helper auf dem Server ausgetauscht. Reguläre Verteilung
-nach Helper-Freigabe über main und finale installierte Kachelprüfung bleiben
-offen. Keine Quellcodekorrektur im vorausgegangenen Audit selbst.
+Ressource geprüft; kein Helper auf dem Server ausgetauscht. Die reguläre
+Verteilung nach Helper-Freigabe über main ist inzwischen angekommen:
+VisualizationAssetHelper 1.1.4 in Bundle 3.30.7, Consumer-Commit e65fd7d,
+Herkunft und sämtliche zugehörigen Asset-Hashes bestätigt. Finale installierte
+Kachelprüfung nach Test-Modulupdate noch offen. Keine Quellcodekorrektur im
+vorausgegangenen Audit selbst.
 
 Vollständigen bestehenden Designer in die native Symcon-Kachel eingebettet.
 Kein neues Browserfenster; Farben und Grundschriftgröße folgen dem Symcon-Client.

@@ -42,8 +42,8 @@
 - Mausradkorrektur des zentralen Helpers für verschachtelte Scrollgrenzen
   vorbereitet und isoliert mit Z2MAutomations geprüft. Regressionen schützen
   vor blockiertem Hochscrollen, doppelter Bewegung und Scrollen hinter Dialogen.
-  Reguläre Helper-Verteilung und finale Prüfung des installierten Pakets stehen
-  noch aus; keine lokale Helper-Kopie im Arbeitsbaum.
+  Regulär über Helper-Bundle 3.30.7 eingebunden; die finale Prüfung des
+  installierten Pakets steht noch aus. Keine lokale Helper-Testkopie im Arbeitsbaum.
 
 - Experimentelle IPSView-Administrationsansicht auf Benutzerwunsch entfernt,
   einschließlich eigener Endpunkte, Zugänge, Formularfelder und Einbindung.

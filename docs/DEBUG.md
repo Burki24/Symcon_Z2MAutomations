@@ -12,8 +12,9 @@ es gibt dafür keine zusätzlichen HTTP-/MQTT-Anfragen und keine Aufzeichnung
 von Zeigerpositionen oder Formularinhalten. Die Meldung bestätigt das Laden,
 nicht die erfolgreiche Verarbeitung jeder einzelnen Bewegung.
 
-Die zentrale Korrektur ist lokal geprüft; im regulär eingebundenen Paket ist
-sie erst nach Helper-Freigabe und automatischer Verteilung verfügbar.
+Diese Meldung gehört zur regulär verteilten VisualizationAssetHelper-Version
+1.1.4 aus Helper-Bundle 3.30.7. Die Herkunft und Asset-Hashes sind im lokalen
+Consumer-Paket gegen den veröffentlichten zentralen Stand geprüft.
 
 ## Bestätigte und früher gespeicherte Gerätedaten
 

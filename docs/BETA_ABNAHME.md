@@ -165,11 +165,21 @@ Z2MAutomations/dev, Integritätsprüfung und Modulupdate der Testinstallation.
 Danach denselben nativen Grenzfall ohne Browser-Ressourcenaustausch prüfen.
 Bis dahin ist B4 trotz lokal bestätigter Korrektur nicht geschlossen.
 
+Reguläre Einbindung inzwischen bestätigt: Consumer-Commit e65fd7d liefert
+VisualizationAssetHelper 1.1.4 aus Helper-Bundle 3.30.7. Helper und alle drei
+Assets sind gegen die eigenen SHA-256-Angaben und das veröffentlichte zentrale
+Manifest bei cb8906845b8fe3acb25ae0f3e8233c0382a66816 geprüft. Keine manuelle
+Herkunfts- oder Hashänderung. Die Gesamtsuite ist auch am regulären Paket frisch
+bestanden, einschließlich aller 221 JavaScript-Tests unter PHP 8.5.10.
+Die Testinstallation enthielt beim ersten Abruf
+noch den alten Helper; das Test-Modulupdate wurde angefordert. Der abschließende
+native Nachweis steht deshalb weiterhin aus.
+
 Bestätigte **BLOCKER: 1**, **HINDERNIS: 4** im untersuchten Umfang.
 
 | ID | Schwere / Basis | Befund und kleinster nächster Schritt |
 | --- | --- | --- |
-| B4 | BLOCKER / Project | Zentrale Korrektur samt Regressionen und isoliertem Kacheltest bestätigt. Reguläre Helper-Verteilung und native Nachprüfung des tatsächlich installierten Pakets fehlen noch. Testbrowser-Ressourcenaustausch gilt nicht als installierter Freigabestand. |
+| B4 | BLOCKER / Project | Korrektur regulär über Helper-Bundle 3.30.7 eingebunden; Herkunft und Assets bestätigt. Native Nachprüfung nach Test-Modulupdate fehlt noch. Testbrowser-Ressourcenaustausch gilt nicht als installierter Freigabestand. |
 
 | ID | Basis | Hindernis und kleinster nächster Schritt |
 | --- | --- | --- |
