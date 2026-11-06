@@ -1,3 +1,72 @@
+## R1: synthetischer Mesh-Nachweis mit acht Erweiterungen am 06.11.2026
+
+Die gemeinsame Fixture `tests/fixtures/mesh-star.mjs` auf zwei bis acht
+eindeutig benannte Systeme und sieben Sternkanten erweitert. Der bisherige
+Drei-System-Aufbau bleibt der Standard; seine sechs Prüfungen bestehen weiter.
+Fünf zusätzliche Fälle in `tests/mesh-eight.test.mjs` sind in `npm test` und
+`php tests/run.php` eingebunden. Alle acht Instanzen verwenden das unveränderte
+erzeugte Erweiterungsartefakt mit getrenntem temporärem Speicher und bestehenden
+öffentlichen Protokoll-Einstiegen. Reguläre Antworten, Freigaben und
+Ausführungsentscheidungen stammen aus der echten Erweiterung; nachgebildet
+bleiben Broker, native Befehlsübergabe, Gerätebestand und Uhr. Fehlerfälle
+verändern oder wiederholen ausdrücklich die zuvor erfassten Nachrichten.
+
+Neue Nachweise:
+
+- Alle **56 gerichteten Verbindungen** zwischen acht Systemen: pro Sender
+  sieben unabhängige Regeln, gemischte Geräte-/Gruppenaktionen und auf allen
+  Systemen gleiche Geräte-, Gruppen-, Quellen- und Regelkennungen. Jedes Ziel
+  erhält genau seinen Befehl und typisierten Wert, der Sender keinen lokalen
+  Ersatzbefehl. Trotz doppelter Execute-Zustellung keine Doppelaktion. Je
+  56 Prepare-, Challenge-, Execute- und Result-Nachrichten sowie eindeutige
+  Transaktionen und Tokens; jede Veröffentlichung durchläuft die sieben
+  Sternkanten einmal. Die Senderwellen haben eine Sekunde Abstand, damit die
+  vorhandenen Befehls-/Debuggrenzen eingehalten werden. Kein Belastungsnachweis
+  für 56 gleichzeitig gestartete Regeln oder unbegrenztes Nachrichtenvolumen.
+- Getrennte Empfangsfreigaben: Vier Ziele erlauben den Sender, drei lehnen
+  ihn trotz anderer Freigaben ab. Nur ein Empfänger wird zusätzlich freigegeben,
+  später nur einem anderen die Freigabe entzogen. Nur der jeweils geänderte
+  Empfänger erhält eine neue Dokumentprüfsumme; andere Dokumente bleiben gleich.
+  Jeder neue Versuch prüft frische Fehlermeldungen. Keine nachgeholten Befehle.
+- Ausfall des achten Zweigs bei einem äußeren Sender: Sechs andere Ziele bleiben
+  nutzbar, einschließlich des mittleren Systems. Der fehlende Zweig ist vor
+  vier Sekunden noch offen und scheitert genau dann mit `mesh_timeout`. Ein
+  weiterer Auslöser erreicht die sechs gesunden Ziele erneut. Nach Wiederkehr
+  kein Nachholen; erst ein frischer Auslöser erreicht wieder alle sieben Ziele.
+  Die Automatik bleibt auf allen acht Systemen aktiv.
+- Sieben gleichzeitig offene Ergebnisantworten: Zirkulär vertauschte
+  Transaktionskennungen mit fremdem Sender lösen keinen wartenden Lauf auf.
+  Sechs echte Antworten schließen nur ihre Läufe ab, die siebte läuft ins
+  Zeitlimit. Ihre verspätete Antwort ändert diesen Fehler nicht. Wiederholte
+  und auf andere Empfänger umadressierte Execute-Nachrichten bewirken nichts.
+- Alle sieben äußeren Systeme starten gleichzeitig je eine Regel zum nächsten
+  äußeren System. Gleiche Regelkennung, getrennte Laufkennungen, genau eine
+  native Übergabe je Ziel und korrekt zugeordnete Debugmeldungen. Die mittlere
+  Erweiterung bleibt gestoppt und ohne Partnerfreigaben; ihr synthetischer
+  Broker vermittelt trotzdem sämtliche Anfragen und Antworten. Keine direkte
+  Verbindung zwischen äußeren Brokern erforderlich.
+
+Die vorhandenen deutschen Meldungen und MQTT-Debugereignisse werden auf allen
+Systemen geprüft: Laufkennung, Regelnummer, Revision, Schritt und bereinigte
+Herkunft bleiben getrennt; fremde Erweiterungen berichten keinen anderen Lauf.
+Keine Roh-Topics, Gerätekennungen, Regelnamen oder Aktionskörper im MQTT-Debug.
+Der kanonische DebugFlowHelper und die vorhandene Erweiterungsdiagnose werden
+nicht geändert. Keine neue Laufzeitlogik, Helperkopie oder Protokollvariante.
+
+R1 ist damit im vereinbarten synthetischen Umfang abgeschlossen. Reale
+Mosquitto-Bridges, ACLs und Warteschlangen mit drei bis acht Brokern, Gerätewirkung
+und konkrete Z2M-/Symcon-Versionen sind durch diese Tests nicht abgenommen.
+Kein Zugriff auf Test-/Live-Systeme und keine Änderung an laufenden Automationen.
+
+Prüfung: Alle elf Drei-/Acht-System-Fälle und die vollständige Suite
+`php tests/run.php` mit **196 JavaScript-Tests** unter Node 24.20.0 und
+PHP 8.5.10 bestanden. Struktur, zentrale Kodierungsprüfung und
+`npm run check:extension` erfolgreich. Offizieller StylePHP-Check der 18 eigenen
+JSON-Dateien in isolierter Kopie bestanden; PHP CS Fixer 3.95.27 im Prüfmodus
+ohne Befund für 148 Dateien. UTF-8 ohne BOM/LF, geschlossene Markdown-Codeblöcke,
+49 lokale Dateiverweise und `git diff --check` geprüft. Keine Commits, Pushes,
+Helperänderungen oder neuen Erweiterungsartefakte.
+
 ## R1: synthetischer Mesh-Nachweis mit drei Erweiterungen am 06.11.2026
 
 Sechs neue Fälle in `tests/mesh-three.test.mjs`, angebunden an `npm test` und

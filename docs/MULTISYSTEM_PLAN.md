@@ -14,9 +14,11 @@ Besitzerwechsel und Rücknahme. Native Praxisprüfungen ersetzen diese Tests nic
 Zentrale Prüfung, Übertragung, Aktivierung, Stopp und Einzellauf sind vorhanden.
 Die fünf Designerpunkte sowie zusätzliche Installation und Partnerfreigaben sind
 integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
-[Prüfliste](PRUEFLISTE.md) berücksichtigt; offene Nachweise R1–R5 werden dort
-einzeln geführt. Insbesondere ist ein Drei-/Acht-Erweiterungs-Mesh noch nicht
-nachgewiesen. Ein Update allein führt weder Übernahme noch Z2M-Aufträge aus.
+[Prüfliste](PRUEFLISTE.md) berücksichtigt. R1 ist für drei und acht echte
+Erweiterungsinstanzen synthetisch bestätigt; die offenen Nachweise R2–R5 werden
+dort einzeln geführt. Reale Mosquitto-Bridges mit mehr als zwei Brokern sind
+dadurch nicht abgenommen. Ein Update allein führt weder Übernahme noch
+Z2M-Aufträge aus.
 Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
 
 ## 1. Ziel und verbindliche Grenzen
@@ -24,8 +26,8 @@ Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
 Eine zentrale Automationsinstanz bietet einen Browserdesigner und einen nativen
 Einstieg für alle eingerichteten Z2M-Systeme. Pro System gibt es einen eigenen
 Verbindungsbaustein. Unterstützt werden zunächst eine bis acht Verbindungen zu
-Z2M-Systemen auf einem bis acht MQTT-Brokern. Acht Systeme sind ein zu prüfendes
-Ausbauziel und keine bereits nachgewiesene Betriebsfreigabe.
+Z2M-Systemen auf einem bis acht MQTT-Brokern. Acht Erweiterungen sind synthetisch
+geprüft; eine allgemeine reale Acht-Broker-Betriebsfreigabe ist damit nicht belegt.
 
 Die Verwaltung erstellt Entwürfe. Ausführung und Wiederanlauf bleiben in den
 einzelnen Z2M-Erweiterungen. Weder Symcon noch die spätere Windows-Anwendung
@@ -362,7 +364,7 @@ Erfüllungsstand und die Quellen führt [PRUEFLISTE.md](PRUEFLISTE.md).
 | Betrieb unverändert | In der Übernahme keine store/activate/deactivate/restart/run-Nachricht; bestätigte aktive Prüfsumme und Regeln vorher/nachher gleich |
 | Broker-/Topicwechsel und Neustart | Alte Sitzungen/Antworten ungültig; andere Systeme bleiben nutzbar; keine verlorenen Entwürfe |
 | Aktionen und Rechte | Schaltbare native Variablen je Ziel, reine Anzeigen als Quellen erlaubt, fehlende Bindungen geschützt |
-| Mesh mit mehr als zwei Systemen | Drei echte Erweiterungsinstanzen am 06.11.2026 synthetisch bestätigt: A nach B/C, Freigaben, Antworten, Debug, Zweigausfall/Wiederkehr und äußere Systeme über den mittleren Broker. Acht Erweiterungen und reale Drei-/Acht-Broker-Bridges bleiben offen. |
+| Mesh mit mehr als zwei Systemen | Drei und acht echte Erweiterungsinstanzen am 06.11.2026 synthetisch bestätigt: alle 56 Zielrichtungen bei acht Systemen, getrennte Freigaben, Antworten, Debug, Zweigausfall/Wiederkehr und äußere Systeme über den mittleren Broker. Reale Drei-/Acht-Broker-Bridges bleiben ungeprüft. |
 | Teilweise Übertragung | Prüfungsfehler verhindern betroffene Speicherung, Teilresultate angezeigt, Aktivierung bleibt ausdrücklich, kein automatischer Rückschreibversuch |
 | Größe und Bedienung | 128-KiB-Dokumentgrenze, 2-MiB-Antwortgrenze, native Formularbudgets, große Suchlisten, Mausrad und erreichbare Buttons |
 | Debug | Beide Module erklären Ziel, Entscheidung und Ergebnis, vorhandene Lauf-/Schrittbezüge und Lease-Endzeit stimmen, keine Geheimnisse |
@@ -381,11 +383,12 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 
 ## 9. Nächste Arbeitspakete
 
-1. R1: Die bestandene synthetische Prüfung mit drei Erweiterungen auf acht
-   ausweiten. Kein Zugriff auf reale Broker erforderlich.
-2. R2/R3: Vorhandene native Installations- und Katalogbelege zusammenführen;
+R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen. Die folgenden
+Arbeitspakete bleiben offen:
+
+1. R2/R3: Vorhandene native Installations- und Katalogbelege zusammenführen;
    nur den fehlenden Bestätigungs-/Abschlussnachweis praktisch ergänzen.
-3. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
+2. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
    nach gesondertem Auftrag abschließen. Bereits bestätigte Abläufe erhalten.
 
 Die [Broker-Schrittfolge](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)

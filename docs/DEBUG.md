@@ -1,5 +1,21 @@
 # Debug und MQTT-Diagnose
 
+## Synthetischer Acht-System-Nachweis
+
+`tests/mesh-eight.test.mjs` prüft alle 56 gerichteten Verbindungen zwischen acht
+echten Erweiterungsinstanzen auf getrennte Lauf-, Regel-, Revisions-, Schritt-
+und Herkunftsbezüge im bestehenden MQTT-Debug. Gleiche lokale Geräte-, Gruppen-
+und Regelkennungen führen nicht zur Vermischung. Deutsche native Meldungen
+über Empfang und bestätigte Befehlsübergabe werden auf allen acht Systemen geprüft.
+
+Abgelehnte Freigaben und der Ausfall des achten Zweigs erhalten nur beim
+betroffenen Senderlauf den Fehler `mesh_timeout`; die übrigen Ziele bleiben
+nutzbar. Verspätete oder falsch zugeordnete Antworten ändern kein anderes
+Laufergebnis. Im gleichzeitig ausgelösten Ring der sieben äußeren Systeme
+bleiben die Bezüge auch bei gestoppter mittlerer Erweiterung erhalten. Keine
+Roh-Topics, Gerätekennungen, Regelnamen oder Aktionskörper im MQTT-Debug.
+Die Debughelfer, Ereignistexte und Laufzeit bleiben unverändert.
+
 ## Synthetischer Drei-System-Nachweis
 
 `tests/mesh-three.test.mjs` prüft die vorhandenen deutschen Laufzeitmeldungen

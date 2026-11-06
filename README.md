@@ -132,8 +132,8 @@ S4 läuft über den mittleren Broker S1. Eine zusätzliche direkte Bridge zwisch
 S3 und S4 ist nicht nötig. S3 braucht S4 als freigegebenes Aktionsziel; S4 muss
 Befehle von S3 ausdrücklich erlauben und seine Automatik muss aktiv sein. Die
 Erweiterung von S1 muss dafür nicht laufen: Sein Broker übernimmt die Weiterleitung.
-Dieser Weg ist mit drei echten Erweiterungsinstanzen und synthetischem
-Brokertransport geprüft; eine reale Mosquitto-Prüfung mit drei Brokern ersetzt
+Dieser Weg ist mit drei und acht echten Erweiterungsinstanzen und synthetischem
+Brokertransport geprüft; eine reale Mosquitto-Prüfung mit mehreren Brokern ersetzt
 das nicht.
 
 ### 1. Aufbau und Bezeichnungen festlegen

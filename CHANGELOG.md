@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Fünf zusätzliche synthetische Mesh-Prüfungen mit acht echten
+  Erweiterungsinstanzen: alle 56 Zielrichtungen trotz gleicher Geräte-,
+  Gruppen- und Regelkennungen, getrennte Freigaben, Zweigausfall/Wiederkehr,
+  Antwortzuordnung und deutsche Debugmeldungen. Sieben äußere Systeme
+  kommunizieren auch bei gestoppter Erweiterung am mittleren Broker.
+  Die bisherigen Drei-System-Fälle bleiben erhalten; keine Laufzeitänderung.
+
 - Sechs synthetische Mesh-Prüfungen mit drei echten Erweiterungsinstanzen:
   getrennte Regelläufe und Freigaben, Zweigausfall und Wiederkehr, verspätete
   oder falsch zugeordnete Antworten, Doppelvermeidung und deutsche Debugmeldungen.

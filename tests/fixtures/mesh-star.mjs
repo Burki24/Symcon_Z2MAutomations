@@ -35,10 +35,13 @@ class Clock {
 }
 
 // Synthetic broker transport, not a Mosquitto implementation or acceptance test.
-// Only mesh topics traverse the two star edges; the middle extension does not relay them.
-export async function meshStar() {
+// Only mesh topics traverse the star edges; the middle extension does not relay them.
+export async function meshStar(systems = ['synthetic/s1', 'synthetic/s3', 'synthetic/s4']) {
+    assert.ok(Array.isArray(systems) && systems.length >= 2 && systems.length <= 8);
+    assert.equal(new Set(systems).size, systems.length, 'Synthetic systems must have unique identities');
     const nodes = [], publications = [], hops = [], errors = [], clock = new Clock();
-    const links = new Set(['0:1', '0:2']);
+    const leaves = systems.slice(1).map((_, index) => index + 1);
+    const links = new Set(leaves.map(index => '0:' + index));
     const network = {duplicateExecute: false, hold: () => false};
     let publication = 0, request = 0;
     const deliver = (node, event) => {
@@ -52,7 +55,7 @@ export async function meshStar() {
     const route = (at, from, packet) => {
         const node = nodes[at];
         if (node.connected && [...node.subscriptions].some(filter => packet.event.topic.startsWith(filter.slice(0, -1)))) deliver(node, packet.event);
-        for (const next of at === 0 ? [1, 2] : [0]) {
+        for (const next of at === 0 ? leaves : [0]) {
             if (next === from || !links.has([at, next].sort().join(':'))) continue;
             hops.push({id: packet.id, from: node.system, to: nodes[next].system, phase: packet.phase});
             route(next, at, packet);
@@ -67,7 +70,7 @@ export async function meshStar() {
         assert.equal(clock.timers.size, 0, 'Stopping all extensions must clear their timers');
     };
     try {
-        for (const system of ['synthetic/s1', 'synthetic/s3', 'synthetic/s4']) {
+        for (const system of systems) {
             const index = nodes.length;
             const directory = await mkdtemp(join(tmpdir(), 'z2ma-mesh-star-'));
             const node = {system, directory, connected: true, subscriptions: new Set(), messages: [], commands: [], logs: []};
@@ -121,8 +124,9 @@ export async function meshStar() {
         }
         return {a: nodes[0], b: nodes[1], c: nodes[2], nodes, clock, network, publications, hops, close,
             setBranch: (leaf, connected) => {
-                const key = '0:' + nodes.indexOf(leaf);
-                assert.ok(key === '0:1' || key === '0:2');
+                const index = nodes.indexOf(leaf);
+                assert.ok(index > 0 && index < nodes.length, 'Only an existing leaf branch can be changed');
+                const key = '0:' + index;
                 if (connected) links.add(key); else links.delete(key);
             }};
     } catch (error) { await close(); throw error; }
