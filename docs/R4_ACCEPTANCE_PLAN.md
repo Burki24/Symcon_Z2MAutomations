@@ -43,6 +43,17 @@ MQTT-Aufträge. Eigene Testobjekte, Prozesse und Zugangsdaten entfernt; bestehen
 Systemdaten und Auswahl unverändert. Native Zeigerbedienung und Zuordnungen echter
 Geräteaktionen/Archive wurden dabei nicht geprüft; Live-System blieb unberührt.
 
+P4 am 06.11.2026 in Test-Symcon 9.1 mit isoliertem MQTT-Server und zwei
+synthetischen Erweiterungs-Peers bestanden (öffentliche Modulaufrufe per MCP).
+Zurückgehaltene Antwort nach sechs Sekunden durch den echten Timer als Timeout
+beendet; eigener Client-Socket während des nächsten Leseauftrags geschlossen:
+Auftrag abgebrochen, zweites System weiterhin erreichbar. Nach Wiederverbindung
+kein automatischer Neuversand; verspätete Antworten verworfen. Erst ein neuer
+ausdrücklicher Abruf mit frischen Anfragekennungen bestätigte Status und Katalog.
+Entwürfe, Auswahl, offene Eingaben und Besitzer auf beiden Systemen unverändert;
+deutsche Debugmeldungen geprüft. Testobjekte, Prozesse, Listener und Zugangsdaten
+entfernt, bestehende Benutzerstände unverändert; Live-System nicht angesprochen.
+
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
 | Lokale Sicherung, Altübernahme und Rückweg | `tests/migration.php`: 1/2/8 Systeme, echte temporäre Archivdateien, YAML-Bytes, Freigaben, gleiche lokale Kennungen, Besitzer, Konflikte und alle instrumentierten Übergabe-/Rückgabeschritte. Frisch erfolgreich unter PHP 8.5.10. | Symcon-Stubs; neu erzeugte Testobjekte mit übernommenen persistenten Attributen simulieren Wiederanlauf. Kein echter Kernelneustart, keine native Dateirechteabnahme. |
@@ -175,7 +186,7 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
   Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3 für den Modulweg
   mit synthetischen Einzelinstanzen praktisch bestätigt; echte Geräte-/Action-/
-  Archivzuordnungen nicht praktisch geprüft. P4–P6 nicht ausgeführt.
+  Archivzuordnungen nicht praktisch geprüft. P4 praktisch bestanden; P5/P6 offen.
 - R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
