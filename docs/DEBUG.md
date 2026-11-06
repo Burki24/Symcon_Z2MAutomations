@@ -1,5 +1,16 @@
 # Debug und MQTT-Diagnose
 
+## Kachel und Zugangserneuerung
+
+GetVisualizationTile und RequestAction verwenden den kanonischen DebugFlowHelper.
+Deutsche Ablaufmeldungen unterscheiden statische Bereitstellung, Lesen vorhandener
+Systemstände, ausdrückliches Öffnen, ungültige Auswahl und fehlende Rückmeldung.
+Zugangstoken, vollständige Öffnungslinks, SDK-Anfrageinhalte und Formulareingaben
+werden nicht protokolliert. access-renew meldet eine erfolgreiche Verlängerung
+samt Erhalt der Eingaben und Rechte; HTTP-Ablehnungen bleiben über den bestehenden
+Designer-Response-Debug nachvollziehbar. Die Kachel zeigt nach zehn Sekunden ohne
+passende SDK-Antwort einen erneuten manuellen Versuch an, ohne Aufträge zu wiederholen.
+
 ## R2: Native Installationsprüfung
 
 Die Test-Probe erfasst nur RPC-Übergaben vor dem Worker-Transport der Konsole;

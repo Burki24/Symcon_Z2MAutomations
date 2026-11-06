@@ -1,5 +1,30 @@
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 
+## Native Kachel und gemeinsamer Browserzugang – 06.11.2026
+
+Vor der Umsetzung VisualizationAssetHelper einschließlich HTTP-Origin-Ressource,
+VisualizationInteractionScript, VisualizationThemeHelper und IPSViewHTMLPageHelper
+geprüft. Die bereits unverändert eingebundenen Asset-/Origin-/Debug-Helper genügen
+für die native HTML-SDK-Kachel; keine Helper-Testkopien oder Änderungen an Fremdquellen.
+Die Palette bleibt bei den eigenen Designerressourcen. Kein eigener allgemeiner
+HTML-SDK-/IPSView-Helper eingeführt, kein neuer MQTT- oder Z2M-Befehl.
+
+Neue synthetische PHP-Nachweise in designer-access.inc.php und designer-tile.inc.php:
+acht Systeme, unabhängige Auswahl, unveränderte Entwürfe und offene native Eingaben,
+gezielter Browserstart, keine MQTT-Ausgabe, abgewiesene Fremdaktionen, identische
+Rechte/Quittungen bei Verlängerung, 15-Minuten-Ablauf, harte Acht-Stunden-Grenze,
+Originprüfung sowie Widerruf durch Modulupdate und Bindungswechsel.
+Sechs zusätzliche JavaScript-Nachweise prüfen SDK-Korrelation, verspätete Antworten,
+Popup-Sperre, feste Öffnungsadresse aus opakem Host und Eingabeerhalt beim Verlängern.
+Native SDK-/Browserprüfungen verwenden ausschließlich eigene synthetische Daten.
+Zusätzliche sichtbare Prüfung im separaten lokalen Edge mit opakem SDK-Mock:
+acht Systemoptionen, gezielte Designeröffnung, Hell/Dunkel bei 320/360/760/1920
+Pixeln ohne horizontalen Überlauf, neuer Link ohne Navigation offener Fenster sowie
+manuelle und simulierte periodische Verlängerung mit offenem Regeldialog und
+unübernommenem Namen. Keine JavaScript-Fehler und ausschließlich Status-/Zugangsaufrufe.
+Alle Projektprüfungen einschließlich 213 JavaScript-Tests bestanden.
+Die praktische Abnahme der Kachel in der echten Symcon-Testvisualisierung bleibt offen.
+
 Den abgestimmten Oberflächenentwurf in den vorhandenen Designer integriert.
 Librarylokale Komponentenstile verwenden eine semantische Palette für die
 automatische Browser-Hell-/Dunkeldarstellung; Schriftgrößen skalieren mit rem

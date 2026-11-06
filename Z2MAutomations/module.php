@@ -10,6 +10,7 @@ require_once __DIR__ . '/../libs/helper/DebugFlowHelper.php';
 require_once __DIR__ . '/../libs/helper/VisualizationAssetHelper.php';
 require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
 require_once __DIR__ . '/../libs/AutomationDesigner.php';
+require_once __DIR__ . '/../libs/DesignerEmbedding.php';
 require_once __DIR__ . '/../libs/SystemMigrationInspection.php';
 require_once __DIR__ . '/../libs/SystemWorkspace.php';
 require_once __DIR__ . '/../libs/WorkspaceEditorContext.php';
@@ -74,6 +75,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\VisualizationAssetHelper;
     use Burki24\SymconModuleHelper\HttpResponseHelper;
     use Z2MAutomations\AutomationDesigner;
+    use Z2MAutomations\DesignerEmbedding;
     use Z2MAutomations\SystemMigrationInspection;
     use Z2MAutomations\SystemWorkspace;
     use Z2MAutomations\WorkspaceEditorContext;
@@ -126,6 +128,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::Create();
+            $this->SetVisualizationType(1);
             $this->SetBuffer('ModulePropertiesReady', '');
             $this->SetReceiveDataFilter(Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->RegisterPropertyBoolean('Active', false);
@@ -198,6 +201,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::ApplyChanges();
+            $this->SetVisualizationType(1);
             $this->ResetWorkspaceCatalogRefresh();
             $this->InterruptWorkspaceInstallations();
             if ($this->GetBuffer('WorkspaceDiagnosticsJobs') !== '') $this->DebugEvent('AKTION', 'Diagnosequittungen nach Modulupdate oder Einstellungsübernahme verworfen. Es wird nichts erneut gesendet; befristete Aufzeichnungen der Verbindungsinstanzen behalten ihre Endzeit.');

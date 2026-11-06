@@ -1,5 +1,40 @@
 # Z2MAutomations
 
+## Native Symcon-Kachel und Designerzugang
+
+Die Automationszentrale kann zusätzlich als Kachel in der Symcon-Visualisierung
+verwendet werden. Das vorhandene Webfrontend bleibt vollständig verfügbar.
+
+1. Nach dem Modulupdate die **Automationszentrale** als Objekt in die
+   Kachelvisualisierung aufnehmen. Die einzelnen Z2M-Verbindungen sind dafür
+   nicht erforderlich. Die Zentrale stellt die HTML-Kachel selbst bereit.
+2. In der Kachel das gewünschte **Z2M-System** auswählen. Angezeigt werden
+   Name, Basistopic, Anzahl der Automationen und Aktionsfolgen im Entwurf sowie
+   der zuletzt bestätigte Automatikstatus. „Status aktualisieren“ liest den
+   vorhandenen Modulstand; es startet keine neue Abfrage in Z2M.
+3. **Designer öffnen** wählen. Derselbe Browserdesigner öffnet im gewählten
+   System in einem neuen Fenster. Wenn der Browser ein neues Fenster verhindert,
+   erscheint stattdessen ein anklickbarer Link. Die Auswahl der Kachel verändert
+   keine offenen Eingaben und keine Systemauswahl im nativen Modulformular.
+4. **Zugang erneuern** stellt einen neuen Öffnungslink bereit. Bereits offene
+   Designerfenster werden dabei nicht umgeladen. Die Kachel selbst schaltet keine
+   Geräte und speichert keine Automationen in Z2M.
+
+Der Zugang zum Designer ist zunächst 15 Minuten gültig. Bei sichtbarer Ansicht
+wird er alle vier Minuten automatisch verlängert; „Zugang verlängern“ im
+Designer führt dieselbe Prüfung sofort aus. Dabei bleiben offene Eingaben,
+Systemauswahl und laufende Anfragen erhalten. Nach längerer Abwesenheit,
+einem Modulupdate, geänderten Systemzuordnungen oder spätestens acht Stunden
+muss der Designer erneut über Modul oder Kachel geöffnet werden. Ein abgelaufener
+Zugang lässt sich nicht mit dem alten Link verlängern. Offene Eingaben bleiben
+im bisherigen Fenster sichtbar; sie werden nicht automatisch verworfen oder
+nochmals an das Modul gesendet. Höchstens vier Designerzugänge sind gleichzeitig
+gültig; ein weiterer Öffnungsvorgang ersetzt den ältesten Zugang.
+
+Die Kachel passt sich ihrer Breite und der Hell-/Dunkeleinstellung des Browsers an.
+Die Anbindung verwendet Symcons HTML-SDK und benötigt keine zusätzliche
+MQTT-Verbindung. Eine eigene IPSView-Ansicht ist noch nicht enthalten.
+
 Mit diesem Modul erstellen und bearbeiten Sie Automationen per Klick. Symcon
 überträgt die Regeln an die eigene Z2M-Erweiterung. Nach dem Speichern und
 Aktivieren führt Zigbee2MQTT sie auch bei ausgeschaltetem Symcon aus.

@@ -1,5 +1,16 @@
 # Projektkontext: Z2MAutomations
 
+## Aktuelle Ergänzung
+
+Native Symcon-HTML-Kachel (Typ 1, Symcon 9.0) ergänzt: acht Systeme auswählen,
+vorhandenen Status lesen, denselben Browserdesigner gezielt öffnen und den Zugang
+erneuern. Kachelauswahl schreibt weder Systemauswahl noch Eingaben des nativen
+Editors um. Gemeinsame Capability-Ausstellung für Modulbutton und Kachel;
+Browser verlängert aktive Zugänge ohne Neuladen, bis maximal acht Stunden.
+Keine Erweiterungsänderung, kein neuer MQTT-Pfad, keine Live-Änderungen.
+Lokale synthetische Nachweise sind vorhanden; echte Kachel-Praxisprüfung nach
+Modulupdate steht aus. Eine eigene IPSView-Ansicht ist weiterhin nicht umgesetzt.
+
 ## Ziel
 
 Automationen komfortabel in Symcon erstellen und verwalten. Eine vollständig

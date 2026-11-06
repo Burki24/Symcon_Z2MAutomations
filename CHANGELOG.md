@@ -2,6 +2,12 @@
 
 ## Neu
 
+- Native Symcon-Kachel der Automationszentrale mit Systemauswahl, vorhandenem
+  Automatikstatus, Entwurfsübersicht und Zugang zum gemeinsamen Browserdesigner.
+  Zugangserneuerung ohne Neuladen und ohne Verlust offener Eingaben ergänzt;
+  Ablauf, Rechte und Bindungswiderruf bleiben geschützt. Deutsche Debugmeldungen
+  und synthetische SDK-/Lebenszyklusprüfungen; keine Änderung der Z2M-Erweiterung.
+
 - Browserdesigner an das abgestimmte Mockup angepasst: automatische Hell-/
   Dunkeldarstellung, kräftigere Farben, skalierende Schrift und Umbruch bis
   zur schmalen Ansicht. Der Ablauf steht im Mittelpunkt; Systemaufträge sind

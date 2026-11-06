@@ -23,6 +23,7 @@ foreach (['Z2MAutomations', 'Z2MConnection', 'tests/fixtures/MQTTClient', 'tests
 class WorkspaceUIProbe extends Z2MAutomations
 {
     public array $importEvents = [];
+    public array $tileMessages = [];
     public array $debugMessages = [];
     public $onCatalogRead = null;
     public string $requestBody = '';
@@ -73,6 +74,11 @@ class WorkspaceUIProbe extends Z2MAutomations
     {
         return hash('sha256', json_encode([IPS_GetConfiguration($this->InstanceID), $this->ReadAttributeString('YamlDraft'),
             $this->ReadAttributeString('EditorDraft'), $this->ReadAttributeString('EditorSnapshot'), $this->GetBuffer('DesignerSessions')], JSON_THROW_ON_ERROR));
+    }
+    protected function UpdateVisualizationValue(mixed $Value): bool
+    {
+        $this->tileMessages[] = $Value;
+        return true;
     }
     protected function ImportEventIDs(): array
     {
@@ -214,6 +220,7 @@ $selected = $decode($manager->GetDesignerData());
 $token = substr(strrchr($manager->OpenAutomationDesigner(), '#'), 1);
 [$code, $raw] = $manager->Hook('data', $token);
 $check($code === 200 && $decode($raw)['workspaceContext']['systemId'] === $a, 'Authenticated browser data uses selected system');
+require __DIR__ . '/designer-tile.inc.php';
 $headers = ['HTTP_X_Z2MA_SYSTEM_ID' => $a, 'HTTP_X_Z2MA_GENERATION' => '1', 'HTTP_X_Z2MA_FINGERPRINT' => $detail($a)['fingerprint']];
 $manager->requestBody = json_encode(['requestId' => '11111111-1111-4111-8111-111111111111', 'context' => $selected['createContext'], 'ruleId' => 'same_rule', 'changes' => ['name' => 'Changed only A']]);
 [$code, $raw] = $manager->Hook('edit', $token, $headers, 'POST');

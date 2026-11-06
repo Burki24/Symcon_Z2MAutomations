@@ -1,5 +1,21 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Neue Ergänzung: native Kachel und Zugang – 06.11.2026
+
+- **Implementiert / synthetisch bestätigt:** gemeinsame Zugangsausstellung für
+  nativen Modulbutton und HTML-SDK-Kachel; acht Systemzuordnungen, lokale Auswahl,
+  Status aus vorhandenem Modulstand, Designeröffnung und explizite Zugangserneuerung.
+- **Synthetisch bestätigt:** zeitbegrenzte Verlängerung derselben Capability ohne
+  Seitenwechsel oder Wiederholung von Editoraufträgen; Eingaben und Rechte erhalten,
+  abgelaufene und durch Update/Bindungswechsel widerrufene Zugänge bleiben gesperrt.
+- **Offen:** echte Symcon-Kachel nach Modulupdate in der Testvisualisierung einbinden;
+  Systemauswahl, Status, Öffnung im jeweiligen Visualisierungsclient, Popup-Fallback,
+  Zugangserneuerung und natives Debug prüfen. Browser-/SDK-Mock ist kein Praxisbeleg.
+- **Nicht Teil dieses Schritts:** eigene IPSView-Ansicht. Die gemeinsame Ausgabe- und
+  Zugangsbasis ist vorhanden, ein IPSView-Aufrufweg benötigt eine eigene Abnahme.
+
+Die bisherigen R1–R3-Nachweise und bestätigten Designerfunktionen bleiben gültig.
+
 Stand: **06.11.2026**. Diese Liste ist der aktuelle Abgleich zur
 [Funktionsagenda](AGENDA.md) und zum [Mehrsystemplan](MULTISYSTEM_PLAN.md).
 Ältere Entwicklungsberichte beschreiben den damaligen Stand und sind keine

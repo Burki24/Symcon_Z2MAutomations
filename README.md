@@ -10,6 +10,10 @@ Z2MAutomations vereinfacht die Einrichtung von Zigbee2MQTT-Automationen in Symco
 Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
+Zusätzlich gibt es eine [native Symcon-Kachel](Z2MAutomations/README.md#native-symcon-kachel-und-designerzugang)
+mit Systemauswahl, Status und Zugang zum selben Browserdesigner.
+Der Designerzugang wird bei geöffneter Ansicht ohne Neuladen verlängert.
+
 Über [Partnerfreigaben](Z2MAutomations/README.md#partnerfreigaben-im-browserdesigner)
 legen Sie im Designer fest, welche zugeordneten Z2M-Systeme Befehle an das
 ausgewählte System senden dürfen. Änderungen werden zuerst im lokalen Entwurf geprüft.

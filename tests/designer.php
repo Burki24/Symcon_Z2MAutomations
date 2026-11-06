@@ -52,6 +52,11 @@ class DesignerProbe extends Z2MAutomations
         $this->SetBuffer('EditorWork.rule', json_encode(['context' => ['scope' => $state['scope']], 'dirty' => true, 'input' => ['secret' => 'not-exported']]));
     }
 
+    public function AccessSessions(): array
+    {
+        return json_decode($this->GetBuffer('DesignerSessions') ?: '[]', true, 16, JSON_THROW_ON_ERROR);
+    }
+
     public function EarlyReceive(): string
     {
         $this->SetBuffer('ModulePropertiesReady', '');
@@ -225,6 +230,7 @@ $check($changedScope['module']['baseTopic'] === 'synthetic/z2m', 'Pending config
 IPS_ApplyChanges($id);
 $applied = json_decode($module->GetDesignerData(), true);
 $check(!$applied['draftAvailable'] && !$applied['catalogAvailable'] && $applied['catalogLoadedAt'] === null && $module->Hook('data', 'GET', $links[4])[0] === 403, 'ApplyChanges invalidates old-topic caches, their timestamps and sessions');
+require __DIR__ . '/designer-access.inc.php';
 $module->hookAvailable = false;
 $check($module->OpenAutomationDesigner() === '', 'Failed hook registration returns no broken URL');
 $debug = implode("\n", $module->debug);

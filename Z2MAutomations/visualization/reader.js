@@ -9,8 +9,10 @@ import {installRuntime} from './runtime.js';
 import {installCatalogRefresh} from './catalog.js';
 import {installManagement, matchesRuleState} from './management.js';
 import {installLayout} from './layout.js';
+import {installAccessRenewal} from './access.js';
 (() => {
     'use strict';
+    installAccessRenewal();
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char]));
     const icon = name => `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;

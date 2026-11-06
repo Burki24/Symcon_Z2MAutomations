@@ -450,3 +450,8 @@ input, select { accent-color: var(--primary); }
     dialog { width: calc(100vw - 1.2rem); padding: 1rem; }
     .dialog-actions button { width: 100%; }
 }
+
+/* Access renewal never replaces or reloads the editor. */
+.designer-access {display: flex; align-items: center; flex-wrap: wrap; gap: .6rem 1rem; padding: .6rem 1.4rem; background: var(--surface); border-top: 1px solid var(--line); color: var(--muted); font-size: .875rem;}
+.designer-access span {flex: 1 1 18rem; overflow-wrap: anywhere;}
+.designer-access[data-tone="error"] {color: var(--danger); background: var(--danger-soft);}

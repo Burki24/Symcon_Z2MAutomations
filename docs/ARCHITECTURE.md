@@ -1,5 +1,28 @@
 # Architektur
 
+## Gemeinsamer Designerzugang und native HTML-Kachel
+
+DesignerEmbedding verwendet die vorhandenen VisualizationAssetHelper-,
+HTTP-Origin- und DebugFlowHelper-Verträge. Die bestehende Zentrale aktiviert
+HTML-SDK-Typ 1 in Create/ApplyChanges; GetVisualizationTile liefert nur eine
+statische Shell mit fester Hookadresse, ohne Browser-Capability. RequestAction
+akzeptiert ausschließlich die korrelierten Kachelaktionen status/access.
+Die Statusansicht verwendet WorkspaceOverview und vorhandene Verbindungsdaten;
+Systemauswahl bleibt lokal in der jeweiligen Kachel. Kein neuer MQTT-Pfad.
+
+Native SDK-Antworten enthalten Client- und Anfragekennung. Ein ausdrücklich
+angeforderter Designerzugang wird nur von der passenden Kachel angenommen.
+IssueDesignerAccess erzeugt denselben begrenzten Zugang auch für den nativen
+Öffnungsbutton. initialSystem im flüchtigen Zugangsdatensatz wählt den ersten
+Browserlesekontext, ohne die globale Auswahl umzuschreiben. Danach bleiben die
+bestehenden expliziten Systemheader und Bindungsprüfungen maßgeblich.
+
+access-renew verlängert ausschließlich eine bereits gültige Capability nach
+derselben Origin-/JSON-Prüfung wie Editor-POSTs. Hash, Rechte, Quittungen und
+Bindung bleiben identisch; maximal acht Stunden ab Ausstellung. access.js führt
+keine Editoraktion erneut aus und lädt keine Seite neu. Neue Modul-/Bindungsstände
+und abgelaufene Zugänge bleiben gesperrt. Details: ADR 0032.
+
 ## Gerichtete Partnerfreigaben im Designer
 
 WorkspacePermissions ergänzt den vorhandenen Workspace-Vertrag für mesh_peers
