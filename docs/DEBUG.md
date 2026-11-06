@@ -1,5 +1,15 @@
 # Debug und MQTT-Diagnose
 
+## Bestätigte und früher gespeicherte Gerätedaten
+
+WorkspaceCatalogView meldet je System, ob der gespeicherte Katalog aktuell
+bestätigt und im Editor verwendbar ist oder nur ein historischer Stand erhalten
+bleibt. Bezug enthält Systemkennung und Bestätigungs-/Speicherflags, keine
+Gerätenamen, Kataloginhalte oder Entwürfe. Übersicht und Editor verwenden dieselbe
+WorkspaceUsableCatalog-Prüfung. Eine reine Anzeige startet keinen Abruf und
+löscht keinen Katalog. Aktualisierungsfehler bleiben auch in der kompakten
+Designeranzeige sichtbar.
+
 ## IPSView-Ausgabe
 
 GetIPSViewHTML und RequestAction verwenden den kanonischen DebugFlowHelper.

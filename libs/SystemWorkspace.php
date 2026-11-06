@@ -336,6 +336,15 @@ trait SystemWorkspace
         }
     }
 
+    /** The editor and status share this exact confirmation of the stored catalog. */
+    private function WorkspaceUsableCatalog(array $record): ?array
+    {
+        $stored = $record['catalog'];
+        if ($stored === null) return null;
+        $confirmed = $this->WorkspaceCatalog($record['binding']);
+        return $confirmed !== null && WorkspaceState::Fingerprint($confirmed) === WorkspaceState::Fingerprint($stored) ? $stored : null;
+    }
+
     private function WorkspaceRecord(array $state, string $id, ?int $generation = null, ?string $fingerprint = null): array
     {
         if (!SystemContract::SystemID($id) || !isset($state['systems'][$id])) throw new RuntimeException('system_missing');

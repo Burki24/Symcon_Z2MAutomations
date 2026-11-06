@@ -20,7 +20,15 @@ test('errors and detailed rejection remain visible while the control body is clo
 });
 
 test('presentation derives confirmed summaries without modifying the supplied state', () => {
-    const data = Object.freeze({transfer: Object.freeze({canStore: true}), runtime: Object.freeze({confirmed: true, executing: true}), catalogRefresh: Object.freeze({loadedAt: 1800000000})});
+    const data = Object.freeze({catalogAvailable: true, transfer: Object.freeze({canStore: true}), runtime: Object.freeze({confirmed: true, executing: true}), catalogRefresh: Object.freeze({loadedAt: 1800000000})});
     assert.deepEqual(layoutStatus(data), {transfer: 'Geprüft', runtime: 'Automatik aktiv', catalog: 'Gerätedaten geladen'});
     assert.deepEqual(data.runtime, {confirmed: true, executing: true});
+});
+
+test('a stored catalog timestamp never overrides the missing editor confirmation', () => {
+    const stored = {catalogAvailable: false, catalogRefresh: {loadedAt: 1800000000}};
+    assert.equal(layoutStatus(stored).catalog, 'Ansicht aktualisieren');
+    assert.equal(layoutStatus({catalogAvailable: false, catalogRefresh: {loadedAt: null, storedAt: 1800000000}}).catalog, 'Nicht bestätigt');
+    assert.equal(layoutStatus({catalogAvailable: true, catalogRefresh: {loadedAt: null, storedAt: 1800000000}}).catalog, 'Nicht bestätigt');
+    assert.equal(layoutStatus({catalogAvailable: false, catalogRefresh: {loadedAt: null, storedAt: null}}).catalog, 'Noch nicht geladen');
 });

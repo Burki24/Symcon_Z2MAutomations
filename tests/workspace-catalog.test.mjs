@@ -6,7 +6,7 @@ const base = 'http://127.0.0.1/view/index.html#PRIVATE_TOKEN';
 const model = () => ({workspace: {}, module: {baseTopic: 'synthetic/one'},
     workspaceContext: {systemId: '11111111-1111-4111-8111-111111111111', generation: 2, fingerprint: 'a'.repeat(64)},
     catalogRefresh: {systemId: '11111111-1111-4111-8111-111111111111', generation: 2, fingerprint: 'a'.repeat(64),
-        operation: '', phase: 'idle', pending: false, canRefresh: true, message: 'Bereit', loadedAt: null, counts: {devices: 0, groups: 0, scenes: 0}}});
+        operation: '', phase: 'idle', pending: false, canRefresh: true, message: 'Bereit', loadedAt: null, storedAt: null, counts: {devices: 0, groups: 0, scenes: 0}}});
 const response = (catalogRefresh, ok = true) => ({ok, text: async () => JSON.stringify({ok, catalogRefresh})});
 
 test('explicit catalog POST carries one exact system binding and no document or runtime command', async () => {
@@ -33,12 +33,26 @@ test('polling uses GET only, failed POST is never retried and transport details 
 
 test('foreign, malformed and oversized catalog status cannot overwrite another model', async () => {
     const data = model(); const before = structuredClone(data);
-    for (const view of [{...data.catalogRefresh, systemId: 'other'}, {...data.catalogRefresh, generation: 3}, {...data.catalogRefresh, counts: {devices: -1}}, {...data.catalogRefresh, pending: undefined}]) {
+    for (const view of [{...data.catalogRefresh, systemId: 'other'}, {...data.catalogRefresh, generation: 3}, {...data.catalogRefresh, counts: {devices: -1}}, {...data.catalogRefresh, pending: undefined}, {...data.catalogRefresh, storedAt: 'invalid'}]) {
         await assert.rejects(catalogRequest(data, 'status', {base, request: async () => response(view)}));
     }
     await assert.rejects(catalogRequest(data, 'status', {base, request: async () => ({ok: true, text: async () => 'x'.repeat(16385)})}));
     await assert.rejects(catalogRequest(data, 'refresh', {base, request: async () => ({ok: false, text: async () => JSON.stringify({ok: false, message: 'Das Modul ist beschäftigt.'})})}), /beschäftigt/);
     assert.deepEqual(data, before);
+});
+
+test('stored but unconfirmed device data are labelled as history without usable device counts', () => {
+    const previous = {document: globalThis.document}; const anchor = new Element(); const data = model();
+    data.catalogRefresh.storedAt = 1800000000;
+    data.catalogRefresh.message = 'Gespeicherte Gerätedaten sind derzeit nicht bestätigt.';
+    globalThis.document = {createElement: () => new Element(), querySelector: selector => selector === '.system-selector' ? anchor : null};
+    const update = installCatalogRefresh({getData: () => data, reload: async () => true, message() {}});
+    try {
+        update(); const panel = anchor.next;
+        assert.match(panel.children[1].textContent, /nicht bestätigt/);
+        assert.match(panel.children[2].textContent, /Früher gespeichert/);
+        assert.doesNotMatch(panel.children[2].textContent, /Zuletzt eingelesen|\d+ Geräte/);
+    } finally { data.workspace = null; update(); Object.assign(globalThis, previous); }
 });
 
 class Element {

@@ -273,8 +273,14 @@ import {installNativeEmbedding} from './embedding.js';
             const notices = [`${data.module.name} · Topic ${data.module.baseTopic} · Stand aus dem Modul, keine Live-Prüfung.`];
             const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
                 ? new Date(data.catalogLoadedAt * 1000).toLocaleString('de-DE') : null;
-            notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
-            if (!data.catalogAvailable) notices.push(data.workspace ? 'Gerätedaten fehlen für dieses System. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.' : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
+            const storedTime = Number.isSafeInteger(data.catalogRefresh?.storedAt) && data.catalogRefresh.storedAt > 0
+                ? new Date(data.catalogRefresh.storedAt * 1000).toLocaleString('de-DE') : null;
+            notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.`
+                : storedTime ? ` Gerätedaten früher gespeichert: ${storedTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
+            if (!data.catalogAvailable) notices.push(data.workspace
+                ? (data.catalogRefresh?.storedAt ? 'Gespeicherte Gerätedaten sind derzeit nicht bestätigt. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.'
+                    : 'Gerätedaten fehlen für dieses System. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.')
+                : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
             if (!data.draftAvailable && !data.draftMismatch) notices.push(data.workspace ? 'Für dieses System fehlt noch ein lokaler Entwurf. Im nativen Formular „Direkt aus Z2M einrichten“ öffnen: Automationen sicher einlesen, Vorschau prüfen und Verbindung übernehmen. Z2M läuft dabei unverändert weiter.' : 'Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
             if (data.draftMismatch) notices.push('Der YAML-Entwurf weicht vom geladenen Editorstand ab. Bitte im nativen Formular prüfen; hier wird nichts ersetzt.');
             if (data.openFormEdits) notices.push('Im nativen Formular gibt es noch nicht in den Entwurf übernommene Eingaben. Diese sind hier noch nicht enthalten und bleiben erhalten.');

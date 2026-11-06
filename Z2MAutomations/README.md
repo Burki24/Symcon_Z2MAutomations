@@ -1851,6 +1851,15 @@ Regelinhalte oder Zugangsdaten.
 4. Nach erfolgreichem Abschluss erscheinen Ladezeit und Anzahl der Geräte,
    Gruppen und Szenen. Die Geräteauswahl wird automatisch nachgeladen.
 
+**Gerätedaten geladen** bedeutet, dass die Daten für die aktuelle Verbindung
+bestätigt und im Editor verfügbar sind. **Nicht bestätigt** bedeutet, dass ein
+früherer Stand noch gespeichert ist, derzeit aber nicht verwendet werden kann.
+Dann **Gerätedaten aktualisieren** wählen. Das frühere Datum steht in den Details
+als **Früher gespeichert**. **Ansicht aktualisieren** erscheint, wenn bereits
+bestätigte neue Daten vorliegen, die geöffnete Bearbeitung aber noch den alten
+Stand zeigt. Offene Eingaben zuerst übernehmen oder schließen und dann die
+Ansicht aktualisieren.
+
 Dabei werden ausschließlich Gerätedaten dieses Systems abgefragt. Vorhandene
 Entwürfe, Namen, Regelaktivierungen, Aktionsfolgen und Partnerfreigaben bleiben
 erhalten. In Z2M wird keine Automation gespeichert, gestartet oder gestoppt.

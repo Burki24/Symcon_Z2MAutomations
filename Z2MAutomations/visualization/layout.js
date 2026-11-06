@@ -6,7 +6,8 @@ export function layoutStatus(data) {
     return {
         transfer: !transfer ? 'Nicht verfügbar' : transfer.pending ? 'Auftrag läuft' : transfer.error || transfer.details ? 'Hinweis beachten' : transfer.canStore ? 'Geprüft' : transfer.status === 'stored' ? 'Gespeichert' : 'Entwurf prüfen',
         runtime: !runtime?.confirmed ? 'Nicht bestätigt' : runtime.pending ? 'Auftrag läuft' : runtime.executing ? 'Automatik aktiv' : 'Automatik gestoppt',
-        catalog: !catalog ? 'Nicht verfügbar' : catalog.pending ? 'Wird geladen' : catalog.error ? 'Hinweis beachten' : catalog.loadedAt ? 'Gerätedaten geladen' : 'Noch nicht geladen'
+        catalog: !catalog ? 'Nicht verfügbar' : catalog.pending ? 'Wird geladen' : catalog.error ? 'Hinweis beachten'
+            : data.catalogAvailable === true && catalog.loadedAt ? 'Gerätedaten geladen' : catalog.loadedAt ? 'Ansicht aktualisieren' : catalog.storedAt ? 'Nicht bestätigt' : 'Noch nicht geladen'
     };
 }
 

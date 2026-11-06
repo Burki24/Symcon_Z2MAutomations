@@ -1,3 +1,35 @@
+## Widersprüchlichen Gerätedatenstatus korrigiert – 06.11.2026
+
+Die kompakte Anzeige leitete „Gerätedaten geladen“ allein aus der historischen
+Ladezeit in der Zentrale ab. Der Editor verlangte dagegen eine aktuelle
+Verbindungsbestätigung und einen exakt passenden Verbindungskatalog. Nach
+Verlust dieser Bestätigung konnten beide Aussagen gleichzeitig erscheinen.
+
+WorkspaceUsableCatalog bündelt die bisherige Editorprüfung unverändert und wird
+auch für den Gerätestatus verwendet. Innerhalb einer vollständigen
+Designerantwort übernimmt die Statusansicht dieselbe Beobachtung wie der
+Editorsnapshot, damit sie nicht durch einen zweiten Abruf abweichen kann.
+loadedAt und counts beschreiben nur verwendbare Daten; storedAt erhält die
+historische Ladezeit. Kein Katalog und kein Entwurf wird deshalb verworfen.
+Der Browser unterscheidet „Nicht bestätigt“ und „Ansicht aktualisieren“ von
+geladenen Daten. Fehlgeschlagene Abrufe übergeben ihren Fehler auch an die
+kompakte Anzeige. Es gibt keine automatische Z2M-Anfrage zur Statuskorrektur.
+
+Regression zunächst in PHP und JavaScript fehlgeschlagen und danach bestanden:
+Kernelstart der Verbindung mit erhaltenem Zentralkatalog, neuer abweichender
+Verbindungskatalog, explizites Nachladen sowie Erhalt von YAML und offenen
+Eingaben. Zusätzlich lokaler separater Edge mit acht synthetischen Systemen,
+echtem Modulcode und opaker HTMLBox: Nach simulierter verlorener Bestätigung
+stimmen Kopf, Detailanzeige und Warnung überein. Historie und Entwürfe identisch,
+keine MQTT-Übergabe. Hell/Dunkel, 1600/760/360 Pixel und echte Mausradbedienung
+weiterhin erfolgreich. Keine Prüfung oder Änderung am Live-System.
+
+Vollständige Offline-Suite mit PHP 8.5.10 und temporärem 256-MB-Testlimit
+erfolgreich, einschließlich 226 JavaScript-Tests. Struktur, Kodierung,
+Erweiterungsartefakt, offizielle StylePHP-JSON-Prüfung und php-cs-fixer im
+Prüfmodus bestanden. Der Browsernachweis wurde nach der abschließenden
+Anpassung der historischen Datumsanzeige erneut erfolgreich ausgeführt.
+
 ## Vollständige IPSView-Ansicht lokal integriert – 06.11.2026
 
 Das regulär verteilte IPSViewHTMLPageHelper-Paket ist eingebunden; keine lokalen

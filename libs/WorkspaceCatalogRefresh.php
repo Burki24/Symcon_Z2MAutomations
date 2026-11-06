@@ -106,9 +106,12 @@ trait WorkspaceCatalogRefresh
         });
     }
 
-    private function WorkspaceCatalogView(array $record): array
+    private function WorkspaceCatalogView(array $record, ?bool $editorAvailable = null): array
     {
         $system = $record['binding']['systemId'];
+        // A full designer response uses the exact observation that built its editor snapshot.
+        $catalog = $editorAvailable === null ? $this->WorkspaceUsableCatalog($record) : ($editorAvailable ? $record['catalog'] : null);
+        $storedAt = $record['catalog']['loadedAt'] ?? null;
         $job = $this->ReadWorkspaceCatalogJobs()['systems'][$system] ?? null;
         $matches = $job === null || $job['binding'] === $record['binding'];
         $pending = $matches && in_array($job['phase'] ?? '', ['health', 'catalog'], true);
@@ -127,10 +130,21 @@ trait WorkspaceCatalogRefresh
             default   => 'Gerätedaten können für dieses System direkt aus Z2M nachgeladen werden.'
         };
         if ($phase === 'idle' && $blocked !== '') $message = WorkspaceState::MESSAGES[$blocked];
+        if (!$pending && $error === '' && $catalog === null && $blocked === '') {
+            $message = $storedAt === null ? 'Für dieses System sind noch keine Gerätedaten geladen. Bitte „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.'
+                : 'Gespeicherte Gerätedaten sind derzeit nicht bestätigt. Bitte „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.';
+        }
+        $this->DebugEvent(
+            'AKTION',
+            $catalog !== null ? 'Gerätedatenstatus: Der gespeicherte Katalog ist für die aktuelle Verbindung bestätigt und im Editor verwendbar.'
+            : ($storedAt === null ? 'Gerätedatenstatus: Für dieses System fehlt ein bestätigter Katalog. Entwürfe bleiben erhalten.'
+                : 'Gerätedatenstatus: Ein früherer Katalog bleibt gespeichert, ist derzeit aber nicht für den Editor bestätigt. Historischen Stand nicht als geladen anzeigen.'),
+            ['Systembezug' => $system, 'KatalogBestätigt' => $catalog !== null, 'GespeicherterStandVorhanden' => $storedAt !== null]
+        );
         return ['systemId' => $system, 'generation' => $record['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($record),
-            'operation'    => $job['operation'] ?? '', 'phase' => $phase, 'pending' => $pending, 'canRefresh' => $blocked === '', 'blocked' => $blocked,
-            'message'      => $message, 'loadedAt' => $record['catalog']['loadedAt'] ?? null,
-            'counts'       => ['devices' => count($record['catalog']['devices'] ?? []), 'groups' => count($record['catalog']['groups'] ?? []), 'scenes' => count($record['catalog']['scenes'] ?? [])]];
+            'operation'    => $job['operation'] ?? '', 'phase' => $phase, 'error' => $error, 'pending' => $pending, 'canRefresh' => $blocked === '', 'blocked' => $blocked,
+            'message'      => $message, 'loadedAt' => $catalog['loadedAt'] ?? null, 'storedAt' => $storedAt,
+            'counts'       => ['devices' => count($catalog['devices'] ?? []), 'groups' => count($catalog['groups'] ?? []), 'scenes' => count($catalog['scenes'] ?? [])]];
     }
 
     private function FinishWorkspaceCatalogJob(string $system, string $phase, string $error): void

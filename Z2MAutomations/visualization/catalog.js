@@ -24,7 +24,8 @@ export async function catalogRequest(data, action, {token, request = fetch, base
             || typeof view.fingerprint !== 'string' || typeof view.operation !== 'string' || typeof view.phase !== 'string'
             || typeof view.pending !== 'boolean' || typeof view.canRefresh !== 'boolean'
             || !view.counts || !['devices', 'groups', 'scenes'].every(key => Number.isSafeInteger(view.counts[key]) && view.counts[key] >= 0)
-            || !(view.loadedAt === null || Number.isSafeInteger(view.loadedAt))) throw new Error('Die Rückmeldung gehört nicht zum gewählten System oder ist unvollständig. Bitte die Ansicht aktualisieren.');
+            || !(view.loadedAt === null || Number.isSafeInteger(view.loadedAt))
+            || !(view.storedAt === null || Number.isSafeInteger(view.storedAt))) throw new Error('Die Rückmeldung gehört nicht zum gewählten System oder ist unvollständig. Bitte die Ansicht aktualisieren.');
         return view;
     } finally { clearTimeout(timeout); }
 }
@@ -50,7 +51,8 @@ export function installCatalogRefresh({getData, reload, isLoading = () => false,
         if (panel.hidden) return;
         heading.textContent = `Gerätedaten · ${data.module.baseTopic}`;
         status.textContent = localError && current(localError.data) ? localError.message : view.message;
-        details.textContent = view.loadedAt === null ? 'Noch kein bestätigter Gerätekatalog eingelesen.'
+        details.textContent = view.loadedAt === null ? (view.storedAt === null ? 'Noch kein bestätigter Gerätekatalog eingelesen.'
+            : `Früher gespeichert: ${new Date(view.storedAt * 1000).toLocaleString('de-DE')} · derzeit nicht bestätigt`)
             : `Zuletzt eingelesen: ${new Date(view.loadedAt * 1000).toLocaleString('de-DE')} · ${view.counts.devices} Geräte · ${view.counts.groups} Gruppen · ${view.counts.scenes} Szenen`;
         panel.setAttribute('aria-busy', String(busy || view.pending));
         panel.classList.toggle('is-loading', busy || view.pending);

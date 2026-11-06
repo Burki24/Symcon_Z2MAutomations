@@ -45,6 +45,13 @@
 
 ## Fixes
 
+- Gerätedatenstatus im gemeinsamen Designer vereinheitlicht: Ein früher
+  gespeicherter Katalog wird ohne aktuelle Bestätigung nicht mehr als geladen
+  angezeigt. Übersicht, Details und Warnmeldung verwenden dieselbe Prüfung;
+  historische Ladezeit bleibt erkennbar. Entwürfe und gespeicherte Kataloge
+  bleiben erhalten. Regressionstests für Neustart, abweichende Kataloge und
+  anschließendes Nachladen sowie verständliche Debugmeldungen ergänzt.
+
 - Gemischte Browser-/Symcon-Farben der Kachel sowie die Kollision zwischen
   erster Datenabfrage und dem gleichzeitig geladenen Scroll-Helfer behoben.
   Die Kachel verwendet die vorhandene zentrale Interaktionsressource unverändert.

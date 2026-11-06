@@ -200,10 +200,8 @@ trait WorkspaceEditorContext
         foreach ($workspace['systems'] as $id => $target) {
             $local = $id === $source['binding']['systemId'];
             if (!$local && !WorkspaceState::Allows($source, $target)) continue;
-            $catalog = $target['catalog'];
-            if ($catalog === null || !$this->WorkspaceConnectionCurrent($target['binding'])) continue;
-            $confirmed = $this->WorkspaceCatalog($target['binding']);
-            if ($confirmed === null || WorkspaceState::Fingerprint($confirmed) !== WorkspaceState::Fingerprint($catalog)) continue;
+            $catalog = $this->WorkspaceUsableCatalog($target);
+            if ($catalog === null) continue;
             $part = $this->AddEditorScenes($this->AddEditorGroupTargets($catalog));
             if ($local) {
                 $snapshot['loadedAt'] = $catalog['loadedAt'];

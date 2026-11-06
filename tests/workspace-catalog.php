@@ -156,6 +156,38 @@ foreach ($connections as $ci) {
     $state = $decode(Z2MC_GetConnectionInfo($ci))['state']['extension'];
     $check($state['executing'] && $state['storedRevision'] === 3 && $state['activeRevision'] === 3 && $state['enabledCount'] === 1, 'Device refresh leaves the independently active receiver revision and rule count unchanged');
 }
+$catalogSystem = $systems[6];
+$catalogConnection = IPS\InstanceManager::getInstanceInterface($connections[6]);
+$catalogBefore = $manager->Raw();
+$catalogPackets = $sent();
+$catalogConnection->MessageSink(time(), 0, IPS_KERNELSTARTED, []);
+$catalogToken = explode('#', $manager->OpenAutomationDesigner())[1];
+[$catalogHttp, $catalogBody] = $manager->Hook('data', $catalogToken, ['HTTP_X_Z2MA_SYSTEM_ID' => $catalogSystem]);
+$catalogView = $decode($catalogBody);
+$catalogStatus = $decode($manager->GetWorkspaceDeviceCatalogStatus($catalogSystem))['catalogRefresh'];
+$check($catalogHttp === 200 && !$catalogView['catalogAvailable'] && $catalogView['catalogLoadedAt'] === null, 'Editor cannot use an unconfirmed connection catalog after restart');
+$check($catalogStatus['loadedAt'] === null && $catalogStatus['storedAt'] !== null && $catalogStatus['counts']['devices'] === 0
+    && str_contains($catalogStatus['message'], 'nicht bestätigt'), 'Stored history is distinguished from confirmed current device data in the status panel');
+$check($catalogView['catalogRefresh'] === $catalogStatus && $manager->Raw() === $catalogBefore && $sent() === $catalogPackets, 'Reading both representations preserves every stored catalog and draft without MQTT');
+$manager->RequestWorkspaceDeviceCatalog($catalogSystem, 1, $detail($catalogSystem)['fingerprint'], $op());
+$manager->RefreshWorkspaceDeviceCatalogs();
+$manager->RefreshWorkspaceDeviceCatalogs();
+[$catalogHttp, $catalogBody] = $manager->Hook('data', $catalogToken, ['HTTP_X_Z2MA_SYSTEM_ID' => $catalogSystem]);
+$catalogView = $decode($catalogBody);
+$check($catalogHttp === 200 && $catalogView['catalogAvailable'] && $catalogView['catalogLoadedAt'] === $catalogView['catalogRefresh']['loadedAt']
+    && $catalogView['catalogRefresh']['counts']['devices'] === 1 && $detail($catalogSystem)['data'] === $baseline[$catalogSystem], 'Explicit refresh restores consistent usable data and keeps pending inputs and exact YAML');
+$catalogData['devices'][0]['name'] = 'PRIVATE_DEVICE_UPDATED';
+$catalogConnection->RequestDeviceCatalog();
+$catalogBefore = $manager->Raw();
+$catalogPackets = $sent();
+[$catalogHttp, $catalogBody] = $manager->Hook('data', $catalogToken, ['HTTP_X_Z2MA_SYSTEM_ID' => $catalogSystem]);
+$catalogView = $decode($catalogBody);
+$check($catalogHttp === 200 && !$catalogView['catalogAvailable'] && $catalogView['catalogRefresh']['loadedAt'] === null
+    && $catalogView['catalogRefresh']['storedAt'] !== null && $manager->Raw() === $catalogBefore && $sent() === $catalogPackets, 'A newly confirmed but different connection catalog cannot validate an old central catalog');
+$manager->RefreshWorkspaceCatalog($catalogSystem, 1, $detail($catalogSystem)['fingerprint'], $op());
+[$catalogHttp, $catalogBody] = $manager->Hook('data', $catalogToken, ['HTTP_X_Z2MA_SYSTEM_ID' => $catalogSystem]);
+$catalogView = $decode($catalogBody);
+$check($catalogHttp === 200 && $catalogView['catalogAvailable'] && $catalogView['catalogRefresh']['loadedAt'] === $catalogView['catalogLoadedAt'], 'Explicitly importing the current connection catalog restores matching editor and panel state');
 $packets = $sent();
 $manager->RefreshWorkspaceDeviceCatalogs();
 $check($sent() === $packets, 'Completed timers never repeat a read request');
@@ -200,7 +232,8 @@ $d = $detail($sys);
 $manager->RequestWorkspaceDeviceCatalog($sys, 1, $d['fingerprint'], $op());
 $manager->RefreshWorkspaceDeviceCatalogs();
 $manager->RefreshWorkspaceDeviceCatalogs();
-$check($decode($manager->GetWorkspaceDeviceCatalogStatus($sys))['catalogRefresh']['phase'] === 'error' && $manager->Raw() === $beforeInvalid, 'Invalid catalog preserves all previous central data and cannot confirm success');
+$invalidView = $decode($manager->GetWorkspaceDeviceCatalogStatus($sys))['catalogRefresh'];
+$check($invalidView['phase'] === 'error' && $invalidView['error'] !== '' && $manager->Raw() === $beforeInvalid, 'Invalid catalog preserves all previous central data and exposes its error to the compact status');
 $mode = 'hold';
 $d = $detail($sys);
 $beforeTimeout = $manager->Raw();

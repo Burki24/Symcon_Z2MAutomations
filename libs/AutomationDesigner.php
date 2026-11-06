@@ -212,7 +212,7 @@ trait AutomationDesigner
             $data['devicePage'] = ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)];
             $data['transfer'] = $this->WorkspaceTransferView($ctx['record']);
             $data['runtime'] = $this->WorkspaceRuntimeView($ctx['record']);
-            $data['catalogRefresh'] = $this->WorkspaceCatalogView($ctx['record']);
+            $data['catalogRefresh'] = $this->WorkspaceCatalogView($ctx['record'], $ctx['catalogAvailable']);
             if (!($ctx['catalogOnly'] ?? false)) {
                 $data['permissionsAllowed'] = $this->DesignerWriteAccess($_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '', 'permissions');
                 $data['installationAllowed'] = $this->DesignerWriteAccess($_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '', 'installation');
