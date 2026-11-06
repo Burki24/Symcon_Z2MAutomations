@@ -2,10 +2,10 @@
 
 Stand: **06.11.2026**. Planungsbasis: `e537ce579b673d6a5be631518834ebd0094e7692`
 auf `dev`; zu Beginn sauberer Arbeitsbaum. **R4/B3 bleibt offen.**
-Dieser Auftrag gleicht Belege ab, führt vorhandene Offline-Tests aus und plant
-die Restabnahme. Keine Test-/Live-Instanz wurde dafür angesprochen, angelegt,
+Der ursprüngliche Abgleich prüfte Belege und Offline-Tests und plante
+die Restabnahme. Dabei wurde keine Test-/Live-Instanz angesprochen, angelegt,
 umgestellt oder neu gestartet. Kein Besitzerwechsel und kein MQTT-Versand an
-reale Broker. Die folgenden Praxisabläufe sind noch nicht ausgeführt.
+reale Broker. Nachfolgende Praxisergänzungen nennen die inzwischen ausgeführten Teilfälle.
 
 Lokaler Prüfbezug: PHP 8.5.10, Node 24.20.0, VisualizationAssetHelper 1.1.4.
 Das generierte Erweiterungsartefakt mit Buildkennung
@@ -30,6 +30,18 @@ Deutsche Datei-Debugmeldungen für Vorschau, Übernahme und Rücknahme bestätig
 Eigene Testobjekte, Prozesse, Listener und Zugangsdaten entfernt; Aufzeichnungen
 beendet. Private Sicherungen erhalten. Vorhandene Systemdaten und Auswahl
 unverändert; Live-Symcon und produktive Broker/Z2M nicht angesprochen.
+
+Altübernahme P3 am 06.11.2026: Zwei eigene synthetische Einzelinstanzen in
+Test-Symcon 9.1 per MCP gesichert, vorbereitet, übernommen und zurückgegeben.
+YAML, Kennungen, Aktionsfolgen und Partnerfreigaben exakt erhalten; alte Editoren
+während der Übernahme gesperrt und nach dem Rückweg wieder bearbeitbar.
+Quellattribute, Konfigurationen, Arbeitsdaten, Objektkennungen und MQTT-Zuordnungen
+wiederhergestellt; zentrale Änderung zusätzlich in der Rückwegsicherung erhalten.
+Acht private Archive unabhängig auf Prüfsummen geprüft. Wiederholung erfolgreich,
+deutsche Debugmeldungen bestätigt; Übernahme und Rückweg verursachten null
+MQTT-Aufträge. Eigene Testobjekte, Prozesse und Zugangsdaten entfernt; bestehende
+Systemdaten und Auswahl unverändert. Native Zeigerbedienung und Zuordnungen echter
+Geräteaktionen/Archive wurden dabei nicht geprüft; Live-System blieb unberührt.
 
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
@@ -161,7 +173,9 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   UTF-8/LF ohne BOM ebenfalls geprüft. Keine neue Gesamtsuitenabnahme behauptet.
 - P0–P2: MQTT-Testanbindung und Modul-/Callbackpraxis für direkte Einrichtung
   und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
-  Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3–P6 nicht ausgeführt.
+  Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3 für den Modulweg
+  mit synthetischen Einzelinstanzen praktisch bestätigt; echte Geräte-/Action-/
+  Archivzuordnungen nicht praktisch geprüft. P4–P6 nicht ausgeführt.
 - R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
