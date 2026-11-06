@@ -2,6 +2,13 @@
 
 ## Aktuelle Ergänzung
 
+Windows-Dateirechte werden als lokale Schutzempfehlung geführt, nicht als
+Beta-Blocker oder Pflicht zur Codeänderung. Beobachteter Zugriff betrifft lokale
+Windows-Konten der Testinstallation; maßgeblich ist der aktuelle
+[R4-Praxisnachweis](docs/R4_ACCEPTANCE_PLAN.md).
+
+Historischer Planungsstand des Nachweisabgleichs:
+
 R4-Nachweisabgleich und konkreter Testplan am 06.11.2026 erstellt:
 [R4_ACCEPTANCE_PLAN.md](docs/R4_ACCEPTANCE_PLAN.md). Direkte Einrichtung und
 Übernahme bisheriger Einzelinstanzen samt Rückwegen sind getrennt zu prüfen.

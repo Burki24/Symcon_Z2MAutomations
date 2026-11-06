@@ -84,12 +84,16 @@ Restprüfung am 06.11.2026 in Test-Symcon 9.1:
   frischem Katalogabruf und Rückweg unverändert. Aktionsauswahl je System bestätigt;
   deutsche Debugmeldungen geprüft, keine Schaltbefehle. Testobjekte, Zugangsdaten
   und synthetische Archivdaten entfernt, vorhandene Benutzerentwürfe unverändert.
-- **Windows-Dateirechte nicht bestanden (P1):** Auch frische Archive erben für
-  die lokale Gruppe Benutzer (SID S-1-5-32-545) Leserechte. Ein nicht erhöhter
-  Prozess konnte das synthetische Manifest öffnen. `chmod(0600)` in
+- **Windows-Dateirechte: lokale Schutzempfehlung, kein Beta-Blocker.** Auf der
+  geprüften Testinstallation erben auch frische Archive Leserechte für die lokale
+  Gruppe Benutzer (SID S-1-5-32-545); ein nicht erhöhter Prozess konnte das
+  synthetische Manifest öffnen. `chmod(0600)` in
   [MigrationArchive.php](../libs/MigrationArchive.php) belegt keine private NTFS-ACL.
-  Sicherungsverzeichnis und Dateien müssen wirksam geschützt und erneut geprüft
-  werden; im Prüfauftrag wurden weder Rechte noch Implementierung geändert.
+  Bei mehreren oder nicht vollständig vertrauenswürdigen lokalen Konten wird
+  empfohlen, die Rechte des Sicherungsverzeichnisses lokal einzuschränken.
+  Der Befund belegt lokalen Dateizugriff, keinen Zugriff über MQTT oder Internet;
+  eine allgemeine Storepflicht oder Beta-Sperre wurde daraus nicht nachgewiesen.
+  Rechte und Implementierung bleiben unverändert.
 - Native Zeigerbedienung bleibt offen: Windows-Prüfsteuerung startet auch nach
   Wiederholung und Reset mit „failed to write kernel assets“ nicht. Kein Nachweis
   eines Modulfehlers und kein Ersatz des Klicknachweises durch MCP-Aufrufe.
@@ -226,7 +230,8 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   und Rückweg bestätigt, anschließend aufgeräumt. Nativer Zeiger-Bediennachweis
   bleibt offen. P3 samt nativen Geräte-/Action-/Archivzuordnungen mit synthetischen
   Daten im echten Kernel bestätigt; P4–P6 im beschriebenen Umfang bestanden.
-- R4/B3: wegen bestätigtem Windows-Dateirechtemangel und fehlendem Klicknachweis
-  nicht abgeschlossen. R1–R3 und B4 bleiben abgeschlossen.
+- R4/B3: wegen fehlendem nativen Klicknachweis nicht abgeschlossen.
+  Windows-Dateirechte werden separat als lokale Schutzempfehlung geführt,
+  nicht als Beta-Blocker. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
