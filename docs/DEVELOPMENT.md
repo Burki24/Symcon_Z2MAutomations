@@ -1,5 +1,59 @@
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 
+## Vollständiger Designer in der nativen Kachel – 06.11.2026
+
+Den bisherigen kompakten Öffner durch einen äußeren HTML-SDK-Loader für denselben
+vorhandenen Designer ersetzt. Keine zweite Editorimplementierung. Der benannte
+Child bleibt same-origin und verwendet unverändert die bestehenden Zugänge,
+Systemheader und Aufträge. Native Text-/Karten-/Akzentfarben und Grundschriftgröße
+werden ausschließlich an den eigenen Child weitergegeben. Die ursprüngliche
+Vermischung von Browser-Dunkelfarben mit Symcons Textfarbe ist damit beseitigt.
+
+Vorab VisualizationAssetHelper, VisualizationThemeHelper und IPSViewHTMLPageHelper
+geprüft. Der eigenständige äußere Loader bindet die bereits manifestierte
+VisualizationInteractionScript-Ressource ein; auch der Child lädt dieselbe
+unveränderte zentrale Ressource über einen festen erlaubten Assetpfad. Keine
+Helperkopien und keine neue allgemeine Theme- oder Scrollbibliothek eingeführt.
+Die Ladereihenfolge wartet auf diese Ressource, bevor sie erstmals Daten abfragt:
+der Praxislauf hatte sonst eine echte instance_busy-Antwort durch den eigenen
+parallelen Abruf gezeigt. Die Wartefolge besitzt einen Regressionstest.
+
+Versionsgrenze im echten Client nachvollzogen: Typ 1 zeigt beim nativen Öffnen
+weiterhin die Statusvariablen. Ab Symcon 9.1 muss Typ 2 registriert sein, damit
+HTML auch in der Großansicht erhalten bleibt. Create und ApplyChanges wählen
+dies versionsabhängig. Eigener PHP-Test prüft 9.0, 9.1 und 10.0, ohne die fremden
+Kernelstubs zu verändern. Unter 9.0 bleibt die normale eingebettete Kachel nutzbar.
+
+Praxisprüfung im separaten Edge am echten Test-Symcon 9.1, mit folgenden Grenzen:
+keine Z2M-Speicherung, Installation, Aktivierung oder Schaltbefehle. Beide Systeme
+mit acht beziehungsweise einer Automation ausgewählt und Status geprüft.
+Zugangserneuerung mit offenem Dialog und unübernommenem Namen bestätigt; die URL,
+Systemauswahl und Eingabe blieben erhalten. Großansicht ist bei offenen Dialogen
+gesperrt und wurde nach deren Schließen auf derselben Instanz erfolgreich geöffnet.
+Keine neue Browserseite. Die vorhandene CSP wurde nicht gelockert.
+
+Native SDK-Farbparameter für Hell/Dunkel geprüft, danach Großansicht bei 1600,
+760 und 360 Pixeln Browserbreite. Effektive Designerbreiten 1536, 696 und 296 Pixel,
+kein horizontaler Überlauf. Reale Mausradaktionen bewegten das Dokument um 600 Pixel
+abwärts und wieder bis 0 aufwärts. Der native Host kann beim Vergrößern oder
+Responsive-Umbruch seine Frames ersetzen; die Teststeuerung ermittelt sie danach
+neu. Ein vorheriger Frame-detached-Befund war ein Teststeuerungsfehler.
+
+Alle Entwurfsfingerprints und die ursprüngliche globale Auswahl anschließend
+identisch zum Ausgangsstand; beide gespeicherten Revisionen weiterhin aktiv.
+Die kontrollierten Mutationsrouten waren im Testbrowser auf select-system und
+access-renew begrenzt. Kein verbotener Aufruf, kein HTTP- oder JavaScript-Fehler
+im abschließenden Lauf. Native Debug-Dateiaufzeichnung danach beendet.
+Die zugrunde liegenden privaten Rohbelege bleiben außerhalb des Repositorys.
+
+Abschließende Projektprüfung: php tests/run.php einschließlich 219 JavaScript-Tests
+erfolgreich, zusätzlich Struktur, Kodierung, StylePHP (18 eigene JSON-Dateien) und
+php-cs-fixer im Prüfmodus über 152 PHP-Dateien bestanden. Der eigenständige
+Browserdesigner wurde separat im Dunkelmodus geöffnet: zwei Systeme verfügbar,
+keine native Themebindung und keine JavaScript-Fehler. Er bleibt neben der
+nativen Kachel nutzbar.
+
+
 ## Kachel-SDK-Texttransport korrigiert – 06.11.2026
 
 Die Praxis meldete an UpdateVisualizationValue einen Konvertierungsfehler für

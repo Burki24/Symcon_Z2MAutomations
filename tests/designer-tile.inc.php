@@ -6,7 +6,8 @@ declare(strict_types=1);
 $tileBefore = $manager->RawWorkspace();
 $tileMqtt = count($parent->sent);
 $tileShell = $manager->GetVisualizationTile();
-$check(str_contains($tileShell, 'window.handleMessage') && str_contains($tileShell, 'SymconHTTPOrigin')
+$check(str_contains($tileShell, 'window.handleMessage') && str_contains($tileShell, 'SymconHTTPOrigin') && str_contains($tileShell, 'SymconVisualizationInteraction')
+    && str_contains($tileShell, 'id="designer-frame"') && !str_contains($tileShell, 'window.open(')
     && !str_contains($tileShell, '/* TILE_') && !str_contains($tileShell, $token), 'Native tile is self-contained and starts without a browser capability');
 $tileCall = static function (string $action, string $system) use ($manager): array
 {

@@ -2,6 +2,11 @@
 
 ## Neu
 
+- Vollständigen Designer direkt in die native Symcon-Kachel eingebettet, mit
+  Systemauswahl, übernommener Symcon-Darstellung und Zugangserneuerung ohne
+  Neuladen. Ab Symcon 9.1 bleibt der Designer auch in der nativen Großansicht
+  erhalten; offene Bearbeitungen werden vor dem Wechsel geschützt.
+
 - Native Symcon-Kachel der Automationszentrale mit Systemauswahl, vorhandenem
   Automatikstatus, Entwurfsübersicht und Zugang zum gemeinsamen Browserdesigner.
   Zugangserneuerung ohne Neuladen und ohne Verlust offener Eingaben ergänzt;
@@ -33,6 +38,10 @@
   getrennten Benutzerrechten, beidseitigem Diagnoseempfang und Rückweg.
 
 ## Fixes
+
+- Gemischte Browser-/Symcon-Farben der Kachel sowie die Kollision zwischen
+  erster Datenabfrage und dem gleichzeitig geladenen Scroll-Helfer behoben.
+  Die Kachel verwendet die vorhandene zentrale Interaktionsressource unverändert.
 
 - Native Kachelantworten als JSON-Text übergeben und im Browser vor der
   Zuordnungsprüfung dekodieren. Behebt die Symcon-Warnung „Cannot auto-convert

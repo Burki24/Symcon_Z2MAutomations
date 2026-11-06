@@ -11,7 +11,8 @@ Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
 Zusätzlich gibt es eine [native Symcon-Kachel](Z2MAutomations/README.md#native-symcon-kachel-und-designerzugang)
-mit Systemauswahl, Status und Zugang zum selben Browserdesigner.
+mit dem vollständigen eingebetteten Designer, Systemauswahl und Status.
+Ab Symcon 9.1 steht er auch in der nativen Großansicht zur Verfügung.
 Der Designerzugang wird bei geöffneter Ansicht ohne Neuladen verlängert.
 
 Über [Partnerfreigaben](Z2MAutomations/README.md#partnerfreigaben-im-browserdesigner)

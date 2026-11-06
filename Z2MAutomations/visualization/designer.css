@@ -455,3 +455,13 @@ input, select { accent-color: var(--primary); }
 .designer-access {display: flex; align-items: center; flex-wrap: wrap; gap: .6rem 1rem; padding: .6rem 1.4rem; background: var(--surface); border-top: 1px solid var(--line); color: var(--muted); font-size: .875rem;}
 .designer-access span {flex: 1 1 18rem; overflow-wrap: anywhere;}
 .designer-access[data-tone="error"] {color: var(--danger); background: var(--danger-soft);}
+
+/* Inside the native tile, Symcon's supplied theme has priority over browser preference. */
+:root[data-native-embed] {
+    --ink: var(--native-text); --surface: var(--native-card); --page: var(--native-card);
+    --primary: var(--native-accent); --on-primary: #082b24;
+    font-size: clamp(var(--native-font-size, 16px), calc(var(--native-font-size, 16px) + .18vw), 24px);
+}
+:root[data-native-embed="dark"] {color-scheme: dark;}
+:root[data-native-embed="light"] {color-scheme: light;}
+html[data-native-embed] body {color: var(--ink); background: var(--page);}

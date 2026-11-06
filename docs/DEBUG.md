@@ -2,6 +2,13 @@
 
 ## Kachel und Zugangserneuerung
 
+Die Kachel meldet die Bereitstellung des vollständigen eingebetteten Designers.
+Status und Zugangserstellung erscheinen als korrelierte RequestAction-Abläufe;
+Designer-Datenabruf und Verlängerung verwenden den bestehenden Hook-Debug.
+Die Interaktionsressource wird vor der ersten Datenabfrage abgewartet, damit
+kein eigener paralleler Assetabruf einen falschen Beschäftigt-Hinweis auslöst.
+Native Theme-/Größenanpassungen übertragen keine Tokens oder Formulareingaben.
+
 GetVisualizationTile und RequestAction verwenden den kanonischen DebugFlowHelper.
 Deutsche Ablaufmeldungen unterscheiden statische Bereitstellung, Lesen vorhandener
 Systemstände, ausdrückliches Öffnen, ungültige Auswahl und fehlende Rückmeldung.

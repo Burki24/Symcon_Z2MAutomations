@@ -10,9 +10,10 @@ import {installCatalogRefresh} from './catalog.js';
 import {installManagement, matchesRuleState} from './management.js';
 import {installLayout} from './layout.js';
 import {installAccessRenewal} from './access.js';
+import {installNativeEmbedding} from './embedding.js';
 (() => {
     'use strict';
-    installAccessRenewal();
+    const access = installAccessRenewal();
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char]));
     const icon = name => `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
@@ -34,6 +35,7 @@ import {installAccessRenewal} from './access.js';
     let updateLayout = () => {};
     const systemViews = new Map();
     const token = location.hash.slice(1);
+    const embedding = installNativeEmbedding({renew: () => access?.renew()});
     const endpoint = new URL('data', location.href);
     endpoint.hash = '';
 
@@ -212,7 +214,7 @@ import {installAccessRenewal} from './access.js';
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
-    function render() { renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
+    function render() { embedding.update(data); renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
     function selectEntry(key) { selected = key; selectedPart = null; render(); }
     function chooseArea(area) {
         category = area; selectedPart = null;
@@ -318,5 +320,5 @@ import {installAccessRenewal} from './access.js';
         onImported: async ruleId => { if (!await load(ruleId)) message('Ereignis wurde ausgeschaltet übernommen. Bitte die Ansicht aktualisieren.'); }});
     updateLayout = installLayout({getData: () => data});
     render();
-    load();
+    embedding.ready.then(load);
 })();

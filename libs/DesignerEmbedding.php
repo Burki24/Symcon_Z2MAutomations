@@ -15,11 +15,11 @@ trait DesignerEmbedding
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): string
         {
             $html = $this->VisualizationAsset('tile.html');
-            $this->DebugEvent('AKTION', 'Symcon-Kachel bereitgestellt. Systemauswahl und Status lesen nur vorhandene Moduldaten; der Designer wird ausdrücklich geöffnet.');
+            $this->DebugEvent('AKTION', 'Vollständigen Designer als Symcon-Kachel vorbereitet. Eigener eingebetteter Arbeitsbereich verwendet die Kachelgröße und Symcons Darstellung; keine Z2M-Anfrage.');
             return str_replace(
-                ['/* TILE_STYLE */', '/* TILE_ORIGIN */', '/* TILE_SCRIPT */', '/* TILE_BOOTSTRAP */'],
-                [$this->VisualizationAsset('tile.css'), $this->VisualizationHTTPOriginScript(), $this->VisualizationAsset('tile.js'),
-                    json_encode(['version' => 1, 'path' => '/hook/' . $this->DesignerHookName() . '/index.html'], JSON_THROW_ON_ERROR | JSON_HEX_TAG)],
+                ['/* TILE_STYLE */', '/* TILE_ORIGIN */', '/* TILE_INTERACTION */', '/* TILE_SCRIPT */', '/* TILE_BOOTSTRAP */'],
+                [$this->VisualizationAsset('tile.css'), $this->VisualizationHTTPOriginScript(), $this->VisualizationInteractionScript(), $this->VisualizationAsset('tile.js'),
+                    json_encode(['version' => 1, 'objectId' => $this->InstanceID, 'canMaximize' => $this->DesignerVisualizationType() === 2, 'path' => '/hook/' . $this->DesignerHookName() . '/index.html'], JSON_THROW_ON_ERROR | JSON_HEX_TAG)],
                 $html
             );
         });
@@ -55,6 +55,11 @@ trait DesignerEmbedding
                     : 'Kachelstatus aus vorhandenen Moduldaten als JSON-Text an Symcon übergeben. Keine Z2M-Abfrage und kein Systemwechsel im nativen Editor.', ['Systeme' => count($state['systems']), 'AusgabeBytes' => strlen($payload)]);
             }
         });
+    }
+
+    private function DesignerVisualizationType(): int
+    {
+        return version_compare(IPS_GetKernelVersion(), '9.1', '>=') ? 2 : 1;
     }
 
     private function DesignerTileState(string $selected): array

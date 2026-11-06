@@ -4,11 +4,24 @@
 
 DesignerEmbedding verwendet die vorhandenen VisualizationAssetHelper-,
 HTTP-Origin- und DebugFlowHelper-Verträge. Die bestehende Zentrale aktiviert
-HTML-SDK-Typ 1 in Create/ApplyChanges; GetVisualizationTile liefert nur eine
-statische Shell mit fester Hookadresse, ohne Browser-Capability. RequestAction
+in Create/ApplyChanges Typ 1 für Symcon 9.0 und Typ 2 für Symcon ab 9.1; GetVisualizationTile liefert nur eine
+statischen äußeren Loader mit fester Hookadresse, ohne Browser-Capability. RequestAction
 akzeptiert ausschließlich die korrelierten Kachelaktionen status/access.
 Die Statusansicht verwendet WorkspaceOverview und vorhandene Verbindungsdaten;
-Systemauswahl bleibt lokal in der jeweiligen Kachel. Kein neuer MQTT-Pfad.
+Der Loader öffnet automatisch den vorhandenen Designer in einem benannten
+same-origin iframe. Dessen bestehende Systemauswahl und Aufträge bleiben erhalten.
+Es gibt keine zweite Editorimplementierung und keinen neuen MQTT-Pfad.
+
+embedding.js akzeptiert nur Nachrichten des eigenen direkten Parents derselben
+Origin. Native Farben und Grundschriftgröße werden in die vorhandenen eigenen
+Designer-Tokens übernommen. Der äußere Loader verwendet unverändert
+VisualizationInteractionScript; der Child lädt dieselbe zentrale Ressource über
+den festen interaction.js-Assetpfad, bevor die erste Datenabfrage startet.
+Dadurch konkurriert diese nicht mit ihrem eigenen Assetabruf um die Instanzsperre.
+Die CSP bleibt bei frame-ancestors self. Keine neue fremde Einbettungsfreigabe.
+Eine Zugangserneuerung nutzt dieselbe Capability ohne Navigation des iframe.
+Die native Großansicht wird erst nach Rückmeldung freigegeben, dass kein
+Bearbeitungsdialog offen ist.
 
 Native SDK-Antworten werden als JSON-Text über UpdateVisualizationValue gesendet
 und in handleMessage vor der Prüfung dekodiert; PHP-Arrays sind kein SDK-Transport.

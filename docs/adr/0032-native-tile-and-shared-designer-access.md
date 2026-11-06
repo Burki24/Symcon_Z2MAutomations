@@ -1,17 +1,18 @@
 # ADR 0032: Native HTML-Kachel und gemeinsamer Designerzugang
 
 - Datum: 06.11.2026
-- Status: Implementiert; echte Kachel-Praxisprüfung noch offen
+- Status: Implementiert; native Praxisprüfung auf Symcon 9.1 bestätigt
 
 ## Entscheidung
 
-Die bestehende Automationszentrale stellt eine zusätzliche HTML-SDK-Kachel vom
-Typ 1 bereit. Sie zeigt die zugeordneten Systeme und den vorhandenen Modulstatus
-und öffnet den bestehenden Browserdesigner. Damit bleibt Symcon 9.0 das Ziel;
-eine Vollbildvisualisierung vom Typ 2 ab 9.1 ist keine Voraussetzung.
+Die bestehende Automationszentrale zeigt denselben vollständigen Browserdesigner
+in einem eigenen iframe innerhalb der nativen HTML-SDK-Kachel. Ab Symcon 9.1
+wird Typ 2 registriert, damit die native Großansicht ebenfalls den HTML-Designer
+anzeigt. Unter Symcon 9.0 bleibt Typ 1 für die normale Kachel erhalten.
 Eine eigene IPSView-Ansicht folgt gegebenenfalls gesondert.
 
-Die Kachelauswahl bleibt pro Ansicht lokal. Ein flüchtiger initialSystem-Wert
+Die Auswahl der äußeren Schale bleibt pro Ansicht lokal; die vollständige
+Systemauswahl des vorhandenen Designers wird weiterverwendet. Ein flüchtiger initialSystem-Wert
 im Browserzugang bestimmt den ersten Lesekontext. Die Auswahl im nativen Formular,
 offene Eingaben, YAML-Entwürfe, Besitzer und Z2M-Betrieb bleiben unverändert.
 Der Browser verwendet anschließend die bestehenden gebundenen Systemaufträge.
@@ -28,11 +29,14 @@ vor der bestehenden Zuordnungsprüfung. Synthetische Gegenstellen erzwingen
 denselben Transportvertrag; beschädigte Texte werden ohne Zustandsänderung ignoriert.
 Keine dynamische Funktionsauswahl, keine MQTT-Betriebsaktionen in der Kachel.
 
-Ein Öffnungsbutton reserviert unmittelbar ein neues Fenster und navigiert es
-erst nach bestätigtem SDK-Zugang. Bei Popup-Sperre bleibt ein ausdrücklicher Link.
-Die Adresse ist auf den eigenen Hookpfad begrenzt. Tokens bleiben ausschließlich
-im URL-Fragment; keine Speicherung im Browser-Storage, keine Token-/Link-Debuglogs.
-Die bestehenden CSP-/Origin-Grenzen des Designers werden nicht gelockert.
+Der Loader fordert beim Öffnen einen korrelierten SDK-Zugang an und navigiert
+nur seinen eigenen Child-Frame zur festen Hookadresse. Keine neue Browserseite,
+keine Absenkung der bestehenden CSP-/Origin-Grenzen. Die eigene direkte Origin
+und contentWindow werden vor jeder Nachricht geprüft. Die unveränderte zentrale
+Interaktionsressource ist auf beiden Seiten eingebunden. Native Farben und
+Grundschriftgröße werden ausschließlich an den eigenen Child übermittelt.
+Die Großansicht verwendet openObject auf derselben Instanz und wird bei einem
+offenen Bearbeitungsdialog gesperrt, um dessen Eingaben nicht zu verlieren.
 
 Modulbutton und Kachel verwenden IssueDesignerAccess. Bestehende Regeln gelten
 weiter: zufälliges 256-Bit-Token, nur Hash im Modul, maximal vier Zugänge,
@@ -48,8 +52,9 @@ Capability kann keine abgelaufene oder widerrufene Berechtigung wiederherstellen
 access.js verlängert alle vier Minuten bei sichtbarem Dokument sowie beim erneuten
 Sichtbarwerden oder auf ausdrücklichen Klick. Es lädt die Seite nicht neu,
 überträgt keine Eingaben und wiederholt keine Editor-/Betriebsaktion. Fehler
-bleiben sichtbar. Die Kachel kann einen neuen Öffnungslink ausstellen; bereits
-offene Fenster werden dadurch nicht umgeschrieben.
+bleiben sichtbar. Die Kachel fordert die Verlängerung beim eingebetteten Designer an; dessen
+Dokument wird dabei nicht neu geladen. Ein neuer Zugang wird beim erneuten
+Öffnen der Kachel erstellt.
 
 ## Nachweise und Grenzen
 
@@ -57,7 +62,9 @@ PHP-Prüfungen verwenden den öffentlichen HTML-/SDK-/Hook-Weg mit synthetischen
 Verbindungen und acht Systemen. JavaScript-Prüfungen ergänzen Korrelation,
 opake HTML-Hosts, Popup-Sperre, Ablauf und Eingabeerhalt. Ein separater lokaler
 Testbrowser prüft die eigenen Ressourcen mit einer synthetischen SDK-Gegenstelle.
-Das ersetzt nicht den späteren Nachweis im echten Symcon-Visualisierungsclient.
+Zusätzlich wurde der echte native Symcon-9.1-Host mit zwei Systemen geprüft:
+Systemwechsel, bestätigter Status, Verlängerung bei offenen Eingaben, Farben,
+Großansicht, verschiedene Breiten und reales Mausradscrollen.
 Es werden weder Z2M-Erweiterung noch Live-Installation geändert.
 
 ## Schnittstellenreferenz

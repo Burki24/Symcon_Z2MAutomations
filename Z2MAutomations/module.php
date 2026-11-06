@@ -128,7 +128,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::Create();
-            $this->SetVisualizationType(1);
+            $this->SetVisualizationType($this->DesignerVisualizationType());
             $this->SetBuffer('ModulePropertiesReady', '');
             $this->SetReceiveDataFilter(Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->RegisterPropertyBoolean('Active', false);
@@ -201,7 +201,7 @@ class Z2MAutomations extends IPSModuleStrict
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             parent::ApplyChanges();
-            $this->SetVisualizationType(1);
+            $this->SetVisualizationType($this->DesignerVisualizationType());
             $this->ResetWorkspaceCatalogRefresh();
             $this->InterruptWorkspaceInstallations();
             if ($this->GetBuffer('WorkspaceDiagnosticsJobs') !== '') $this->DebugEvent('AKTION', 'Diagnosequittungen nach Modulupdate oder Einstellungsübernahme verworfen. Es wird nichts erneut gesendet; befristete Aufzeichnungen der Verbindungsinstanzen behalten ihre Endzeit.');

@@ -1,23 +1,23 @@
 # Aktueller Umsetzungs- und Prüfstand
 
-## Neue Ergänzung: native Kachel und Zugang – 06.11.2026
+## Native Kachel und vollständiger Designer – 06.11.2026
 
-- **Implementiert / synthetisch bestätigt:** gemeinsame Zugangsausstellung für
-  nativen Modulbutton und HTML-SDK-Kachel; acht Systemzuordnungen, lokale Auswahl,
-  Status aus vorhandenem Modulstand, Designeröffnung und explizite Zugangserneuerung.
-- **Synthetisch bestätigt:** zeitbegrenzte Verlängerung derselben Capability ohne
-  Seitenwechsel oder Wiederholung von Editoraufträgen; Eingaben und Rechte erhalten,
-  abgelaufene und durch Update/Bindungswechsel widerrufene Zugänge bleiben gesperrt.
-- **Korrektur nach Praxisfehlermeldung:** SDK-Antworten verwenden JSON-Text.
-  PHP-Probe und JavaScript-Gegenstelle erzwingen jetzt diesen Transport; der
-  vorherige Array-Mock hatte die Symcon-Typgrenze nicht abgebildet.
-- **Offen:** echte Symcon-Kachel nach Modulupdate in der Testvisualisierung einbinden;
-  Systemauswahl, Status, Öffnung im jeweiligen Visualisierungsclient, Popup-Fallback,
-  Zugangserneuerung und natives Debug prüfen. Browser-/SDK-Mock ist kein Praxisbeleg.
-- **Nicht Teil dieses Schritts:** eigene IPSView-Ansicht. Die gemeinsame Ausgabe- und
-  Zugangsbasis ist vorhanden, ein IPSView-Aufrufweg benötigt eine eigene Abnahme.
-
-Die bisherigen R1–R3-Nachweise und bestätigten Designerfunktionen bleiben gültig.
+- **Implementiert:** derselbe vollständige Designer innerhalb der HTML-SDK-Kachel;
+  Systemauswahl, Status, Bearbeitungsfunktionen und Zugangserneuerung ohne Neuladen.
+- **Praxis bestätigt, Test-Symcon 9.1:** beide Systeme mit acht beziehungsweise
+  einer Automation, Systemwechsel, bestätigter aktiver Betrieb, Verlängerung bei
+  offenem Dialog und Erhalt des unübernommenen Namens. Kein zusätzliches Fenster.
+- **Praxis bestätigt:** native Farbparameter für Hell/Dunkel, Großansicht auf
+  derselben Instanz, Breiten 360/760/1600 Pixel und echtes Mausrad abwärts/aufwärts
+  innerhalb der verschachtelten Frames. Vorhandene Entwürfe und Betrieb erhalten.
+- **Synthetisch bestätigt:** Typ 1 unter 9.0, Typ 2 ab 9.1, sichere Frame-/Origin-
+  Zuordnung, JSON-Texttransport, Wartefolge vor dem ersten Lesen sowie unveränderte
+  Rechte/Quittungen und Eingaben bei der Verlängerung. Ablauf/Widerruf bleiben geprüft.
+- **Versionsgrenze:** native HTML-Großansicht benötigt Symcon 9.1; unter 9.0 den
+  Designer in einer ausreichend großen normalen Kachel verwenden. Kein echter
+  9.0-Kachelclient in diesem Auftrag geprüft.
+- **Weiterhin nicht umgesetzt:** eigene IPSView-Ansicht. Keine offene Wiederholung
+  der bereits bestandenen R1–R3-Nachweise oder der bisherigen Designeragenda.
 
 Stand: **06.11.2026**. Diese Liste ist der aktuelle Abgleich zur
 [Funktionsagenda](AGENDA.md) und zum [Mehrsystemplan](MULTISYSTEM_PLAN.md).

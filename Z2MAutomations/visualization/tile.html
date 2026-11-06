@@ -8,23 +8,19 @@
     <style>/* TILE_STYLE */</style>
 </head>
 <body>
-    <main class="tile">
-        <header><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="7" height="7" rx="2"/><rect x="15" y="15" width="7" height="7" rx="2"/><path d="M5.5 9v6a3.5 3.5 0 0 0 3.5 3.5h6M17 2v7m-3.5-3.5h7"/></svg></span><div><h1>Z2MAutomations</h1><p>Automationen verwalten</p></div></header>
-        <label for="system">Z2M-System</label>
-        <select id="system" disabled><option value="">Systeme werden geladen …</option></select>
-        <section aria-label="Letzter bestätigter Stand">
-            <p class="status" id="status" role="status">Status wird geladen …</p>
-            <p class="muted">Im lokalen Entwurf</p>
-            <div class="counts"><span><b id="rules">—</b> <span id="rules-label">Automationen</span></span><span><b id="sequences">—</b> <span id="sequences-label">Aktionsfolgen</span></span></div>
-            <p id="input"></p><p class="muted" id="read-at">Vorhandene Moduldaten · keine Live-Abfrage</p>
-        </section>
-        <div class="buttons"><button id="open" class="primary" disabled>Designer öffnen ↗</button><button id="refresh">Status aktualisieren</button><button id="renew" disabled>Zugang erneuern</button></div>
-        <a id="designer-link" hidden target="_blank" rel="noopener noreferrer">Designer in neuem Fenster öffnen ↗</a>
-        <p id="feedback" role="status" aria-live="polite"></p>
-        <footer>Bearbeiten im Designer. Prüfen, Übertragen und Starten werden dort ausdrücklich bestätigt.</footer>
+    <main class="tile-loader">
+        <div class="tile-tools" aria-label="Designerzugang">
+            <span id="feedback" role="status" aria-live="polite">Designer wird verbunden …</span>
+            <button id="maximize" type="button" hidden>Kachel vergrößern</button>
+            <button id="refresh" type="button">Status aktualisieren</button>
+            <button id="renew" type="button" disabled>Zugang erneuern</button>
+            <button id="retry" type="button" hidden>Verbindung erneut versuchen</button>
+        </div>
+        <iframe id="designer-frame" name="burki24.wheel.v1" title="Z2MAutomations – vollständiger Designer" referrerpolicy="no-referrer" hidden></iframe>
     </main>
     <script>window.Z2MATile = /* TILE_BOOTSTRAP */;</script>
     <script>/* TILE_ORIGIN */</script>
+    <script>/* TILE_INTERACTION */</script>
     <script>/* TILE_SCRIPT */</script>
 </body>
 </html>

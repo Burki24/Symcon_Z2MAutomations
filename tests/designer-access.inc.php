@@ -45,3 +45,7 @@ $renewToken = explode('#', $module->OpenAutomationDesigner())[1];
 IPS_ApplyChanges($id);
 $check($module->Hook('access-renew', 'POST', $renewToken)[0] === 403, 'Module updates invalidate old access, including renewal');
 $check($module->Hook('access.js')[0] === 200 && $module->Hook('tile.js')[0] === 404, 'Only the shared browser asset is publicly served; native tile resources are embedded');
+
+$check($module->Hook('embedding.js')[0] === 200, 'Native embedding uses an explicitly allowed module asset');
+[$interactionHttp, $interactionBody] = $module->Hook('interaction.js');
+$check($interactionHttp === 200 && $interactionBody === file_get_contents(dirname(__DIR__) . '/libs/helper/visualization/interaction.min.js'), 'The fixed interaction route serves the unchanged canonical helper resource');

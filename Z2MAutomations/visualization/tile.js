@@ -1,90 +1,100 @@
-/* Native HTML SDK adapter. No credentials, MQTT calls or writes to drafts. */
+/* HTML-SDK loader: the complete existing designer stays inside its own tile. */
 (() => {
     'use strict';
     const $ = id => document.getElementById(id);
-    const bootstrap = window.Z2MATile;
+    const frame = $('designer-frame');
+    const channel = 'z2ma.designer.embed.v1';
     const nonce = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
-    let client = ''; let pending = null; let timer = null; let selected = ''; let state = null; let access = null;
+    let client = ''; let selected = ''; let pending = null; let timer = null; let frameTimer = null; let origin = ''; let connected = false; let opened = false; let renewing = false; let maximizing = false;
     const feedback = text => { $('feedback').textContent = text; };
     function buttons() {
-        $('system').disabled = !!pending || !state?.systems.length;
-        $('refresh').disabled = !!pending;
-        $('open').disabled = !!pending || !selected;
-        $('renew').disabled = !!pending || !selected;
+        $('refresh').disabled = !!pending || renewing || maximizing;
+        $('renew').disabled = !!pending || !connected || renewing || maximizing;
+        $('maximize').disabled = !!pending || !connected || renewing || maximizing;
+        $('retry').hidden = opened || !!pending;
     }
-    function forgetAccess() {
-        access = null; $('designer-link').hidden = true; $('designer-link').removeAttribute('href');
+    function theme() {
+        if (!connected) return;
+        const style = getComputedStyle(document.documentElement);
+        frame.contentWindow.postMessage({channel, type: 'theme',
+            text: style.getPropertyValue('--content-color').trim(), card: style.getPropertyValue('--card-color').trim(), accent: style.getPropertyValue('--accent-color').trim(),
+            fontSize: parseFloat(getComputedStyle(document.body).fontSize)}, origin);
     }
-    function send(action, popup = null) {
-        if (pending) { popup?.close(); return; }
+    function send(action) {
+        if (pending || renewing || maximizing || (action === 'access' && opened)) return;
         try {
             if (!client) client = nonce();
-            const request = nonce();
             if (typeof requestAction !== 'function') throw new Error();
-            pending = {request, action, popup}; buttons();
-            feedback(action === 'access' ? 'Designerzugang wird vorbereitet …' : 'Modulstatus wird gelesen …');
-            timer = setTimeout(() => {
-                pending?.popup?.close(); pending = null; buttons();
-                feedback('Das Modul hat noch nicht geantwortet. Bitte den Status erneut aktualisieren oder die Systemzuordnung im Modul prüfen.');
-            }, 10000);
+            const request = nonce(); pending = {request, action}; buttons();
+            feedback(action === 'access' ? 'Vollständiger Designer wird in der Kachel geöffnet …' : 'Modulstatus wird gelesen …');
+            timer = setTimeout(() => { pending = null; buttons(); feedback('Das Modul hat noch nicht geantwortet. Bitte die Verbindung erneut versuchen; Entwürfe und Betrieb bleiben unverändert.'); }, 10000);
             requestAction('DesignerTile', JSON.stringify({client, request, action, systemId: selected}));
         } catch {
-            clearTimeout(timer); pending = null; popup?.close(); buttons();
-            feedback('Die Symcon-Verbindung der Kachel ist noch nicht verfügbar. Bitte „Status aktualisieren“ wählen oder die Kachel erneut öffnen.');
+            clearTimeout(timer); pending = null; buttons(); feedback('Die Symcon-Verbindung ist noch nicht verfügbar. Bitte die Verbindung erneut versuchen.');
         }
-    }
-    function render(value) {
-        state = value; selected = value.selectedSystem;
-        $('system').replaceChildren();
-        for (const item of value.systems) {
-            const option = document.createElement('option'); option.value = item.systemId;
-            option.textContent = `${item.name} · ${item.baseTopic}`; $('system').append(option);
-        }
-        $('system').value = selected;
-        const item = value.systems.find(system => system.systemId === selected);
-        $('status').textContent = item?.status ?? 'Bitte zuerst Z2M-Verbindungen in der Zentrale zuordnen.';
-        $('rules').textContent = item?.rules ?? '—'; $('sequences').textContent = item?.sequences ?? '—';
-        $('rules-label').textContent = item?.rules === 1 ? 'Automation' : 'Automationen';
-        $('sequences-label').textContent = item?.sequences === 1 ? 'Aktionsfolge' : 'Aktionsfolgen';
-        $('input').textContent = item?.openInput ? 'Im nativen Formular gibt es noch offene Änderungen.' : '';
-        $('read-at').textContent = 'Vorhandene Moduldaten, gelesen um ' + new Date(value.readAt * 1000).toLocaleTimeString('de-DE') + ' · keine Live-Abfrage';
     }
     window.handleMessage = function (data) {
         if (typeof data !== 'string') return;
         try { data = JSON.parse(data); } catch { return; }
-        if (data?.type !== 'z2ma-tile' || data.version !== 1 || data.client !== client || !pending
-            || data.request !== pending.request || data.action !== pending.action) return;
+        if (data?.type !== 'z2ma-tile' || data.version !== 1 || data.client !== client || !pending || data.request !== pending.request || data.action !== pending.action) return;
         const current = pending; pending = null; clearTimeout(timer);
-        if (!data.ok) {
-            current.popup?.close(); buttons(); feedback('Das Modul kann die Ansicht derzeit nicht bereitstellen. Bitte Systemzuordnung und Modul-Debug prüfen.'); return;
-        }
+        if (!data.ok) { buttons(); feedback('Das Modul kann den Designer derzeit nicht bereitstellen. Bitte Systemzuordnung und Modul-Debug prüfen.'); return; }
         try {
             if (!Array.isArray(data.state?.systems) || typeof data.state.selectedSystem !== 'string') throw new Error();
-            render(data.state);
-            if (current.action === 'access') {
-                const origin = window.SymconHTTPOrigin.resolve(window);
-                const entry = data.access;
-                if (!origin || entry?.path !== bootstrap.path || entry.systemId !== selected || !/^[a-f0-9]{64}$/.test(entry.token)
-                    || !Number.isInteger(entry.expires) || entry.expires * 1000 <= Date.now()) throw new Error();
-                access = new URL(entry.path, origin); access.hash = entry.token;
-                $('designer-link').href = access.href; $('designer-link').hidden = false;
-                current.popup?.location.replace(access.href);
-                feedback(current.popup ? 'Designer im neuen Fenster geöffnet. Die Kachel bleibt bei diesem System.' : 'Zugang erneuert. Den Designer über den Link öffnen; bereits offene Designerfenster bleiben unverändert.');
-            } else feedback('Statusanzeige aktualisiert. Entwürfe und Automatikbetrieb bleiben unverändert.');
+            selected = data.state.selectedSystem;
+            if (current.action === 'status') {
+                const system = data.state.systems.find(item => item.systemId === selected);
+                feedback(system ? `${system.name}: ${system.status}.` : 'Bitte zuerst Z2M-Verbindungen in der Automationszentrale zuordnen.');
+                buttons(); if (!opened && system) send('access'); return;
+            }
+            const access = data.access;
+            origin = window.SymconHTTPOrigin.resolve(window);
+            if (!origin || access?.path !== window.Z2MATile.path || access.systemId !== selected || !/^[a-f0-9]{64}$/.test(access.token)
+                || !Number.isInteger(access.expires) || access.expires * 1000 <= Date.now()) throw new Error();
+            const address = new URL(access.path, origin); address.hash = access.token;
+            opened = true; frame.hidden = false; frame.src = address.href;
+            frameTimer = setTimeout(() => { if (!connected) feedback('Der Designer hat sich noch nicht gemeldet. Bitte die Kachel erneut öffnen und das Modul-Debug prüfen.'); }, 15000);
         } catch {
-            current.popup?.close(); forgetAccess(); feedback('Der Designerzugang konnte nicht geöffnet werden. Bitte die Kachel im Symcon-Browserzugang erneut öffnen.');
+            feedback('Der Designer konnte in dieser Kachel nicht geöffnet werden. Bitte die Kachel erneut öffnen und das Modul-Debug prüfen.');
         }
         buttons();
     };
-    $('system').addEventListener('change', () => { selected = $('system').value; forgetAccess(); send('status'); });
-    $('refresh').addEventListener('click', () => send('status'));
-    $('renew').addEventListener('click', () => { forgetAccess(); send('access'); });
-    $('open').addEventListener('click', () => {
-        let popup = null;
-        try { popup = window.open('about:blank', '_blank'); if (popup) popup.opener = null; } catch { /* The explicit link remains available. */ }
-        forgetAccess(); send('access', popup);
+    window.addEventListener('message', event => {
+        const value = event.data;
+        if (!opened || event.source !== frame.contentWindow || event.origin !== origin || value?.channel !== channel) return;
+        if (value.type === 'ready') {
+            connected = true; clearTimeout(frameTimer); theme(); buttons();
+            feedback('Designer in der Kachel verbunden. Änderungen werden zunächst als Entwurf bearbeitet.');
+        }
+        if (maximizing && ['maximize-ready', 'maximize-blocked'].includes(value.type)) {
+            maximizing = false; clearTimeout(frameTimer); buttons();
+            const id = window.Z2MATile.objectId;
+            if (value.type === 'maximize-ready' && typeof window.openObject === 'function' && Number.isInteger(id) && id >= 10000 && id <= 59999) window.openObject(id);
+            else feedback('Bitte die offene Bearbeitung zuerst übernehmen oder schließen. Ihre Eingaben bleiben erhalten.');
+        }
+        if (value.type === 'system' && typeof value.systemId === 'string') selected = value.systemId;
+        if (value.type === 'renewed' && renewing) {
+            renewing = false; clearTimeout(timer); buttons();
+            feedback(value.ok === true ? 'Zugang verlängert. Offene Eingaben und Systemauswahl bleiben erhalten.' : 'Zugang konnte nicht verlängert werden. Offene Eingaben bleiben erhalten; bitte den Hinweis im Designer beachten.');
+        }
     });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && !pending) send('status'); });
-    window.addEventListener('pagehide', () => { clearTimeout(timer); pending?.popup?.close(); pending = null; });
+    $('maximize').hidden = !window.Z2MATile.canMaximize || typeof window.openObject !== 'function';
+    $('maximize').addEventListener('click', () => {
+        if (!connected || pending || renewing || maximizing || !window.Z2MATile.canMaximize) return;
+        maximizing = true; buttons();
+        frameTimer = setTimeout(() => { maximizing = false; buttons(); feedback('Die Großansicht konnte noch nicht vorbereitet werden. Offene Eingaben bleiben erhalten.'); }, 8000);
+        frame.contentWindow.postMessage({channel, type: 'maximize'}, origin);
+    });
+    $('refresh').addEventListener('click', () => send('status'));
+    $('retry').addEventListener('click', () => send('status'));
+    $('renew').addEventListener('click', () => {
+        if (!connected || pending || maximizing || renewing) return;
+        renewing = true; buttons(); feedback('Designerzugang wird ohne Neuladen verlängert …');
+        timer = setTimeout(() => { renewing = false; buttons(); feedback('Zugangserneuerung noch nicht bestätigt. Offene Eingaben bleiben erhalten.'); }, 12000);
+        frame.contentWindow.postMessage({channel, type: 'renew'}, origin);
+    });
+    window.addEventListener('resize', theme);
+    if (typeof MutationObserver === 'function') new MutationObserver(theme).observe(document.head, {subtree: true, childList: true, characterData: true, attributes: true});
+    window.addEventListener('pagehide', () => { clearTimeout(timer); clearTimeout(frameTimer); });
     send('status');
 })();

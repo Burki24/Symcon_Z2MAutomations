@@ -11,7 +11,8 @@ export function installAccessRenewal(environment = window) {
     panel.append(label, button); document.body.append(panel);
     let busy = false; let stopped = false;
     async function renew() {
-        if (busy || stopped) return;
+        if (stopped) return false;
+        if (busy) return null;
         busy = true; button.disabled = true;
         try {
             const response = await environment.fetch(endpoint, {method: 'POST', cache: 'no-store', credentials: 'same-origin', redirect: 'error',
@@ -24,10 +25,12 @@ export function installAccessRenewal(environment = window) {
             if (result.ok !== true || !Number.isInteger(result.expires)) throw new Error();
             label.textContent = 'Designerzugang verlängert bis ' + new Date(result.expires * 1000).toLocaleTimeString('de-DE') + '. Offene Eingaben bleiben erhalten.';
             panel.dataset.tone = 'ok';
+            return true;
         } catch {
             label.textContent = stopped ? 'Der Designerzugang ist abgelaufen. Offene Eingaben bleiben sichtbar. Bitte den Designer über das Modul oder die Kachel erneut öffnen.'
                 : 'Der Zugang konnte noch nicht verlängert werden. Bitte die Verbindung prüfen und erneut versuchen; offene Eingaben bleiben erhalten.';
             panel.dataset.tone = 'error';
+            return false;
         } finally { busy = false; button.disabled = stopped; }
     }
     button.addEventListener('click', renew);

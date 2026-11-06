@@ -2,14 +2,17 @@
 
 ## Aktuelle Ergänzung
 
-Native Symcon-HTML-Kachel (Typ 1, Symcon 9.0) ergänzt: acht Systeme auswählen,
-vorhandenen Status lesen, denselben Browserdesigner gezielt öffnen und den Zugang
-erneuern. Kachelauswahl schreibt weder Systemauswahl noch Eingaben des nativen
-Editors um. Gemeinsame Capability-Ausstellung für Modulbutton und Kachel;
-Browser verlängert aktive Zugänge ohne Neuladen, bis maximal acht Stunden.
-Keine Erweiterungsänderung, kein neuer MQTT-Pfad, keine Live-Änderungen.
-Lokale synthetische Nachweise sind vorhanden; echte Kachel-Praxisprüfung nach
-Modulupdate steht aus. Eine eigene IPSView-Ansicht ist weiterhin nicht umgesetzt.
+Vollständigen bestehenden Designer in die native Symcon-Kachel eingebettet.
+Kein neues Browserfenster; Farben und Grundschriftgröße folgen dem Symcon-Client.
+Symcon 9.0 verwendet Typ 1 in der normalen Kachel, ab 9.1 Typ 2 einschließlich
+nativer Großansicht. Erneuerung nutzt den vorhandenen Zugang ohne Neuladen;
+Großansicht ist bei offenem Bearbeitungsdialog zum Eingabeerhalt gesperrt.
+Der äußere Loader und der Child verwenden die unveränderte zentrale Interaktions-
+ressource; die erste Datenabfrage wartet auf deren Ladeabschluss.
+Praxisprüfung im echten Test-Symcon 9.1 für beide Systeme durchgeführt;
+keine Geräte geschaltet, keine Automationen gespeichert oder aktiviert.
+Keine Änderung an der Erweiterung oder am Live-Symcon. Eine eigene IPSView-
+Ansicht ist weiterhin nicht umgesetzt.
 
 ## Ziel
 
