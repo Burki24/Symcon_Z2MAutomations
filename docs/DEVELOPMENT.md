@@ -1,3 +1,35 @@
+## R4-Nachweisabgleich und Testplan – 06.11.2026
+
+An sauberer Planungsbasis e537ce5 vorhandene Entwicklungs-/Praxisbelege,
+MIGRATION.md, WORKSPACE.md, ADR 0026/0027, Tests und lokale Laufzeitpfade
+abgeglichen. R4_ACCEPTANCE_PLAN.md trennt direkte Einrichtung, öffentliche
+Altübernahme und ihre unterschiedlichen Rückwege von den bereits erledigten
+R1–R3- und B4-Nachweisen. Eigene native Testobjekte, private Vorher-/Nachher-
+Vergleiche, Host-Dateirechte und Teilfälle P0–P6 konkret geplant; R4/B3 bleibt offen.
+
+Die bestehende extension-peer.mjs empfängt JSON-Zeilen über stdin/stdout und
+verwendet das tatsächliche Erweiterungsartefakt in einer künstlichen Z2M-Umgebung.
+Ein echter MQTT-Anschluss fehlt. control: restart ersetzt nur das Objekt im
+selben Prozess, während ein Prozessende die temporäre Ablage entfernt. Weder
+einen vorhandenen MQTT-Adapter noch einen persistenten Prozessneustart behauptet.
+Die geplante getrennte Anbindung ist Testinstrumentierung, keine neue Engine,
+Brokerimplementierung oder Betriebsfunktion. Der direkte native Formularweg
+existiert; der Altweg wird über öffentliche Modulfunktionen geprüft und nicht
+als vollständiger vorhandener Zeiger-Assistent ausgegeben.
+
+Frisch unter PHP 8.5.10 bestanden: php tests/migration.php,
+php tests/workspace-setup.php und php tests/workspace-runtime.php. Sie verwenden
+synthetische Instanzen und eigene temporäre Archive; ihre neuen Stubobjekte
+bestätigen keinen echten Kernelneustart. Keine Gesamtsuite erneut als frisch
+abgenommen ausgegeben. Keine Quell-/Test-/Helper-/Artefaktänderung, kein
+MCP-/Browser-/Brokerzugriff, keine Installation oder Neuerstellung von Objekten.
+Die weitere praktische Durchführung und der geplante Test-Kernelneustart
+sind eigene Schritte nach Vorbereitung der isolierten Gegenstelle.
+Struktur, zentrale Kodierung und npm run check:extension ebenfalls erfolgreich;
+geänderte Dokumente samt neuer Datei ohne kaputte lokale Dateilinks und mit
+UTF-8/LF ohne BOM. git diff --check ohne Befund. Keine Versionsänderung,
+Veröffentlichung, Commit oder Push durch den Agenten.
+
 ## Native Mausrad-Abnahme des regulären Pakets – 06.11.2026
 
 Nach bestätigtem Test-Modulupdate VisualizationAssetHelper 1.1.4 serverseitig

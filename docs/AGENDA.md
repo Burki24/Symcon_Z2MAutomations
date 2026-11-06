@@ -9,6 +9,11 @@ Die [Beta-Anleitung](BETA.md) ergänzt die Benutzerunterlagen. R1–R3 und die
 bereits bestätigten Designerprüfungen werden nicht erneut als offen angesetzt.
 R4/R5 bleiben im dort konkret benannten Umfang offen; fehlende Testumgebungen
 werden nicht durch produktive Versionswechsel oder pauschale Freigaben ersetzt.
+Der [R4-Nachweisabgleich mit Testplan](R4_ACCEPTANCE_PLAN.md) ist vorbereitet.
+Nächster Schritt ist die isolierte MQTT-Testanbindung der synthetischen
+Gegenstelle; danach zuerst native direkte Einrichtung und lokaler Rückweg.
+Die Praxisfälle sind noch nicht ausgeführt. Bestehende Benutzerverbindungen
+werden dafür weder übernommen noch zurückgerollt.
 
 ## Aktueller Abgleich am 06.11.2026
 

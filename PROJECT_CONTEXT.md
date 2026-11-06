@@ -2,6 +2,17 @@
 
 ## Aktuelle Ergänzung
 
+R4-Nachweisabgleich und konkreter Testplan am 06.11.2026 erstellt:
+[R4_ACCEPTANCE_PLAN.md](docs/R4_ACCEPTANCE_PLAN.md). Direkte Einrichtung und
+Übernahme bisheriger Einzelinstanzen samt Rückwegen sind getrennt zu prüfen.
+Migration, direkte Einrichtung und zentrale Betriebsaufträge bestehen frisch
+unter PHP 8.5.10 in vorhandenen synthetischen Tests. Native Restabnahme,
+Host-Dateirechte und echter Kernelneustart bleiben offen. Der bisherige
+Erweiterungs-Peer hat weder echten MQTT-Transport noch einen Prozessneustart
+mit erhaltener Ablage; diese Testinstrumentierung ist zuerst vorzubereiten.
+Keine Test-/Live-Systeme in diesem Planungsauftrag angesprochen oder verändert.
+R4/B3 bleibt offen; R1–R3 und B4 bleiben abgeschlossen.
+
 Beta-Abnahme der Codebasis b1ae70b am 06.11.2026 begonnen und lokal geprüft.
 Die vier Arbeitspunkte, vorhandene Praxis, aktuelle Test-/CI-Ergebnisse und
 verbleibende Hindernisse stehen in [BETA_ABNAHME.md](docs/BETA_ABNAHME.md).

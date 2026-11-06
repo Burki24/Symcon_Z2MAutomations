@@ -149,7 +149,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
 | B4 | Geschlossen: native Mausradfalle an innerer Scrollgrenze | Helper-Bundle 3.30.7 regulär eingebunden, nach Test-Modulupdate im echten Kachelclient ohne Ressourcenaustausch praktisch bestätigt; native Debugkennung und unveränderte Systemdaten geprüft. |
-| R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
+| R4 | Geschlossene Restabnahme des Zentralenwegs | [Nachweisabgleich und Testplan](R4_ACCEPTANCE_PLAN.md) fertig; direkte Einrichtung, Altübernahme und Rückwege getrennt. Drei gezielte Offline-Prüfungen frisch bestanden. Native P0–P6 bleiben offen; zuerst isolierten Testtransport und Gegenstelle vorbereiten. Bestehende Besitzer nicht zu Testzwecken zurückrollen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
 R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 und R3 praktisch
@@ -170,7 +170,8 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] R3: Vorhandene reale Installation samt genau einem automatischen Katalogabschluss je System zusammenführen; siehe INSTALLATION_CATALOG_EVIDENCE.md.
 - [x] R3: S2 mit exaktem Vergleich beider lokalen Arbeitsbereiche und bestätigtem ursprünglichem Betrieb zuordnen.
 - [x] R3: Unabhängigen Vorher-/Nachher-Vergleich für S1 im selben automatischen Installationslauf am 06.11.2026 ergänzt; ursprüngliche lokale Bearbeitungsdaten und Betrieb wieder bestätigt.
-- [ ] R4: Zentralen-Restabnahme mit Versions-/Buildbezug und Rückweg abschließen.
+- [x] R4-Vorbereitung: vorhandene Belege abgleichen, verbleibende Fälle P0–P6 und isolierten Testaufbau festlegen; direkte Einrichtung, Altübernahme und echte Neustarts unterscheiden.
+- [ ] R4-Praxis: Zentralen-Restabnahme gemäß R4_ACCEPTANCE_PLAN.md durchführen und mit Versions-/Buildbezug und Rückweg abschließen.
 - [ ] R5: Vereinbarte Kompatibilitätsfälle aufnehmen und gezielt prüfen.
 - [x] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und mit regulär installiertem Paket praktisch nachprüfen.
 
