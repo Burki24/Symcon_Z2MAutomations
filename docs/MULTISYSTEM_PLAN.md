@@ -15,10 +15,10 @@ Zentrale Prüfung, Übertragung, Aktivierung, Stopp und Einzellauf sind vorhande
 Die fünf Designerpunkte sowie zusätzliche Installation und Partnerfreigaben sind
 integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
 [Prüfliste](PRUEFLISTE.md) berücksichtigt. R1 ist für drei und acht echte
-Erweiterungsinstanzen synthetisch und R2 im begrenzten nativen Praxislauf bestätigt;
-die offenen Nachweise R3–R5 werden dort einzeln geführt. R3 belegt inzwischen
-beide automatischen Installations-/Katalogketten; nur der unabhängige
-Vorher-/Nachher-Vergleich des ersten Systems im selben Lauf fehlt noch.
+Erweiterungsinstanzen synthetisch sowie R2 und R3 im begrenzten Praxisumfang
+bestätigt. R3 belegt beide automatischen Installations-/Katalogketten mit
+unabhängigem Vorher-/Nachher-Vergleich und ursprünglichem Betrieb. Die offenen
+Nachweise R4/R5 werden dort einzeln geführt.
 Reale Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
 Ein Update allein führt weder Übernahme noch
 Z2M-Aufträge aus.
@@ -386,18 +386,15 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 
 ## 9. Nächste Arbeitspakete
 
-R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen. Die folgenden
-Arbeitspakete bleiben offen:
+R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen, R2 und R3
+sind praktisch bestätigt. Die folgenden Arbeitspakete bleiben offen:
 
-1. R3: Die vorhandenen Installations-/Katalogbelege sind
-   [zusammengeführt](INSTALLATION_CATALOG_EVIDENCE.md). Beide automatischen
-   Ablaufketten sind belegt, das zweite System einschließlich Erhalt von
-   Arbeitsbereichen und Betrieb. Für das erste System nur noch den unabhängigen
-   Vorher-/Nachher-Vergleich im selben Installationslauf ergänzen, etwa bei einem
-   später ausdrücklich beauftragten Update. Kein erneuter Installationsauftrag
-   allein durch diesen Plan.
-2. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
-   nach gesondertem Auftrag abschließen. Bereits bestätigte Abläufe erhalten.
+1. R4: Verbleibende Zentralenfälle mit Versions-/Buildbezug und Rückweg zuordnen;
+   nur tatsächliche Beleglücken nach gesondertem Auftrag schließen. Der
+   [R3-Belegabgleich](INSTALLATION_CATALOG_EVIDENCE.md) enthält beide
+   abgeschlossenen automatischen Installations-/Katalogketten samt Vergleich.
+2. R5: Verbleibende Kompatibilitätsfälle nach gesondertem Auftrag abschließen.
+   Bereits bestätigte Abläufe erhalten.
 
 Die [Broker-Schrittfolge](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
 überträgt den Zweibroker-Aufbau auf eine schleifenfreie Sternstruktur. Das
@@ -424,4 +421,4 @@ Integration mit dem echten Erweiterungsartefakt prüft Aktivierung, Wiederanlauf
 Freigabe, globalen/gezielten Stopp und Bedingungsablehnung. Die spätere bestandene
 Browserprüfung auf beiden Testsystemen berücksichtigt Bestätigungen, Einzellauf
 und Wiederherstellung. Für verbliebene native/operative Nachweisgrenzen gelten
-R3/R4 der Prüfliste; sie sind kein pauschal offener Browser-Abnahmepunkt.
+R4 der Prüfliste; sie sind kein pauschal offener Browser-Abnahmepunkt.

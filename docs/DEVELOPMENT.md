@@ -1,3 +1,59 @@
+## R3: Fehlenden S1-Vergleich praktisch ergänzt am 06.11.2026
+
+Nach ausdrücklichem Auftrag genau eine erneute Erweiterungsinstallation auf
+dem ersten System über den öffentlichen zentralen Moduleinstieg per Test-MCP
+durchgeführt. Test-Symcon **9.1**, produktiv genutztes Z2M, eigener Build
+`4d6cda174348`. Kein zusätzlicher nativer Klicknachweis und keine Bedienung
+persönlicher Fenster; R2 bleibt der separate native Nachweis.
+
+Beide Systeme zuerst mit Health-/Erweiterungsstatus frisch bestätigt und
+ursprüngliche öffentliche Modulantworten privat als unveränderte Zeichenketten
+gesichert. Auf S1 eine vorhandene Regel als Auswahl und eine nicht übernommene
+Namenseingabe mit Umlauten im lokalen Arbeitsbereich vorbereitet. Dokument
+und Partnerfreigaben unverändert, gemeinsame Systemauswahl bewusst auf S2
+belassen. Ein erster lokaler Vorbereitungsaufruf wurde wegen des Formats seiner
+Prüfkennung ohne Datenänderung oder MQTT abgelehnt; korrigierte Vorbereitung
+vor der Installationsbaseline erfolgreich. Kein Installationswiederholungsversuch.
+
+Zusammengehöriger Praxislauf am 06.11.2026, Uhrzeiten Europe/Berlin:
+
+- 07:28:08 Uhr genau ein zentrales Installations-START/ENDE-Paar mit gleicher
+  Instanz, gleichem Vorgang und Aufruf. Ein `extension/save` um 07:28:09 Uhr.
+  Neue Empfängersitzung und erwarteten Build frisch bestätigt.
+- Automatisches Nachladen um 07:28:10 Uhr gestartet. Genau ein Katalogauftrag
+  um 07:28:11 Uhr mit einer passenden Antwort; Abschluss `loaded` um
+  07:28:13 Uhr. Keine Wiederholung durch lesende Statusaufrufe.
+- Beide lokalen Dokumente einschließlich Partnerfreigaben, Auswahlen und
+  offener Arbeit in PHP streng mit der gesicherten Baseline verglichen;
+  gemeinsame Systemauswahl ebenfalls identisch. Die absichtlich offene
+  S1-Eingabe und nichtleere Regelauswahl sind dabei tatsächlich vorhanden.
+- Gespeicherte/aktive Revisionen und Prüfsummen, Regelanzahlen, eingeschalteter
+  Wiederanlauf, Meshbereitschaft und Automatikbetrieb beider Systeme gleich.
+  Eine aktive Regel auf S1, zwei auf S2. Zweite Empfängersitzung unverändert,
+  beide abschließenden lesenden Statusanfragen beantwortet, kein Laufzeitfehler.
+- Nur die temporäre S1-Auswahl/Eingabe durch die gesicherten Originaldaten
+  ersetzt, mit Schutz gegen zwischenzeitliche fremde Änderungen. Um
+  07:29:17 Uhr beide ursprünglichen lokalen Datenobjekte unabhängig und exakt
+  wiederhergestellt bestätigt. Keine YAML-Speicherung, Aktivierungs-/Stopp-
+  oder Gerätebefehle. Drei instanzbezogene Test-Dateiaufzeichnungen beendet;
+  Endmarken privat gesichert.
+
+Der private Abschlussbeleg enthält Ausgangsstand, vorbereitete Baseline,
+Nachzustand, endgültige Wiederherstellung, zugehörige Dateidebugs und geprüfte
+Anfrage-/Antwortzuordnung. R3 ist damit im vereinbarten Umfang abgeschlossen;
+Prüfliste, Belegmatrix, Agenda, Mehrsystemplan und Projektkontext aktualisiert.
+Modul-/Erweiterungsquellen, Helper, Tests und Artefakt unverändert. R4/R5 bleiben
+eigenständige Aufgaben und erhalten hierdurch keine operative Freigabe.
+
+Lokale Abschlussprüfungen erfolgreich: `php tests/run.php` mit **203 JavaScript-Tests**
+und allen PHP-/Modulprüfungen, Struktur-/Kodierungsprüfung und
+`npm run check:extension`. Offizieller StylePHP-Check von 18 eigenen JSON-Dateien
+in isolierter Kopie und PHP CS Fixer 3.95.27 für 148 PHP-Dateien im Prüfmodus
+ohne Befund. Sieben Markdown-Dateien als UTF-8 ohne BOM/LF, geschlossene
+Codeblöcke und 36 lokale Dateiverweise geprüft; geprüfte private Kennungen und
+Ablagepfade nicht in den Ergänzungen enthalten. `git diff --check` sauber.
+Keine Commits oder Pushes.
+
 ## R3: Vorhandene Installations-/Geräteabrufbelege zugeordnet am 06.11.2026
 
 Vorhandene private Berichte, zugehörige Prüfskripte und archivierte Dateidebugs

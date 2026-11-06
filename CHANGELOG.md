@@ -22,10 +22,12 @@
 ## Fixes
 
 - R3-Nachweise für Installation und automatischen Geräteabruf beider Systeme
-  zusammengeführt. Bestätigte Abläufe, separate manuelle Prüfungen und der noch
-  fehlende unabhängige Vorher-/Nachher-Vergleich des ersten Systems im selben
-  Installationslauf sind in Planung und Prüfliste klar getrennt. Reiner
-  Belegabgleich, keine Änderung am laufenden System oder Modulcode.
+  zusammengeführt und den fehlenden unabhängigen Vorher-/Nachher-Vergleich
+  des ersten Systems am 06.11.2026 im freigegebenen Praxislauf ergänzt.
+  Genau ein Upload und automatischer Geräteabruf; Entwürfe, Auswahl,
+  offene Eingaben und Betrieb beider Systeme erhalten, ursprüngliche lokale
+  Bearbeitungsdaten exakt wiederhergestellt. Keine YAML-Speicherung oder
+  Schaltbefehle. R3 abgeschlossen; keine Änderung am Modulcode.
 
 - Native Installationsprüfung erfasst Konsolenaufrufe vor dem Worker-Transport
   statt nach PHP-Namen in Seitenanfragen zu suchen. Testaufzeichnung mit

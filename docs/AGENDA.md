@@ -15,18 +15,17 @@ die weitere Arbeit; historische „noch offen“-Sätze sind keine neuen Aufgabe
 | 3. Vollständiges Erstellen/Bearbeiten, Drag & Drop und Pfeilbuttons | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
 | 4. Symcon-Ereignisimport in Zentrale und Designer | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
 | 5. Systeme und Diagnose | Implementiert; Aufzeichnung, Ablauf, Stopp und Erweiterungsanzeigen auf beiden Testsystemen bestätigt. |
-| Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert. Browserinstallation, Partnerfreigaben, der begrenzte zweite native Klicknachweis R2 und die automatische Installations-/Katalogkette beider Systeme praktisch belegt. R3 enthält nur noch den unabhängigen Vorher-/Nachher-Vergleich für S1 im selben Lauf. |
+| Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert und praktisch belegt. R2 und R3 sind abgeschlossen: automatische Installations-/Katalogkette beider Systeme einschließlich unabhängigen Entwurfs-/Betriebsvergleichs bestätigt. Temporäre Eingaben und ursprünglicher Betrieb wiederhergestellt. |
 
 R1 ist für drei und acht Erweiterungen synthetisch bestätigt, einschließlich
 aller 56 Zielrichtungen bei acht Systemen, Zweigausfall, getrennter Freigaben,
 Antworten und Debug sowie äußerer Systeme über den mittleren Broker.
 Reale Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
-R3 ist anhand der vorhandenen Belege eingegrenzt; der
-[Belegabgleich](INSTALLATION_CATALOG_EVIDENCE.md) trennt die bestätigten
-Ablaufketten vom noch fehlenden S1-Vergleich. Diesen Teil bei einem später
-ausdrücklich beauftragten S1-Update ergänzen, R4/R5 gezielt abschließen.
-Keine pauschale Wiederholung bereits bestandener Tests und kein Beginn der
-Windows-Anwendung.
+R3 ist nach dem freigegebenen ergänzenden S1-Praxislauf vollständig belegt;
+der [Belegabgleich](INSTALLATION_CATALOG_EVIDENCE.md) enthält die unabhängigen
+Vergleiche und die exakte Wiederherstellung. Als Nächstes R4/R5 gezielt
+abschließen. Keine pauschale Wiederholung bereits bestandener Tests und kein
+Beginn der Windows-Anwendung.
 
 R2 ist am 06.11.2026 im freigegebenen nativen Praxislauf auf dem zweiten System
 abgeschlossen: Nein null, Ja genau ein RPC/Debug-Paar/Upload, Status ohne

@@ -25,14 +25,17 @@ geprüft. Sieben äußere Systeme kommunizieren über den mittleren synthetische
 Broker auch bei gestoppter mittlerer Erweiterung. Keine reale Broker- oder
 Geräteprüfung und keine Änderung an Modul, Erweiterungsquellen oder Artefakt.
 
-R3 ist am 06.11.2026 anhand vorhandener Belege eingegrenzt: Bestätigte Installation,
-genau ein automatischer Geräteabruf und Katalogabschluss sind auf beiden Systemen
-belegt. S1 besitzt dazu eine archivierte Debugkette vom 05.11., S2 den vollständigen
-R2-Beleg. Offen bleibt nur der unabhängige Vergleich von Entwurf, Auswahl,
-offener Arbeit und Betrieb vor/nach demselben S1-Installationslauf; frühere
-manuelle Geräteabrufe ersetzen ihn nicht. Siehe
-[R3-Belegabgleich](docs/INSTALLATION_CATALOG_EVIDENCE.md).
-Keine neue Installation oder Geräteabfrage für diesen Abgleich.
+R3 ist am 06.11.2026 praktisch abgeschlossen. Nach dem vorhandenen Belegabgleich
+den fehlenden S1-Vergleich im ausdrücklich freigegebenen Praxislauf ergänzt:
+genau ein zentraler Installationsaufruf per Test-MCP mit einem Upload, neuer
+Empfängersitzung und erwartetem Build sowie genau ein automatischer Geräteabruf.
+Dokumente mit Partnerfreigaben, Regelauswahl und absichtlich offene Eingabe,
+gemeinsame Systemauswahl und ursprünglicher Betrieb beider Systeme unabhängig
+verglichen. Temporäre S1-Auswahl/Eingabe danach entfernt, beide ursprünglichen
+lokalen Datenobjekte exakt wiederhergestellt; eine Regel auf S1 und zwei auf S2
+weiter im Automatikbetrieb. Testaufzeichnungen beendet. Kein Speichern,
+manueller Aktivierungs-/Stopp- oder Schaltbefehl. Siehe
+[R3-Belegabgleich](docs/INSTALLATION_CATALOG_EVIDENCE.md); keine Quellcodeänderung.
 
 Weitere Restpunkte sind R4 die gezielte Zentralen-Restabnahme und R5 weitere
 Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut als
@@ -911,15 +914,12 @@ die aktuelle Restliste steht oben und in PRUEFLISTE.md.
 
 ## Nächste Schritte
 
-1. R3 aus der [Prüfliste](docs/PRUEFLISTE.md) auf die fehlenden Belege eingrenzen;
-   R1 ist synthetisch abgeschlossen und R2 praktisch bestätigt. Für das zweite
-   System belegt der R2-Lauf auch den einmaligen automatischen Katalogabschluss.
-   Echte Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
-   Vorhandene bestandene Browser-, Installations-, Katalog- und Statusprüfungen
-   erhalten. Operative Ergänzungen
-   nur nach eigenem Praxisauftrag.
-2. R4/R5 gezielt abschließen: durchgängiger Zentralen-Abnahmebericht und
-   zusätzliche Symcon-/Z2M-/Gerätefälle, ohne pauschale Neuprüfung.
+1. R4 aus der [Prüfliste](docs/PRUEFLISTE.md) gezielt abschließen: durchgängiger
+   Zentralen-Abnahmebericht mit Versions-/Buildbezug und Rückweg. R1 ist
+   synthetisch abgeschlossen, R2 und R3 sind praktisch bestätigt. Bereits
+   bestandene Prüfungen erhalten; operative Ergänzungen nur nach eigenem Auftrag.
+2. R5: zusätzliche Symcon-/Z2M-/Gerätefälle aufnehmen. Echte Mosquitto-Bridges
+   mit mehr als zwei Brokern sind durch die bisherigen Nachweise nicht abgenommen.
 3. Erst danach über Veröffentlichung und später ein eigenes Windows-Projekt
    entscheiden. Es gibt weiterhin keine allgemeine Live-Freigabe.
 
