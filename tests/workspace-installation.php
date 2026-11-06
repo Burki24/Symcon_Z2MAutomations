@@ -47,6 +47,15 @@ class InstallationManagerProbe extends Z2MAutomations
     {
         return $this->ReadAttributeString('SystemWorkspace');
     }
+    public function NativeFormSelection(string $system): void
+    {
+        // Fixture setup: public navigation intentionally blocks the dirty inputs below.
+        // Only select the form to exercise; retain all original input and document data.
+        $state = json_decode($this->Raw(), true, 64, JSON_THROW_ON_ERROR);
+        if (!isset($state['systems'][$system])) throw new RuntimeException('Missing native fixture system');
+        $state['selectedSystem'] = $system;
+        $this->WriteAttributeString('SystemWorkspace', json_encode($state, JSON_THROW_ON_ERROR));
+    }
     public function Hook(string $path, string $token, array $headers, string $method = 'POST'): array
     {
         $_SERVER = $headers + ['REQUEST_URI' => '/hook/Z2MAutomationsDesigner' . $this->InstanceID . '/' . $path, 'REQUEST_METHOD' => $method,
@@ -411,12 +420,37 @@ $reloadButton = $find($form, 'WorkspaceInstallationReload');
 $check(str_contains($reloadButton['onClick'], 'Z2MA_ChooseWorkspaceSystem') && str_contains($reloadButton['onClick'], 'get_defined_vars()'), 'Native reload uses the existing guarded path to capture open inputs before rebuilding');
 $check($packets() === $countPackets, 'Opening/reloading the native installation form never sends MQTT');
 $selected = $overview()['selectedSystem'];
-$id = $managerID;
-ob_start();
-eval($button['onClick']);
-$feedback = ob_get_clean();
-$check($feedback === '' && $read($selected)['status'] === 'checking', 'The actual native button callback queues only its frozen selected system');
-$finish($selected);
+$nativeEntries = static fn (string $event): int => count(array_filter($manager->debug, static fn (string $line): bool => str_contains($line, ' | ' . $event . ' | RequestWorkspaceInstallation:')));
+$check($first !== $second, 'Native callback proof requires two distinct systems');
+foreach ([$first, $second] as $nativeSystem) {
+    $manager->NativeFormSelection($nativeSystem);
+    $form = json_decode($manager->GetConfigurationForm(), true, 64, JSON_THROW_ON_ERROR);
+    $button = $find($form, 'WorkspaceInstallationStart');
+    $starts = $nativeEntries('START');
+    $ends = $nativeEntries('ENDE');
+    $debugOffset = count($manager->debug);
+    $count = count($uploads);
+    // Opening the native form is not an accepted callback or an upload.
+    $manager->GetConfigurationForm();
+    $check($nativeEntries('START') === $starts && count($uploads) === $count, 'Native preparation creates zero installation entries');
+    $id = $managerID;
+    ob_start();
+    eval($button['onClick']);
+    $feedback = ob_get_clean();
+    $check($feedback === '' && $read($nativeSystem)['status'] === 'checking', 'The actual native button callback queues only its frozen selected system');
+    $check($nativeEntries('START') === $starts + 1 && $nativeEntries('ENDE') === $ends + 1, 'One native callback has exactly one canonical debug start and end');
+    $nativePair = array_values(array_filter(array_slice($manager->debug, $debugOffset), static fn (string $line): bool => str_contains($line, ' | START | RequestWorkspaceInstallation:') || str_contains($line, ' | ENDE | RequestWorkspaceInstallation:')));
+    $nativePair = array_map(static fn (string $line): array => json_decode(substr($line, strpos($line, '{')), true, 32, JSON_THROW_ON_ERROR), $nativePair);
+    $check(count($nativePair) === 2 && $nativePair[0]['Instanz'] === $managerID && $nativePair[1]['Instanz'] === $managerID
+        && $nativePair[0]['Vorgang'] === $nativePair[1]['Vorgang'] && $nativePair[0]['Aufruf'] === $nativePair[1]['Aufruf'], 'Native debug pair retains the exact instance, flow and call identity');
+    $finish($nativeSystem);
+    $check(count($uploads) === $count + 1, 'One accepted native callback produces exactly one synthetic upload');
+    $statusButtons = array_values(array_filter($find($form, 'WorkspaceInstallationPanel')['items'], static fn (array $item): bool => ($item['type'] ?? '') === 'Button' && ($item['caption'] ?? '') === 'Installationsstatus aktualisieren'));
+    $check(count($statusButtons) === 1, 'Native status control must be unambiguous');
+    eval($statusButtons[0]['onClick']);
+    $check($nativeEntries('START') === $starts + 1 && $nativeEntries('ENDE') === $ends + 1 && count($uploads) === $count + 1, 'Native status callback does not reinstall or add installation debug entries');
+}
+$manager->NativeFormSelection($selected);
 $url = $manager->OpenAutomationDesigner();
 $token = parse_url($url, PHP_URL_FRAGMENT);
 $id = $systems[2]['systemId'];

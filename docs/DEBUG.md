@@ -1,5 +1,18 @@
 # Debug und MQTT-Diagnose
 
+## R2: Native Installationsprüfung
+
+Die Test-Probe erfasst nur RPC-Übergaben vor dem Worker-Transport der Konsole;
+sie ersetzt keinen Nachweis der PHP-Ausführung. Für den Abgleich im nativen
+Debug genau ein `START` und `ENDE` für `RequestWorkspaceInstallation` derselben
+Instanz und mit demselben Vorgangs-/Aufrufbezug prüfen. Statusabfragen dürfen
+kein weiteres Installationspaar erzeugen. Die bestehenden kanonischen Helper
+bleiben unverändert. Skripttexte, Antworten und private Bindungen werden nicht
+in den Probe-Bericht aufgenommen. Der lokale Kerneltest führt die tatsächlich
+erzeugten Callbacktexte auf zwei synthetischen Systemen aus und zählt genau
+dieses Paar sowie einen Upload. Die echte native Praxis bleibt separat offen;
+Ablauf und Grenzen in [NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
+
 ## Synthetischer Acht-System-Nachweis
 
 `tests/mesh-eight.test.mjs` prüft alle 56 gerichteten Verbindungen zwischen acht

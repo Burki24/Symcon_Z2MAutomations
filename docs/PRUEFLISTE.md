@@ -57,11 +57,16 @@ Drei-/Acht-System-Fälle. Struktur, Kodierung, StylePHP, PHP CS Fixer und
 Artefaktprüfung sind erneut erfolgreich. R1 ist synthetisch abgeschlossen;
 reale Drei-/Acht-Broker-Installationen bleiben davon getrennt.
 
+Die lokale Korrektur der R2-Testinstrumentierung besteht mit sieben neuen
+Node-Fällen und insgesamt **203 JavaScript-Tests**, einem separaten synthetischen
+SharedWorker-Browsernachweis und dem nativen Debug-Abgleich an zwei Kernel-
+Fixtures. Das ersetzt den fehlenden realen zweiten Klicknachweis nicht.
+
 ## Tatsächlich offene Restpunkte
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| R2 | Vollständiger nativer Installations-Klicknachweis auf dem zweiten System | Der vorhandene Einzelbericht endete an der Prüfbedingung „genau ein Callback nach Bestätigung“ mit null erfassten Aufrufen. Der spätere bestandene Statusbericht belegt den Endstatus, nicht diesen Callback. Zuerst die Testinstrumentierung und vorhandenen Belege abgleichen; nur den fehlenden Klickpfad nach gesondertem Praxisauftrag wiederholen. Kein bestätigter Produktfehler daraus ableiten. |
+| R2 | Exakte Einmaligkeit des nativen Installations-Klicks auf dem zweiten System praktisch bestätigen | Historischer Nullzähler als Instrumentierungsfehler lokal mit echtem SharedWorker reproduziert. Die neue Erfassung vor dem Worker-Transport ist durch sieben Regressionstests, einen synthetischen Browserlauf und den kanonischen Debug-Abgleich der erzeugten Callbacks auf zwei Kernel-Fixtures abgesichert. Erfolgsmeldung und spätere Statusprüfung bleiben Teilbelege. Offen ist die begrenzte reale Kette Nein → Ja mit genau einem RPC/Debug-Einstieg/Upload → Status ohne Wiederholung; nur nach eigenem Praxisauftrag. Ablauf und Grenzen in NATIVE_INSTALLATION_TEST.md. |
 | R3 | Durchgängiger realer Nachweis des automatischen Geräteabrufs nach Installation | Vorhandene Installations- und Katalognachweise zu einer Kette je System zusammenführen: neue Erweiterung bestätigt → genau ein automatischer Abruf → Geräte geladen oder eigener Gerätefehler; Entwürfe/Auswahl/Betrieb erhalten. Falls ein Teilbeleg fehlt, nur diesen nach gesondertem Auftrag prüfen. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |

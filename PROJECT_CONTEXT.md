@@ -31,6 +31,13 @@ mit automatischem Geräteabruf, R4 die gezielte Zentralen-Restabnahme und R5
 weitere Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut
 als ungeprüft führen. Windows bleibt ein späteres separates Projekt.
 
+R2-Instrumentierung lokal korrigiert: Der bisherige Seitenzähler übersah den
+Worker-Transport; echter synthetischer SharedWorker bestätigt alt null/neu eins.
+Die neue Test-Probe, sieben Regressionstests und der kanonische Debug-Abgleich
+an zwei Kernel-Fixtures sind lokal bestätigt. Echte Symcon-/Z2M-Installation
+wurde dafür nicht ausgeführt. Der begrenzte Praxisauftrag bleibt erforderlich;
+siehe [Prüfablauf](docs/NATIVE_INSTALLATION_TEST.md).
+
 ## Historische Entwicklungsnotizen
 
 Die folgenden Einträge halten den jeweiligen Implementierungsstand fest.

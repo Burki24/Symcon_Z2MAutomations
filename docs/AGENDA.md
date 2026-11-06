@@ -25,6 +25,11 @@ Nächste Reihenfolge: R2/R3 anhand vorhandener Belege eingrenzen, R4/R5 gezielt
 abschließen. Keine pauschale Wiederholung bereits bestandener Tests und kein
 Beginn der Windows-Anwendung.
 
+R2 ist auf die reale Einmaligkeitsprüfung begrenzt: Die alte Callbackzählung
+übersah Worker-Aufrufe. Neue Erfassung, SharedWorker-Reproduktion und Debug-
+Abgleich der echten Callbacktexte sind lokal abgesichert. Der fehlende
+Praxislauf steht in [NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
+
 ## Frühere Funktionsagenda vom 02.11.2026
 
 Mit dem Anwender am 02.11.2026 festgelegte Reihenfolge. Die Umsetzung erfolgt

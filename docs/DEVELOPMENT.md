@@ -1,3 +1,62 @@
+## R2: Native Testinstrumentierung lokal korrigiert am 06.11.2026
+
+Vorhandene private Einzelberichte, Screenshot, erhaltenes Prüfskript und
+späteren Statusbericht nur lesend geprüft. Der zweite native Bericht scheiterte
+am Zähler null statt eins, nachdem er die neue Prüfphase und den erfolgreichen
+Installationsabschluss bereits abgewartet hatte. Auch der später bestandene
+erste Bericht hat null gezählte Aufrufe; sein jüngerer Skriptstand lässt die
+sichtbare Prüfphase als Ersatz zu. Keine exakte Einmaligkeit daraus ableiten
+und keinen Modulfehler allein aus der fehlgeschlagenen Zählbedingung folgern.
+Originalberichte und ursprüngliches Prüfskript bleiben unverändert außerhalb
+des Repositorys; ein gesonderter privater Runner mit der neuen strikten Probe
+ist vorbereitet und syntaktisch geprüft, nicht gegen Symcon ausgeführt.
+
+Der vorhandene zwischengespeicherte Konsolenclient delegiert RPCs an einen
+Worker. Die alte reine Seiten-POST-/WebSocket-Suche erfasst diese Weiterleitung
+nicht zuverlässig. Mit echtem SharedWorker, synthetischem Loopback-RPC und
+separatem unsichtbarem Edge-Prozess reproduziert: ein Serveraufruf, alter
+Seitenzähler null. Keine bestehende Konsole oder persönliche Browsersitzung
+bedient und keine Verbindung zu Symcon oder Z2M hergestellt.
+
+`tests/support/native-console-probe.mjs` beobachtet deshalb den öffentlichen
+`ips-proxy.makeRequest`-Einstieg vor der Weiterleitung. Sieben neue Node-Fälle
+prüfen Argumente/Empfänger/Promise-Identität, leere Rückgabe, Fehler und Feedback,
+Status getrennt, falsche Bindung, Text-/Kommentar-Falschpositive, mehrere echte
+Aufrufe, Grenzen, Wiederherstellung und selbstständige Browserinjektion. Die
+Probe liefert ausschließlich Zähler und feste Kategorien, keine Skripttexte,
+Parameter, Antworten oder rohe Exceptions. Kein neuer Moduldebugkanal und kein
+Laufzeithelper; vorhandene zentrale Debug-/Formularhelper bleiben unverändert.
+
+Der optionale `tests/native-console-probe.browser.mjs` bestätigt echte
+SharedWorker-Weiterleitung mit Nein null, Ja eins und Status ohne zusätzlichen
+Installationsaufruf. Nach Wiederherstellung zählt die Probe nicht weiter. Der
+Testserver führt weder PHP noch MQTT aus; Playwright wird über eine externe
+Modul-URL bereitgestellt und nicht als Abhängigkeit aufgenommen.
+
+`tests/workspace-installation.php` führt die erzeugten nativen Callbacktexte
+auf zwei synthetischen Systemen aus: je ein kanonisches START/ENDE-Paar, genau
+ein Upload und kein erneuter Einstieg durch den Statusbutton. Die Fixture
+enthält absichtlich offene Eingaben; deren Schutz blockierte den anfänglichen
+Versuch über die öffentliche Systemnavigation erwartungsgemäß. Nur die
+Testvorbereitung wählt daher das Formular direkt im Fixture-Zustand, erhält
+die Eingaben und stellt die Auswahl wieder her. Kein Produktcode geändert.
+
+Der neue [begrenzte Prüfablauf](NATIVE_INSTALLATION_TEST.md) trennt RPC-Übergabe,
+PHP-Debug, Upload und frische Empfängerbestätigung. R2 bleibt für diesen echten
+zweiten Klicknachweis offen; eine neue Prüfphase ist keine Ersatzbedingung.
+Keine Installation, Speicherung, Aktivierung oder Geräteaktion an Test/Live.
+
+Prüfung: sieben neue Node-Tests und der separate SharedWorker-/Edge-Browserlauf
+bestanden. `php tests/workspace-installation.php` nach Ergänzung des konkreten
+Instanz-/Vorgangs-/Aufrufabgleichs erneut erfolgreich; die Gesamtsuite
+`php tests/run.php` besteht mit **203 JavaScript-Tests**. Struktur, zentrale
+Kodierungsprüfung und `npm run check:extension` erfolgreich; offizieller
+StylePHP-Check der 18 eigenen JSON-Dateien ohne Fremdquellen sowie PHP CS Fixer
+3.95.27 im Prüfmodus ohne Befund für 148 PHP-Dateien. Syntax des optionalen
+Browserrunners und des vorbereiteten privaten nativen Runners geprüft; ersterer
+wird in CI nur syntaktisch geprüft, nicht als Browserlauf gestartet. UTF-8 ohne
+BOM/LF, lokale Dokumentlinks und `git diff --check` geprüft. Keine Commits/Pushes.
+
 ## R1: synthetischer Mesh-Nachweis mit acht Erweiterungen am 06.11.2026
 
 Die gemeinsame Fixture `tests/fixtures/mesh-star.mjs` auf zwei bis acht
