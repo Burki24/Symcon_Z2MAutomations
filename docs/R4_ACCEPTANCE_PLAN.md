@@ -54,6 +54,16 @@ Entwürfe, Auswahl, offene Eingaben und Besitzer auf beiden Systemen unveränder
 deutsche Debugmeldungen geprüft. Testobjekte, Prozesse, Listener und Zugangsdaten
 entfernt, bestehende Benutzerstände unverändert; Live-System nicht angesprochen.
 
+P6 am 06.11.2026 in Test-Symcon 9.1 per MCP bestanden: synthetischen
+Erweiterungs-Peer bei erhaltener Datenablage in einem neuen Node-Prozess gestartet.
+Prozess- und Sitzungskennung geändert, YAML-Prüfsumme und Revision unverändert.
+Alte Vorschau bei Bestätigung verständlich abgelehnt; kein Claim, kein Import,
+vorhandener zweiter Entwurf einschließlich Auswahl und offener Eingaben erhalten.
+Frisches Einlesen und Bestätigen erfolgreich, danach lokaler Rückweg exakt.
+Nur Status-/Editoranfragen über MQTT, deutsche Debugmeldungen bestätigt.
+Eigene Testobjekte, Prozesse, Datenablagen und Zugangsdaten entfernt; bestehende
+Benutzerstände unverändert, Live-System unberührt. Kein realer Z2M-Neustart.
+
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
 | Lokale Sicherung, Altübernahme und Rückweg | `tests/migration.php`: 1/2/8 Systeme, echte temporäre Archivdateien, YAML-Bytes, Freigaben, gleiche lokale Kennungen, Besitzer, Konflikte und alle instrumentierten Übergabe-/Rückgabeschritte. Frisch erfolgreich unter PHP 8.5.10. | Symcon-Stubs; neu erzeugte Testobjekte mit übernommenen persistenten Attributen simulieren Wiederanlauf. Kein echter Kernelneustart, keine native Dateirechteabnahme. |
@@ -186,7 +196,7 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
   Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3 für den Modulweg
   mit synthetischen Einzelinstanzen praktisch bestätigt; echte Geräte-/Action-/
-  Archivzuordnungen nicht praktisch geprüft. P4 praktisch bestanden; P5/P6 offen.
+  Archivzuordnungen nicht praktisch geprüft. P4 und P6 praktisch bestanden; P5 offen.
 - R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
