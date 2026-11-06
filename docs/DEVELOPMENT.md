@@ -1,3 +1,35 @@
+## IPSView-Administration zurückgenommen – 06.11.2026
+
+Auf Benutzerwunsch wird IPSView nicht zur Administration verwendet. Eigener
+HTMLBox-Loader, Einstiegsroute, HTML-Ausgabe, Zugriffsverwaltung, Formularfelder
+und die spezifischen Tests sind entfernt. Webfrontend und native Symcon-Kachel
+verwenden weiterhin dieselben bisherigen Zugänge und den vollständigen Editor.
+Die zwischenzeitlich korrigierte Gerätedatenanzeige bleibt unverändert erhalten.
+Die normale Shell verwendet wieder durchgehend frame-ancestors self.
+
+Alte IPSView-Routen liefern 404. Zusätzlich werden vorhandene, als IPSView
+markierte Sitzungen selbst vor einem ApplyChanges nicht als normale
+Browserzugänge zugelassen. Ein Regressionstest sichert Route, Widerruf und
+weiterhin funktionierende native/Browser-Zugänge ohne Änderung an Entwürfen.
+Bestehende IPSView-Ausgabevariablen und Platzierungen werden nicht automatisch
+gelöscht; die Module registrieren und aktualisieren sie nicht mehr.
+
+Das spezielle IPSViewHTMLPageHelper-Abonnement ist entfernt. Das regulär
+verteilte Helper-Paket samt Quellen und Herkunftsmanifest bleibt unverändert;
+es wird kein fremdes Bundle lokal umgeschrieben und kein gemeinsames
+Helper-Update zurückgedreht. Die zentrale Consumer-Registrierung bleibt für die
+weiterhin genutzten Helper bestehen. Kein Zugriff auf das Live-System.
+
+Prüfung: vollständiger Lauf mit PHP 8.5.10 ohne zusätzliches Test-Speicherlimit
+erfolgreich, einschließlich 221 JavaScript-Tests. Struktur, Kodierung,
+offizielle StylePHP-JSON-Prüfung, php-cs-fixer im Prüfmodus und unverändertes
+Erweiterungsartefakt bestanden. Zusätzliche lokale Browserprüfung mit echtem
+Modulcode und nachgebildeter nativer SDK-Einbettung: acht Systeme, Geräte,
+Systemwechsel, Zugangserneuerung mit offener Eingabe, 1600/760/360 Pixel und
+echtes Mausrad erfolgreich. Der eigenständige Browserdesigner wurde zusätzlich
+ohne iframe geöffnet. Dies ist ein synthetischer Nachweis, keine neue
+Praxisprüfung auf einer Symcon-Installation.
+
 ## Widersprüchlichen Gerätedatenstatus korrigiert – 06.11.2026
 
 Die kompakte Anzeige leitete „Gerätedaten geladen“ allein aus der historischen
@@ -29,55 +61,6 @@ erfolgreich, einschließlich 226 JavaScript-Tests. Struktur, Kodierung,
 Erweiterungsartefakt, offizielle StylePHP-JSON-Prüfung und php-cs-fixer im
 Prüfmodus bestanden. Der Browsernachweis wurde nach der abschließenden
 Anpassung der historischen Datumsanzeige erneut erfolgreich ausgeführt.
-
-## Vollständige IPSView-Ansicht lokal integriert – 06.11.2026
-
-Das regulär verteilte IPSViewHTMLPageHelper-Paket ist eingebunden; keine lokalen
-Helperkopien oder veränderten Hashmanifeste. DesignerIPSView registriert die
-optionale Ausgabe samt Serveradresse und verwaltet genau eine HTMLBox-Variable
-über den Helper. Dessen zentrale Interaktionsressource und der vorhandene
-HTTP-Origin-Resolver bleiben unverändert. Es gibt keine neue MQTT-Anbindung und
-keinen zweiten Editor.
-
-Ein langlebiger, ausdrücklich freigegebener Einstieg steht nur in der
-HTML-Variable. Sein Hash und der aktuelle Besitzer-/Systemscope stehen in
-Attributen. Die IPSView-Shell tauscht ihn innerhalb ihrer eigenen HTTP-Origin
-gegen eine normale befristete Designersitzung. Danach verwendet der vorhandene
-Reader dieselben System-, Geräte-, Editor- und Statuspfade. Die einzige
-Framing-Ausnahme betrifft die opt-in ipsview.html-Shell; das normale Webfrontend
-behält frame-ancestors self. Keine CORS-Freigabe. Details: ADR 0033.
-
-Ausschalten oder Neuerzeugen widerruft Einstieg und alle damit eröffneten
-IPSView-Sitzungen. Die bestehende HTML-Variable bleibt bei Deaktivierung erhalten.
-Der Parent darf nur eine in-place Verlängerung anfordern; er erhält keine
-Systemdaten oder Kennungen. Native Farbsteuerung bleibt same-origin.
-
-Synthetische Vertragsprüfungen verwenden acht Systeme und prüfen Anzeige,
-Berechtigungen, Ursprungskontrolle, Widerruf und erhaltene Entwürfe. Die lokale
-Browserprüfung verwendet den echten Modulcode hinter einem synthetischen
-HTTP-Transport und eine opake data-HTMLBox. Der tatsächliche IPSView-Client wurde
-nicht verwendet. Bei 1600, 760 und 360 Pixeln gab es keinen horizontalen Überlauf.
-Echte Mausradaktionen scrollten den verschachtelten Designer nach unten und bis
-0 zurück. Zugangserneuerung mit offenem Dialog erhielt Namen, URL und Auswahl.
-Alle HTTP-Aufträge wurden vom echten Modulcode im synthetischen Kernel verarbeitet;
-POSTs waren auf Einstieg, Systemauswahl und Verlängerung beschränkt. Keine
-MQTT-Ausgabe. Die Mausrad-, Touch-, Darstellungs- und Größenabnahme des echten
-IPSView-Clients bleibt ausdrücklich offen. Kein Zugriff auf Live-Symcon, keine
-Installation oder Z2M-Änderung und keine Geräteaktion.
-
-Prüfungen mit PHP 8.5.10: vollständiger Offline-Lauf einschließlich 224
-JavaScript-Tests erfolgreich. Der lokale 128-MB-Standard reichte für den großen
-module-extension-Integrationstest nicht aus; der erfolgreiche vollständige Lauf
-verwendete eine ausschließlich temporäre zusätzliche Test-INI mit 256 MB,
-auch für die PHP-Unterprozesse. Keine Änderung an PHP- oder Symcon-Konfiguration.
-Struktur, Kodierung, unverändertes Erweiterungsartefakt, offizielle StylePHP-
-JSON-Prüfung und php-cs-fixer im Prüfmodus ebenfalls erfolgreich.
-Die ergänzten Fehlerfälle für ungültige Adressen und fehlende Assets wurden
-anschließend nochmals mit der synthetischen Acht-System-Fixture geprüft.
-
-Die persistenten IPSView-Einstellungen liegen in elements, nicht in den
-vorübergehenden actions des nativen Formulars; ein eigener Regressionstest
-sichert diesen Vertrag.
 
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 

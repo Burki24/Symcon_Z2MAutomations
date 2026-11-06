@@ -13,11 +13,10 @@ async function start(failure) {
         return nodes.get(selector);
     }};
     vm.runInNewContext(source.replace("import('./reader.js')", 'loadReader()'), {
-        document, location: {pathname: '/hook/designer/index.html', reload: () => reloads++},
+        document, location: {reload: () => reloads++},
         loadReader: () => { imports++; return failure ? Promise.reject(failure) : Promise.resolve(); }
     });
     await Promise.resolve();
-    await new Promise(resolve => setImmediate(resolve));
     return {nodes, listeners, imports, reloads: () => reloads};
 }
 

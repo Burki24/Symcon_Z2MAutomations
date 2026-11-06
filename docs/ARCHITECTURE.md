@@ -1,22 +1,5 @@
 # Architektur
 
-## Optionale vollständige IPSView-HTMLBox
-
-DesignerIPSView verwendet den regulär verteilten IPSViewHTMLPageHelper für die
-optionale HTML-Ausgabe. Der äußere Loader öffnet denselben Designer über die
-besondere ipsview.html-Shell. Nur diese opt-in Shell verzichtet auf die
-frame-ancestors-Einschränkung, um opake HTMLBox-Parents zu unterstützen.
-Normale Shell, API-Originprüfungen und fehlende CORS-Freigabe bleiben erhalten.
-
-Der Einstieg aus der HTML-Variable ist keine direkte API-Berechtigung. Der feste
-ipsview-access-POST erstellt eine befristete Sitzung mit den bisherigen Rechten
-und bindet sie an den Hash des aktuellen IPSView-Einstiegs. Ausschalten,
-Neuerzeugen und Bindungswechsel widerrufen damit auch bestehende Sitzungen.
-Die vorhandene access-renew-Route erhält dieselbe Kennung und offene Eingaben.
-Ein opaker IPSView-Parent darf nur diese Verlängerung anfordern, keine nativen
-Farb- oder Großansichtsaktionen. Antworten enthalten keine Systemdaten.
-Die vollständige Entscheidung und Prüfgrenzen stehen in ADR 0033.
-
 ## Gemeinsamer Designerzugang und native HTML-Kachel
 
 DesignerEmbedding verwendet die vorhandenen VisualizationAssetHelper-,
@@ -29,8 +12,8 @@ Der Loader öffnet automatisch den vorhandenen Designer in einem benannten
 same-origin iframe. Dessen bestehende Systemauswahl und Aufträge bleiben erhalten.
 Es gibt keine zweite Editorimplementierung und keinen neuen MQTT-Pfad.
 
-Der native Zweig von embedding.js akzeptiert nur Nachrichten des eigenen
-direkten Parents derselben Origin. Native Farben und Grundschriftgröße werden in die vorhandenen eigenen
+embedding.js akzeptiert nur Nachrichten des eigenen direkten Parents derselben
+Origin. Native Farben und Grundschriftgröße werden in die vorhandenen eigenen
 Designer-Tokens übernommen. Der äußere Loader verwendet unverändert
 VisualizationInteractionScript; der Child lädt dieselbe zentrale Ressource über
 den festen interaction.js-Assetpfad, bevor die erste Datenabfrage startet.

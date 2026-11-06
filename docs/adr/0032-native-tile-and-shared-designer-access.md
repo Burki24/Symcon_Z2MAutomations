@@ -9,7 +9,8 @@ Die bestehende Automationszentrale zeigt denselben vollständigen Browserdesigne
 in einem eigenen iframe innerhalb der nativen HTML-SDK-Kachel. Ab Symcon 9.1
 wird Typ 2 registriert, damit die native Großansicht ebenfalls den HTML-Designer
 anzeigt. Unter Symcon 9.0 bleibt Typ 1 für die normale Kachel erhalten.
-Eine eigene IPSView-Ansicht folgt gegebenenfalls gesondert.
+IPSView wird nicht zur Administration verwendet; siehe die zurückgenommene
+Entscheidung in ADR 0033.
 
 Die Auswahl der äußeren Schale bleibt pro Ansicht lokal; die vollständige
 Systemauswahl des vorhandenen Designers wird weiterverwendet. Ein flüchtiger initialSystem-Wert

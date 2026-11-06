@@ -49,3 +49,20 @@ $check($module->Hook('access.js')[0] === 200 && $module->Hook('tile.js')[0] === 
 $check($module->Hook('embedding.js')[0] === 200, 'Native embedding uses an explicitly allowed module asset');
 [$interactionHttp, $interactionBody] = $module->Hook('interaction.js');
 $check($interactionHttp === 200 && $interactionBody === file_get_contents(dirname(__DIR__) . '/libs/helper/visualization/interaction.min.js'), 'The fixed interaction route serves the unchanged canonical helper resource');
+
+// Removing an integration must not promote its still-buffered sessions to browser access.
+$browserToken = explode('#', $module->OpenAutomationDesigner())[1];
+$retiredToken = explode('#', $module->OpenAutomationDesigner())[1];
+$retiredSessions = $module->AccessSessions();
+foreach ($retiredSessions as &$retiredSession) if ($retiredSession['hash'] === hash('sha256', $retiredToken)) $retiredSession['ipsViewGrant'] = str_repeat('d', 64);
+unset($retiredSession);
+(new ReflectionMethod($module, 'SetBuffer'))->invoke($module, 'DesignerSessions', json_encode($retiredSessions));
+$retiredBefore = $module->Fingerprint();
+foreach (['ipsview.html', 'ipsview-access.js', 'ipsview-loader.html', 'ipsview-loader.css', 'ipsview-loader.js'] as $retiredAsset) {
+    $check($module->Hook($retiredAsset)[0] === 404, 'Removed IPSView assets cannot be requested: ' . $retiredAsset);
+}
+$module->requestBody = '{}';
+$check($module->Hook('ipsview-access', 'POST', $retiredToken)[0] === 404 && !method_exists($module, 'GetIPSViewHTML'), 'IPSView entry exchange and public HTML generation are removed');
+$check($module->Hook('data', 'GET', $retiredToken)[0] === 403 && $module->Hook('access-renew', 'POST', $retiredToken)[0] === 403, 'Previously issued IPSView sessions cannot be reused or renewed after removal');
+$check($module->Hook('data', 'GET', $browserToken)[0] === 200 && $module->Hook('access-renew', 'POST', $browserToken)[0] === 200, 'Regular browser and native-tile access remains available');
+$check($module->Fingerprint() === $retiredBefore, 'Rejecting the retired integration preserves drafts and transport state');

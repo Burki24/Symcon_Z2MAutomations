@@ -1,51 +1,17 @@
-# 0033 – Vollständiger Designer als optionale IPSView-Ausgabe
+# 0033 – IPSView zur Administration verworfen
 
-Status: lokal implementiert; echte IPSView-Clientabnahme offen.
+Status: Auf Benutzerwunsch am 06.11.2026 zurückgenommen.
 
-## Entscheidung
+Die zwischenzeitlich erstellte IPSView-Administrationsansicht wird nicht weiter
+verwendet. IPSView dient der Darstellung; die Verwaltung der Automationen
+bleibt im Webfrontend und in der nativen Symcon-Kachel.
 
-Die Automationszentrale stellt über den regulär verteilten IPSViewHTMLPageHelper
-eine ausdrücklich einschaltbare WebContent-Stringvariable bereit. Ihr HTML ist
-ein kleiner äußerer Loader für denselben HTTP-Designer. Geräte, getrennte
-Systementwürfe, Prüfungen und alle bestehenden Aufträge werden nicht dupliziert.
-Der kanonische Interaktions- und HTTP-Origin-Helper bleiben unverändert.
-EnableIPSView und IPSViewServerURL liegen im persistenten elements-Bereich des
-nativen Formulars gemäß der [offiziellen Formularbeschreibung](https://www.symcon.de/de/llms/developer/sdk-tools/sdk-php/configuration-forms.md).
+Eigener HTMLBox-Loader, IPSView-Zugang und Endpunkte, optionale Formularfelder
+sowie die spezifischen Tests wurden entfernt. Die Framing-Ausnahme entfällt.
+Frühere IPSView-Sitzungen werden nicht in normale Browserzugänge umgedeutet.
+Bestehende Ausgabevariablen werden nicht automatisch gelöscht, damit der
+Benutzer vorher vorhandene Platzierungen und Verknüpfungen entfernen kann.
 
-IPSView-HTMLBoxen können data-Dokumente mit opaker Origin sein. Nur die besondere
-ipsview.html-Shell verzichtet bei eingeschalteter Ausgabe auf frame-ancestors
-self. Die normale index.html-Shell bleibt unverändert geschützt. Es gibt keine
-CORS-Freigabe. Der HTTP-Child besitzt seine eigene Server-Origin; alle API-Aufrufe
-und JSON-Schreibprüfungen erfolgen weiterhin innerhalb dieser Origin.
-
-## Zugang
-
-Ein zufälliger Einstiegszugang steht ausschließlich in der ausdrücklich
-freigegebenen HTML-Variable und dem URL-Fragment ihres Childs. Serverseitig werden
-nur Hash und Bindungsscope gespeichert. Er ist selbst keine Lese- oder
-Schreibberechtigung für Entwürfe. Der feste ipsview-access-POST tauscht ihn gegen
-eine normale, getrennte Designersitzung; Origin, Inhaltstyp und leerer Auftrag
-werden geprüft. Anschließend ersetzt der Child sein Fragment durch die
-Sitzungskennung, bevor er den bestehenden Reader startet.
-
-Eine Sitzung hat dieselben Rechte, Quittungen und Fristen wie der übrige Designer:
-15 Minuten, bei sichtbarer Ansicht verlängerbar bis acht Stunden, höchstens vier
-gültige Sitzungen insgesamt. Verlängern ändert weder Kennung noch Eingaben.
-Der Einstiegszugang bleibt für spätere Öffnungen der HTMLBox bestehen. Bewusstes
-Neuerzeugen, Ausschalten, Modulupdate oder Einstellungsübernahme widerruft ihn.
-Die Sitzungsprüfung berücksichtigt zusätzlich diesen Widerruf; ein bestehender
-IPSView-Tab kann ihn nicht durch Verlängern umgehen. Änderungen an Besitzer,
-Systembindung oder Serveradresse entziehen die bisherige Berechtigung ebenfalls.
-
-Der direkte IPSView-Parent darf ausschließlich eine Verlängerung anfordern.
-Antworten an opake Parents enthalten nur Bereitschaft beziehungsweise Erfolg,
-keine Kennungen, Systemdaten oder Tokens. Native Farb-/Großansichtssteuerung
-bleibt dem eigenen same-origin Symcon-Loader vorbehalten.
-
-## Folgen und Abnahme
-
-Die HTML-Variable ist ein Verwaltungszugang und muss entsprechend berechtigt
-werden. Deaktivieren erhält vorhandene Variablen und Platzierungen; endgültiges
-Löschen bleibt eine bestätigte Helper-Aktion. Es gibt keine neue MQTT-Verbindung.
-Synthetische Vertragsprüfungen ersetzen keine Abnahme im nativen IPSView-Client.
-Mausrad, Touch, Größenanpassung und Darstellung dort gesondert prüfen.
+Die regulär verteilten zentralen Helper bleiben unverändert; das spezielle
+Abonnement wird beendet. Diese Entscheidung ersetzt die frühere Umsetzung,
+ändert aber weder den nativen Designer noch die korrigierte Gerätedatenanzeige.

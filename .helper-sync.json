@@ -27,9 +27,6 @@
         },
         "HttpResponseHelper": {
             "target": "libs/helper/HttpResponseHelper.php"
-        },
-        "IPSViewHTMLPageHelper": {
-            "target": "libs/helper/IPSViewHTMLPageHelper.php"
         }
     }
 }

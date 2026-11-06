@@ -2,12 +2,6 @@
 
 ## Neu
 
-- Vollständigen Designer optional als IPSView-HTMLBox eingebunden: gemeinsame
-  Systemauswahl, Status und Bearbeitung, responsive Darstellung und
-  Zugangserneuerung ohne Neuladen. Zentraler IPSViewHTMLPageHelper verwaltet die
-  Ausgabevariable. Eigener widerrufbarer Einstieg mit befristeten Sitzungen,
-  deutsche Debugmeldungen und synthetische Prüfungen; kein neuer MQTT-Pfad.
-
 - Vollständigen Designer direkt in die native Symcon-Kachel eingebettet, mit
   Systemauswahl, übernommener Symcon-Darstellung und Zugangserneuerung ohne
   Neuladen. Ab Symcon 9.1 bleibt der Designer auch in der nativen Großansicht
@@ -44,6 +38,12 @@
   getrennten Benutzerrechten, beidseitigem Diagnoseempfang und Rückweg.
 
 ## Fixes
+
+- Experimentelle IPSView-Administrationsansicht auf Benutzerwunsch entfernt,
+  einschließlich eigener Endpunkte, Zugänge, Formularfelder und Einbindung.
+  Alte IPSView-Sitzungen bleiben gesperrt. Webfrontend, native Symcon-Kachel
+  und die korrigierte Gerätedatenanzeige bleiben erhalten. Bestehende
+  Ausgabevariablen und Platzierungen werden nicht automatisch gelöscht.
 
 - Gerätedatenstatus im gemeinsamen Designer vereinheitlicht: Ein früher
   gespeicherter Katalog wird ohne aktuelle Bestätigung nicht mehr als geladen

@@ -2,7 +2,6 @@
 export function installAccessRenewal(environment = window) {
     const {document, location} = environment;
     const token = location.hash.slice(1);
-    const reopen = location.pathname?.endsWith('/ipsview.html') ? 'Bitte die Ansicht in IPSView erneut öffnen.' : 'Bitte den Designer über das Modul oder die Kachel erneut öffnen.';
     if (!/^[a-f0-9]{64}$/.test(token)) return;
     const endpoint = new URL('access-renew', location.href); endpoint.hash = '';
     const panel = document.createElement('aside'); panel.className = 'designer-access';
@@ -28,7 +27,7 @@ export function installAccessRenewal(environment = window) {
             panel.dataset.tone = 'ok';
             return true;
         } catch {
-            label.textContent = stopped ? 'Der Designerzugang ist abgelaufen. Offene Eingaben bleiben sichtbar. ' + reopen
+            label.textContent = stopped ? 'Der Designerzugang ist abgelaufen. Offene Eingaben bleiben sichtbar. Bitte den Designer über das Modul oder die Kachel erneut öffnen.'
                 : 'Der Zugang konnte noch nicht verlängert werden. Bitte die Verbindung prüfen und erneut versuchen; offene Eingaben bleiben erhalten.';
             panel.dataset.tone = 'error';
             return false;
