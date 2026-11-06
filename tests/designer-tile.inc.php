@@ -31,6 +31,10 @@ $manager->RequestAction('StartAutomations', '{}');
 $manager->RequestAction('DesignerTile', '{"action":"access"}');
 $check(count($manager->tileMessages) === $tileReplyCount && count($parent->sent) === $tileMqtt, 'Tile dispatch rejects arbitrary actions and malformed requests without any MQTT side effect');
 $check(!str_contains(implode("\n", $manager->debugMessages), $tileAccess['access']['token']), 'Native debug never reveals designer capabilities');
+$manager->tileDelivery = false;
+$tileCall('status', $b);
+$manager->tileDelivery = true;
+$check(str_contains(implode("\n", array_slice($manager->debugMessages, -4)), 'Antwort nicht an die Kachel übergeben'), 'Rejected SDK delivery is explained without reporting a successful send');
 
 $tileScope = $decode($tileBefore);
 $tileScope['systems'][$b]['binding']['generation']++;

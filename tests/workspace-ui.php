@@ -24,6 +24,7 @@ class WorkspaceUIProbe extends Z2MAutomations
 {
     public array $importEvents = [];
     public array $tileMessages = [];
+    public bool $tileDelivery = true;
     public array $debugMessages = [];
     public $onCatalogRead = null;
     public string $requestBody = '';
@@ -77,8 +78,9 @@ class WorkspaceUIProbe extends Z2MAutomations
     }
     protected function UpdateVisualizationValue(mixed $Value): bool
     {
-        $this->tileMessages[] = $Value;
-        return true;
+        if (!is_string($Value)) throw new RuntimeException('Native tile messages must cross the SDK boundary as a JSON string.');
+        $this->tileMessages[] = json_decode($Value, true, 32, JSON_THROW_ON_ERROR);
+        return $this->tileDelivery;
     }
     protected function ImportEventIDs(): array
     {

@@ -1,5 +1,32 @@
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 
+## Kachel-SDK-Texttransport korrigiert – 06.11.2026
+
+Die Praxis meldete an UpdateVisualizationValue einen Konvertierungsfehler für
+Value. DesignerEmbedding hatte ein PHP-Array übergeben, das unsere lokale
+SDK-Nachbildung ohne Typprüfung akzeptierte. Die PHP-Probe verlangt jetzt JSON-Text;
+vor der Korrektur reproduziert sie den Fehler am öffentlichen RequestAction-Einstieg.
+Auch die JavaScript-Gegenstelle liefert ausschließlich Text und zeigte vor der
+Korrektur ausbleibende Status-/Zugangsrückmeldungen. Gemeinsam korrigiert:
+json_encode am SDK-Ausgang und JSON.parse vor der bestehenden Client-/Anfrageprüfung.
+Beschädigter Text und fremde Nachrichten verbrauchen keine ausstehende Anfrage.
+Eine von Symcon abgelehnte Übergabe erzeugt eine verständliche Fehlermeldung im
+kanonischen Debug; SENDEN wird erst nach angenommener Übergabe protokolliert.
+Keine Tokenwerte und keine neuen MQTT-/Z2M-Aufträge.
+
+Vorab VisualizationAssetHelper und IPSViewHTMLPageHelper geprüft: Der vorhandene
+HTML-JSON-Encoder des IPSView-Helfers dient der Einbettung in Skripte und ist hier
+nicht eingebunden. Für den reinen SDK-Texttransport genügt PHPs json_encode;
+keine Helperdatei kopiert oder geändert. Echte Symcon-Kachelprüfung nach dem
+korrigierten Modulupdate weiterhin offen; der bisherige Mock war dafür kein Beleg.
+
+Nach der Korrektur: vollständige Projektprüfung einschließlich 214 JavaScript-Tests,
+Struktur, Kodierung, StylePHP (18 eigene JSON-Dateien) und php-cs-fixer im Prüfmodus
+bestanden. Separater lokaler Edge mit JSON-Text-SDK-Mock: acht Systemoptionen,
+Designeröffnung, Zugangserneuerung mit offenen Eingaben, Hell/Dunkel, 320–1920 Pixel
+und Mausradscrollen erfolgreich. Keine Installationsabfrage oder Live-Änderung.
+
+
 ## Native Kachel und gemeinsamer Browserzugang – 06.11.2026
 
 Vor der Umsetzung VisualizationAssetHelper einschließlich HTTP-Origin-Ressource,

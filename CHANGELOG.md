@@ -34,6 +34,11 @@
 
 ## Fixes
 
+- Native Kachelantworten als JSON-Text übergeben und im Browser vor der
+  Zuordnungsprüfung dekodieren. Behebt die Symcon-Warnung „Cannot auto-convert
+  value for parameter Value“ beim Lesen des Status und beim Designerzugang.
+  Regressionstests prüfen den tatsächlichen Texttransport statt PHP-Arrays.
+
 - R3-Nachweise für Installation und automatischen Geräteabruf beider Systeme
   zusammengeführt und den fehlenden unabhängigen Vorher-/Nachher-Vergleich
   des ersten Systems am 06.11.2026 im freigegebenen Praxislauf ergänzt.

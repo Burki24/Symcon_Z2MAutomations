@@ -5,6 +5,8 @@
 GetVisualizationTile und RequestAction verwenden den kanonischen DebugFlowHelper.
 Deutsche Ablaufmeldungen unterscheiden statische Bereitstellung, Lesen vorhandener
 Systemstände, ausdrückliches Öffnen, ungültige Auswahl und fehlende Rückmeldung.
+Erfolgreiche SDK-Übergaben nennen JSON-Text und Ausgabeumfang erst nach Annahme
+durch Symcon; eine abgelehnte Übergabe wird als Fehler erklärt.
 Zugangstoken, vollständige Öffnungslinks, SDK-Anfrageinhalte und Formulareingaben
 werden nicht protokolliert. access-renew meldet eine erfolgreiche Verlängerung
 samt Erhalt der Eingaben und Rechte; HTTP-Ablehnungen bleiben über den bestehenden

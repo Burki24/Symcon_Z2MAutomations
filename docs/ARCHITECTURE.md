@@ -10,7 +10,9 @@ akzeptiert ausschließlich die korrelierten Kachelaktionen status/access.
 Die Statusansicht verwendet WorkspaceOverview und vorhandene Verbindungsdaten;
 Systemauswahl bleibt lokal in der jeweiligen Kachel. Kein neuer MQTT-Pfad.
 
-Native SDK-Antworten enthalten Client- und Anfragekennung. Ein ausdrücklich
+Native SDK-Antworten werden als JSON-Text über UpdateVisualizationValue gesendet
+und in handleMessage vor der Prüfung dekodiert; PHP-Arrays sind kein SDK-Transport.
+Sie enthalten Client- und Anfragekennung. Ein ausdrücklich
 angeforderter Designerzugang wird nur von der passenden Kachel angenommen.
 IssueDesignerAccess erzeugt denselben begrenzten Zugang auch für den nativen
 Öffnungsbutton. initialSystem im flüchtigen Zugangsdatensatz wählt den ersten

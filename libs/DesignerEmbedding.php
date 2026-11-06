@@ -42,14 +42,18 @@ trait DesignerEmbedding
                 $state = $this->DesignerTileState($request['systemId']);
                 $reply += ['ok' => true, 'state' => $state];
                 if ($request['action'] === 'access') $reply['access'] = $this->WithTransportLock(fn (): array => $this->IssueDesignerAccess($state['selectedSystem']));
-                $this->DebugEvent('SENDEN', $request['action'] === 'access'
-                    ? 'Designerzugang für das in der Kachel gewählte System bereitgestellt. Zugangsdaten bleiben geschützt; offene Entwürfe unverändert.'
-                    : 'Kachelstatus aus vorhandenen Moduldaten aktualisiert. Keine Z2M-Abfrage und kein Systemwechsel im nativen Editor.', ['Systeme' => count($state['systems'])]);
             } catch (Throwable) {
                 $reply = array_replace($reply, ['ok' => false, 'message' => 'Die Ansicht ist derzeit nicht verfügbar. Bitte die Systemzuordnung im Modul prüfen und erneut versuchen.']);
                 $this->DebugEvent('FEHLER', 'Kachelstatus oder Designerzugang konnte nicht bereitgestellt werden. Bitte die Systemzuordnung und das Modul-Debug prüfen.');
             }
-            $this->UpdateVisualizationValue($reply);
+            $payload = json_encode($reply, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+            if (!$this->UpdateVisualizationValue($payload)) {
+                $this->DebugEvent('FEHLER', 'Symcon konnte die Antwort nicht an die Kachel übergeben. Bitte den Kachelstatus erneut aktualisieren; Entwürfe und Z2M bleiben unverändert.');
+            } elseif ($reply['ok']) {
+                $this->DebugEvent('SENDEN', $request['action'] === 'access'
+                    ? 'Designerzugang für das in der Kachel gewählte System als JSON-Text an Symcon übergeben. Zugangsdaten bleiben geschützt; offene Entwürfe unverändert.'
+                    : 'Kachelstatus aus vorhandenen Moduldaten als JSON-Text an Symcon übergeben. Keine Z2M-Abfrage und kein Systemwechsel im nativen Editor.', ['Systeme' => count($state['systems']), 'AusgabeBytes' => strlen($payload)]);
+            }
         });
     }
 

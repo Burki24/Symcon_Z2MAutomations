@@ -29,8 +29,8 @@ function tileHost({blocked = false, opaque = false} = {}) {
     const state = {selectedSystem: 'system-a', readAt: 1800000000, systems: [
         {systemId: 'system-a', name: 'Synthetic A <script>', baseTopic: 'synthetic/a', rules: 3, sequences: 1, status: 'Automatik aktiv · Stand 3', openInput: true},
         {systemId: 'system-b', name: 'Synthetic B', baseTopic: 'synthetic/b', rules: 7, sequences: 2, status: 'Kein aktiver Automatikbetrieb bestätigt', openInput: false}]};
-    const reply = (request = requests.at(-1), changes = {}) => window.handleMessage({type: 'z2ma-tile', version: 1, client: request.client,
-        request: request.request, action: request.action, ok: true, state, ...changes});
+    const reply = (request = requests.at(-1), changes = {}) => window.handleMessage(JSON.stringify({type: 'z2ma-tile', version: 1, client: request.client,
+        request: request.request, action: request.action, ok: true, state, ...changes}));
     return {nodes, requests, timers, popups, events, window, state, reply};
 }
 test('native tile reads cached status, filters other clients and selects systems without editor writes', () => {
@@ -43,6 +43,16 @@ test('native tile reads cached status, filters other clients and selects systems
     assert.equal(host.requests[1].systemId, 'system-b'); assert.equal(host.requests[1].action, 'status');
     host.reply(host.requests[1], {state: {...host.state, selectedSystem: 'system-b'}});
     assert.equal(host.nodes.get('rules').textContent, 7); assert.equal(host.requests.length, 2);
+});
+test('malformed JSON and unsupported SDK values leave the pending request available for its real reply', () => {
+    const host = tileHost();
+    for (const data of ['{', 'null', '[]', '42', null, 17, {type: 'z2ma-tile'}]) {
+        assert.doesNotThrow(() => host.window.handleMessage(data));
+        assert.equal(host.nodes.get('open').disabled, true);
+    }
+    host.reply();
+    assert.equal(host.nodes.get('open').disabled, false);
+    assert.equal(host.nodes.get('rules').textContent, 3);
 });
 test('native designer opens only its validated path and capability, also from an opaque SDK document', () => {
     const host = tileHost({opaque: true}); host.reply(); host.nodes.get('open').listeners.click();

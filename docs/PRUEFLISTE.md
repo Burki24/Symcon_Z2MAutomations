@@ -8,6 +8,9 @@
 - **Synthetisch bestätigt:** zeitbegrenzte Verlängerung derselben Capability ohne
   Seitenwechsel oder Wiederholung von Editoraufträgen; Eingaben und Rechte erhalten,
   abgelaufene und durch Update/Bindungswechsel widerrufene Zugänge bleiben gesperrt.
+- **Korrektur nach Praxisfehlermeldung:** SDK-Antworten verwenden JSON-Text.
+  PHP-Probe und JavaScript-Gegenstelle erzwingen jetzt diesen Transport; der
+  vorherige Array-Mock hatte die Symcon-Typgrenze nicht abgebildet.
 - **Offen:** echte Symcon-Kachel nach Modulupdate in der Testvisualisierung einbinden;
   Systemauswahl, Status, Öffnung im jeweiligen Visualisierungsclient, Popup-Fallback,
   Zugangserneuerung und natives Debug prüfen. Browser-/SDK-Mock ist kein Praxisbeleg.

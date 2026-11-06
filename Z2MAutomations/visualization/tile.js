@@ -50,6 +50,8 @@
         $('read-at').textContent = 'Vorhandene Moduldaten, gelesen um ' + new Date(value.readAt * 1000).toLocaleTimeString('de-DE') + ' · keine Live-Abfrage';
     }
     window.handleMessage = function (data) {
+        if (typeof data !== 'string') return;
+        try { data = JSON.parse(data); } catch { return; }
         if (data?.type !== 'z2ma-tile' || data.version !== 1 || data.client !== client || !pending
             || data.request !== pending.request || data.action !== pending.action) return;
         const current = pending; pending = null; clearTimeout(timer);

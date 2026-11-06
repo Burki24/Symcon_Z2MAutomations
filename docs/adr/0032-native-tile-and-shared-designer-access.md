@@ -23,6 +23,9 @@ Zugangstoken. Vorhandene kanonische Asset- und HTTP-Origin-Helper werden verwend
 libs/helper bleibt unverändert. RequestAction erlaubt nur status und access mit
 begrenzter Eingabe, Client- und Anfragekennung. Native Antworten werden nur bei
 exakter Zuordnung angenommen; verspätete Antworten öffnen kein Fenster.
+Die SDK-Grenze überträgt JSON-Text, kein PHP-Array. handleMessage dekodiert ihn
+vor der bestehenden Zuordnungsprüfung. Synthetische Gegenstellen erzwingen
+denselben Transportvertrag; beschädigte Texte werden ohne Zustandsänderung ignoriert.
 Keine dynamische Funktionsauswahl, keine MQTT-Betriebsaktionen in der Kachel.
 
 Ein Öffnungsbutton reserviert unmittelbar ein neues Fenster und navigiert es
