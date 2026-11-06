@@ -1,3 +1,40 @@
+## IPSView-Einbindung: reguläre Helper-Verteilung vorbereiten – 06.11.2026
+
+Die vollständige Designeransicht soll zusätzlich als optionale IPSView-Ausgabe
+bereitgestellt werden. Der passende zentrale `IPSViewHTMLPageHelper` wurde vor
+der Umsetzung einschließlich seiner Verwendung in SymconiCloud geprüft. Er
+verwaltet die optionale HTML-Ausgabe, ihre String-Variablen mit WebContent-
+Darstellung und das bewusste Erhalten beziehungsweise Löschen dieser Variablen.
+Die bereits eingebundene zentrale Interaktionsunterstützung bleibt die Grundlage
+für Mausrad und verschachtelte Frames.
+
+Vorbereiteter Stand: `.helper-sync.json` abonniert `IPSViewHTMLPageHelper`;
+`Symcon_ModuleHelper/.github/helper-consumers.json` ergänzt Z2MAutomations mit
+Zielbranch `dev`. Die Registrierung ist in `HELPER_SYNC_SETUP.md` dokumentiert.
+Es wurden keine Helper-Dateien, Hashes oder Herkunftsangaben lokal erzeugt und
+keine Laufzeitdateien des Moduls verändert. Die IPSView-Ausgabe ist damit noch
+nicht implementiert oder freigegeben.
+
+Reihenfolge vor der weiteren Umsetzung:
+
+1. Die Subscription in Z2MAutomations auf `dev` über GitHub Desktop übernehmen.
+2. Den vorbereiteten Consumer-Eintrag in Symcon_ModuleHelper über den dortigen
+   Benutzerworkflow freigeben. Die Helper-Verteilung läuft ausschließlich auf
+   `main`. Die Helper-Sync-App benötigt Zugriff auf Z2MAutomations.
+3. Den regulären Sync für `IPSViewHTMLPageHelper` ausführen lassen und das
+   automatisch verteilte Paket im Consumer über GitHub Desktop holen.
+4. Helper-Integrität und Strukturprüfung erneut ausführen. Bis zur Verteilung
+   ist die neue Subscription bewusst noch nicht im lokalen Helper-Manifest
+   erfüllt; `validate_structure.php` kann diesen Zwischenstand nicht freigeben.
+5. Erst mit dem regulär eingebundenen Helper die optionale IPSView-Ausgabe und
+   den Zugriff auf denselben vollständigen Designer umsetzen. Vorhandene
+   Systemzuordnungen, Entwürfe und der laufende Z2M-Betrieb bleiben erhalten.
+
+Offene Nachweise danach: Systemauswahl, Status, Zugangserneuerung und Widerruf,
+responsive Hell-/Dunkeldarstellung sowie echte Mausradbedienung im verwendeten
+IPSView-Client. Ein synthetischer Browser-Frame bestätigt keine native IPSView-App.
+Keine Änderungen an Test- oder Live-Installation vorgenommen.
+
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 
 ## Vollständiger Designer in der nativen Kachel – 06.11.2026
