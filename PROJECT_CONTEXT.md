@@ -25,10 +25,18 @@ geprüft. Sieben äußere Systeme kommunizieren über den mittleren synthetische
 Broker auch bei gestoppter mittlerer Erweiterung. Keine reale Broker- oder
 Geräteprüfung und keine Änderung an Modul, Erweiterungsquellen oder Artefakt.
 
-Offen bleiben R3 die zusammengeführte reale Kette Installation
-mit automatischem Geräteabruf, R4 die gezielte Zentralen-Restabnahme und R5
-weitere Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut
-als ungeprüft führen. Windows bleibt ein späteres separates Projekt.
+R3 ist am 06.11.2026 anhand vorhandener Belege eingegrenzt: Bestätigte Installation,
+genau ein automatischer Geräteabruf und Katalogabschluss sind auf beiden Systemen
+belegt. S1 besitzt dazu eine archivierte Debugkette vom 05.11., S2 den vollständigen
+R2-Beleg. Offen bleibt nur der unabhängige Vergleich von Entwurf, Auswahl,
+offener Arbeit und Betrieb vor/nach demselben S1-Installationslauf; frühere
+manuelle Geräteabrufe ersetzen ihn nicht. Siehe
+[R3-Belegabgleich](docs/INSTALLATION_CATALOG_EVIDENCE.md).
+Keine neue Installation oder Geräteabfrage für diesen Abgleich.
+
+Weitere Restpunkte sind R4 die gezielte Zentralen-Restabnahme und R5 weitere
+Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut als
+ungeprüft führen. Windows bleibt ein späteres separates Projekt.
 
 R2 ist am 06.11.2026 nach ausdrücklicher Freigabe an Test-Symcon 9.1 praktisch
 bestätigt. Die korrigierte Probe erfasst die echte native Kette Nein null → Ja

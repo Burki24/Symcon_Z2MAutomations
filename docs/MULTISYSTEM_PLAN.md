@@ -16,9 +16,11 @@ Die fünf Designerpunkte sowie zusätzliche Installation und Partnerfreigaben si
 integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
 [Prüfliste](PRUEFLISTE.md) berücksichtigt. R1 ist für drei und acht echte
 Erweiterungsinstanzen synthetisch und R2 im begrenzten nativen Praxislauf bestätigt;
-die offenen Nachweise R3–R5 werden dort einzeln geführt. Reale Mosquitto-Bridges
-mit mehr als zwei Brokern sind
-dadurch nicht abgenommen. Ein Update allein führt weder Übernahme noch
+die offenen Nachweise R3–R5 werden dort einzeln geführt. R3 belegt inzwischen
+beide automatischen Installations-/Katalogketten; nur der unabhängige
+Vorher-/Nachher-Vergleich des ersten Systems im selben Lauf fehlt noch.
+Reale Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
+Ein Update allein führt weder Übernahme noch
 Z2M-Aufträge aus.
 Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
 
@@ -387,9 +389,13 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen. Die folgenden
 Arbeitspakete bleiben offen:
 
-1. R3: Vorhandene Installations-/Katalogbelege zusammenführen. R2 ist praktisch
-   bestätigt und belegt für das zweite System auch genau einen erfolgreichen
-   automatischen Geräteabruf. Nur noch fehlende Teilbelege gesondert ergänzen.
+1. R3: Die vorhandenen Installations-/Katalogbelege sind
+   [zusammengeführt](INSTALLATION_CATALOG_EVIDENCE.md). Beide automatischen
+   Ablaufketten sind belegt, das zweite System einschließlich Erhalt von
+   Arbeitsbereichen und Betrieb. Für das erste System nur noch den unabhängigen
+   Vorher-/Nachher-Vergleich im selben Installationslauf ergänzen, etwa bei einem
+   später ausdrücklich beauftragten Update. Kein erneuter Installationsauftrag
+   allein durch diesen Plan.
 2. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
    nach gesondertem Auftrag abschließen. Bereits bestätigte Abläufe erhalten.
 

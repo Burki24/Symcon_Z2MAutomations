@@ -1,3 +1,50 @@
+## R3: Vorhandene Installations-/Geräteabrufbelege zugeordnet am 06.11.2026
+
+Vorhandene private Berichte, zugehörige Prüfskripte und archivierte Dateidebugs
+nur lesend abgeglichen. Keine neue Installation, Status-/Geräteabfrage,
+Debugaufzeichnung oder Betriebsänderung. Keine Bedienung einer persönlichen
+Konsole und kein Zugriff über den Produktionsconnector.
+
+Die frühen Browserinstallationsberichte belegen beide Systeme, liegen aber
+vor der Implementierung des automatischen Nachladens. Die separaten manuellen
+Katalogprüfungen belegen Entwurfs-/Betriebserhalt bei manuellen Abrufen; diese
+Vergleiche werden nicht als derselbe automatische Installationslauf umgedeutet.
+
+Für das erste System ist im archivierten Dateidebug vom 05.11.2026 die reale
+Kette 15:48:47 Uhr ein Upload → 15:48:48 Uhr Installation und erwarteter Build
+bestätigt → 15:48:49 Uhr automatisches Nachladen → 15:48:50 Uhr ein Katalogauftrag
+mit passender Antwort → 15:48:51 Uhr Übernahme und erfolgreicher Abschluss
+belegt. Zeiten Europe/Berlin. Auch zunächst trefferlose Archivseiten bis zum
+Dateiende berücksichtigt; Aufträge und Antworten eindeutig zugeordnet.
+Der S1-Abgleich bleibt privat einschließlich der zugehörigen Debugereignisse.
+
+Für das zweite System deckt der kombinierte R2-Beleg vom 06.11.2026 diese Kette
+vollständig ab: genau ein Upload und automatischer Geräteabruf, neue Sitzung,
+erwarteter Build sowie unabhängiger Vergleich beider lokaler Arbeitsbereiche
+und des ursprünglichen Betriebs. Keine zusätzliche Praxisprüfung nötig.
+
+R3 bleibt ausschließlich für den unabhängigen Vergleich von Ausgangs- und
+Endständen im selben S1-Installationslauf offen: Dokument mit Partnerfreigaben,
+Auswahl, offene Arbeit, bestätigter gespeicherter/aktiver Stand und Betrieb,
+einschließlich unverändertem anderen System. Die S1-Abschlussmeldungen nennen
+den Erhalt, sind aber keine unabhängigen Datenvergleiche. Das ist eine Beleglücke,
+kein nachgewiesener Datenverlust. Bei einem später freigegebenen S1-Update kann
+dieser Teil mit erhoben werden; kein neuer Auftrag aus der Dokumentation.
+
+Der [R3-Belegabgleich](INSTALLATION_CATALOG_EVIDENCE.md) enthält die gemeinsame
+Matrix und den begrenzten Restumfang. Prüfliste, Agenda, Mehrsystemplan und
+Projektkontext entsprechend eingegrenzt. Keine Modul-/Erweiterungsquellen,
+Tests, Helper oder generierten Artefakte geändert.
+
+Lokale Abschlussprüfung erfolgreich: `php tests/run.php` mit **203 JavaScript-Tests**
+und allen PHP-/Modulprüfungen, separate Struktur-/Kodierungsprüfung und
+`npm run check:extension`. Offizieller StylePHP-Check der 18 eigenen JSON-Dateien
+in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus für 148 PHP-Dateien
+ohne Befund. Sieben Markdown-Dateien auf UTF-8 ohne BOM/LF, geschlossene
+Codeblöcke und 36 lokale Dateiverweise geprüft; geprüfte private Adressen,
+System-/Instanzkennungen und Ablagepfade nicht in den Ergänzungen enthalten.
+`git diff --check` sauber. Keine Commits oder Pushes.
+
 ## R2: Nativer zweiter Installations-Klick praktisch bestätigt am 06.11.2026
 
 Nach ausdrücklicher Praxisfreigabe den nativen Button des zweiten Systems an

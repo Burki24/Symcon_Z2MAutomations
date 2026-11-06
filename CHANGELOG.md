@@ -21,6 +21,12 @@
 
 ## Fixes
 
+- R3-Nachweise für Installation und automatischen Geräteabruf beider Systeme
+  zusammengeführt. Bestätigte Abläufe, separate manuelle Prüfungen und der noch
+  fehlende unabhängige Vorher-/Nachher-Vergleich des ersten Systems im selben
+  Installationslauf sind in Planung und Prüfliste klar getrennt. Reiner
+  Belegabgleich, keine Änderung am laufenden System oder Modulcode.
+
 - Native Installationsprüfung erfasst Konsolenaufrufe vor dem Worker-Transport
   statt nach PHP-Namen in Seitenanfragen zu suchen. Testaufzeichnung mit
   getrennten Installations-/Statuszählern, unveränderter Weitergabe, Grenzen
