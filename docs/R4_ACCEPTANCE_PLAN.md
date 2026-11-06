@@ -76,6 +76,24 @@ Nur Status-/Editoranfragen über MQTT, deutsche Debugmeldungen bestätigt.
 Eigene Testobjekte, Prozesse, Datenablagen und Zugangsdaten entfernt; bestehende
 Benutzerstände unverändert, Live-System unberührt. Kein realer Z2M-Neustart.
 
+Restprüfung am 06.11.2026 in Test-Symcon 9.1:
+- Gerätezuordnungen bestanden: zwei native Geräte- und zwei Gruppeninstanzen an
+  isoliertem MQTT, gleiche Geräte-/Gruppenkennungen je Basistopic. Vier vom nativen
+  Modul angelegte Variablen, Standardaktionen, eine benutzerdefinierte Aktion sowie
+  Archivzuordnung und je zwei synthetische Historienwerte bleiben nach Altübernahme,
+  frischem Katalogabruf und Rückweg unverändert. Aktionsauswahl je System bestätigt;
+  deutsche Debugmeldungen geprüft, keine Schaltbefehle. Testobjekte, Zugangsdaten
+  und synthetische Archivdaten entfernt, vorhandene Benutzerentwürfe unverändert.
+- **Windows-Dateirechte nicht bestanden (P1):** Auch frische Archive erben für
+  die lokale Gruppe Benutzer (SID S-1-5-32-545) Leserechte. Ein nicht erhöhter
+  Prozess konnte das synthetische Manifest öffnen. `chmod(0600)` in
+  [MigrationArchive.php](../libs/MigrationArchive.php) belegt keine private NTFS-ACL.
+  Sicherungsverzeichnis und Dateien müssen wirksam geschützt und erneut geprüft
+  werden; im Prüfauftrag wurden weder Rechte noch Implementierung geändert.
+- Native Zeigerbedienung bleibt offen: Windows-Prüfsteuerung startet auch nach
+  Wiederholung und Reset mit „failed to write kernel assets“ nicht. Kein Nachweis
+  eines Modulfehlers und kein Ersatz des Klicknachweises durch MCP-Aufrufe.
+
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
 | Lokale Sicherung, Altübernahme und Rückweg | `tests/migration.php`: 1/2/8 Systeme, echte temporäre Archivdateien, YAML-Bytes, Freigaben, gleiche lokale Kennungen, Besitzer, Konflikte und alle instrumentierten Übergabe-/Rückgabeschritte. Frisch erfolgreich unter PHP 8.5.10. | Symcon-Stubs; neu erzeugte Testobjekte mit übernommenen persistenten Attributen simulieren Wiederanlauf. Kein echter Kernelneustart, keine native Dateirechteabnahme. |
@@ -205,10 +223,10 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   Struktur, zentrale Kodierung, Erweiterungsartefakt, lokale Dateilinks und
   UTF-8/LF ohne BOM ebenfalls geprüft. Keine neue Gesamtsuitenabnahme behauptet.
 - P0–P2: MQTT-Testanbindung und Modul-/Callbackpraxis für direkte Einrichtung
-  und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
-  Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3 für den Modulweg
-  mit synthetischen Einzelinstanzen praktisch bestätigt; echte Geräte-/Action-/
-  Archivzuordnungen nicht praktisch geprüft. P4–P6 im beschriebenen Umfang bestanden.
-- R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
+  und Rückweg bestätigt, anschließend aufgeräumt. Nativer Zeiger-Bediennachweis
+  bleibt offen. P3 samt nativen Geräte-/Action-/Archivzuordnungen mit synthetischen
+  Daten im echten Kernel bestätigt; P4–P6 im beschriebenen Umfang bestanden.
+- R4/B3: wegen bestätigtem Windows-Dateirechtemangel und fehlendem Klicknachweis
+  nicht abgeschlossen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
