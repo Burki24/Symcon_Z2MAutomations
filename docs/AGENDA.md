@@ -1,5 +1,15 @@
 # Entwicklungsagenda
 
+## Erste Beta vorbereiten
+
+Der Funktionsumfang bleibt eingefroren. Die vier Abschlusspunkte werden im
+[Beta-Abnahmebericht](BETA_ABNAHME.md) nach Codebasis, lokaler Prüfung,
+Symcon-Praxis und tatsächlich fehlenden Nachweisen getrennt geführt.
+Die [Beta-Anleitung](BETA.md) ergänzt die Benutzerunterlagen. R1–R3 und die
+bereits bestätigten Designerprüfungen werden nicht erneut als offen angesetzt.
+R4/R5 bleiben im dort konkret benannten Umfang offen; fehlende Testumgebungen
+werden nicht durch produktive Versionswechsel oder pauschale Freigaben ersetzt.
+
 ## Aktueller Abgleich am 06.11.2026
 
 Die ursprüngliche Funktionsagenda unten ist im beschriebenen Umfang umgesetzt

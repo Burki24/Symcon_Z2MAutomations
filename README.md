@@ -10,6 +10,26 @@ Z2MAutomations vereinfacht die Einrichtung von Zigbee2MQTT-Automationen in Symco
 Symcon erstellt die Regeln und überträgt sie als YAML an eine
 eigene Erweiterung. Die Automationen werden direkt in Zigbee2MQTT ausgeführt.
 
+## Vorbereitung der ersten Beta
+
+Der Funktionsumfang ist für die erste Beta eingefroren. Es gibt noch keine
+Veröffentlichungsfreigabe. Die [Beta-Anleitung](docs/BETA.md) beschreibt
+Einrichtung, erste Regel, Rückweg und hilfreiche Fehlermeldungen. Der
+[Abnahmebericht](docs/BETA_ABNAHME.md) nennt bestandene Prüfungen und die
+verbleibenden Nachweise.
+
+Die aktuelle Abnahme hat einen Mausradfehler in der nativen Kachel an einer
+inneren Scrollgrenze gefunden. Dieser muss vor der Beta korrigiert und im
+echten Kachelclient erneut geprüft werden; Details stehen im Abnahmebericht.
+
+Praktisch geprüft sind Symcon 9.1 und zwei reale Z2M-Systeme. Die native
+Symcon-9.0-Abnahme und die eigene Prüfung einer stabilen Z2M-Version fehlen noch.
+Die Grenze von acht Systemen ist zusätzlich synthetisch geprüft; eine allgemeine
+Praxisfreigabe für acht reale Broker folgt daraus nicht. Die
+[Versionsübersicht](docs/COMPATIBILITY.md) bleibt maßgeblich.
+
+## Überblick
+
 Zusätzlich gibt es eine [native Symcon-Kachel](Z2MAutomations/README.md#native-symcon-kachel-und-designerzugang)
 mit dem vollständigen eingebetteten Designer, Systemauswahl und Status.
 Ab Symcon 9.1 steht er auch in der nativen Großansicht zur Verfügung.

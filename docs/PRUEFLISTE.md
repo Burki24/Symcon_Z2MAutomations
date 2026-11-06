@@ -1,5 +1,38 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Beta-Abnahme – aktueller Nachtrag vom 06.11.2026
+
+Die vier beauftragten Abschlusspunkte sind im
+[Beta-Abnahmebericht](BETA_ABNAHME.md) mit Nachweisen und verbleibenden Grenzen
+zugeordnet. Die [Beta-Anleitung](BETA.md) ergänzt Einrichtung und Fehlerberichte.
+Die Codebasis b1ae70b besteht lokal einschließlich 221 JavaScript-Tests; Tests
+und Check Style sind auch in GitHub Actions für genau diesen Commit grün.
+
+Die neue Browseranordnung ist inzwischen an der Testinstallation auf beiden
+Systemen geprüft: vollständige Katalogseiten, Systemwechsel, Gerätenamen,
+Vorbelegung, Gerätesuche/Kanal/Wert, Abbruch, Diagnose/Build und Erneuerung mit
+erhaltener Eingabe. Hell/Dunkel und 360/760/1600/3840 Pixel ohne Seitenüberlauf
+sowie echte Mausradbewegungen bestätigt. Dokument, Auswahl, offene Arbeit und
+Bindung je System sind unverändert; ursprüngliche Systemauswahl wiederhergestellt.
+Die alte Aussage „Praxisprüfung der neuen Anordnung offen“ ist für diesen
+Browserumfang durch diesen Nachtrag ersetzt, nicht für einen ungeprüften Client.
+
+**Neuer Beta-Blocker B4:** Im echten Symcon-Kachelclient 9.1 funktionieren
+Systemwechsel/Status beider Systeme und Zugangserneuerung mit erhaltener Eingabe.
+Die anschließende Prüfung findet jedoch eine Mausradfalle: An der oberen Grenze
+des inneren Ablaufbereichs erreicht Hochscrollen das noch gescrollte Dokument
+nicht. Der zentrale Interaktionshelper verbraucht das Ereignis ohne Bewegung.
+Reproduziert mit echten Wheel-Aktionen und Positionsvergleich. Die native
+Gesamtprüfung ist deshalb nicht bestanden; kanonische Korrektur und erneute
+Praxisprüfung stehen vor der Beta an. Kein Modul-/Helpercode in diesem Auftrag geändert.
+
+R4 bleibt für die konkret noch fehlende native Einrichtungs-/Rückwegkette und
+Restartfälle teilweise offen. R5 ist mangels zusätzlicher Umgebungen nicht
+abschließbar: Native Symcon-9.0- und stabile Z2M-Praxis fehlen. Eine neue native
+Kachelprüfung des endgültigen Kandidaten ist nach Korrektur von B4 abzuschließen.
+Der Bericht benennt den Blocker B4 und die Hindernisse B1–B3/B5;
+keine Änderung der zugesagten Mindestversion und keine Veröffentlichungsfreigabe.
+
 ## Native Kachel und vollständiger Designer – 06.11.2026
 
 - **Implementiert:** derselbe vollständige Designer innerhalb der HTML-SDK-Kachel;
@@ -92,6 +125,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
+| B4 | Reproduzierter nativer Mausradfehler an innerer Scrollgrenze | Kanonischen Interaktionshelper korrigieren, regulär einbinden und echten Kachelclient nachprüfen. Dies ist ein Beta-Blocker; Einzelheiten im Beta-Abnahmebericht. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
@@ -115,6 +149,7 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] R3: Unabhängigen Vorher-/Nachher-Vergleich für S1 im selben automatischen Installationslauf am 06.11.2026 ergänzt; ursprüngliche lokale Bearbeitungsdaten und Betrieb wieder bestätigt.
 - [ ] R4: Zentralen-Restabnahme mit Versions-/Buildbezug und Rückweg abschließen.
 - [ ] R5: Vereinbarte Kompatibilitätsfälle aufnehmen und gezielt prüfen.
+- [ ] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und praktisch nachprüfen.
 
 Erst danach über eine Veröffentlichung entscheiden. Die eigenständige
 Windows-Anwendung bleibt ein separates späteres Projekt. Diese Prüfliste

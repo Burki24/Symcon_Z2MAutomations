@@ -386,6 +386,13 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 
 ## 9. Nächste Arbeitspakete
 
+Für die erste Beta ist der Funktionsumfang eingefroren. Der
+[Beta-Abnahmebericht](BETA_ABNAHME.md) ergänzt die nachfolgende Restliste um
+die aktuelle Codebasis, bestandene Prüfungen und gezielt noch fehlende
+native/versionsbezogene Nachweise. Die [Beta-Anleitung](BETA.md) beschreibt
+Einrichtung und Grenzen. Es wird keine pauschale neue Implementierungsagenda
+begonnen und keine vorhandene R1–R3-Abnahme zurückgesetzt.
+
 R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen, R2 und R3
 sind praktisch bestätigt. Die folgenden Arbeitspakete bleiben offen:
 

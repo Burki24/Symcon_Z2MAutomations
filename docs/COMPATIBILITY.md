@@ -1,5 +1,21 @@
 # Kompatibilität und belegte Versionen
 
+## Nachtrag zur Beta-Abnahme am 06.11.2026
+
+Die aktuelle Codebasis b1ae70b besteht lokal mit PHP 8.5.10 und Node 24.20.0;
+die GitHub-Prüfung desselben Commits verwendet PHP 8.5 und Node 22. Auf echtem
+Test-Symcon 9.1 wurden die fehlerfreie Neuanlage beider Modultypen ohne Parent
+und die aktuelle Browserbedienung beider Systeme ergänzt. Beide Z2M-Empfänger
+bestätigen Build `4d6cda174348`; ihre Versionsfelder bleiben in dieser Abnahme
+leer. Daraus wird keine neue Versionsfreigabe abgeleitet.
+
+Eine getrennte Symcon-9.0-Installation und eine stabile Z2M-Testinstanz stehen
+laut Benutzer derzeit nicht zur Verfügung. Diese beiden Nachweise bleiben
+offen; produktive Systeme werden dafür nicht umgestellt. Der
+[Beta-Abnahmebericht](BETA_ABNAHME.md) nennt Umfang, CI-Bezug und Grenzen.
+
+## Bisherige Versionsnachweise
+
 Abgleich: 06.11.2026. Die versionsbezogenen Nachweise vom 03.11.2026 bleiben
 unverändert. Weitere bestätigte Zentralen-/Designerabläufe sind in
 [PRUEFLISTE.md](PRUEFLISTE.md) berücksichtigt; daraus folgt keine neue

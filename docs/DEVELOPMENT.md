@@ -1,3 +1,61 @@
+## Beta-Abnahme vorbereitet – 06.11.2026
+
+Auf Benutzerauftrag die vier Abschlusspunkte an der sauberen Codebasis b1ae70b
+bearbeitet: Zentralen-/Rückwegnachweise zugeordnet, verfügbare Versionen geprüft,
+aktuellen Browserdesigner praktisch abgenommen und Beta-Unterlagen vorbereitet.
+Details, Storevorlage und verbleibende Hindernisse in BETA_ABNAHME.md; die
+Benutzer-Schrittfolge steht in BETA.md. Keine neue Funktion und keine Änderung
+an Erweiterung, Helpern, Metadaten oder Veröffentlichungskanal.
+
+Frische Gesamtsuite mit PHP 8.5.10 und Node 24.20.0 erfolgreich: alle PHP-
+Prüfprogramme und 221 JavaScript-Tests ohne übersprungene JS-Fälle. Struktur,
+Kodierung und Artefaktprüfung darin enthalten. Zusätzlich 162 getrackte PHP-
+Dateien ohne Syntaxfehler, offizieller StylePHP-Check eigener JSON-Dateien in
+isolierter Kopie und PHP CS Fixer im Prüfmodus für 152 Dateien ohne Befund.
+GitHub Tests und Check Style zum exakten Codecommit sind erfolgreich.
+
+Nach bestätigtem Benutzerupdate Test-Symcon 9.1 verwendet. Beide Modultypen
+ohne Parent neu angelegt, Konfiguration zweimal angewandt und Formular gelesen;
+eigene temporäre Instanzen samt eigenen Variablen anschließend entfernt.
+Beide Z2M-Verbindungen gesund und aktueller Erweiterungsbuild bestätigt,
+Versionsfelder jedoch leer. Kataloge ausdrücklich nachgeladen; Dokument,
+Auswahl, offene Arbeit und Bindung je System separat unverändert verglichen.
+Keine Z2M-Installation, Speicherung, Aktivierung, Stopps, Neustarts oder Schaltungen.
+
+Separater Headless-Edge ohne Benutzerprofil prüft die echte Designeranbindung:
+beide Systemkontexte, vollständige Katalogseiten, Regelvorbelegung einschließlich
+Auslöser/Kanal/Wert/Ziel, Gerätesuche, Dialogabbruch, Diagnose/Build und Erneuerung
+mit erhaltener offener Eingabe. Hell/Dunkel an 360/760/1600/3840 Pixeln ohne
+Seitenüberlauf, echtes Mausrad vor/zurück an überlaufenden Bereichen bestätigt.
+POST-Route der Prüfinstrumentierung erlaubt nur Systemwahl/Zugangserneuerung;
+alle lokalen Regeländerungen bleiben abgebrochene Dialogkopien. Die DOM-
+Auslösung des verdeckten Erneuerungsbuttons ist als Transportprüfung abgegrenzt.
+
+Anschließend echte Symcon-Kachelvisualisierung 9.1 im selben separaten Edge
+geöffnet, keine synthetische Hostseite. Beide Systemkontexte und aktiven Status
+gelesen; sichtbarer äußerer Erneuerungsbutton erhält offenen Namen und Frame.
+Vergrößerungsanfrage bei offenem Dialog wird korrekt abgewiesen. Die native
+Mausradprüfung scheitert dagegen reproduzierbar: Bei 1400 × 900 Pixeln bleibt
+das Dokument auf 424 Pixeln stehen, obwohl der innere canvas-scroll bereits
+oben ist. Der Helper konsumiert das negative Wheel ohne mögliche Bewegung.
+Echte Wheel-Aktionen, Hit-Testing, Vorher-/Nachher-Positionen und Screenshot
+grenzen den Fehler ein. B4 ist ein Beta-Blocker; Helper-/Modulquellen bleiben
+unverändert. Die native Gesamtprüfung wird nicht als bestanden ausgegeben.
+
+Keine zusätzliche native Symcon-9.0- oder stabile Z2M-Testumgebung vorhanden.
+Diese Versionsabnahmen und die im Bericht konkret benannten R4-Teilbelege
+bleiben offen. Bisherige Nachweise werden nicht pauschal wiederholt. Version,
+Release-Datum, endgültiger Commit und Storekontoangaben bleiben vor einer
+gesonderten Veröffentlichung abzugleichen.
+
+Abschlusskontrolle auch nach dem nativen Fehlerlauf: Dokument, Auswahl, offene
+Arbeit und Bindung beider Systeme unverändert; ursprünglicher Systemkontext
+wiederhergestellt und beide gespeicherten aktiven Stände weiterhin bestätigt.
+Eigene Debugweiterleitung und Dateiaufzeichnung beendet, alle eigenen
+Testbrowser geschlossen. Debugzugangsmeldungen enthalten den verwendeten
+Designerzugang nicht. Nach Dokumentationspflege Struktur, Kodierung und
+Artefaktprüfung sowie git diff --check erneut erfolgreich.
+
 ## IPSView-Administration zurückgenommen – 06.11.2026
 
 Auf Benutzerwunsch wird IPSView nicht zur Administration verwendet. Eigener

@@ -2,6 +2,20 @@
 
 ## Aktuelle Ergänzung
 
+Beta-Abnahme der Codebasis b1ae70b am 06.11.2026 begonnen und lokal geprüft.
+Die vier Arbeitspunkte, vorhandene Praxis, aktuelle Test-/CI-Ergebnisse und
+verbleibende Hindernisse stehen in [BETA_ABNAHME.md](docs/BETA_ABNAHME.md).
+Funktionsumfang für die erste Beta eingefroren; Anleitung/Storevorlage vorbereitet,
+keine Version geändert oder Veröffentlichung durchgeführt. Keine getrennte
+Symcon-9.0- oder stabile Z2M-Testumgebung vorhanden; diese Abnahmen bleiben offen.
+Aktuelle Browserprüfung auf beiden Testsystemen und fehlerfreie Neuanlage beider
+Modultypen unter Symcon 9.1 ergänzt. Kein Speichern, Aktivieren, Neustart oder
+Schaltbefehl an Z2M. Entwürfe samt Auswahl, offener Arbeit und Bindung erhalten.
+Die echte Kachel-9.1-Nachprüfung bestätigt Systemwechsel/Status/Erneuerung,
+findet aber die Mausradfalle an einer inneren Scrollgrenze (Beta-Blocker B4).
+Die Gesamtbewertung lautet deshalb nicht einreichungsreif; kanonischer
+Helperfix und erneute native Abnahme fehlen. Keine Quellcodekorrektur im Audit.
+
 Vollständigen bestehenden Designer in die native Symcon-Kachel eingebettet.
 Kein neues Browserfenster; Farben und Grundschriftgröße folgen dem Symcon-Client.
 Symcon 9.0 verwendet Typ 1 in der normalen Kachel, ab 9.1 Typ 2 einschließlich
