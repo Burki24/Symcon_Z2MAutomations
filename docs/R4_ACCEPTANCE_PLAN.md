@@ -54,6 +54,18 @@ Entwürfe, Auswahl, offene Eingaben und Besitzer auf beiden Systemen unveränder
 deutsche Debugmeldungen geprüft. Testobjekte, Prozesse, Listener und Zugangsdaten
 entfernt, bestehende Benutzerstände unverändert; Live-System nicht angesprochen.
 
+P5 am 06.11.2026 bestanden: Benutzer hat den Windows-Dienst von Test-Symcon 9.1
+geordnet neu gestartet; neuer Dienstprozess und Kernel-Startzeitpunkt bestätigt.
+Vorschau samt Vorgangskennung, Entwürfe, Auswahl, offene Eingaben und Besitzer
+unverändert erhalten; beide privaten Sicherungen bytegleich und prüfsummengültig.
+Natives Formular per Kernelaufruf wieder nutzbar, Übernahmebutton freigegeben.
+Weder Neustart noch Vorschauabruf wiederholen MQTT-Aufträge; erst ausdrückliche
+Bestätigung sendet eine frische Statusprüfung. Übernahme und wiederholter Rückweg
+erfolgreich; lokale Zusatzänderung in dritter geprüfter Rückwegsicherung erhalten.
+Deutsche Debugmeldungen bestätigt. Eigene Testobjekte, Prozesse und Zugangsdaten
+entfernt; bestehende Benutzerentwürfe, Zuordnungen, Konfigurationen und Statuswerte
+im Ausgangszustand. Live-System und reale Z2M-Prozesse unverändert.
+
 P6 am 06.11.2026 in Test-Symcon 9.1 per MCP bestanden: synthetischen
 Erweiterungs-Peer bei erhaltener Datenablage in einem neuen Node-Prozess gestartet.
 Prozess- und Sitzungskennung geändert, YAML-Prüfsumme und Revision unverändert.
@@ -196,7 +208,7 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
   Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3 für den Modulweg
   mit synthetischen Einzelinstanzen praktisch bestätigt; echte Geräte-/Action-/
-  Archivzuordnungen nicht praktisch geprüft. P4 und P6 praktisch bestanden; P5 offen.
+  Archivzuordnungen nicht praktisch geprüft. P4–P6 im beschriebenen Umfang bestanden.
 - R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
