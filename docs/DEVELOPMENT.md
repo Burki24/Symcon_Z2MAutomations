@@ -1,3 +1,62 @@
+## R1: synthetischer Mesh-Nachweis mit drei Erweiterungen am 06.11.2026
+
+Sechs neue Fälle in `tests/mesh-three.test.mjs`, angebunden an `npm test` und
+`php tests/run.php`. Die Fixture `tests/fixtures/mesh-star.mjs` startet drei
+echte Instanzen des erzeugten `libs/z2m/z2m-automations.mjs`, jeweils mit eigenem
+temporärem Speicher, MQTT-Abonnement, Status, nativer Befehlsübergabe und
+bestehender Diagnose. Speichern, Aktivieren und Debugstart verwenden den
+regulären Erweiterungsprotokoll-Einstieg mit Sitzungs-/Revisionsbestätigung.
+Alle Daten sind synthetisch; die temporären Verzeichnisse werden entfernt.
+
+Nur der Brokertransport ist nachgebildet: zwei getrennt unterbrechbare Kanten
+eines Sterns, Weiterleitung ausschließlich von `z2ma/mesh/#`, Hop-Protokoll
+und gezieltes Zurückhalten einer Antwort. Challenge, Token, Aktionsfreigabe,
+Befehlsübergabe, Laufstatus und Debug entstehen durch die echte Erweiterung.
+Eine kontrollierte Uhr prüft den Timeout vor und genau bei vier Sekunden,
+ohne reale Wartezeit oder Zugriff auf externe Broker.
+
+Bestätigt sind:
+
+- Zwei parallele Regeln A nach B und A nach C: getrennte Laufkennungen,
+  Transaktionen und Tokens; gleiche Gruppen-ID und gleicher Gruppenname führen
+  nur auf dem jeweiligen Ziel zu genau einer nativen Übergabe. Doppelte
+  Execute-Nachrichten erzeugen keine zweite Aktion.
+- Unterbrochener B-Zweig: nur sein Lauf scheitert mit `mesh_timeout`, C bleibt
+  auch für einen neuen Lauf nutzbar. Wiederverbindung holt nichts nach; erst
+  ein neuer Auslöser erreicht B. Die Automatik bleibt auf allen Systemen aktiv.
+- Getrennte Freigaben: A/B und B/C erlauben nicht automatisch A/C. Entzug bei
+  einem Empfänger sperrt nur die betreffende Richtung; die übrigen Freigaben
+  bleiben nutzbar. Eine später erteilte Freigabe wiederholt keinen alten Lauf.
+- Der Fehler eines Schritts bricht weiterhin die restlichen Aktionen desselben
+  Laufs ab; eine unabhängige Regel zum gesunden Zweig läuft erfolgreich.
+- Eine Antwort des falschen Systems beendet keine fremde Transaktion. Eine
+  verspätete echte Antwort ändert den fehlgeschlagenen Status nicht; Tokens
+  sind am anderen Ziel und nach Verwendung wirkungslos.
+- S3 nach S4 läuft über den mittleren synthetischen Broker S1 einschließlich
+  Rückantworten, auch bei gestoppter S1-Erweiterung ohne deren Partnerfreigaben.
+  Die drei Broker brauchen keine zusätzliche direkte S3/S4-Verbindung.
+
+Die vorhandenen deutschen Logmeldungen und MQTT-Debugereignisse werden auf
+Zuordnung zu Lauf, Regel, Schritt, Revision und bereinigter Herkunft geprüft;
+ein fehlgeschlagener Zweig erscheint nicht als Lauf des gesunden Empfängers.
+Keine Roh-Topics, Gerätekennungen, Regelnamen oder Aktionskörper im MQTT-Debug.
+Kein neuer Helper und keine Änderung an PHP-Modulen, Erweiterungsquellen oder
+Artefakt. Die bisherigen Zweierprüfungen bleiben erhalten.
+
+Grenzen: Der synthetische Transport ist keine Mosquitto-Implementierung.
+Diese Prüfung bestätigt weder reale Bridges, ACLs, Warteschlangen und
+Netzunterbrechungen noch Gerätewirkung oder eine konkrete Z2M-Version. Acht
+Erweiterungen bleiben der nächste offene Teil von R1. Keine Test-/Live-Instanz
+angesprochen, kein Erweiterungsupdate und keine reale Geräteaktion.
+
+Prüfung: Alle sechs neuen Fälle und die vollständige `php tests/run.php`-Suite
+mit **191 JavaScript-Tests** bestanden. Struktur, zentrale Kodierungsprüfung
+und `npm run check:extension` erfolgreich. Offizieller StylePHP-JSON-Check
+der 18 eigenen JSON-Dateien in isolierter Kopie ohne Fremdquellen bestanden;
+PHP CS Fixer 3.95.27 im Prüfmodus unter PHP 8.5.10 ohne Befund für 148 Dateien.
+Geänderte/neue Dateien als UTF-8 ohne BOM/LF und Markdown-Codeblöcke geprüft;
+`git diff --check` sauber. Keine Commits, Pushes oder Installationsänderungen.
+
 ## Planungs- und Nachweisabgleich am 06.11.2026
 
 Planung, Architektur, Modul-READMEs und Prüfliste anhand des aktuellen Codes,

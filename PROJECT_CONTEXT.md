@@ -17,7 +17,14 @@ Browserinstallation und Partnerfreigaben besitzen ebenfalls Praxisnachweise.
 Partnerfreigaben wurden am 05.11. mit exakter Entwurfswiederherstellung geprüft,
 ihre korrigierte Einzahl am 06.11. rein lesend bestätigt.
 
-Offen bleiben R1 Drei-/Acht-Erweiterungs-Mesh, R2 der begrenzte zweite native
+R1 ist am 06.11.2026 für drei echte Erweiterungsinstanzen synthetisch bestätigt:
+getrennte Läufe A nach B/C, Zweigausfall und Wiederkehr ohne Nachholen, getrennte
+Freigaben/Antworten, Doppelvermeidung und zugeordnete deutsche Debugmeldungen.
+S3 nach S4 läuft über den mittleren synthetischen Broker auch bei gestoppter
+mittlerer Erweiterung. Keine reale Broker- oder Geräteprüfung und keine Änderung
+an Modul, Erweiterungsquellen oder erzeugtem Artefakt.
+
+Offen bleiben R1 Acht-Erweiterungs-Mesh, R2 der begrenzte zweite native
 Installations-Klicknachweis, R3 die zusammengeführte reale Kette Installation
 mit automatischem Geräteabruf, R4 die gezielte Zentralen-Restabnahme und R5
 weitere Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut
@@ -886,8 +893,9 @@ die aktuelle Restliste steht oben und in PRUEFLISTE.md.
 
 ## Nächste Schritte
 
-1. R1 aus der [Prüfliste](docs/PRUEFLISTE.md) offline umsetzen: drei miteinander
-   kommunizierende Erweiterungen mit getrennten Fehlerzweigen, danach acht.
+1. R1 aus der [Prüfliste](docs/PRUEFLISTE.md) offline auf acht kommunizierende
+   Erweiterungen ausweiten. Drei Instanzen mit getrennten Fehlerzweigen sind
+   synthetisch bestätigt; echte Mosquitto-Bridges sind dadurch nicht abgenommen.
 2. R2/R3 auf die fehlenden Belege eingrenzen; vorhandene bestandene Browser-,
    Installations-, Katalog- und Statusprüfungen erhalten. Operative Ergänzungen
    nur nach eigenem Praxisauftrag.

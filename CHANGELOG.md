@@ -2,6 +2,12 @@
 
 ## Neu
 
+- Sechs synthetische Mesh-Prüfungen mit drei echten Erweiterungsinstanzen:
+  getrennte Regelläufe und Freigaben, Zweigausfall und Wiederkehr, verspätete
+  oder falsch zugeordnete Antworten, Doppelvermeidung und deutsche Debugmeldungen.
+  Äußere Systeme kommunizieren über den mittleren Broker auch ohne dessen
+  laufende Erweiterung. Keine Änderung am Laufzeitcode oder Live-System.
+
 - Schritt-für-Schritt-Anleitung zum Verbinden vorhandener Mosquitto-Broker,
   ausgehend von zwei Brokern bis zur Sternstruktur mit acht. Mit Sicherung,
   getrennten Benutzerrechten, beidseitigem Diagnoseempfang und Rückweg.

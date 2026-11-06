@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Synthetischer Drei-System-Nachweis
+
+`tests/mesh-three.test.mjs` prüft die vorhandenen deutschen Laufzeitmeldungen
+und den eigenen MQTT-Debugkanal an drei echten Erweiterungsinstanzen. Getrennte
+Läufe A nach B/C behalten Laufkennung, Regelnummer, Revision, Schritt und
+bereinigte Herkunft. Ein Timeout im B-Zweig erscheint nur beim betroffenen
+Lauf; C kann weiterarbeiten. Meldungen über Freigabe, native Befehlsübergabe
+und Abbruch werden geprüft, ebenso fehlende zusätzliche Befehle bei Duplikaten.
+
+Bei S3 nach S4 über den synthetischen Broker S1 gehören die Debugmeldungen zu
+S3 und S4. Die gestoppte Erweiterung von S1 erzeugt dafür keine Meldungen: Die
+Weiterleitung ist Brokerarbeit. Roh-Topics, Gerätekennungen, Regelnamen und
+Aktionskörper werden im MQTT-Debug nicht ausgegeben. Die bestehenden
+Debughelfer und Ereignistexte bleiben unverändert; kein neuer Debugkanal.
+
 ## Partnerfreigaben im Browserdesigner
 
 ProcessHookData nutzt den bestehenden DebugFlowHelper. WorkspacePermissionsRequest

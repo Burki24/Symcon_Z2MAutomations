@@ -45,11 +45,16 @@ Die Gesamtprüfung am 06.11.2026 für diese reine Dokumentationspflege bestand m
 **185 JavaScript-Tests** sowie den PHP-/Modul-/Erweiterungsprüfungen. Diese Zahl
 ist ein datierter Nachweis und kein dauerhaft zugesicherter Testumfang.
 
+Die anschließende R1-Ergänzung am selben Tag besteht mit sechs neuen
+Drei-Erweiterungsfällen und insgesamt **191 JavaScript-Tests** in der
+vollständigen Projektsuite. Struktur, Kodierung, StylePHP, PHP CS Fixer und
+Erweiterungsartefakt sind ebenfalls geprüft; Details in DEVELOPMENT.md.
+
 ## Tatsächlich offene Restpunkte
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| R1 | Kommunikation mit mehr als zwei Erweiterungsinstanzen | Zunächst drei echte Instanzen unserer Erweiterung in einer synthetischen MQTT-Umgebung: A steuert B und C in getrennten Regeln/Läufen, ein Zweig fällt aus, der andere bleibt nutzbar, Freigaben/Antworten bleiben getrennt, keine Doppelaktion. Danach auf acht erweitern. Ein fehlgeschlagener Schritt innerhalb desselben Laufs behält seine bisherige Abbruchwirkung. Die bisherigen Acht-System-Modultests und Zweier-Mesh-Tests ersetzen diesen Nachweis nicht. |
+| R1 | Ausweitung der synthetischen Mesh-Prüfung auf acht Erweiterungsinstanzen | Drei echte Instanzen des erzeugten Erweiterungsartefakts sind am 06.11.2026 synthetisch geprüft: A nach B/C in getrennten Läufen, Ausfall/Wiederkehr eines Zweigs, getrennte Freigaben/Antworten und Debug, keine Doppelaktion. Auch äußeres S3 nach S4 über Broker S1 mit gestoppter S1-Erweiterung bestätigt. Nächster Schritt: auf acht erweitern und eindeutige Ziele nachweisen. Reale Mosquitto-Bridges mit drei bis acht Brokern bleiben separat ungeprüft. |
 | R2 | Vollständiger nativer Installations-Klicknachweis auf dem zweiten System | Der vorhandene Einzelbericht endete an der Prüfbedingung „genau ein Callback nach Bestätigung“ mit null erfassten Aufrufen. Der spätere bestandene Statusbericht belegt den Endstatus, nicht diesen Callback. Zuerst die Testinstrumentierung und vorhandenen Belege abgleichen; nur den fehlenden Klickpfad nach gesondertem Praxisauftrag wiederholen. Kein bestätigter Produktfehler daraus ableiten. |
 | R3 | Durchgängiger realer Nachweis des automatischen Geräteabrufs nach Installation | Vorhandene Installations- und Katalognachweise zu einer Kette je System zusammenführen: neue Erweiterung bestätigt → genau ein automatischer Abruf → Geräte geladen oder eigener Gerätefehler; Entwürfe/Auswahl/Betrieb erhalten. Falls ein Teilbeleg fehlt, nur diesen nach gesondertem Auftrag prüfen. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
@@ -66,7 +71,7 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] Die fünf umgesetzten Designerpunkte und bestätigte Praxis berücksichtigen.
 - [x] Partnerfreigaben und Einzahlkorrektur als bestätigt aufnehmen.
 - [x] Zweibroker-Praxis von ungeprüftem Drei-/Acht-System-Ausbau trennen.
-- [ ] R1: Drei Erweiterungen mit getrennten Erfolgs-/Fehlerzweigen synthetisch prüfen.
+- [x] R1: Drei Erweiterungen mit getrennten Erfolgs-/Fehlerzweigen synthetisch prüfen; sechs Fälle in `tests/mesh-three.test.mjs`, Details in DEVELOPMENT.md.
 - [ ] R1: Anschließend acht Erweiterungen und eindeutige Ziele prüfen.
 - [ ] R2: Den begrenzten nativen Bestätigungsnachweis vervollständigen.
 - [ ] R3: Reale Installation samt automatischem Katalogabschluss je System belegen.

@@ -362,7 +362,7 @@ Erfüllungsstand und die Quellen führt [PRUEFLISTE.md](PRUEFLISTE.md).
 | Betrieb unverändert | In der Übernahme keine store/activate/deactivate/restart/run-Nachricht; bestätigte aktive Prüfsumme und Regeln vorher/nachher gleich |
 | Broker-/Topicwechsel und Neustart | Alte Sitzungen/Antworten ungültig; andere Systeme bleiben nutzbar; keine verlorenen Entwürfe |
 | Aktionen und Rechte | Schaltbare native Variablen je Ziel, reine Anzeigen als Quellen erlaubt, fehlende Bindungen geschützt |
-| Mesh mit mehr als zwei Systemen | Mindestens drei echte Erweiterungsinstanzen synthetisch für A nach B/C, anschließend acht; Freigaben, Timeout und Ausfall eines Zweigs |
+| Mesh mit mehr als zwei Systemen | Drei echte Erweiterungsinstanzen am 06.11.2026 synthetisch bestätigt: A nach B/C, Freigaben, Antworten, Debug, Zweigausfall/Wiederkehr und äußere Systeme über den mittleren Broker. Acht Erweiterungen und reale Drei-/Acht-Broker-Bridges bleiben offen. |
 | Teilweise Übertragung | Prüfungsfehler verhindern betroffene Speicherung, Teilresultate angezeigt, Aktivierung bleibt ausdrücklich, kein automatischer Rückschreibversuch |
 | Größe und Bedienung | 128-KiB-Dokumentgrenze, 2-MiB-Antwortgrenze, native Formularbudgets, große Suchlisten, Mausrad und erreichbare Buttons |
 | Debug | Beide Module erklären Ziel, Entscheidung und Ergebnis, vorhandene Lauf-/Schrittbezüge und Lease-Endzeit stimmen, keine Geheimnisse |
@@ -381,8 +381,8 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 
 ## 9. Nächste Arbeitspakete
 
-1. R1: Drei Erweiterungen synthetisch für A nach B/C mit Ausfall eines Zweigs
-   prüfen, danach acht. Kein Zugriff auf reale Broker erforderlich.
+1. R1: Die bestandene synthetische Prüfung mit drei Erweiterungen auf acht
+   ausweiten. Kein Zugriff auf reale Broker erforderlich.
 2. R2/R3: Vorhandene native Installations- und Katalogbelege zusammenführen;
    nur den fehlenden Bestätigungs-/Abschlussnachweis praktisch ergänzen.
 3. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug

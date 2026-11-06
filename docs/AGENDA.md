@@ -17,7 +17,9 @@ die weitere Arbeit; historische „noch offen“-Sätze sind keine neuen Aufgabe
 | 5. Systeme und Diagnose | Implementiert; Aufzeichnung, Ablauf, Stopp und Erweiterungsanzeigen auf beiden Testsystemen bestätigt. |
 | Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert. Browserinstallation und Partnerfreigaben praktisch bestätigt; begrenzte restliche Installationsnachweise siehe R2/R3 der Prüfliste. |
 
-Nächste Reihenfolge: R1 Drei-/Acht-System-Mesh offline nachweisen, dann R2/R3
+R1 ist für drei Erweiterungen synthetisch bestätigt, einschließlich Zweigausfall,
+getrennter Freigaben/Debug und äußerer Systeme über den mittleren Broker.
+Nächste Reihenfolge: R1 auf acht Erweiterungen offline ausweiten, dann R2/R3
 anhand vorhandener Belege eingrenzen, R4/R5 gezielt abschließen. Keine pauschale
 Wiederholung bereits bestandener Tests und kein Beginn der Windows-Anwendung.
 
