@@ -149,7 +149,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
 | B4 | Geschlossen: native Mausradfalle an innerer Scrollgrenze | Helper-Bundle 3.30.7 regulär eingebunden, nach Test-Modulupdate im echten Kachelclient ohne Ressourcenaustausch praktisch bestätigt; native Debugkennung und unveränderte Systemdaten geprüft. |
-| R4 | Geschlossene Restabnahme des Zentralenwegs | [Nachweisabgleich und Testplan](R4_ACCEPTANCE_PLAN.md) fertig; direkte Einrichtung, Altübernahme und Rückwege getrennt. Drei gezielte Offline-Prüfungen frisch bestanden. Native P0–P6 bleiben offen; zuerst isolierten Testtransport und Gegenstelle vorbereiten. Bestehende Besitzer nicht zu Testzwecken zurückrollen. |
+| R4 | Geschlossene Restabnahme des Zentralenwegs | [Plan und Praxisnachweis](R4_ACCEPTANCE_PLAN.md): direkte Einrichtung und Rückweg an eigenem MQTT-Testserver mit synthetischen Erweiterungs-Peers und echten Kernel-/Formularcallbacks bestanden. YAML-Erhalt, zusätzliche Änderungssicherung, Claimfreigabe und Wiederholung bestätigt; alles aufgeräumt, bestehende Systemdaten erhalten. Zeigerbedienung, Windows-ACL und P3–P6 bleiben offen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
 R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 und R3 praktisch

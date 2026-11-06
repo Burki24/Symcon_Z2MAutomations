@@ -15,6 +15,22 @@ Kernel-/Z2M-Version wurde für diesen lokalen Abgleich nicht neu abgefragt.
 
 ## Was bereits belegt ist
 
+Praxisergänzung vom 06.11.2026: Eigener temporärer MQTT-Server in Test-Symcon
+9.1 und zwei synthetische Erweiterungs-Peers über echtes MQTT verbunden.
+Vorschau, Verwerfen, Bestätigung und Rücknahme über die tatsächlich erzeugten
+Formularcallbacks im Kernel ausgeführt; kein zusätzlicher Zeigerklicknachweis.
+Beide YAML-Dateien und Definitionen einschließlich IDs, Folge und Partnerfreigabe
+exakt übernommen. Zweites Einrichten erhält das erste System. Lokale Änderung
+vor Rücknahme zusätzlich archiviert; Rücknahme stellt den ursprünglichen
+Systemplatz wieder her und gibt dessen Claim frei. Wiederholung sowie erneute
+Einrichtung/Rücknahme erfolgreich. Vier Archive zunächst unabhängig auf
+Prüfsummen geprüft; Windows-ACLs daraus nicht abgeleitet.
+MQTT-Zähler: sieben Status-, vier Editoranfragen, keine anderen Aufträge.
+Deutsche Datei-Debugmeldungen für Vorschau, Übernahme und Rücknahme bestätigt.
+Eigene Testobjekte, Prozesse, Listener und Zugangsdaten entfernt; Aufzeichnungen
+beendet. Private Sicherungen erhalten. Vorhandene Systemdaten und Auswahl
+unverändert; Live-Symcon und produktive Broker/Z2M nicht angesprochen.
+
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
 | Lokale Sicherung, Altübernahme und Rückweg | `tests/migration.php`: 1/2/8 Systeme, echte temporäre Archivdateien, YAML-Bytes, Freigaben, gleiche lokale Kennungen, Besitzer, Konflikte und alle instrumentierten Übergabe-/Rückgabeschritte. Frisch erfolgreich unter PHP 8.5.10. | Symcon-Stubs; neu erzeugte Testobjekte mit übernommenen persistenten Attributen simulieren Wiederanlauf. Kein echter Kernelneustart, keine native Dateirechteabnahme. |
@@ -143,8 +159,9 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   `php tests/workspace-setup.php`, `php tests/workspace-runtime.php` erfolgreich.
   Struktur, zentrale Kodierung, Erweiterungsartefakt, lokale Dateilinks und
   UTF-8/LF ohne BOM ebenfalls geprüft. Keine neue Gesamtsuitenabnahme behauptet.
-- Native P0–P6: noch offen; MQTT-Testanbindung und eigene Testobjekte noch nicht
-  vorbereitet. Keine bestehenden Produktivfreigaben dafür wiederverwenden.
+- P0–P2: MQTT-Testanbindung und Modul-/Callbackpraxis für direkte Einrichtung
+  und Rückweg bestätigt, anschließend aufgeräumt. Zusätzlicher nativer
+  Zeiger-Bediennachweis und Windows-ACL-Abnahme bleiben offen. P3–P6 nicht ausgeführt.
 - R4/B3: weiterhin offen. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
   R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
