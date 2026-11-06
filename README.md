@@ -19,9 +19,9 @@ Einrichtung, erste Regel, Rückweg und hilfreiche Fehlermeldungen. Der
 verbleibenden Nachweise.
 
 Die aktuelle Abnahme hat einen Mausradfehler in der nativen Kachel an einer
-inneren Scrollgrenze gefunden. Die zentrale Korrektur ist regulär eingebunden;
-die abschließende Prüfung des installierten Pakets steht noch aus. Details
-stehen im Abnahmebericht.
+inneren Scrollgrenze gefunden. Die zentrale Korrektur ist regulär eingebunden
+und nach Modulupdate im echten Test-Kachelclient erfolgreich geprüft. Dieser
+Befund ist geschlossen; die übrigen Beta-Nachweise bleiben offen.
 
 Praktisch geprüft sind Symcon 9.1 und zwei reale Z2M-Systeme. Die native
 Symcon-9.0-Abnahme und die eigene Prüfung einer stabilen Z2M-Version fehlen noch.

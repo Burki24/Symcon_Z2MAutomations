@@ -11,18 +11,20 @@ Symcon-9.0- oder stabile Z2M-Testumgebung vorhanden; diese Abnahmen bleiben offe
 Aktuelle Browserprüfung auf beiden Testsystemen und fehlerfreie Neuanlage beider
 Modultypen unter Symcon 9.1 ergänzt. Kein Speichern, Aktivieren, Neustart oder
 Schaltbefehl an Z2M. Entwürfe samt Auswahl, offener Arbeit und Bindung erhalten.
-Die echte Kachel-9.1-Nachprüfung bestätigt Systemwechsel/Status/Erneuerung,
-findet aber die Mausradfalle an einer inneren Scrollgrenze (Beta-Blocker B4).
-Die Gesamtbewertung lautet deshalb nicht einreichungsreif. Der anschließende
+Die erste Kachel-9.1-Nachprüfung bestätigt Systemwechsel/Status/Erneuerung,
+findet aber die Mausradfalle an einer inneren Scrollgrenze (Beta-Befund B4).
+Die übrigen Beta-Hindernisse bleiben offen. Der anschließende
 Korrekturauftrag behebt die Ursache in Symcon_ModuleHelper, mit Regressionen
 und nativer Debugmeldung beim Laden der Interaktionsressource. Isoliertes
 Consumer-Paket und echte Testkachel mit ausschließlich im Testbrowser ersetzter
 Ressource geprüft; kein Helper auf dem Server ausgetauscht. Die reguläre
 Verteilung nach Helper-Freigabe über main ist inzwischen angekommen:
 VisualizationAssetHelper 1.1.4 in Bundle 3.30.7, Consumer-Commit e65fd7d,
-Herkunft und sämtliche zugehörigen Asset-Hashes bestätigt. Finale installierte
-Kachelprüfung nach Test-Modulupdate noch offen. Keine Quellcodekorrektur im
-vorausgegangenen Audit selbst.
+Herkunft und sämtliche zugehörigen Asset-Hashes bestätigt. Nach Test-Modulupdate
+ist auch die finale installierte Kachelprüfung bestanden: echtes Mausrad an
+der oberen Grenze des inneren Ablaufbereichs, passende native Debugkennung
+und unveränderte Systemdaten. Kein Browser-Ressourcenaustausch; B4 geschlossen.
+Keine Quellcodekorrektur im vorausgegangenen Audit selbst.
 
 Vollständigen bestehenden Designer in die native Symcon-Kachel eingebettet.
 Kein neues Browserfenster; Farben und Grundschriftgröße folgen dem Symcon-Client.

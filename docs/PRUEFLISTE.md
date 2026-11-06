@@ -14,9 +14,13 @@ Der Server behält sein bisheriges Paket; keine Geräte-/Z2M-Befehle gesendet.
 Die reguläre Verteilung ist inzwischen angekommen: VisualizationAssetHelper
 1.1.4 in Helper-Bundle 3.30.7, Consumer-Commit e65fd7d. Herkunft, Helper und
 alle drei Assets stimmen mit dem veröffentlichten zentralen Manifest überein.
-**B4 bleibt bis zur abschließenden Prüfung des installierten Pakets offen.**
-Das Testmodul enthielt beim ersten Leseabruf noch den alten Helper; das
-Test-Modulupdate wurde angefordert. Kein lokales Testbundle im Arbeitsbaum.
+**B4 ist nach Test-Modulupdate geschlossen.** Die echte Kachel liefert das
+reguläre Asset ohne Browser-Ressourcenaustausch. Echtes Hochscrollen über dem
+inneren Ablaufbereich an dessen oberer Grenze bewegt das Dokument von 506 auf
+206 Pixel. Native Debugmeldung und Assetkennung stimmen; Systemdaten und
+ursprüngliche Auswahl sind unverändert. Eigene Dateiaufzeichnung beendet.
+Kein lokales Testbundle im Arbeitsbaum. Frühere B4-Bewertungen weiter unten
+beschreiben den Ausgangsbefund und werden durch diesen Nachtrag ersetzt.
 Einzelheiten und Verteilungsreihenfolge stehen im Beta-Abnahmebericht.
 
 ## Beta-Abnahme – aktueller Nachtrag vom 06.11.2026
@@ -144,7 +148,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| B4 | Nativer Mausradfehler an innerer Scrollgrenze; Korrektur regulär eingebunden | Helper-Bundle 3.30.7 samt Herkunft und Assets bestätigt. Native Nachprüfung nach Test-Modulupdate fehlt; Testbrowser-Ressourcenaustausch ersetzt diesen Nachweis nicht. Einzelheiten im Beta-Abnahmebericht. |
+| B4 | Geschlossen: native Mausradfalle an innerer Scrollgrenze | Helper-Bundle 3.30.7 regulär eingebunden, nach Test-Modulupdate im echten Kachelclient ohne Ressourcenaustausch praktisch bestätigt; native Debugkennung und unveränderte Systemdaten geprüft. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
@@ -168,7 +172,7 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] R3: Unabhängigen Vorher-/Nachher-Vergleich für S1 im selben automatischen Installationslauf am 06.11.2026 ergänzt; ursprüngliche lokale Bearbeitungsdaten und Betrieb wieder bestätigt.
 - [ ] R4: Zentralen-Restabnahme mit Versions-/Buildbezug und Rückweg abschließen.
 - [ ] R5: Vereinbarte Kompatibilitätsfälle aufnehmen und gezielt prüfen.
-- [ ] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und praktisch nachprüfen.
+- [x] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und mit regulär installiertem Paket praktisch nachprüfen.
 
 Erst danach über eine Veröffentlichung entscheiden. Die eigenständige
 Windows-Anwendung bleibt ein separates späteres Projekt. Diese Prüfliste

@@ -2,10 +2,10 @@
 
 ## Ergebnis und geprüfter Stand
 
-**NICHT EINREICHUNGSREIF für eine erste Beta.** Die aktuelle echte Kachelprüfung
-zeigt einen reproduzierbaren Mausradfehler an einer inneren Scrollgrenze.
-Zusätzlich bestehen Nachweislücken und noch nicht festgelegte
-Veröffentlichungsangaben. Dieses Urteil
+**NICHT EINREICHUNGSREIF für eine erste Beta.** Der zunächst reproduzierte
+native Mausradfehler B4 ist nach regulärer Helper-Verteilung und Test-Modulupdate
+praktisch behoben. Die übrigen Nachweislücken B1–B3 und die noch nicht festgelegten
+Veröffentlichungsangaben B5 bleiben bestehen. Dieses Urteil
 gilt für den unten abgegrenzten Umfang, nicht als vollständige Geräte-, Versions-
 oder Sicherheitszertifizierung.
 
@@ -106,7 +106,7 @@ Positiv-/Negativfälle. Kein allgemeines Shell-/PHP-Ausführungsinterface und
 kein beliebiger Datei-/URL-Parameter in der Designerroute festgestellt.
 Dies ersetzt kein unabhängiges Penetrationstestgutachten.
 
-## Reproduzierter nativer Mausradfehler
+## Reproduzierter nativer Mausradfehler – Ausgangsbefund
 
 Im echten Symcon-Kachelclient 9.1 bei 1400 × 900 Pixeln den eingebetteten
 Designer laden, einen vorhandenen Geräteablauf anzeigen und über der mittleren
@@ -175,11 +175,30 @@ Die Testinstallation enthielt beim ersten Abruf
 noch den alten Helper; das Test-Modulupdate wurde angefordert. Der abschließende
 native Nachweis steht deshalb weiterhin aus.
 
-Bestätigte **BLOCKER: 1**, **HINDERNIS: 4** im untersuchten Umfang.
+Abschließender Nachtrag nach Test-Modulupdate: VisualizationAssetHelper 1.1.4
+liegt serverseitig vor. Die echte Symcon-Kachelvisualisierung 9.1 liefert das
+reguläre interaction.js bytegenau mit dem erwarteten SHA-256-Wert, ohne
+Ressourcenaustausch im Browser. Bei 1400 × 900 Pixeln den inneren Ablaufbereich
+mit echtem Mausrad prüfen: Zeiger innerhalb von canvas-scroll an dessen oberer
+Grenze 0 bei 177 Pixeln möglicher Scrollstrecke. Das Dokument steht auf 506
+Pixeln und wird durch Hochscrollen auf 206 Pixel bewegt. Der zuvor blockierte
+Übergang zum beweglichen Vorfahren funktioniert damit im installierten Paket.
 
-| ID | Schwere / Basis | Befund und kleinster nächster Schritt |
+Systemwechsel bis zur vollständig passenden Regelanzeige abgewartet. Native
+deutsche AKTION-Meldung im Dateidebug mit Assetkennung 282d9c70995471a5 bestätigt;
+die anfängliche kurze Speicheraufzeichnung lieferte keinen passenden Eintrag.
+Die eigene Dateiaufzeichnung wurde beendet. Vollständige Systemdokumente samt
+Bindung, Auswahl und offener Arbeit danach identisch zum Ausgangsstand,
+ursprüngliche Systemauswahl wiederhergestellt. Keine Gerätebefehle,
+Z2M-Speicherung, Aktivierung oder Katalogabfrage. Betrieb blieb in der Anzeige
+unbestätigt; dieser reine Bediennachweis bestätigt keinen neuen Laufzeitstatus.
+Live-Symcon und Z2M-Erweiterungen unverändert. **B4 ist geschlossen.**
+
+Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 4** im untersuchten Umfang.
+
+| ID | Abschluss / Basis | Nachweis |
 | --- | --- | --- |
-| B4 | BLOCKER / Project | Korrektur regulär über Helper-Bundle 3.30.7 eingebunden; Herkunft und Assets bestätigt. Native Nachprüfung nach Test-Modulupdate fehlt noch. Testbrowser-Ressourcenaustausch gilt nicht als installierter Freigabestand. |
+| B4 | Geschlossen / Project | Helper-Bundle 3.30.7 regulär eingebunden. Native Grenzprüfung nach Test-Modulupdate ohne Browser-Ressourcenaustausch bestanden, passende Debugkennung und unveränderte Systemdaten bestätigt. |
 
 | ID | Basis | Hindernis und kleinster nächster Schritt |
 | --- | --- | --- |
@@ -216,7 +235,7 @@ deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
 
 ## Freigabeschritte
 
-1. B4 korrigieren und im echten Kachelclient nachprüfen. B1–B3 schließen oder
+1. Den abgeschlossenen B4-Nachweis erhalten. B1–B3 schließen oder
    die zulässige Beta-Zielmatrix ausdrücklich entscheiden. Fehlende Pflichtnachweise
    nicht allein durch einen Warntext als erledigt markieren.
 2. Dokumentation, Library-Metadaten und Changelog für die bestätigte Version
@@ -226,6 +245,6 @@ deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
 4. Storepflichtfelder kontrollieren. Erst auf gesonderten Veröffentlichungsauftrag
    einreichen. Dieser Bericht erteilt keine Freigabe zum Merge, Tag oder Release.
 
-Die aktuelle Empfehlung bleibt: Funktionsumfang eingefroren lassen, den
-Mausradfehler korrigieren und fehlende Laufzeitnachweise gezielt ergänzen. Keine pauschale
+Die aktuelle Empfehlung bleibt: Funktionsumfang eingefroren lassen und
+fehlende Laufzeitnachweise gezielt ergänzen. Keine pauschale
 Wiederholung der bereits bestandenen R1–R3- und Designerprüfungen.

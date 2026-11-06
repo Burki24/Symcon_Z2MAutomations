@@ -1,3 +1,28 @@
+## Native Mausrad-Abnahme des regulären Pakets – 06.11.2026
+
+Nach bestätigtem Test-Modulupdate VisualizationAssetHelper 1.1.4 serverseitig
+gelesen und die echte Symcon-Kachelvisualisierung 9.1 im separaten Edge geöffnet.
+Keine Serverdatei und keine Browserressource ausgetauscht. Das tatsächlich über
+HTTP gelieferte interaction.js stimmt bytegenau mit dem regulären minifizierten
+Asset aus Bundle 3.30.7 überein. Viewport 1400 × 900 Pixel, innere Breite 1336
+Pixel ohne Seitenüberlauf. Echtes Mausrad bewegt das Dokument von 0 auf 506
+und wieder auf 206 Pixel. Das Hit-Testing vor dem Hochscrollen bestätigt den
+Zeiger innerhalb von canvas-scroll: obere Grenze 0, mögliche Scrollstrecke
+177 Pixel; der Dokument-Viewport steht gleichzeitig auf 506 Pixeln. Damit ist
+derselbe zuvor blockierte Übergang zum beweglichen Vorfahren praktisch belegt.
+
+Systemwechsel vollständig abgewartet und passende Regelzahlen beider Systeme
+bestätigt. Die anfängliche Speicheraufzeichnung enthielt keine passende Meldung;
+die anschließende eigene Dateiaufzeichnung bestätigt die deutsche native
+AKTION-Meldung mit Assetkennung 282d9c70995471a5. Danach Dateidebug beendet.
+Der vollständige Vorher-/Nachher-Vergleich beider Systemdokumente einschließlich
+Bindung, Auswahl und offener Arbeit ist identisch; ursprüngliche Systemauswahl
+wiederhergestellt. Nur lesende Datenabrufe und lokale Systemwahl, keine
+Katalog-/Z2M-Aufträge, Gerätebefehle, Speicherung oder Aktivierung. Der angezeigte
+zwischengespeicherte Betrieb blieb unbestätigt; keine neue Laufzeitbehauptung.
+Keine Produktivinstallation oder Erweiterung verändert. B4 ist geschlossen;
+die übrigen Beta-Hindernisse bleiben unverändert offen.
+
 ## Reguläres Mausrad-Helper-Paket eingebunden – 06.11.2026
 
 Nach Benutzerfreigabe wurde Helper-Bundle 3.30.7 automatisch verteilt und

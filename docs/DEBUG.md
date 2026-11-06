@@ -15,6 +15,9 @@ nicht die erfolgreiche Verarbeitung jeder einzelnen Bewegung.
 Diese Meldung gehört zur regulär verteilten VisualizationAssetHelper-Version
 1.1.4 aus Helper-Bundle 3.30.7. Die Herkunft und Asset-Hashes sind im lokalen
 Consumer-Paket gegen den veröffentlichten zentralen Stand geprüft.
+Nach dem Test-Modulupdate ist die native Meldung auch in der echten Kachel
+bestätigt. Die Inhaltskennung 282d9c70995471a5 passt zum tatsächlich über HTTP
+gelieferten minifizierten Asset. Die eigene Dateiaufzeichnung wurde beendet.
 
 ## Bestätigte und früher gespeicherte Gerätedaten
 
