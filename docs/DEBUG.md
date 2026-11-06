@@ -1,5 +1,21 @@
 # Debug und MQTT-Diagnose
 
+## IPSView-Ausgabe
+
+GetIPSViewHTML und RequestAction verwenden den kanonischen DebugFlowHelper.
+Die Ausgabe unterscheidet ausgeschaltete Bereitstellung, ungültige Serveradresse,
+fehlende Systemzuordnung, Schreiben der HTML-Variable, Ersetzen des Einstiegs,
+bestätigten Sitzungseinstieg und abgelehnten Zugang. Ausgabeumfang wird erst
+nach erfolgreichem Schreiben gemeldet. ipsview-access erstellt ausschließlich
+eine befristete Sitzung; weder Rendern noch Öffnen fragt Z2M ab.
+
+Zugangserneuerung und die anschließenden Systemaufrufe verwenden dieselben
+gesicherten Designerpfade wie das Webfrontend. Token, Einstieg, HTML-Inhalt,
+vollständige Links und Anfragekörper werden nicht protokolliert. Die Meldungen
+erklären bei Sperren, ob die Ausgabe neu erzeugt oder die Ansicht neu geöffnet
+werden muss. IPSView-HTML neu generieren widerruft bisherige IPSView-Sitzungen;
+Zugang verlängern erhält dagegen die Sitzung und ihre Eingaben.
+
 ## Kachel und Zugangserneuerung
 
 Die Kachel meldet die Bereitstellung des vollständigen eingebetteten Designers.

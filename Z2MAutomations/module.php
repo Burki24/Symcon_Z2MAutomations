@@ -11,6 +11,7 @@ require_once __DIR__ . '/../libs/helper/VisualizationAssetHelper.php';
 require_once __DIR__ . '/../libs/helper/HttpResponseHelper.php';
 require_once __DIR__ . '/../libs/AutomationDesigner.php';
 require_once __DIR__ . '/../libs/DesignerEmbedding.php';
+require_once __DIR__ . '/../libs/DesignerIPSView.php';
 require_once __DIR__ . '/../libs/SystemMigrationInspection.php';
 require_once __DIR__ . '/../libs/SystemWorkspace.php';
 require_once __DIR__ . '/../libs/WorkspaceEditorContext.php';
@@ -76,6 +77,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Burki24\SymconModuleHelper\HttpResponseHelper;
     use Z2MAutomations\AutomationDesigner;
     use Z2MAutomations\DesignerEmbedding;
+    use Z2MAutomations\DesignerIPSView;
     use Z2MAutomations\SystemMigrationInspection;
     use Z2MAutomations\SystemWorkspace;
     use Z2MAutomations\WorkspaceEditorContext;
@@ -129,6 +131,7 @@ class Z2MAutomations extends IPSModuleStrict
         {
             parent::Create();
             $this->SetVisualizationType($this->DesignerVisualizationType());
+            $this->RegisterDesignerIPSView();
             $this->SetBuffer('ModulePropertiesReady', '');
             $this->SetReceiveDataFilter(Z2MProtocol::BLOCK_RECEIVE_FILTER);
             $this->RegisterPropertyBoolean('Active', false);
@@ -216,6 +219,7 @@ class Z2MAutomations extends IPSModuleStrict
                 $this->SaveState($this->RefreshState());
             });
             $this->RefreshGatewayTopicFields();
+            $this->ConfigureDesignerIPSView();
             $this->QueueAutomaticStatusRefresh('Einstellungen oder Modulupdate');
         });
     }

@@ -166,7 +166,7 @@ trait WorkspaceForm
         ];
         if ($state['systems'] === []) {
             $actions[] = ['type' => 'Label', 'caption' => 'Noch kein System zugeordnet. Bitte oben die gewünschten Verbindungen anhaken und die Systemzuordnung übernehmen. Vorhandene Einzelentwürfe bleiben bis zur gesicherten Übernahme erhalten.'];
-            return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);
+            return $this->EncodeConfigurationForm(['elements' => [$this->DesignerIPSViewForm()], 'actions' => $actions]);
         }
         $id = $state['selectedSystem'];
         $record = $state['systems'][$id];
@@ -235,7 +235,7 @@ trait WorkspaceForm
         $this->UpdateWorkspaceRuntimeDisplay($id, $runtime);
         $this->UpdateWorkspaceTransferDisplay($id, $transfer);
         $this->DebugEvent('AKTION', 'Gemeinsames Formular mit eindeutig ausgewähltem Systementwurf aufgebaut. Kein Gatewaywechsel und keine Übertragung.', ['Systembezug' => $id, 'Systeme' => count($options)]);
-        return $this->EncodeConfigurationForm(['elements' => [], 'actions' => $actions]);
+        return $this->EncodeConfigurationForm(['elements' => [$this->DesignerIPSViewForm()], 'actions' => $actions]);
     }
 
     /** Transform only our trusted callback source, never PHP submitted by a client. */

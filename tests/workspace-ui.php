@@ -28,6 +28,7 @@ class WorkspaceUIProbe extends Z2MAutomations
     public array $debugMessages = [];
     public $onCatalogRead = null;
     public string $requestBody = '';
+    public bool $ipsAssetAvailable = true;
     public function RemoveImportAccess(string $token): void
     {
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
@@ -75,6 +76,10 @@ class WorkspaceUIProbe extends Z2MAutomations
     {
         return hash('sha256', json_encode([IPS_GetConfiguration($this->InstanceID), $this->ReadAttributeString('YamlDraft'),
             $this->ReadAttributeString('EditorDraft'), $this->ReadAttributeString('EditorSnapshot'), $this->GetBuffer('DesignerSessions')], JSON_THROW_ON_ERROR));
+    }
+    protected function VisualizationAsset(string $filename): string
+    {
+        return !$this->ipsAssetAvailable && $filename === 'ipsview-loader.html' ? '' : parent::VisualizationAsset($filename);
     }
     protected function UpdateVisualizationValue(mixed $Value): bool
     {
@@ -372,5 +377,6 @@ while (count($allKeys) < $large['devicePage']['total']) {
 $check(count(array_unique($allKeys)) === 2048 && count($parent->sent) === $largeSent, 'Paging includes every entity with unique system keys and no MQTT');
 $largeForm = $manager->GetConfigurationForm();
 $check(strlen($largeForm) < 1048576, 'Native form remains within the Symcon buffer for eight rich catalogs');
+require __DIR__ . '/designer-ipsview.inc.php';
 echo 'Workspace UI sizes: native ' . strlen($largeForm) . ', first browser page ' . strlen(json_encode($large)) . " bytes.\n";
 echo "Workspace UI: scoped native and browser editing passed.\n";

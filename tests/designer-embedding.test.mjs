@@ -106,11 +106,11 @@ test('empty workspaces and failed or stale access never navigate a frame', () =>
 
 const embedding = readFileSync(new URL('../Z2MAutomations/visualization/embedding.js', import.meta.url), 'utf8')
     .replace('export function', 'function').replace("import('./interaction.js')", 'loadInteraction()');
-function embedHost(interaction = Promise.resolve()) {
+function embedHost(interaction = Promise.resolve(), pathname = '/hook/designer/index.html') {
     const events = {}; const posts = []; const properties = {}; let renewals = 0;
     const root = {dataset: {}, style: {setProperty: (key, value) => { properties[key] = value; }}};
     const parent = {postMessage: (value, origin) => posts.push({value, origin})};
-    const window = {parent, name: 'burki24.wheel.v1', location: {origin: 'http://synthetic.invalid'}, document: {documentElement: root},
+    const window = {parent, name: 'burki24.wheel.v1', location: {origin: 'http://synthetic.invalid', pathname}, document: {documentElement: root},
         addEventListener: (name, fn) => { events[name] = fn; }};
     vm.runInNewContext(embedding + '\nwindow.api = installNativeEmbedding({renew: async () => {renew(); return true;}});', {window, renew: () => renewals++, loadInteraction: () => interaction});
     const message = (value, options = {}) => events.message({source: parent, origin: window.location.origin, data: {channel: 'z2ma.designer.embed.v1', ...value}, ...options});
@@ -145,6 +145,18 @@ test('only the same-origin direct loader can request renewal or apply a native t
     await host.message({type: 'renew'}); assert.equal(host.renewals(), 1); assert.equal(host.posts.at(-1).value.ok, true);
     host.window.api.update({workspaceContext: {systemId: 'synthetic-a'}}); host.window.api.update({workspaceContext: {systemId: 'synthetic-a'}});
     assert.equal(host.posts.filter(post => post.value.type === 'system').length, 1);
+});
+
+test('opaque IPSView parents may renew only; replies never expose system identifiers or native controls', async () => {
+    const host = embedHost(Promise.resolve(), '/hook/designer/ipsview.html'); await host.window.api.ready;
+    await host.message({type: 'renew'}, {origin: 'null', source: {}}); assert.equal(host.renewals(), 0);
+    await host.message({type: 'renew'}, {origin: 'null'}); assert.equal(host.renewals(), 1);
+    host.message({type: 'theme', card: '#000000', text: '#ffffff', accent: '#00cdab'}, {origin: 'null'});
+    host.message({type: 'maximize'}, {origin: 'null'});
+    host.window.api.update({workspaceContext: {systemId: 'private-system'}});
+    assert.equal(host.root.dataset.nativeEmbed, undefined);
+    assert.equal(host.posts.length, 2); assert.equal(host.posts[1].value.type, 'renewed');
+    assert.doesNotMatch(JSON.stringify(host.posts), /private-system|maximize-ready/);
 });
 
 function renewalHost() {

@@ -11,8 +11,11 @@ Der äußere Loader und der Child verwenden die unveränderte zentrale Interakti
 ressource; die erste Datenabfrage wartet auf deren Ladeabschluss.
 Praxisprüfung im echten Test-Symcon 9.1 für beide Systeme durchgeführt;
 keine Geräte geschaltet, keine Automationen gespeichert oder aktiviert.
-Keine Änderung an der Erweiterung oder am Live-Symcon. Eine eigene IPSView-
-Ansicht ist weiterhin nicht umgesetzt.
+Keine Änderung an der Erweiterung oder am Live-Symcon. Die optionale vollständige
+IPSView-HTMLBox-Ansicht ist inzwischen lokal integriert: gemeinsamer Designer,
+Systemauswahl, Status, widerrufbarer Einstieg und Zugangserneuerung ohne Reload.
+Das reguläre zentrale IPSViewHTMLPageHelper-Paket bleibt unverändert. Die Abnahme
+im tatsächlich verwendeten IPSView-Client ist noch offen; siehe ADR 0033.
 
 ## Ziel
 

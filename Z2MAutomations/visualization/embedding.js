@@ -1,14 +1,20 @@
-/* Only our direct, same-origin HTML-SDK loader may control the embedded view. */
+/* Native theme control is same-origin; an IPSView parent may only request renewal. */
 export function installNativeEmbedding({renew, environment = window}) {
     const channel = 'z2ma.designer.embed.v1';
     if (environment.parent === environment || environment.name !== 'burki24.wheel.v1') return {ready: Promise.resolve(), update() {}};
     const origin = environment.location.origin;
     if (!/^https?:\/\//.test(origin)) return {ready: Promise.resolve(), update() {}};
-    const send = value => environment.parent.postMessage({channel, ...value}, origin);
+    const ipsView = environment.location.pathname?.endsWith('/ipsview.html') === true;
+    // HTMLBoxes can be opaque data documents. Replies contain no capability, data or system IDs.
+    const send = value => environment.parent.postMessage({channel, ...value}, ipsView ? '*' : origin);
     let lastSystem = '';
     environment.addEventListener('message', async event => {
         const value = event.data;
-        if (event.source !== environment.parent || event.origin !== origin || value?.channel !== channel) return;
+        if (event.source !== environment.parent || (!ipsView && event.origin !== origin) || value?.channel !== channel) return;
+        if (ipsView) {
+            if (value.type === 'renew') send({type: 'renewed', ok: (await renew()) === true});
+            return;
+        }
         if (value.type === 'maximize') { send({type: environment.document.querySelector?.('dialog[open]') ? 'maximize-blocked' : 'maximize-ready'}); return; }
         if (value.type === 'renew') { send({type: 'renewed', ok: (await renew()) === true}); return; }
         if (value.type !== 'theme') return;
@@ -26,6 +32,7 @@ export function installNativeEmbedding({renew, environment = window}) {
     // This is the unchanged central wheel router, served through a fixed own asset path.
     const ready = import('./interaction.js').then(() => send({type: 'ready'})).catch(() => send({type: 'interaction-error'}));
     return {ready, update(data) {
+        if (ipsView) return;
         const systemId = data?.workspaceContext?.systemId ?? '';
         if (systemId && lastSystem !== systemId) { lastSystem = systemId; send({type: 'system', systemId}); }
     }};

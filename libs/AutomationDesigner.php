@@ -20,8 +20,8 @@ trait AutomationDesigner
     use AutomationDesignerSequences;
     use AutomationDesignerManagement;
     use AutomationDesignerImport;
-    private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
-        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript', 'access.js' => 'application/javascript', 'embedding.js' => 'application/javascript', 'interaction.js' => 'application/javascript'];
+    private const DESIGNER_ASSETS = ['ipsview.html' => 'text/html', 'ipsview-access.js' => 'application/javascript', 'index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
+        'reader.js'                                 => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript', 'access.js' => 'application/javascript', 'embedding.js' => 'application/javascript', 'interaction.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
     {
@@ -48,23 +48,36 @@ trait AutomationDesigner
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function (): void
         {
             // No CORS, query tokens, arbitrary assets or general action endpoint.
-            header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'");
             header('Referrer-Policy: no-referrer');
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = self::DESIGNER_ASSETS + ['access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
+            // Only the opt-in IPSView shell may be embedded by an opaque HTMLBox.
+            // API origin checks and bearer rights remain identical; no CORS is enabled.
+            $ipsViewPage = $asset === 'ipsview.html';
+            header("Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+                . ($ipsViewPage && $this->IsIPSViewHTMLPageEnabled() ? '' : "; frame-ancestors 'self'"));
+            if ($ipsViewPage && !$this->IsIPSViewHTMLPageEnabled()) {
+                $this->DesignerResponse(404, 'text/plain', 'Die IPSView-Ausgabe ist ausgeschaltet. Bitte zuerst im Modul einschalten.');
+                return;
+            }
+            $types = self::DESIGNER_ASSETS + ['ipsview-access' => 'application/json', 'access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['access-renew', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['ipsview-access', 'access-renew', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
+                if ($asset === 'ipsview-access') {
+                    [$status, $result] = $this->DesignerIPSViewAccessRequest();
+                    $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                    return;
+                }
                 if ($asset === 'access-renew') {
                     [$status, $result] = $this->RenewDesignerAccess();
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
@@ -103,11 +116,11 @@ trait AutomationDesigner
                     $this->DesignerResponse(200, $types[$asset], $data);
                     return;
                 }
-                $body = $asset === 'interaction.js' ? $this->VisualizationInteractionScript() : $this->VisualizationAsset($asset);
+                $body = $asset === 'interaction.js' ? $this->VisualizationInteractionScript() : $this->VisualizationAsset($ipsViewPage ? 'index.html' : $asset);
                 if ($body === '') {
                     throw new \RuntimeException('Designer asset unavailable.');
                 }
-                if ($asset === 'index.html') {
+                if ($asset === 'index.html' || $ipsViewPage) {
                     $this->DebugEvent('AKTION', 'Responsive Designeroberfläche ausgeliefert. Darstellung folgt dem Browser; Verwaltungsbereiche bleiben bis zum Öffnen zugeklappt. Keine Z2M-Anfrage.');
                     $body = str_replace(
                         ['defer src="designer.js"', "connect-src 'none'", '<body>', 'VORSCHAU', 'Klickbarer Oberflächenentwurf',
@@ -233,7 +246,8 @@ trait AutomationDesigner
     {
         $text = $this->ReadEditorBuffer('DesignerSessions');
         $sessions = $text === '' ? [] : json_decode($text, true, 8, JSON_THROW_ON_ERROR);
-        return array_values(array_filter($sessions, fn (array $session): bool => $session['expires'] > $this->Now() && $session['scope'] === $this->DesignerAccessScope()));
+        return array_values(array_filter($sessions, fn (array $session): bool => $session['expires'] > $this->Now() && $session['scope'] === $this->DesignerAccessScope()
+            && (!isset($session['ipsViewGrant']) || $this->DesignerIPSViewGrantAllowed($session['ipsViewGrant']))));
     }
 
     private function DesignerTokenAllowed(mixed $token, bool $create = false): bool

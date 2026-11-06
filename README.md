@@ -14,6 +14,9 @@ Zusätzlich gibt es eine [native Symcon-Kachel](Z2MAutomations/README.md#native-
 mit dem vollständigen eingebetteten Designer, Systemauswahl und Status.
 Ab Symcon 9.1 steht er auch in der nativen Großansicht zur Verfügung.
 Der Designerzugang wird bei geöffneter Ansicht ohne Neuladen verlängert.
+Für IPSView lässt sich derselbe vollständige Designer zusätzlich als
+[HTMLBox-Ansicht](Z2MAutomations/README.md#vollständiger-designer-in-ipsview)
+bereitstellen, einschließlich Systemauswahl und Status.
 
 Über [Partnerfreigaben](Z2MAutomations/README.md#partnerfreigaben-im-browserdesigner)
 legen Sie im Designer fest, welche zugeordneten Z2M-Systeme Befehle an das

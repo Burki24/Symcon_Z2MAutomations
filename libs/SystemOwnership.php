@@ -72,7 +72,7 @@ trait SystemOwnership
             if (method_exists($this, 'WorkspaceSetupLocked') && $this->WorkspaceSetupLocked() && !$setup) return $this->OwnershipRejected($function);
             try {
                 $editor = $this->workspaceEditorContext !== null && in_array($function, self::WORKSPACE_EDITOR_ACTIONS, true);
-                $ui = $import || in_array($function, ['ApplyChanges', 'GetConfigurationForm', 'OpenAutomationDesigner', 'GetDesignerData', 'RequestAction', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
+                $ui = $import || in_array($function, ['ApplyChanges', 'GetConfigurationForm', 'OpenAutomationDesigner', 'GetIPSViewHTML', 'GetDesignerData', 'RequestAction', 'ProcessHookData', 'ChooseWorkspaceSystem', 'ApplyWorkspaceConnections', 'ReadWorkspaceCatalog'], true);
                 $allowed = $marker === [] || $migration || ($marker['role'] === 'manager' && ($setup || (($workspace || $editor || $ui) && $this->MigrationWorkspaceWritable())));
             }
             catch (Throwable) {

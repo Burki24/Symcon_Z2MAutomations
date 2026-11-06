@@ -39,7 +39,54 @@ Innerhalb der Kachel richten sich Farben, Grundschriftgröße und verfügbare Br
 nach dem Symcon-Client. Der eigenständige Browserdesigner folgt weiterhin der
 Hell-/Dunkeleinstellung des Browsers. Die Einbettung verwendet denselben Designer
 und dieselben gebundenen Aufträge; eine zusätzliche MQTT-Verbindung ist nicht nötig.
-Eine eigene IPSView-Ansicht ist noch nicht enthalten.
+
+## Vollständiger Designer in IPSView
+
+Die Zentrale kann denselben vollständigen Designer direkt in einem
+**HTMLBox-Element** von IPSView anzeigen. Ein zusätzliches Browserfenster oder
+eine weitere MQTT-Verbindung ist dafür nicht nötig.
+
+1. Im nativen Formular der **Automationszentrale** den Bereich **IPSView-Ansicht**
+   öffnen, **IPSView-HTML-Ausgabe bereitstellen** einschalten und die
+   Einstellungen übernehmen.
+2. Falls der Server nicht automatisch erkannt wird, unter
+   **Symcon-Serveradresse für IPSView** seine aus dem IPSView-Client erreichbare
+   Adresse eintragen, zum Beispiel `https://symcon.example:3777`.
+   Benutzername, Passwort, `/console/` und zusätzliche Pfade gehören nicht hinein.
+   Ein HTTPS-Client benötigt einen über HTTPS erreichbaren Server.
+3. In IPSView ein **HTMLBox-Element** hinzufügen und mit der String-Variable
+   **Automationsdesigner für IPSView** unterhalb der Zentrale verbinden.
+   Dem Element möglichst die ganze verfügbare Seite geben.
+4. In der eingebetteten Ansicht das **Z2M-System** auswählen. Geräte, Entwürfe,
+   Betriebsstatus und alle vorhandenen Bearbeitungsfunktionen stehen dort bereit.
+   Das Öffnen allein speichert oder aktiviert keine Automation in Z2M.
+5. **Zugang verlängern** hält die geöffnete Sitzung gültig, ohne den Designer
+   neu zu laden. Systemauswahl und offene Eingaben bleiben erhalten. Bei sichtbarer
+   Ansicht erfolgt dieselbe Verlängerung zusätzlich automatisch alle vier Minuten.
+
+Eine Sitzung gilt jeweils 15 Minuten und kann höchstens acht Stunden verlängert
+werden. Danach oder nach längerer Abwesenheit die Ansicht in IPSView neu öffnen.
+Der in der HTML-Variable hinterlegte Einstieg bleibt bis zu seiner Ersetzung
+oder Sperrung nutzbar und stellt beim Öffnen eine neue befristete Sitzung bereit.
+**IPSView-HTML neu generieren** im Modul ersetzt diesen Einstieg und sperrt alle
+damit eröffneten IPSView-Sitzungen. Danach die HTMLBox in IPSView neu öffnen.
+Auch ein Modulupdate oder das Übernehmen der Einstellungen erzeugt die Ausgabe
+neu. Andere bereits geöffnete Browserzugänge werden durch das bloße Neuerzeugen
+der IPSView-Ausgabe nicht widerrufen.
+
+Wer die HTML-Variable lesen kann, erhält darüber Zugang zur Verwaltung aller
+zugeordneten Systeme. Die Variable deshalb nur berechtigten Benutzern zugänglich
+machen. Das Ausschalten der IPSView-Ausgabe sperrt den Zugang; die vorhandene
+Variable bleibt samt Platzierung erhalten. Dauerhaftes Löschen ist anschließend
+über die gesonderte Bestätigung im Modul möglich. Eine geänderte Systemzuordnung
+sperrt alte Zugänge ebenfalls; danach die IPSView-Ausgabe neu erzeugen.
+
+Farben folgen der Hell-/Dunkeleinstellung des eingebetteten Browsers. Schrift und
+Anordnung passen sich der tatsächlichen Breite des HTMLBox-Elements an.
+Lokale Vertrags- und Browserprüfungen mit synthetischen Daten sind vorhanden.
+Die Abnahme im tatsächlich verwendeten IPSView-Client, einschließlich Mausrad,
+Touch und Größenänderung, steht noch aus. Ein Browsernachweis bestätigt keine
+native IPSView-App.
 
 Mit diesem Modul erstellen und bearbeiten Sie Automationen per Klick. Symcon
 überträgt die Regeln an die eigene Z2M-Erweiterung. Nach dem Speichern und

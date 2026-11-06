@@ -2,6 +2,12 @@
 
 ## Neu
 
+- Vollständigen Designer optional als IPSView-HTMLBox eingebunden: gemeinsame
+  Systemauswahl, Status und Bearbeitung, responsive Darstellung und
+  Zugangserneuerung ohne Neuladen. Zentraler IPSViewHTMLPageHelper verwaltet die
+  Ausgabevariable. Eigener widerrufbarer Einstieg mit befristeten Sitzungen,
+  deutsche Debugmeldungen und synthetische Prüfungen; kein neuer MQTT-Pfad.
+
 - Vollständigen Designer direkt in die native Symcon-Kachel eingebettet, mit
   Systemauswahl, übernommener Symcon-Darstellung und Zugangserneuerung ohne
   Neuladen. Ab Symcon 9.1 bleibt der Designer auch in der nativen Großansicht

@@ -29,6 +29,10 @@ trait DesignerEmbedding
     {
         $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Ident, $Value): void
         {
+            if ($this->HandleIPSViewHTMLPageAction($Ident, $Value)) {
+                $this->DebugEvent('AKTION', 'IPSView-Konfigurationsaktion abgeschlossen. Einzelheiten zur Ausgabe oder zum Widerruf siehe Ablauf; keine Z2M-Anfrage.');
+                return;
+            }
             $request = is_string($Value) && strlen($Value) <= 1024 ? json_decode($Value, true) : null;
             if ($Ident !== 'DesignerTile' || !is_array($request) || !$this->DesignerEditShape($request, ['client', 'request', 'action', 'systemId'])
                 || !is_string($request['client']) || !is_string($request['request'])
@@ -86,7 +90,7 @@ trait DesignerEmbedding
     }
 
     /** Tokens stay in the URL fragment; the module stores only their hash. */
-    private function IssueDesignerAccess(string $system = ''): array
+    private function IssueDesignerAccess(string $system = '', ?string $ipsViewGrant = null): array
     {
         if (!$this->RegisterHook($this->DesignerHookName())) throw new RuntimeException('hook_unavailable');
         if ($system !== '') $this->WorkspaceRecord($this->ReadWorkspace(), $system);
@@ -95,6 +99,7 @@ trait DesignerEmbedding
         $session = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'limit' => $this->Now() + 28800,
             'scope'        => $this->DesignerAccessScope(), 'initialSystem' => $system,
             'create'       => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'receipts' => []];
+        if ($ipsViewGrant !== null) $session['ipsViewGrant'] = $ipsViewGrant;
         if ($this->WorkspaceMode()) foreach (['runtime', 'catalog', 'imports', 'diagnostics', 'installation', 'permissions'] as $right) $session[$right] = true;
         $sessions[] = $session;
         $this->WriteEditorBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));

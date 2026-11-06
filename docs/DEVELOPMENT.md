@@ -1,39 +1,51 @@
-## IPSView-Einbindung: reguläre Helper-Verteilung vorbereiten – 06.11.2026
+## Vollständige IPSView-Ansicht lokal integriert – 06.11.2026
 
-Die vollständige Designeransicht soll zusätzlich als optionale IPSView-Ausgabe
-bereitgestellt werden. Der passende zentrale `IPSViewHTMLPageHelper` wurde vor
-der Umsetzung einschließlich seiner Verwendung in SymconiCloud geprüft. Er
-verwaltet die optionale HTML-Ausgabe, ihre String-Variablen mit WebContent-
-Darstellung und das bewusste Erhalten beziehungsweise Löschen dieser Variablen.
-Die bereits eingebundene zentrale Interaktionsunterstützung bleibt die Grundlage
-für Mausrad und verschachtelte Frames.
+Das regulär verteilte IPSViewHTMLPageHelper-Paket ist eingebunden; keine lokalen
+Helperkopien oder veränderten Hashmanifeste. DesignerIPSView registriert die
+optionale Ausgabe samt Serveradresse und verwaltet genau eine HTMLBox-Variable
+über den Helper. Dessen zentrale Interaktionsressource und der vorhandene
+HTTP-Origin-Resolver bleiben unverändert. Es gibt keine neue MQTT-Anbindung und
+keinen zweiten Editor.
 
-Vorbereiteter Stand: `.helper-sync.json` abonniert `IPSViewHTMLPageHelper`;
-`Symcon_ModuleHelper/.github/helper-consumers.json` ergänzt Z2MAutomations mit
-Zielbranch `dev`. Die Registrierung ist in `HELPER_SYNC_SETUP.md` dokumentiert.
-Es wurden keine Helper-Dateien, Hashes oder Herkunftsangaben lokal erzeugt und
-keine Laufzeitdateien des Moduls verändert. Die IPSView-Ausgabe ist damit noch
-nicht implementiert oder freigegeben.
+Ein langlebiger, ausdrücklich freigegebener Einstieg steht nur in der
+HTML-Variable. Sein Hash und der aktuelle Besitzer-/Systemscope stehen in
+Attributen. Die IPSView-Shell tauscht ihn innerhalb ihrer eigenen HTTP-Origin
+gegen eine normale befristete Designersitzung. Danach verwendet der vorhandene
+Reader dieselben System-, Geräte-, Editor- und Statuspfade. Die einzige
+Framing-Ausnahme betrifft die opt-in ipsview.html-Shell; das normale Webfrontend
+behält frame-ancestors self. Keine CORS-Freigabe. Details: ADR 0033.
 
-Reihenfolge vor der weiteren Umsetzung:
+Ausschalten oder Neuerzeugen widerruft Einstieg und alle damit eröffneten
+IPSView-Sitzungen. Die bestehende HTML-Variable bleibt bei Deaktivierung erhalten.
+Der Parent darf nur eine in-place Verlängerung anfordern; er erhält keine
+Systemdaten oder Kennungen. Native Farbsteuerung bleibt same-origin.
 
-1. Die Subscription in Z2MAutomations auf `dev` über GitHub Desktop übernehmen.
-2. Den vorbereiteten Consumer-Eintrag in Symcon_ModuleHelper über den dortigen
-   Benutzerworkflow freigeben. Die Helper-Verteilung läuft ausschließlich auf
-   `main`. Die Helper-Sync-App benötigt Zugriff auf Z2MAutomations.
-3. Den regulären Sync für `IPSViewHTMLPageHelper` ausführen lassen und das
-   automatisch verteilte Paket im Consumer über GitHub Desktop holen.
-4. Helper-Integrität und Strukturprüfung erneut ausführen. Bis zur Verteilung
-   ist die neue Subscription bewusst noch nicht im lokalen Helper-Manifest
-   erfüllt; `validate_structure.php` kann diesen Zwischenstand nicht freigeben.
-5. Erst mit dem regulär eingebundenen Helper die optionale IPSView-Ausgabe und
-   den Zugriff auf denselben vollständigen Designer umsetzen. Vorhandene
-   Systemzuordnungen, Entwürfe und der laufende Z2M-Betrieb bleiben erhalten.
+Synthetische Vertragsprüfungen verwenden acht Systeme und prüfen Anzeige,
+Berechtigungen, Ursprungskontrolle, Widerruf und erhaltene Entwürfe. Die lokale
+Browserprüfung verwendet den echten Modulcode hinter einem synthetischen
+HTTP-Transport und eine opake data-HTMLBox. Der tatsächliche IPSView-Client wurde
+nicht verwendet. Bei 1600, 760 und 360 Pixeln gab es keinen horizontalen Überlauf.
+Echte Mausradaktionen scrollten den verschachtelten Designer nach unten und bis
+0 zurück. Zugangserneuerung mit offenem Dialog erhielt Namen, URL und Auswahl.
+Alle HTTP-Aufträge wurden vom echten Modulcode im synthetischen Kernel verarbeitet;
+POSTs waren auf Einstieg, Systemauswahl und Verlängerung beschränkt. Keine
+MQTT-Ausgabe. Die Mausrad-, Touch-, Darstellungs- und Größenabnahme des echten
+IPSView-Clients bleibt ausdrücklich offen. Kein Zugriff auf Live-Symcon, keine
+Installation oder Z2M-Änderung und keine Geräteaktion.
 
-Offene Nachweise danach: Systemauswahl, Status, Zugangserneuerung und Widerruf,
-responsive Hell-/Dunkeldarstellung sowie echte Mausradbedienung im verwendeten
-IPSView-Client. Ein synthetischer Browser-Frame bestätigt keine native IPSView-App.
-Keine Änderungen an Test- oder Live-Installation vorgenommen.
+Prüfungen mit PHP 8.5.10: vollständiger Offline-Lauf einschließlich 224
+JavaScript-Tests erfolgreich. Der lokale 128-MB-Standard reichte für den großen
+module-extension-Integrationstest nicht aus; der erfolgreiche vollständige Lauf
+verwendete eine ausschließlich temporäre zusätzliche Test-INI mit 256 MB,
+auch für die PHP-Unterprozesse. Keine Änderung an PHP- oder Symcon-Konfiguration.
+Struktur, Kodierung, unverändertes Erweiterungsartefakt, offizielle StylePHP-
+JSON-Prüfung und php-cs-fixer im Prüfmodus ebenfalls erfolgreich.
+Die ergänzten Fehlerfälle für ungültige Adressen und fehlende Assets wurden
+anschließend nochmals mit der synthetischen Acht-System-Fixture geprüft.
+
+Die persistenten IPSView-Einstellungen liegen in elements, nicht in den
+vorübergehenden actions des nativen Formulars; ein eigener Regressionstest
+sichert diesen Vertrag.
 
 ## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
 
