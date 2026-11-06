@@ -15,20 +15,20 @@ die weitere Arbeit; historische „noch offen“-Sätze sind keine neuen Aufgabe
 | 3. Vollständiges Erstellen/Bearbeiten, Drag & Drop und Pfeilbuttons | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
 | 4. Symcon-Ereignisimport in Zentrale und Designer | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
 | 5. Systeme und Diagnose | Implementiert; Aufzeichnung, Ablauf, Stopp und Erweiterungsanzeigen auf beiden Testsystemen bestätigt. |
-| Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert. Browserinstallation und Partnerfreigaben praktisch bestätigt; begrenzte restliche Installationsnachweise siehe R2/R3 der Prüfliste. |
+| Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert. Browserinstallation, Partnerfreigaben und der begrenzte zweite native Klicknachweis R2 praktisch bestätigt; verbleibende Katalognachweise siehe R3 der Prüfliste. |
 
 R1 ist für drei und acht Erweiterungen synthetisch bestätigt, einschließlich
 aller 56 Zielrichtungen bei acht Systemen, Zweigausfall, getrennter Freigaben,
 Antworten und Debug sowie äußerer Systeme über den mittleren Broker.
 Reale Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
-Nächste Reihenfolge: R2/R3 anhand vorhandener Belege eingrenzen, R4/R5 gezielt
+Nächste Reihenfolge: R3 anhand vorhandener Belege eingrenzen, R4/R5 gezielt
 abschließen. Keine pauschale Wiederholung bereits bestandener Tests und kein
 Beginn der Windows-Anwendung.
 
-R2 ist auf die reale Einmaligkeitsprüfung begrenzt: Die alte Callbackzählung
-übersah Worker-Aufrufe. Neue Erfassung, SharedWorker-Reproduktion und Debug-
-Abgleich der echten Callbacktexte sind lokal abgesichert. Der fehlende
-Praxislauf steht in [NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
+R2 ist am 06.11.2026 im freigegebenen nativen Praxislauf auf dem zweiten System
+abgeschlossen: Nein null, Ja genau ein RPC/Debug-Paar/Upload, Status ohne
+Wiederholung. Neue Sitzung/Build und wieder aktiver bisheriger Betrieb bestätigt,
+Entwürfe erhalten. Einzelheiten in [NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
 
 ## Frühere Funktionsagenda vom 02.11.2026
 

@@ -10,8 +10,13 @@ kein weiteres Installationspaar erzeugen. Die bestehenden kanonischen Helper
 bleiben unverändert. Skripttexte, Antworten und private Bindungen werden nicht
 in den Probe-Bericht aufgenommen. Der lokale Kerneltest führt die tatsächlich
 erzeugten Callbacktexte auf zwei synthetischen Systemen aus und zählt genau
-dieses Paar sowie einen Upload. Die echte native Praxis bleibt separat offen;
-Ablauf und Grenzen in [NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
+dieses Paar sowie einen Upload. Am 06.11.2026 ist dieses Paar mit genau einem
+Upload auch im echten freigegebenen nativen Praxislauf auf dem zweiten System
+bestätigt. Der globale Puffer verlor im reinen Vorbereitungsdurchlauf Einträge;
+die positive Belegkette nutzt deshalb Dateiaufzeichnung der zwei beteiligten
+Instanzen. Statusaufruf ohne weiteren Installationseinstieg/Upload und Ende
+beider Dateisitzungen bestätigt. Ablauf und Grenzen in
+[NATIVE_INSTALLATION_TEST.md](NATIVE_INSTALLATION_TEST.md).
 
 ## Synthetischer Acht-System-Nachweis
 

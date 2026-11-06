@@ -25,18 +25,20 @@ geprüft. Sieben äußere Systeme kommunizieren über den mittleren synthetische
 Broker auch bei gestoppter mittlerer Erweiterung. Keine reale Broker- oder
 Geräteprüfung und keine Änderung an Modul, Erweiterungsquellen oder Artefakt.
 
-Offen bleiben R2 der begrenzte zweite native
-Installations-Klicknachweis, R3 die zusammengeführte reale Kette Installation
+Offen bleiben R3 die zusammengeführte reale Kette Installation
 mit automatischem Geräteabruf, R4 die gezielte Zentralen-Restabnahme und R5
 weitere Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut
 als ungeprüft führen. Windows bleibt ein späteres separates Projekt.
 
-R2-Instrumentierung lokal korrigiert: Der bisherige Seitenzähler übersah den
-Worker-Transport; echter synthetischer SharedWorker bestätigt alt null/neu eins.
-Die neue Test-Probe, sieben Regressionstests und der kanonische Debug-Abgleich
-an zwei Kernel-Fixtures sind lokal bestätigt. Echte Symcon-/Z2M-Installation
-wurde dafür nicht ausgeführt. Der begrenzte Praxisauftrag bleibt erforderlich;
-siehe [Prüfablauf](docs/NATIVE_INSTALLATION_TEST.md).
+R2 ist am 06.11.2026 nach ausdrücklicher Freigabe an Test-Symcon 9.1 praktisch
+bestätigt. Die korrigierte Probe erfasst die echte native Kette Nein null → Ja
+ein RPC/Debug-Paar/Upload → Status ohne Wiederholung. Neue Erweiterungssitzung
+und erwarteter Build bestätigt; Entwürfe, gespeicherte/aktive Revisionen und
+Prüfsummen sowie bisheriger Betrieb erhalten. Die zwei Regeln des Zielsystems
+sind wieder aktiv, das erste System blieb unverändert. Testaufzeichnungen beendet.
+Der globale Debugpuffer war für den ersten reinen Abbruchteil zu kurz; der
+positive Nachweis verwendet instanzbezogene Dateiaufzeichnung. Nur ein Upload,
+keine YAML-Speicherung oder Schaltbefehle. Siehe [Prüfablauf](docs/NATIVE_INSTALLATION_TEST.md).
 
 ## Historische Entwicklungsnotizen
 
@@ -901,9 +903,10 @@ die aktuelle Restliste steht oben und in PRUEFLISTE.md.
 
 ## Nächste Schritte
 
-1. R2/R3 aus der [Prüfliste](docs/PRUEFLISTE.md) auf die fehlenden Belege eingrenzen;
-   R1 ist für drei und acht Erweiterungen synthetisch abgeschlossen, echte
-   Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
+1. R3 aus der [Prüfliste](docs/PRUEFLISTE.md) auf die fehlenden Belege eingrenzen;
+   R1 ist synthetisch abgeschlossen und R2 praktisch bestätigt. Für das zweite
+   System belegt der R2-Lauf auch den einmaligen automatischen Katalogabschluss.
+   Echte Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
    Vorhandene bestandene Browser-, Installations-, Katalog- und Statusprüfungen
    erhalten. Operative Ergänzungen
    nur nach eigenem Praxisauftrag.

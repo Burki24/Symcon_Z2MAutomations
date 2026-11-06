@@ -1,3 +1,61 @@
+## R2: Nativer zweiter Installations-Klick praktisch bestätigt am 06.11.2026
+
+Nach ausdrücklicher Praxisfreigabe den nativen Button des zweiten Systems an
+Test-Symcon **9.1** im separaten unsichtbaren Edge-Testbrowser geprüft. Die
+Testverbindung nutzt das produktive Z2M. Ausgangsdaten, Entwürfe und Betrieb
+vorher privat gesichert; keine persönlichen Browsertabs oder sichtbare
+Desktopkonsole bedient. Erwarteter eigener Erweiterungsbuild: `4d6cda174348`.
+
+Ein erster Vorbereitungsdurchlauf endete nach Nein vor Ja, ohne Installation:
+Der globale Debugpuffer verlor unter dem übrigen Nachrichtenaufkommen Einträge.
+Dieser Durchlauf wird nicht als vollständige Abnahme geführt. Die Probe zählte
+null Installations-RPCs und wurde wiederhergestellt; es gab keinen Upload, der
+erneut versucht wurde. Für den positiven Nachweis Dateiaufzeichnung ausschließlich
+der beteiligten Zentrale und Z2M-Verbindung aktiviert und vor der Bestätigung
+den Abbruchteil samt Debug erneut geprüft.
+
+Die vollständige Kette ist bestätigt:
+
+- Native Formularöffnung positiv im Debug beobachtet. Nein: gültige Probe mit
+  null Installations-RPCs/Aufrufstellen, null Kernel-Installationseinstiegen
+  und null Uploads.
+- Ja: genau eine RPC-Übergabe mit einer Installations-Aufrufstelle, leere
+  Rückgabe und keine ausstehende/abgelehnte Antwort. Genau ein kanonisches
+  START/ENDE-Paar für `RequestWorkspaceInstallation`; Instanz, Vorgang und
+  Aufruf stimmen überein. Genau ein `extension/save`-Upload in der zugehörigen
+  Verbindung; keine weitere native Bestätigung und kein automatischer Neuversand.
+- Neue Empfängersitzung und erwarteten Build bestätigt. Gespeicherte und aktive
+  Revision sowie Prüfsummen unverändert, zwei aktivierte Regeln wieder im
+  Automatikbetrieb, eingeschalteter Wiederanlauf und Meshbereitschaft erhalten.
+  Kein Laufzeitfehler. Der Installer lud anschließend genau einmal die
+  Gerätedaten erfolgreich nach; dieser Teilbeleg wird für R3 erhalten.
+- Statusbutton: genau eine zusätzliche Status-RPC, Installationszähler weiterhin
+  eins. Dateidebug belegt null zusätzliche Installationseinstiege und Uploads.
+- Beide lokalen Entwürfe einschließlich Auswahl und offener Arbeit exakt
+  mit dem Ausgangsstand verglichen. Das erste System behält Sitzung, Revision,
+  Prüfsummen und seinen aktiven Betrieb. Keine YAML-Speicherung, kein manueller
+  Aktivierungs-/Stopp- oder Schaltbefehl.
+- Probe auf die ursprüngliche Methode zurückgestellt, eigenen Testbrowser
+  geschlossen und beide Test-Dateiaufzeichnungen sowie temporäre Debugweiterleitung
+  beendet. Endmarken der Dateisitzungen im Beleg vorhanden.
+
+Der kombinierte private Beleg führt UI-/RPC-Bericht, kanonische Dateidebugs,
+frische Empfängermetadaten und exakten Entwurfsvergleich zusammen. Historische
+Berichte, Vorbereitungsabbruch und positive Belegkette bleiben getrennt erhalten.
+Private Adressen, IDs, Topics, Sessions, Prüfsummen und Rohbilder werden nicht
+ins Repository übernommen. R2 ist im vereinbarten Umfang abgeschlossen;
+dieser Nachweis ersetzt weder die Symcon-9.0-Abnahme noch die übrigen R3–R5-Fälle.
+Keine Änderung an Modul-/Erweiterungsquellen oder erzeugtem Artefakt.
+
+Abschließende lokale Projektprüfung erfolgreich: `php tests/run.php` mit
+**203 JavaScript-Tests**, separate Struktur- und zentrale Kodierungsprüfung,
+`npm run check:extension`, offizieller StylePHP-Check der 18 eigenen JSON-Dateien
+in isolierter Kopie und PHP CS Fixer 3.95.27 im Prüfmodus ohne Befund für
+148 PHP-Dateien. Acht geänderte Markdown-Dateien sind UTF-8 ohne BOM/LF,
+geschlossene Codeblöcke und 32 lokale Dateiverweise geprüft; keine geprüften
+privaten Installationskennungen in den Ergänzungen. `git diff --check` sauber.
+Keine Commits oder Pushes.
+
 ## R2: Native Testinstrumentierung lokal korrigiert am 06.11.2026
 
 Vorhandene private Einzelberichte, Screenshot, erhaltenes Prüfskript und

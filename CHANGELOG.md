@@ -25,7 +25,9 @@
   statt nach PHP-Namen in Seitenanfragen zu suchen. Testaufzeichnung mit
   getrennten Installations-/Statuszählern, unveränderter Weitergabe, Grenzen
   und Wiederherstellung; lokal mit SharedWorker und Debug-Abgleich an zwei
-  synthetischen Systemen geprüft. Der echte zweite Klicknachweis bleibt offen.
+  synthetischen Systemen geprüft. Der echte zweite native Klicknachweis ist
+  am 06.11.2026 an Test-Symcon 9.1 mit genau einem RPC/Debug-Paar/Upload
+  bestätigt; Entwürfe und bisheriger Betrieb erhalten, Aufzeichnungen beendet.
 
 - Planung und Prüfliste an implementierte Zentralen-/Designerfunktionen und
   bestätigte Praxis angepasst; verbleibende Nachweise einzeln benannt.

@@ -34,7 +34,7 @@ Repositorys. Die nachfolgende Zusammenfassung enthält keine solchen Rohdaten.
 | Designeragenda 4: Ereignisimport | Auf beiden Testsystemen Vorschau, Auswahl, Import als ausgeschalteter lokaler Entwurf und Abbruch bestätigt. Originalereignisse und bisheriger Betrieb erhalten; keine Testregel in Z2M aktiviert. |
 | Designeragenda 5: Systeme und Diagnose | Beide Systeme praktisch bestätigt: Erweiterungsstände und Updatehinweise, getrennte Aufzeichnungen, ursprüngliche Endzeit, automatischer Zeitablauf und gezielter Stopp. Gespeicherte/aktive Revisionen und Betrieb unverändert. |
 | Zentrale Betriebsbuttons im Designer | Separater Playwright-/Edge-Testbrowser bestätigt auf beiden Systemen die Betriebs- und Bestätigungswege einschließlich Einzellauf und Bedingungen. Abgesicherte Testdaten und ursprünglicher Betrieb wiederhergestellt; keine Geräte geschaltet. Der erste fehlgeschlagene Browserversuch ist durch den späteren bestandenen Bericht ersetzt. |
-| Erweiterungsinstallation | Browserweg auf beiden Systemen mit Bestätigung, Installation und abschließendem Status praktisch bestätigt. Nativer Weg auf einem System bestätigt; der abschließende native Status auf beiden Systemen ebenfalls. Der einzelne noch unvollständige native Klicknachweis ist R2. |
+| Erweiterungsinstallation | Browserweg auf beiden Systemen mit Bestätigung, Installation und abschließendem Status praktisch bestätigt. Nativer Weg auf dem ersten System bereits belegt; der strikte zweite native Klicknachweis R2 ist am 06.11.2026 an Test-Symcon 9.1 bestätigt: Nein null, Ja ein RPC/Debug-Paar/Upload, Status ohne Wiederholung. |
 | Automatischer Geräteabruf nach Installation | Implementiert und synthetisch für Bestätigung, genau einen Abruf, Fehler, Unterbrechung und Entwurfserhalt geprüft. Die noch nicht vollständig zusammengeführte reale Ablaufkette ist R3; sie ist kein erneut offener Implementierungspunkt. |
 | HTTP-LAN-Bedienung | Gemeinsame sichere Kennungserzeugung implementiert. Systemwechsel lokal über echtes HTTP ohne randomUUID geprüft und vom Anwender im Live-System ausdrücklich als funktionierend bestätigt. |
 | Partnerfreigaben | Am 05.11.2026 auf beiden Testsystemen Richtung, Vorschau, betroffene Regel, Entziehen/erneutes Freigeben, Abbruch und Debug bestätigt. Entwürfe und Auswahl exakt wiederhergestellt. Korrigierte Einzahl am 06.11.2026 im echten Testdesigner erneut rein lesend bestätigt. |
@@ -60,19 +60,22 @@ reale Drei-/Acht-Broker-Installationen bleiben davon getrennt.
 Die lokale Korrektur der R2-Testinstrumentierung besteht mit sieben neuen
 Node-Fällen und insgesamt **203 JavaScript-Tests**, einem separaten synthetischen
 SharedWorker-Browsernachweis und dem nativen Debug-Abgleich an zwei Kernel-
-Fixtures. Das ersetzt den fehlenden realen zweiten Klicknachweis nicht.
+Fixtures. Die anschließende ausdrückliche Praxisfreigabe und Prüfung am
+06.11.2026 schließen den realen zweiten Klicknachweis: genau eine Installation,
+frische Empfängersitzung, erwarteter Build, unveränderte Entwürfe und wieder
+bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 
 ## Tatsächlich offene Restpunkte
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| R2 | Exakte Einmaligkeit des nativen Installations-Klicks auf dem zweiten System praktisch bestätigen | Historischer Nullzähler als Instrumentierungsfehler lokal mit echtem SharedWorker reproduziert. Die neue Erfassung vor dem Worker-Transport ist durch sieben Regressionstests, einen synthetischen Browserlauf und den kanonischen Debug-Abgleich der erzeugten Callbacks auf zwei Kernel-Fixtures abgesichert. Erfolgsmeldung und spätere Statusprüfung bleiben Teilbelege. Offen ist die begrenzte reale Kette Nein → Ja mit genau einem RPC/Debug-Einstieg/Upload → Status ohne Wiederholung; nur nach eigenem Praxisauftrag. Ablauf und Grenzen in NATIVE_INSTALLATION_TEST.md. |
-| R3 | Durchgängiger realer Nachweis des automatischen Geräteabrufs nach Installation | Vorhandene Installations- und Katalognachweise zu einer Kette je System zusammenführen: neue Erweiterung bestätigt → genau ein automatischer Abruf → Geräte geladen oder eigener Gerätefehler; Entwürfe/Auswahl/Betrieb erhalten. Falls ein Teilbeleg fehlt, nur diesen nach gesondertem Auftrag prüfen. |
+| R3 | Durchgängiger realer Nachweis des automatischen Geräteabrufs nach Installation auf beiden Systemen | Im R2-Lauf ist für das zweite System die Kette neue Sitzung/Build → genau ein automatischer Katalogabruf → Gerätedaten geladen bei unveränderten Entwürfen/Auswahl/Betrieb frisch belegt. Diesen Beleg mit den vorhandenen Installations-/Katalogberichten des ersten Systems zusammenführen. Nur tatsächlich fehlende Teilbelege nach gesondertem Auftrag prüfen. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
-R1 ist im vereinbarten synthetischen Umfang abgeschlossen. R2–R5 enthalten
-gegebenenfalls operative Praxisaktionen und benötigen jeweils einen konkreten Auftrag. Die neue
+R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 praktisch
+bestätigt. R3–R5 enthalten gegebenenfalls operative Praxisaktionen und benötigen
+jeweils einen konkreten Auftrag. Die neue
 [Brokeranleitung](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
 beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 
@@ -84,7 +87,7 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] Zweibroker-Praxis von ungeprüftem Drei-/Acht-System-Ausbau trennen.
 - [x] R1: Drei Erweiterungen mit getrennten Erfolgs-/Fehlerzweigen synthetisch prüfen; sechs Fälle in `tests/mesh-three.test.mjs`, Details in DEVELOPMENT.md.
 - [x] R1: Acht Erweiterungen und eindeutige Ziele synthetisch prüfen; fünf Fälle in `tests/mesh-eight.test.mjs`, einschließlich aller 56 Zielrichtungen.
-- [ ] R2: Den begrenzten nativen Bestätigungsnachweis vervollständigen.
+- [x] R2: Begrenzter nativer Bestätigungsnachweis auf dem zweiten System am 06.11.2026 mit strikter Probe und Dateidebug bestätigt.
 - [ ] R3: Reale Installation samt automatischem Katalogabschluss je System belegen.
 - [ ] R4: Zentralen-Restabnahme mit Versions-/Buildbezug und Rückweg abschließen.
 - [ ] R5: Vereinbarte Kompatibilitätsfälle aufnehmen und gezielt prüfen.

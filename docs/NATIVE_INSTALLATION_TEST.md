@@ -90,10 +90,41 @@ Der Browsernachweis bleibt vollständig synthetisch und gehört nicht zum
 CI-Pflichtlauf. Es wird keine neue Playwright-Abhängigkeit installiert oder
 in die Library aufgenommen. Der normale Node-Test benötigt keinen Browser.
 
-## Noch fehlender begrenzter Praxisnachweis
+## Praktisch bestätigter begrenzter Nachweis am 06.11.2026
 
-R2 bleibt offen, bis nach eigenem Praxisauftrag auf dem zweiten System die
-folgende zusammenhängende Kette mit frischem Zustand bestätigt ist:
+R2 ist nach ausdrücklicher Praxisfreigabe auf dem zweiten System an Test-Symcon
+9.1 bestätigt. Der separate unsichtbare Edge-Prozess bediente die echte native
+Konsole; das zugehörige Z2M ist produktiv. Erfasst wurden:
+
+- Nein: null RPC-Übergaben, null Installationseinstiege und kein Upload.
+- Ja: genau eine RPC-Übergabe mit einer Aufrufstelle und leerer Rückgabe,
+  genau ein kanonisches START/ENDE-Paar mit übereinstimmendem Instanz-, Vorgangs-
+  und Aufrufbezug sowie genau ein `extension/save`-Upload.
+- Frische Erweiterungssitzung und erwarteter mitgelieferter Build bestätigt.
+  Gespeicherte/aktive Revision und Prüfsummen, eingeschalteter Wiederanlauf und
+  die zwei aktiven Regeln bleiben erhalten. Kein Laufzeitfehler.
+- Statusbutton: genau eine zusätzliche Status-RPC, kein weiterer
+  Installationseinstieg und kein zweiter Upload.
+- Beide lokalen Entwürfe einschließlich Auswahl und offener Arbeit exakt
+  erhalten. Auf dem ersten System Sitzung, Revision, Prüfsummen und bisheriger
+  Betrieb unverändert. Keine YAML-Speicherung, Aktivierungs- oder Schaltbefehle.
+- Probe wiederhergestellt, eigener Testbrowser geschlossen und beide
+  instanzbezogenen Testaufzeichnungen beendet.
+
+Ein erster Vorbereitungsdurchlauf blieb nach Nein vor Ja stehen: Der globale
+Debugpuffer verlor unter dem übrigen Nachrichtenaufkommen Einträge. Die Probe
+zählte null Installationen und wurde ordnungsgemäß wiederhergestellt. Der
+positive Nachweis verwendet deshalb Dateiaufzeichnung für genau die beteiligte
+Zentrale und Verbindung. Der gesamte Auftrag enthält nur einen tatsächlichen
+Upload; kein fehlgeschlagener Upload wurde wiederholt.
+
+Der kombinierte private Beleg ergänzt den reinen UI-/RPC-Bericht um Kerneldebug,
+frische Empfängermetadaten und den exakten Entwurfsvergleich. Ursprüngliche
+Berichte und Screenshots bleiben erhalten; keine Rohdaten im Repository.
+Der Nachweis gilt für diesen Bedienweg unter Symcon 9.1, nicht als allgemeine
+Symcon-9.0- oder Mehrsystem-Kompatibilitätsfreigabe.
+
+Die folgende Tabelle bleibt der Ablauf für eine gesondert beauftragte Wiederholung:
 
 | Schritt | RPC-Nachweis | Nativer Debug-/Betriebsnachweis |
 | --- | --- | --- |
@@ -106,8 +137,8 @@ folgende zusammenhängende Kette mit frischem Zustand bestätigt ist:
 
 Die neue Erfassung auf eine sichtbare Prüfphase zurückfallen zu lassen würde
 den ursprünglichen Nachweisfehler wieder verdecken. Bisherige erfolgreiche
-Installation und spätere Statusprüfung bleiben gültige Teilbelege; sie werden
-nicht als Beleg der exakten Aufrufanzahl umgedeutet. Dieser Ablauf erteilt keinen
+Installation und spätere Statusprüfung bleiben historische Teilbelege; die
+exakte Aufrufanzahl belegt der neue strikte Nachweis. Dieser Ablauf erteilt keinen
 Installations-, Neustart- oder Schaltauftrag. Die Testinstallation kann dieselben
 produktiven Z2M-Systeme verwenden; daher keine native Bestätigung automatisieren,
 bevor der konkrete Praxislauf beauftragt ist.

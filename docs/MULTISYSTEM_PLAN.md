@@ -15,8 +15,9 @@ Zentrale Prüfung, Übertragung, Aktivierung, Stopp und Einzellauf sind vorhande
 Die fünf Designerpunkte sowie zusätzliche Installation und Partnerfreigaben sind
 integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
 [Prüfliste](PRUEFLISTE.md) berücksichtigt. R1 ist für drei und acht echte
-Erweiterungsinstanzen synthetisch bestätigt; die offenen Nachweise R2–R5 werden
-dort einzeln geführt. Reale Mosquitto-Bridges mit mehr als zwei Brokern sind
+Erweiterungsinstanzen synthetisch und R2 im begrenzten nativen Praxislauf bestätigt;
+die offenen Nachweise R3–R5 werden dort einzeln geführt. Reale Mosquitto-Bridges
+mit mehr als zwei Brokern sind
 dadurch nicht abgenommen. Ein Update allein führt weder Übernahme noch
 Z2M-Aufträge aus.
 Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
@@ -386,8 +387,9 @@ Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 R1 ist mit drei und acht Erweiterungen synthetisch abgeschlossen. Die folgenden
 Arbeitspakete bleiben offen:
 
-1. R2/R3: Vorhandene native Installations- und Katalogbelege zusammenführen;
-   nur den fehlenden Bestätigungs-/Abschlussnachweis praktisch ergänzen.
+1. R3: Vorhandene Installations-/Katalogbelege zusammenführen. R2 ist praktisch
+   bestätigt und belegt für das zweite System auch genau einen erfolgreichen
+   automatischen Geräteabruf. Nur noch fehlende Teilbelege gesondert ergänzen.
 2. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
    nach gesondertem Auftrag abschließen. Bereits bestätigte Abläufe erhalten.
 
@@ -416,4 +418,4 @@ Integration mit dem echten Erweiterungsartefakt prüft Aktivierung, Wiederanlauf
 Freigabe, globalen/gezielten Stopp und Bedingungsablehnung. Die spätere bestandene
 Browserprüfung auf beiden Testsystemen berücksichtigt Bestätigungen, Einzellauf
 und Wiederherstellung. Für verbliebene native/operative Nachweisgrenzen gelten
-R2–R4 der Prüfliste; sie sind kein pauschal offener Browser-Abnahmepunkt.
+R3/R4 der Prüfliste; sie sind kein pauschal offener Browser-Abnahmepunkt.
