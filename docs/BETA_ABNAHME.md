@@ -133,11 +133,43 @@ In diesem Abnahmeauftrag wurden weder Helper noch Modulquellen geändert.
 
 ## Offene Befunde
 
+Nachtrag vom 06.11.2026 zum ausdrücklich beauftragten Korrekturpaket:
+Die kanonische Quelle in Symcon_ModuleHelper reicht das Mausrad an den nächsten
+tatsächlich beweglichen Vorfahren einschließlich Dokument-Viewport weiter.
+Ein teilweise bewegter Bereich verbraucht den gesamten Schritt, damit keine
+doppelte Bewegung entsteht. Offene Dialoge blockieren auch die native
+Scrollweitergabe in den Hintergrund. Regressionen waren vor den jeweiligen
+Korrekturen rot: Dokumentposition 424 statt 124 sowie Dialoghintergrund 304
+statt unverändert 424. Quelle und generiertes Asset bestehen nun diese Tests,
+einschließlich echter Browser-Mausradaktionen und expliziter Frameweitergabe.
+Der PHP-Test prüft die deutsche DebugFlow-Meldung und bereinigte Assetkennung.
+
+Im echten Test-Kachelclient 9.1 bei 1400 × 900 Pixeln die korrigierte Ressource
+ausschließlich per Route im separaten Testbrowser geliefert. Echtes Mausrad
+bewegt das Dokument abwärts und wieder aufwärts (506 nach 206 Pixeln).
+Dieser isolierte Nachweis ändert keine Serverdateien und ersetzt keine Abnahme
+des später installierten regulären Pakets. Beide Systemdokumente einschließlich
+Bindung, Auswahl und offener Arbeit sind danach identisch zum Ausgangsstand.
+Der derzeit nur zwischengespeicherte Betriebsstatus war nicht bestätigt; daraus
+wird keine neue Aussage über aktive Z2M-Regeln abgeleitet. Keine Katalogabfrage,
+YAML-Speicherung, Aktivierung oder Gerätebefehle für diesen Test ausgelöst.
+
+Das Consumer-Testpaket entsteht isoliert über die vorhandenen Metadaten- und
+Bundlefunktionen. Synthetische Herkunftsangaben bleiben außerhalb des normalen
+Arbeitsbaums. Die endgültige Gesamtsuite besteht unter PHP 8.5.10 einschließlich
+aller 221 JavaScript-Tests; Struktur, Kodierung, Build- und Formatierungsprüfung
+des Consumer-Pakets sind ebenfalls grün. Der verbindliche Weg bleibt:
+Benutzer commit/push auf Helper-dev,
+Freigabe nach main, automatische Metadaten/Consumer-Verteilung, Pull in
+Z2MAutomations/dev, Integritätsprüfung und Modulupdate der Testinstallation.
+Danach denselben nativen Grenzfall ohne Browser-Ressourcenaustausch prüfen.
+Bis dahin ist B4 trotz lokal bestätigter Korrektur nicht geschlossen.
+
 Bestätigte **BLOCKER: 1**, **HINDERNIS: 4** im untersuchten Umfang.
 
 | ID | Schwere / Basis | Befund und kleinster nächster Schritt |
 | --- | --- | --- |
-| B4 | BLOCKER / Project | Die verpflichtende native Mausradprüfung scheitert am oben reproduzierten Grenzfall. Zentralen Helper an Scrollgrenzen korrigieren und nach regulärer Einbindung im echten Symcon-Kachelclient nachprüfen. Ein grüner Stub-/Browserlauf ersetzt diesen Nachweis nicht. |
+| B4 | BLOCKER / Project | Zentrale Korrektur samt Regressionen und isoliertem Kacheltest bestätigt. Reguläre Helper-Verteilung und native Nachprüfung des tatsächlich installierten Pakets fehlen noch. Testbrowser-Ressourcenaustausch gilt nicht als installierter Freigabestand. |
 
 | ID | Basis | Hindernis und kleinster nächster Schritt |
 | --- | --- | --- |

@@ -13,8 +13,13 @@ Modultypen unter Symcon 9.1 ergänzt. Kein Speichern, Aktivieren, Neustart oder
 Schaltbefehl an Z2M. Entwürfe samt Auswahl, offener Arbeit und Bindung erhalten.
 Die echte Kachel-9.1-Nachprüfung bestätigt Systemwechsel/Status/Erneuerung,
 findet aber die Mausradfalle an einer inneren Scrollgrenze (Beta-Blocker B4).
-Die Gesamtbewertung lautet deshalb nicht einreichungsreif; kanonischer
-Helperfix und erneute native Abnahme fehlen. Keine Quellcodekorrektur im Audit.
+Die Gesamtbewertung lautet deshalb nicht einreichungsreif. Der anschließende
+Korrekturauftrag behebt die Ursache in Symcon_ModuleHelper, mit Regressionen
+und nativer Debugmeldung beim Laden der Interaktionsressource. Isoliertes
+Consumer-Paket und echte Testkachel mit ausschließlich im Testbrowser ersetzter
+Ressource geprüft; kein Helper auf dem Server ausgetauscht. Reguläre Verteilung
+nach Helper-Freigabe über main und finale installierte Kachelprüfung bleiben
+offen. Keine Quellcodekorrektur im vorausgegangenen Audit selbst.
 
 Vollständigen bestehenden Designer in die native Symcon-Kachel eingebettet.
 Kein neues Browserfenster; Farben und Grundschriftgröße folgen dem Symcon-Client.

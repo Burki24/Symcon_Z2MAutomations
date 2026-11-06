@@ -1,3 +1,54 @@
+## Zentraler Mausrad-Helper korrigiert – 06.11.2026
+
+Der Folgeauftrag zu B4 korrigiert VisualizationAssetHelper in der zentralen
+Quelle Symcon_ModuleHelper. Tatsächliche Positionsänderung entscheidet über
+die Übernahme des Ereignisses. Erschöpfte innere Bereiche geben an bewegliche
+Vorfahren einschließlich Viewport weiter; Dialoggrenzen verhindern auch die
+native Scrollweitergabe an den Hintergrund. Sichtbare/gesperrte Achsen,
+teilweise konsumierte Deltas, Shift und negative RTL-Positionen sind abgedeckt.
+Das minifizierte Artefakt entsteht unverändert mit dem vorhandenen esbuild-
+Befehl. Neue deutsche native DebugFlow-Meldung nennt nur Verhalten und kurze
+Asset-Inhaltskennung; kein per-Wheel-Netzwerkverkehr und keine Eingabedaten.
+
+Neue Regressionen reproduzierten die Fehler vor der Korrektur. Node-Tests
+für Quelle/minifiziertes Asset und optionale echte Playwright-Mausradprüfungen
+bestehen, einschließlich lokaler/weitergereichter Frames und Modalgrenze.
+Helper-PHP-Suite unter PHP 8.5.10 mit GD/Exif erfolgreich; Manifest-, Metadaten-,
+Übersetzungs-, Bundle- und geschützte Verteilungstests in isolierter Kopie grün.
+PHP CS Fixer meldet keine Änderungen an den 80 Helper-PHP-Dateien. Der zusätzlich
+auf das gesamte Helper-Repository angewandte JSON-Stilscanner meldet zwei
+bereits unverändert vorhandene Metadatendateien (manifest.json und
+.github/helper-consumers.json); sie wurden nicht manuell umformatiert.
+
+Das Consumer-Testpaket wird ausschließlich außerhalb des normalen Arbeitsbaums
+über die kanonischen Metadaten-/Bundlefunktionen erzeugt. Synthetische
+Herkunftsangaben bezeichnen keinen veröffentlichten Stand. Die vorhandene
+.helper-sync.json abonniert den betroffenen Helper bereits; keine neue
+Abonnement- oder Modulprotokolländerung erforderlich. Struktur, Kodierung,
+Erweiterungsartefakt und PHP CS Fixer (152 Dateien) bestehen am isolierten
+Consumer. Offizieller StylePHP-JSON-Check der 18 eigenen Dateien ebenfalls grün.
+Die abschließende Gesamtsuite am endgültigen isolierten Paket besteht unter
+PHP 8.5.10, einschließlich aller 221 JavaScript-Tests. Dies belegt die lokale
+Integration, nicht einen bereits verteilten oder installierten Paketstand.
+
+Echte Testkachel 9.1 bei 1400 × 900 Pixeln mit nur im separaten Testbrowser
+ersetztem Interaktionsasset geprüft: Mausrad abwärts/aufwärts erfolgreich,
+Dokumentposition 506 nach 206 Pixeln. Beide Systemdokumente samt Auswahl,
+offener Arbeit und Bindung danach unverändert. Der gespeicherte Betriebsstatus
+war nicht bestätigt; keine neue Laufzeitbestätigung behauptet. Kein Katalog-
+oder Z2M-Befehl, keine Serverdatei und keine Produktivinstallation verändert.
+Ein Versuch, die frühere komplette Beta-UI-Prüfung wiederzuverwenden, konnte
+wegen des unbestätigten Katalogs keine neue Automation öffnen. Das wurde nicht
+durch einen Abruf umgangen; der gezielte Mausradnachweis verwendet die geladene
+Ansicht. Beim Verkleinern baut Symcon den Frame neu auf; daraus wird kein
+zusätzlicher bestandener Breitentest abgeleitet.
+
+Offen bleibt die reguläre Einbindung: Benutzerfreigabe des Helpers nach main,
+automatische Verteilung nach Z2MAutomations/dev, Pull und Modulupdate nur der
+Testinstallation. Danach native Prüfung ohne Ressourcenaustausch wiederholen.
+Bis dahin bleibt B4 offen. Der normale libs/helper-Bestand ist unverändert;
+keine vorläufigen Helper-Dateien blockieren den anschließenden Pull.
+
 ## Beta-Abnahme vorbereitet – 06.11.2026
 
 Auf Benutzerauftrag die vier Abschlusspunkte an der sauberen Codebasis b1ae70b

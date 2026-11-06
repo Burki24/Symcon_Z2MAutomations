@@ -1,5 +1,20 @@
 # Debug und MQTT-Diagnose
 
+## Zentrale Mausradunterstützung
+
+Die korrigierte zentrale VisualizationAssetHelper-Version meldet beim Laden
+der Interaktionsressource über den vorhandenen DebugFlowHelper:
+„Zentrale Mausradunterstützung geladen. An Scrollgrenzen wird der nächste
+bewegliche Bereich verwendet; offene Dialoge schützen den Hintergrund.“
+Der Bezug enthält nur eine verkürzte SHA-256-Inhaltskennung. Damit lässt sich
+die gelieferte Ressource zuordnen. Einzelne Mausbewegungen bleiben im Browser;
+es gibt dafür keine zusätzlichen HTTP-/MQTT-Anfragen und keine Aufzeichnung
+von Zeigerpositionen oder Formularinhalten. Die Meldung bestätigt das Laden,
+nicht die erfolgreiche Verarbeitung jeder einzelnen Bewegung.
+
+Die zentrale Korrektur ist lokal geprüft; im regulär eingebundenen Paket ist
+sie erst nach Helper-Freigabe und automatischer Verteilung verfügbar.
+
 ## Bestätigte und früher gespeicherte Gerätedaten
 
 WorkspaceCatalogView meldet je System, ob der gespeicherte Katalog aktuell

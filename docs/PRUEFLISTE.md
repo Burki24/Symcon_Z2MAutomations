@@ -1,5 +1,20 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Nachtrag zur Mausradkorrektur – 06.11.2026
+
+Die Ursache von B4 ist in der kanonischen Helperquelle korrigiert. Regressionen
+prüfen tatsächlich begrenzte Scrollpositionen, beide Richtungen, horizontale
+und RTL-Grenzen, das Ausbleiben doppelter Bewegung und den Dialoghintergrund.
+Quelle und minifiziertes Asset bestehen echte isolierte Browserprüfungen.
+Der native Test-Kachelclient scrollt mit ausschließlich im Testbrowser ersetzter
+Ressource wieder in beide Richtungen. Dokumente, Bindungen, Auswahl und offene
+Arbeit beider Systeme blieben beim Vorher-/Nachher-Vergleich unverändert.
+Der Server behält sein bisheriges Paket; keine Geräte-/Z2M-Befehle gesendet.
+
+**B4 bleibt bis zur regulären Helper-Verteilung und abschließenden Prüfung des
+installierten Pakets offen.** Kein lokales Testbundle im normalen Arbeitsbaum.
+Einzelheiten und Verteilungsreihenfolge stehen im Beta-Abnahmebericht.
+
 ## Beta-Abnahme – aktueller Nachtrag vom 06.11.2026
 
 Die vier beauftragten Abschlusspunkte sind im
@@ -125,7 +140,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
-| B4 | Reproduzierter nativer Mausradfehler an innerer Scrollgrenze | Kanonischen Interaktionshelper korrigieren, regulär einbinden und echten Kachelclient nachprüfen. Dies ist ein Beta-Blocker; Einzelheiten im Beta-Abnahmebericht. |
+| B4 | Nativer Mausradfehler an innerer Scrollgrenze; zentrale Korrektur lokal geprüft | Reguläre Helper-Verteilung und abschließende Prüfung des installierten Pakets fehlen. Isoliertes Consumer-Paket und echter Kachelclient mit Testbrowser-Ressourcenaustausch geprüft; noch kein installierter Freigabestand. Einzelheiten im Beta-Abnahmebericht. |
 | R4 | Geschlossene Restabnahme des Zentralenwegs | Zuordnung von Version/Build, Bedienweg und Rückweg vervollständigen. Echte Unterbrechung/Wiederverbindung bzw. Wiederanlauf im Zentralenweg nur dort nachprüfen, wo die vorhandenen synthetischen und älteren Praxisbelege den konkreten Fall nicht abdecken. Kein pauschaler Neustart aller bestandenen Prüfungen. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
