@@ -8,6 +8,27 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+Aktueller Abgleich: **06.11.2026**. Maßgeblich sind die
+[Prüfliste](docs/PRUEFLISTE.md), die [Agenda](docs/AGENDA.md) und der
+[Mehrsystemplan](docs/MULTISYSTEM_PLAN.md). Schritte 1–6 des Zentralenumbaus und
+die fünf Designerpunkte sind implementiert. Die fünf Designerpunkte sind auf
+beiden Testsystemen praktisch bestätigt; systemgebundene Browser-Betriebsbuttons,
+Browserinstallation und Partnerfreigaben besitzen ebenfalls Praxisnachweise.
+Partnerfreigaben wurden am 05.11. mit exakter Entwurfswiederherstellung geprüft,
+ihre korrigierte Einzahl am 06.11. rein lesend bestätigt.
+
+Offen bleiben R1 Drei-/Acht-Erweiterungs-Mesh, R2 der begrenzte zweite native
+Installations-Klicknachweis, R3 die zusammengeführte reale Kette Installation
+mit automatischem Geräteabruf, R4 die gezielte Zentralen-Restabnahme und R5
+weitere Versions-/Geräteabnahmen. Bereits bestätigte Teilprüfungen nicht erneut
+als ungeprüft führen. Windows bleibt ein späteres separates Projekt.
+
+## Historische Entwicklungsnotizen
+
+Die folgenden Einträge halten den jeweiligen Implementierungsstand fest.
+Aussagen wie „Praxisabnahme offen“ werden durch spätere Nachweise ergänzt;
+die aktuelle Restliste steht oben und in PRUEFLISTE.md.
+
 - Partnerfreigaben im Browserdesigner: eigener gerichteter Auswahl- und
   Bestätigungsdialog je Empfänger. Nur lokale mesh_peers ändern, unbekannte
   bestehende Freigaben erhalten, abhängige Regeln einschließlich Folgen vor
@@ -865,35 +886,15 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Nächste Schritte
 
-1. Punkte 1 und 2 der [Entwicklungsagenda](docs/AGENDA.md) sind im beschriebenen
-   Umfang praktisch bestätigt, ebenso Punkt 3 mit den in DEVELOPMENT.md genannten
-   Grenzen. Punkt 4 ist lokal umgesetzt; Editor-/Speicherprüfung am 03.11.2026
-   ohne Testausführung abgeschlossen. Danach reale erneute Uhrzeitauslösung
-   mit Geräteaktion für alle drei Varianten bestätigt; Grenzen und erste
-   abweichende Rückmeldung samt Nachprüfung in DEVELOPMENT.md. Punkt 5 ist lokal umgesetzt: gemeinsame Gerätebefehle
-   und native Farben, Vorbelegung, aktuelle Schaltrechte und gemeinsame Nutzung
-   in Folgen/über Systemgrenzen. Nach Update am 03.11.2026 native Erstellung und
-   Bearbeitung samt RGB-Farbwahl in Test-Symcon 9.1 bestätigt. Prüfung, Speicherung,
-   Wiederladen und Folgenvorbelegung am gemeinsamen Empfänger erfolgreich;
-   Partnerauswahl und -validierung über Modulmethoden. Ausgeschaltete Testdaten
-   entfernt, Originalbetrieb und lokaler Originalentwurf wieder bestätigt.
-   Gemeinsamen Einschalt-/Helligkeits-/Farbbefehl anschließend an einer Farbleuchte
-   real bestätigt, einschließlich frischer Gerätewerte, Symcon-Variablen und Debug.
-   Ursprüngliche Farbe, Helligkeit und Aus-Zustand wiederhergestellt; Testregel
-   entfernt und ursprünglichen Betrieb erneut bestätigt. Weitere Farbconverter,
-   Gruppen und Symcon 9.0 bleiben als eigene Praxisnachweise offen.
-   Punkt 6 am 03.11.2026 lokal bearbeitet: Benutzeranleitung neu geordnet,
-   veraltete Aussagen zu automatischen Prüfungen, Editorumfang und Wiederanlauf
-   korrigiert; Einstellungen, Status und Skriptaufrufe vervollständigt.
-   COMPATIBILITY.md dokumentiert den belegten Stand 2.14.2-dev mit Grenzen.
-   Reine Textänderungen an der deutschen Oberfläche; keine Live-Änderung.
-   Anschließend native Sichtprüfung: Statusführung verständlich, Spaltentitel
-   bei 170 Pixel gekürzt. Nach Vergrößerung auf 245 Pixel und Modulupdate
-   in Geräte- und Zeitübersicht nativ vollständig lesbar. Originalentwurf
-   und Z2M-Betrieb bleiben unverändert.
-   Eine breite Versionsabnahme und native Symcon-9.0-Prüfung bleiben offen.
-2. Weitere Z2M-Versionen und Geräte-/Gruppen-/Zeitkombinationen prüfen;
-   einzelne erfolgreiche Abläufe sind keine vollständige Kompatibilitätsabnahme.
+1. R1 aus der [Prüfliste](docs/PRUEFLISTE.md) offline umsetzen: drei miteinander
+   kommunizierende Erweiterungen mit getrennten Fehlerzweigen, danach acht.
+2. R2/R3 auf die fehlenden Belege eingrenzen; vorhandene bestandene Browser-,
+   Installations-, Katalog- und Statusprüfungen erhalten. Operative Ergänzungen
+   nur nach eigenem Praxisauftrag.
+3. R4/R5 gezielt abschließen: durchgängiger Zentralen-Abnahmebericht und
+   zusätzliche Symcon-/Z2M-/Gerätefälle, ohne pauschale Neuprüfung.
+4. Erst danach über Veröffentlichung und später ein eigenes Windows-Projekt
+   entscheiden. Es gibt weiterhin keine allgemeine Live-Freigabe.
 
 ## Dokumentation
 

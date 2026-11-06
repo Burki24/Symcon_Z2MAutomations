@@ -1,5 +1,28 @@
 # Entwicklungsagenda
 
+## Aktueller Abgleich am 06.11.2026
+
+Die ursprüngliche Funktionsagenda unten ist im beschriebenen Umfang umgesetzt
+und praktisch geprüft. Der anschließende Umbau auf eine zentrale Verwaltung
+ist für Schritte 1–6 implementiert. Die aktuelle
+[Prüfliste mit Nachweisen und Restpunkten](PRUEFLISTE.md) ist maßgeblich für
+die weitere Arbeit; historische „noch offen“-Sätze sind keine neuen Aufgaben.
+
+| Designeragenda | Stand |
+| --- | --- |
+| 1. Regelverwaltung: Kopieren, Löschen, Folgen und Statusfilter | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
+| 2. Gerätedaten je System nachladen | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
+| 3. Vollständiges Erstellen/Bearbeiten, Drag & Drop und Pfeilbuttons | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
+| 4. Symcon-Ereignisimport in Zentrale und Designer | Implementiert; auf beiden Testsystemen praktisch bestätigt. |
+| 5. Systeme und Diagnose | Implementiert; Aufzeichnung, Ablauf, Stopp und Erweiterungsanzeigen auf beiden Testsystemen bestätigt. |
+| Ergänzungen: Erweiterungsinstallation, automatischer Katalogabruf und Partnerfreigaben | Implementiert. Browserinstallation und Partnerfreigaben praktisch bestätigt; begrenzte restliche Installationsnachweise siehe R2/R3 der Prüfliste. |
+
+Nächste Reihenfolge: R1 Drei-/Acht-System-Mesh offline nachweisen, dann R2/R3
+anhand vorhandener Belege eingrenzen, R4/R5 gezielt abschließen. Keine pauschale
+Wiederholung bereits bestandener Tests und kein Beginn der Windows-Anwendung.
+
+## Frühere Funktionsagenda vom 02.11.2026
+
 Mit dem Anwender am 02.11.2026 festgelegte Reihenfolge. Die Umsetzung erfolgt
 jeweils zuerst lokal; Änderungen an laufenden Installationen brauchen einen
 Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.

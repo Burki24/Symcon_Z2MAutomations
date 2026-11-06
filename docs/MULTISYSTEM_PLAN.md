@@ -1,6 +1,7 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: 04.11.2026. Schritte 1 bis 5 lokal implementiert; keine Live-Umstellung.
+Stand: **06.11.2026**. Schritte 1 bis 6 implementiert; Schritt 7 teilweise
+praktisch bestätigt, mit begrenzten offenen Nachweisen.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 
 Die lokale Grundlage enthält SystemContract, lesende Bestandsvorschau,
@@ -10,8 +11,12 @@ Bearbeitung im nativen Formular und Browserdesigner. Synthetische Prüfungen
 umfassen bis zu acht Systeme, große Kataloge, offene Eingaben, Konflikte,
 Besitzerwechsel und Rücknahme. Native Praxisprüfungen ersetzen diese Tests nicht.
 
-Die zentrale systemgebundene Prüfung, Übertragung und Laufzeitsteuerung folgen
-in Schritt 6. Ein Update führt weder eine Übernahme noch Z2M-Aufträge aus.
+Zentrale Prüfung, Übertragung, Aktivierung, Stopp und Einzellauf sind vorhanden.
+Die fünf Designerpunkte sowie zusätzliche Installation und Partnerfreigaben sind
+integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
+[Prüfliste](PRUEFLISTE.md) berücksichtigt; offene Nachweise R1–R5 werden dort
+einzeln geführt. Insbesondere ist ein Drei-/Acht-Erweiterungs-Mesh noch nicht
+nachgewiesen. Ein Update allein führt weder Übernahme noch Z2M-Aufträge aus.
 Details: [WORKSPACE.md](WORKSPACE.md) und [MIGRATION.md](MIGRATION.md).
 
 ## 1. Ziel und verbindliche Grenzen
@@ -321,6 +326,11 @@ Revisionskontrolle geplant werden. Keine blinde alte YAML oder Freigabe einspiel
 
 ## 7. Abhängige Umsetzungsschritte
 
+Schritte 1–6 sind umgesetzt und synthetisch geprüft. Die gemeinsame Oberfläche,
+Designer-Betriebssteuerung und weitere Abläufe besitzen zusätzlich die in
+PRUEFLISTE.md abgegrenzten Praxisnachweise. Schritt 7 ist eine Restabnahme,
+keine erneut ausstehende Implementierung aller vorherigen Schritte.
+
 | Schritt | Ergebnis | Freigabekriterium |
 | --- | --- | --- |
 | 1. Verträge und Bestandsleser | Systemregistrierung, Besitzmodell, versioniertes Export-/Übernahmeformat und reine Vorschau; noch keine Umschaltung | Synthetische Bestände für 1/2/8 Systeme, Konflikte und unveränderte Quellen belegt |
@@ -338,6 +348,9 @@ Reale systemübergreifende Schaltungen, Erweiterungsupdates und Neustarts bleibe
 eigene Praxisaufträge. Die spätere Windows-Anwendung ist nicht Teil dieses Umbaus.
 
 ## 8. Prüfmatrix und Übergabe
+
+Diese Matrix beschreibt den erforderlichen Umfang. Den tatsächlichen
+Erfüllungsstand und die Quellen führt [PRUEFLISTE.md](PRUEFLISTE.md).
 
 | Risiko/Anforderung | Notwendiger Nachweis |
 | --- | --- |
@@ -366,14 +379,18 @@ offizielle StylePHP-Prüfung und PHP CS Fixer im Prüfmodus. Tatsächliche Z2M-V
 und Praxisnachweise getrennt von synthetischen Acht-System-Tests dokumentieren.
 Dieser Plan allein belegt noch keine Mehrsystemfähigkeit.
 
-## 9. Erste konkret umzusetzende Aufgabe
+## 9. Nächste Arbeitspakete
 
-Systemmodell, read-only Bestandsvorschau und synthetische Migration-Fixtures
-für ein, zwei und acht Systeme implementieren. Dabei neue Modulidentität,
-Bestandsmodus, lokale Besitzübergabe und systemgebundenen Modulvertrag als
-ausführbare Verträge festlegen. Noch keine Bestandsinstanz konvertieren,
-keine Verbindung umhängen und nichts an Z2M übertragen. Danach kann der
-Verbindungsbaustein auf diesem geprüften Vertrag aufgebaut werden.
+1. R1: Drei Erweiterungen synthetisch für A nach B/C mit Ausfall eines Zweigs
+   prüfen, danach acht. Kein Zugriff auf reale Broker erforderlich.
+2. R2/R3: Vorhandene native Installations- und Katalogbelege zusammenführen;
+   nur den fehlenden Bestätigungs-/Abschlussnachweis praktisch ergänzen.
+3. R4/R5: Verbleibende Zentralen- und Kompatibilitätsfälle mit Versions-/Buildbezug
+   nach gesondertem Auftrag abschließen. Bereits bestätigte Abläufe erhalten.
+
+Die [Broker-Schrittfolge](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+überträgt den Zweibroker-Aufbau auf eine schleifenfreie Sternstruktur. Das
+Dokumentieren der Anleitung ist keine praktische Acht-System-Freigabe.
 
 ## Schnittstellenquellen
 
@@ -382,16 +399,18 @@ Verbindungsbaustein auf diesem geprüften Vertrag aufgebaut werden.
 - Repository-Verträge: ADR 0002, ADR 0009, docs/EXTENSION_PROTOCOL.md,
   libs/ExtensionContract.php und libs/z2m/automations.schema.json.
 
-## Umsetzungsstand Schritt 6 am 04.11.2026
+## Umsetzungsstand Schritt 6, abgeglichen am 06.11.2026
 
 Zentrale Prüfung und Übertragung sind lokal implementiert, mit expliziten
 Buttons im nativen Formular und Designer. Je System getrennte Aufträge,
-Validierungsdetails, Speicherbestätigung und Ausfallzustände; keine Aktivierung.
+Validierungsdetails, Speicherbestätigung und getrennte Ausfallzustände.
 Die abgeschlossene gesicherte Übernahme ist Voraussetzung für Schreibrechte.
 Synthetische Integration prüft 1/2/8 Systeme, gemeinsame/getrennte Broker,
 Teilfehler, stale replies, Neustart ohne Wiederholung und lokale Rückwegsperre
 nach möglichem externem Schreiben. Zentrale Aktivierung, Stopp und Einzelsteuerung
-sind inzwischen ebenfalls lokal implementiert (ADR 0028). Zusätzliche Offline-
+sind ebenfalls implementiert (ADR 0028). Zusätzliche Offline-
 Integration mit dem echten Erweiterungsartefakt prüft Aktivierung, Wiederanlauf-
-Freigabe, globalen/gezielten Stopp und Bedingungsablehnung. Native und Browser-
-Praxisabnahme dieser Betriebsbuttons bleiben offen. Keine Installation aktualisiert.
+Freigabe, globalen/gezielten Stopp und Bedingungsablehnung. Die spätere bestandene
+Browserprüfung auf beiden Testsystemen berücksichtigt Bestätigungen, Einzellauf
+und Wiederherstellung. Für verbliebene native/operative Nachweisgrenzen gelten
+R2–R4 der Prüfliste; sie sind kein pauschal offener Browser-Abnahmepunkt.

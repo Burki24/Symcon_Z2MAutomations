@@ -1,13 +1,18 @@
 # MQTT-Vertrag und Nachweise
 
-## Verbindung zwischen zwei Brokern
+## Verbindung zwischen Brokern
+
+Die Benutzer-Schrittfolge für zwei bis acht vorhandene Mosquitto-Broker steht
+in der [README](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+Zweibroker-Praxis und offener Drei-/Acht-System-Nachweis bleiben getrennt;
+siehe [PRUEFLISTE.md](PRUEFLISTE.md).
 
 Die eigene Erweiterung ab diesem Stand transportiert entfernte Aktionen über
 `z2ma/mesh/#`; siehe [ADR 0009](adr/0009-cross-system-actions-over-mqtt-bridge.md).
 Bei getrennten Brokern muss die Broker-Bridge diesen Bereich in beide Richtungen
-übertragen. Bei einem gemeinsamen Broker entfällt die Bridge. Die beiden
-Automationsmodule dürfen auch denselben Symcon-MQTT-Client nutzen; dieser muss
-die Verwaltungs-Topics beider Basistopics abonniert haben. Die
+übertragen. Bei einem gemeinsamen Broker entfällt die Bridge. Die systemweisen
+Z2M-Verbindungen derselben Zentrale dürfen denselben Symcon-MQTT-Client nutzen;
+dieser muss die Verwaltungs-Topics aller zugeordneten Basistopics abonniert haben. Die
 bestehenden gerätebezogenen Basistopics werden nicht miteinander gespiegelt.
 Jeder **Z2M-Benutzer** benötigt zusätzlich zu seinem bisherigen Bereich:
 

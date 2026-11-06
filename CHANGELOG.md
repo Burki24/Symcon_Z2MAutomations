@@ -1,6 +1,15 @@
 # Unveröffentlicht
 
+## Neu
+
+- Schritt-für-Schritt-Anleitung zum Verbinden vorhandener Mosquitto-Broker,
+  ausgehend von zwei Brokern bis zur Sternstruktur mit acht. Mit Sicherung,
+  getrennten Benutzerrechten, beidseitigem Diagnoseempfang und Rückweg.
+
 ## Fixes
+
+- Planung und Prüfliste an implementierte Zentralen-/Designerfunktionen und
+  bestätigte Praxis angepasst; verbleibende Nachweise einzeln benannt.
 
 - Die Änderungsübersicht der Partnerfreigaben verwendet bei einem Treffer
   „1 lokale Automation verwendet diese Verbindung“. Auch genau eine weitere,

@@ -4,8 +4,8 @@ Dieses Modul verbindet genau ein Zigbee2MQTT-System mit Symcon. Es verwendet
 einen vorhandenen MQTT Client oder MQTT Server. Anmeldung, Passwort, TLS und
 Abonnements werden dort eingestellt.
 
-Die zentrale Verwaltung mehrerer Systeme wird schrittweise vorbereitet. Dieser
-Baustein kann bereits Verbindung, Erweiterungsstand und Gerätedaten prüfen sowie
+Die Automationszentrale verwaltet bis zu acht solcher Verbindungen. Dieser
+Baustein kann Verbindung, Erweiterungsstand und Gerätedaten prüfen sowie
 Automationsabläufe zeitlich begrenzt aufzeichnen. Bestehende Automationsinstanzen
 und Entwürfe bleiben erhalten. Sie werden durch ein Modulupdate oder das Anlegen
 einer Verbindung **noch nicht in eine zentrale Instanz übernommen**.
@@ -19,6 +19,10 @@ dem Besitzerwechsel gesperrt. Der Rückweg löst die Besitzerzuordnung, ohne die
 Instanz, MQTT-Einstellungen oder Geräte zu löschen.
 
 ## Voraussetzungen und Einrichtung
+
+Bei mehreren unabhängigen Brokern beschreibt die
+[Schritt-für-Schritt-Anleitung](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+deren Verbindung. Mehrere Z2M-Systeme am selben Broker benötigen keine Bridge.
 
 - IP-Symcon 9.0 mit PHP 8.5 und ein erreichbares Zigbee2MQTT-System.
 - Ein vorhandenes MQTT-Gateway zum zugehörigen Broker.

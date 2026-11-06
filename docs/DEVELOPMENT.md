@@ -1,3 +1,57 @@
+## Planungs- und Nachweisabgleich am 06.11.2026
+
+Planung, Architektur, Modul-READMEs und Prüfliste anhand des aktuellen Codes,
+der bisherigen Berichte und der im Chat bestätigten Praxis abgeglichen. Zusätzlich
+lokale, nicht versionierte Prüfberichte eingesehen: beide Testsysteme für
+Regelverwaltung, Geräteabruf, vollständigen Editor mit Drag & Drop, Ereignisimport,
+Diagnose und Browser-Betriebssteuerung bestätigt. Die Browserinstallation ist
+ebenfalls für beide Systeme belegt. Private Berichte und Installationsdaten
+werden nicht ins Repository übernommen.
+
+Partnerfreigaben am 05.11.2026 im tatsächlichen Testdesigner auf beiden Systemen
+geprüft: Richtung, betroffene lokale Regeln, Vorschau, Zurück, Abbruch/Escape,
+Entzug und erneute Freigabe. Native deutsche Debugmeldungen nennen die reine
+lokale Änderung und die Anzahlen. Nach jedem Versuch Originaldokument inklusive
+YAML, Basis, Auswahl und Arbeit exakt zurückgespielt; abschließend stimmte der
+gesamte Workspace-Fingerabdruck mit dem Ausgangsstand überein. Keine Speicherung,
+Aktivierung oder Schaltung in Z2M. Die Einzahlkorrektur wurde am 06.11.2026 nach
+Modulupdate rein lesend im echten Designer bestätigt; null Freigabe-POSTs und
+unveränderter Workspace. Diese Prüfungen nicht als weiterhin offen führen.
+
+Verbleibende Lücken sind in [PRUEFLISTE.md](PRUEFLISTE.md) einzeln abgegrenzt.
+Insbesondere ist ein anfänglich fehlgeschlagener Browser-Betriebstest durch
+einen später bestandenen Bericht ersetzt. Beim nativen Installationsweg auf
+dem zweiten System fehlt hingegen der eindeutig erfasste Bestätigungs-Callback;
+der spätere bestandene Statusbericht ist kein Ersatz für genau diesen Klick.
+Die reale Kette aus Installation und automatischem Katalogabruf ist noch als
+zusammenhängender Nachweis zuzuordnen. Daraus keine unbelegten Produktfehler
+und keine pauschale Neuprüfung bereits bestandener Abläufe ableiten.
+
+Die neue Benutzeranleitung für Mosquitto übernimmt die bestätigte Zweibroker-
+Schrittfolge mit anonymisierten Beispielen: erst lesen und sichern, eigene
+Bridge-Benutzer, Z2M- und Bridge-ACLs, Neuladen, genau eine Bridge, Neustart nur
+des betroffenen Brokers und beidseitiger Diagnoseempfang als Z2M-Benutzer.
+Der Ausbau auf acht Broker ist eine Sternstruktur mit sieben Verbindungen,
+noch kein neuer Praxisnachweis. Syntax und Versionsgrenzen anhand offizieller
+Mosquitto-Quellen geprüft; keine fremden Implementierungen übernommen. Für reine
+Dokumentation ist kein Helperumbau erforderlich; vorhandene MQTT-/Mesh-Verträge
+und kanonische Helper bleiben unverändert.
+
+Prüfung dieser Dokumentationspflege: Gesamtsuite php tests/run.php einschließlich
+185 JavaScript-Tests erfolgreich. Struktur, zentrale Kodierungsprüfung und
+npm run check:extension bestanden; unverändertes Erweiterungsartefakt.
+Offizieller StylePHP-Check der 18 eigenen JSON-Dateien in isolierter Kopie ohne
+Fremdquellen erfolgreich, PHP CS Fixer im Prüfmodus ohne Befund für 148 Dateien.
+14 geänderte Markdown-Dateien sind UTF-8 ohne BOM/LF; 119 interne Links/Anker,
+geschlossene Codeblöcke, sieben eindeutige Sternverbindungen und Paar-Kennungen
+geprüft. Alle 41 Bash-Blöcke mit bash -n ausschließlich geparst, nicht ausgeführt.
+git diff --check sauber. Keine neue Broker- oder Hardwareabnahme daraus ableiten.
+
+Diese Dokumentationspflege greift weder auf Test-/Live-Installationen zu noch
+führt sie die beschriebenen Linux-Befehle aus. Die folgenden Entwicklungsberichte
+sind historische Einzelstände; aktuelle Umsetzung und Restabnahme stehen in
+PRUEFLISTE.md.
+
 ## Partnerfreigaben im Designer lokal geprüft am 05.11.2026
 
 WorkspacePermissions und permissions.js ergänzen einen ausdrücklich bestätigten

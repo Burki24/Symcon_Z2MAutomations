@@ -1,6 +1,9 @@
 # Kompatibilität und belegte Versionen
 
-Stand: 03.11.2026. Diese Übersicht trennt reale Praxisnachweise von lokal
+Abgleich: 06.11.2026. Die versionsbezogenen Nachweise vom 03.11.2026 bleiben
+unverändert. Weitere bestätigte Zentralen-/Designerabläufe sind in
+[PRUEFLISTE.md](PRUEFLISTE.md) berücksichtigt; daraus folgt keine neue
+Z2M-Versionsfreigabe. Diese Übersicht trennt reale Praxisnachweise von lokal
 geprüften Verträgen. Eine ähnliche Versionsnummer ist keine eigene Abnahme.
 
 | Umgebung | Nachweis | Grenze |

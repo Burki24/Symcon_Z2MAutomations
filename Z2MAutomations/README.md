@@ -20,7 +20,13 @@ Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochenta
 [gemeinsame Gerätebefehle und Farben](#mehrere-eigenschaften-gemeinsam-setzen-und-farben-auswählen),
 [Szenen](#vorhandene-szenen-aufrufen), [Aktionsfolgen](#eine-aktionsfolge-mehrfach-verwenden),
 [zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
-[Symcon-Ereignisse importieren](#vorhandene-symcon-ereignisse-importieren).
+[Symcon-Ereignisse importieren](#symcon-ereignisse-in-der-zentrale-und-im-designer-importieren).
+
+Für mehrere unabhängige MQTT-Server:
+[Bis zu acht MQTT-Broker miteinander verbinden](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+Die Anleitung beginnt mit zwei vorhandenen Mosquitto-Brokern und zeigt danach
+den schrittweisen Ausbau. Pro Z2M-System bleibt eine eigene Z2M-Verbindung in
+derselben Automationszentrale bestehen.
 
 ## Partnerfreigaben im Browserdesigner
 

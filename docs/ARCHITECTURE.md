@@ -42,7 +42,7 @@ eine lokale Reihenfolgeänderung ganzer Schritte; Griff und Pfeilbuttons verwend
 dieselbe Funktion. Es entsteht kein zusätzlicher MQTT- oder Laufzeitweg.
 Details zu Systembindung, Kontext und Quittungen stehen in WORKSPACE.md.
 
-## Geplanter Umbau auf mehrere Systeme
+## Zentrale Verwaltung mehrerer Systeme
 
 Die zentrale Instanz wird als „Zigbee2MQTT Automationszentrale“ angeboten.
 GetCompatibleParents liefert ausdrücklich {}: Der native Assistent darf aus
@@ -57,7 +57,9 @@ und Änderungsbindung, native Editorcallbacks und Browser-CRUD. Editorzugriffe
 werden auf den jeweiligen Systemeintrag projiziert; die Instanzattribute dienen
 nicht als Umschaltpuffer. Geräte-/Kanalmetadaten kommen aus bestätigten Katalogen,
 Schaltrechte aus aktuellen nativen Variablenbindungen. Weitere Details in
-[WORKSPACE.md](WORKSPACE.md). Keine neue zentrale MQTT-Laufzeitsteuerung.
+[WORKSPACE.md](WORKSPACE.md). Die zentrale Betriebssteuerung delegiert ihre
+systemgebundenen Aufträge an die vorhandenen Verbindungen; es entsteht kein
+eigener MQTT-Client in der Zentrale.
 
 Schritt 4 ergänzt die ausdrückliche [lokale Migration](MIGRATION.md): private
 Quellsicherungen, prüfsummengebundenes Manifest, persistentes Journal und
@@ -79,7 +81,8 @@ mit bis zu acht Z2MConnection-Modulen. Jedes System behält Dokument, Revision
 und Laufzeit; die Übernahme vorhandener Entwürfe und Bindungen erfolgt ausdrücklich
 mit Sicherung, Vorschau, Besitzerwechsel und lokalem Rückweg. Der
 [konkrete Umbauplan](MULTISYSTEM_PLAN.md) enthält Modulgrenzen, Identitäten,
-Arbeitsfolge und Prüfmatrix. Der Gesamtumbau ist noch nicht implementiert.
+Arbeitsfolge und Prüfmatrix. Schritte 1–6 sind implementiert; die abgegrenzte
+Restabnahme steht in der [aktuellen Prüfliste](PRUEFLISTE.md).
 Die lokale Grundlage besteht aus SystemContract v1, SystemMigrationInspection
 und SystemMigrationPreview: explizite System-/Besitzer-/Generationsbindung und
 rein lesende Bestandsberichte für ausgewählte Quellen. Registrierung und
@@ -110,10 +113,11 @@ Create, ApplyChanges, Formularöffnen und lokale Abfragen senden im neuen Modul
 keine MQTT-Anfragen. Operative Aufträge werden ausdrücklich gestartet und nur
 außerhalb der instanzeigenen Sperre versendet. Ein Auftrag blockiert kein anderes
 System. Nach Abbruch, Generation-, Gateway- oder Topicwechsel gelten vorherige
-Antworten nicht mehr. Es gibt keine globale Sperre, Besitzerübernahme,
-Regelspeicherung oder Ausführungs-API im neuen Baustein dieser Stufe. Die Grenze
-von acht Systemen bleibt Aufgabe des künftigen Verwaltungsregisters; einzelne
-Verbindungsinstanzen zählen keine fremden Instanzen oder Installationen.
+Antworten nicht mehr. Besitzergebundene Speicher- und Betriebsaufträge werden
+inzwischen von der zuständigen Zentrale an die Verbindung delegiert. Der
+Verbindungsbaustein übernimmt nicht eigenmächtig einen Besitzer. Die Grenze von
+acht Systemen liegt im zentralen Verwaltungsregister; einzelne Verbindungen
+zählen keine fremden Instanzen oder Installationen.
 
 ## Automationsdesigner: Anzeige und lokale Regelerstellung
 

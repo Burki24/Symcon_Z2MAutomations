@@ -3,7 +3,9 @@
 Schritt 4 von [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 Die Abläufe sind als explizite Modulfunktionen implementiert und offline geprüft.
 Ein Modulupdate allein übernimmt nichts. Gemeinsame native und Browserbedienung
-folgen in Schritt 5, neue systemgebundene Z2M-Schreibaufträge in Schritt 6.
+sind in Schritt 5 integriert, neue systemgebundene Z2M-Schreibaufträge in
+Schritt 6. Beide Schritte sind implementiert; den abgeglichenen Praxisumfang
+führt [PRUEFLISTE.md](PRUEFLISTE.md).
 Die bestehende Einzelinstanz bleibt ohne Besitzerwechsel wie bisher bedienbar.
 
 ## Was erhalten bleibt
@@ -177,6 +179,10 @@ vor einem Code-Rollback zuerst den Datenrückweg mit dem aktuellen Code abschlie
 
 ## Nachweise und noch offene Abnahme
 
+Dieser Abschnitt beschreibt die synthetischen Grenzen der ursprünglichen
+Übernahmestufe. Für inzwischen bestätigte Oberflächen-/Systemwechselprüfungen
+und die tatsächlich noch offenen Fälle gilt [PRUEFLISTE.md](PRUEFLISTE.md).
+
 `tests/migration.php` verwendet ausschließlich synthetische Instanzen und echte
 temporäre Archivdateien. Geprüft sind 1/2/8 Systeme, bytegleiche Quellen,
 Partnerfreigaben, wiederholte IDs, native Variablenzuordnung und unveränderte
@@ -189,10 +195,10 @@ Alle diese Abläufe senden null MQTT-Pakete. Debug darf keine privaten Testwerte
 oder Sicherungsinhalte enthalten.
 
 Dies ist kein Nachweis eines echten Symcon-Kernelneustarts oder eines Stromausfalls.
-Vor einer praktischen Umstellung bleiben Modulupdate ohne automatische Migration,
-native Parent-/Objekterhaltung, Dateirechte, Öffnen alter Tabs, zentraler Editor,
-Wiederanlauf und Daten-/Code-Rückweg auf der ausdrücklich freigegebenen
-Testinstallation zu prüfen. Am Live-System wurde für diese Umsetzung nichts geändert.
+Für eine weitere praktische Umstellung die vorhandenen Belege zu Modulupdate,
+Objekterhaltung, Dateirechten, alten Tabs, Editor, Wiederanlauf und Rückweg
+zuordnen und ausschließlich fehlende Fälle auf der freigegebenen Testinstallation
+ergänzen. Die Dokumentationspflege ändert keine Live-Installation.
 
 ## Sperre nach zentraler Übertragung
 
