@@ -1,3 +1,68 @@
+## Responsiven Browserdesigner nach Mockup umgesetzt am 06.11.2026
+
+Den abgestimmten Oberflächenentwurf in den vorhandenen Designer integriert.
+Librarylokale Komponentenstile verwenden eine semantische Palette für die
+automatische Browser-Hell-/Dunkeldarstellung; Schriftgrößen skalieren mit rem
+und begrenzter Browserbreite. Auslöser, Bedingungen und Aktionen erhalten
+kräftige, konsistente Farben samt Symbolen und Beschriftungen. Tabellen,
+Eingaben, Auswahlfelder, Fehlermeldungen und Dialoge sind ebenfalls berücksichtigt.
+
+Vor Umsetzung VisualizationThemeHelper, VisualizationAssetHelper,
+HttpResponseHelper und DebugFlowHelper geprüft. Die eigenständige
+Designeranwendung verwendet keinen HTML-SDK-Host und keine konfigurierbaren
+Kachelfarben. Ihre Komponentenpalette bleibt im vorhandenen librarylokalen CSS;
+keine Helperdatei kopiert oder geändert. Assetfreigabe und nativer Debug
+verwenden die bestehenden zentralen Verträge. Der Shell-Abruf protokolliert
+die neue Darstellung mit bereinigter deutscher Meldung.
+
+layout.js ordnet ausschließlich vorhandene DOM-Knoten samt ihren bisherigen
+Controllern neu an: „Prüfen & übertragen“, „Betrieb“ und „Gerätedaten“ öffnen
+je einen Bereich; Status-/Fehlerhinweise bleiben schon an den Bereichsbuttons
+sichtbar. Verwaltung bündelt neue Aktionsfolge, Diagnose, Freigaben und Import.
+Längere Rückmeldungen stehen unter dem Editor. Schmale Ansichten verwenden
+native aufklappbare Listen-/Eigenschaftsbereiche; beim gewählten Baustein können
+die Eigenschaften geöffnet werden. Der Bearbeitungszugang dort delegiert an
+denselben bestehenden vollständigen Editor. Keine neue fachliche Schreibroute,
+kein eigener Requestpfad, keine Änderung von Entwürfen, Freigaben oder Betrieb.
+
+Vier Node-Regressionstests trennen unbekannte, laufende, erfolgreiche und
+fehlerhafte Zustände ohne Mutation des Beobachtungsmodells. Die Asset-
+Whitelistprüfung berücksichtigt layout.js einschließlich Besitzerkonkurrenz.
+Der synthetische Browserlauf verwendet zwei aus dem lokalen Kernel-Fixture
+gewonnene Ansichten und lange Beispiellisten. Kein Zugriff auf Symcon oder Z2M.
+Ein separater unsichtbarer Edge-Prozess prüft:
+
+- Helle/dunkle Darstellung nach Browserpräferenz und größere Schrift bei
+  breiterem Browser; 320, 390, 760, 1024, 1366, 1920, 2560 und 3840 Pixel ohne
+  horizontalen Seitenüberlauf. Keine bestehenden Browsertabs bedient.
+- Anfangs geschlossene Systembereiche, Öffnen/Schließen ohne POST oder
+  Befehlswiederholung, erhaltene Originalbuttons und zugängliches Verwaltungsmenü.
+- Suche, aufklappbare Liste/Eigenschaften, bestehender Bearbeitungsdialog mit
+  Vorbelegung und neuer Dialog auf schmalem Browser ohne horizontalen Überlauf.
+- Sichtbarer Wechsel auf das zweite synthetische System mit dessen eigener
+  Ansicht. Genau ein POST aus dieser ausdrücklichen Systemwahl; kein Store-,
+  Aktivierungs- oder Schaltauftrag. Keine Browser-JavaScript-Fehler.
+- Echte Mausradaktion über 64 Einträgen. Der erste Lauf zeigte, dass die native
+  details-Inhaltsbox die Listenhöhe nicht begrenzte. Flexanordnung auch an
+  ::details-content ergänzt; Wiederholung scrollt die Liste von 0 auf 700 Pixel.
+
+Private lokale Prüfberichte und Bilder bleiben außerhalb des Repositorys.
+Modul-README, Kontext und Prüfliste aktualisiert. Die reale Konsolen-/Designer-
+Praxisprüfung nach Modulupdate bleibt getrennt offen. Keine Installation,
+Aufzeichnung, Speicherung oder Geräteaktion an einem laufenden System;
+Erweiterungsquellen und erzeugtes Artefakt unverändert.
+
+Gesamtsuite `php tests/run.php` erfolgreich mit **207 JavaScript-Tests** und
+allen PHP-/Modulprüfungen. Nach den abschließenden Grafik-/CSS-Anpassungen die
+betroffenen Node-Fälle, Syntax und den vollständigen lokalen Browserlauf erneut
+geprüft; einschließlich Hell-/Dunkelwechsel im geöffneten Bearbeitungsdialog
+und Bearbeitungszugang direkt bei den Eigenschaften. Struktur, zentrale
+Kodierungsprüfung, Erweiterungsartefakt und `git diff --check` erfolgreich.
+Offizieller StylePHP-Check von 18 eigenen JSON-Dateien in isolierter Kopie und
+PHP CS Fixer 3.95.27 für 148 PHP-Dateien im Prüfmodus ohne Befund. Alle 13
+geänderten/neuen Dateien als UTF-8 ohne BOM/LF geprüft; Komponentenfarben nur
+über semantische Tokens, Schriftgrößen relativ. Keine Commits oder Pushes.
+
 ## R3: Fehlenden S1-Vergleich praktisch ergänzt am 06.11.2026
 
 Nach ausdrücklichem Auftrag genau eine erneute Erweiterungsinstallation auf

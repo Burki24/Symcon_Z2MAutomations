@@ -2,6 +2,13 @@
 
 ## Neu
 
+- Browserdesigner an das abgestimmte Mockup angepasst: automatische Hell-/
+  Dunkeldarstellung, kräftigere Farben, skalierende Schrift und Umbruch bis
+  zur schmalen Ansicht. Der Ablauf steht im Mittelpunkt; Systemaufträge sind
+  kompakt aufklappbar, zusätzliche Funktionen unter „Verwaltung“ erreichbar.
+  Grafische Ablaufkarten und Bearbeitungszugang bei den Eigenschaften ergänzt.
+  Entwürfe, Systembindungen und bestehende Aufträge bleiben unverändert.
+
 - Fünf zusätzliche synthetische Mesh-Prüfungen mit acht echten
   Erweiterungsinstanzen: alle 56 Zielrichtungen trotz gleicher Geräte-,
   Gruppen- und Regelkennungen, getrennte Freigaben, Zweigausfall/Wiederkehr,

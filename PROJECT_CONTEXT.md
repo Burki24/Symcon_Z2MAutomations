@@ -8,6 +8,14 @@ sie persistent und führt sie unabhängig von Symcon aus.
 
 ## Stand
 
+Neues Designerlayout gemäß abgestimmtem Mockup lokal umgesetzt: automatischer
+Hell-/Dunkelmodus, skalierende Schrift, kräftigere semantische Farben,
+kompakte Systemaufträge und schmale aufklappbare Navigation/Eigenschaften.
+Bestehende Editierdialoge und gebundene Aufträge weiterverwendet. Mit
+synthetischen Daten in separatem Edge bei 320–3840 Pixeln, beiden Darstellungen,
+Mausrad, Dialogen und Systemwechsel geprüft. Praxisprüfung nach Modulupdate
+bleibt offen; kein Live-Zugriff und keine Änderung an der Z2M-Erweiterung.
+
 Aktueller Abgleich: **06.11.2026**. Maßgeblich sind die
 [Prüfliste](docs/PRUEFLISTE.md), die [Agenda](docs/AGENDA.md) und der
 [Mehrsystemplan](docs/MULTISYSTEM_PLAN.md). Schritte 1–6 des Zentralenumbaus und

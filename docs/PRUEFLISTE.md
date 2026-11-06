@@ -28,6 +28,7 @@ enthält die ergänzende freigegebene S1-Praxisprüfung mit exaktem Vergleich.
 
 | Bereich | Nachweis und Grenze |
 | --- | --- |
+| Responsives Designerlayout nach Mockup | Lokal mit synthetischen Daten an separatem Edge geprüft: automatische Hell-/Dunkeldarstellung, größere Schrift bei breiterem Browser, 320–3840 Pixel ohne Seitenüberlauf, lange Listen mit echtem Mausrad, aufklappbare Bereiche, Dialoge und sichtbarer Systemwechsel. Originale Controller weiterverwendet; Öffnen/Umschalten von Darstellungsbereichen ohne POST. Praxisprüfung der neuen Anordnung nach Modulupdate noch offen; bisherige Funktionsnachweise bleiben erhalten. |
 | Ursprüngliche Funktionsagenda 1–6 | Native Bearbeitungsstände, Suche/Filter/Kopien, mehrere Uhrzeiten und Wochentage, erneute Auslösung, gemeinsame Farbgerätebefehle und Benutzerführung praktisch bestätigt. Grenzen stehen in AGENDA.md und COMPATIBILITY.md. |
 | Mehrsystem-Schritte 1–6 | Verträge, Z2MConnection, getrennte Entwürfe, Sicherung/Übernahme/Besitzerwechsel/Rückweg, gemeinsame Oberfläche und systemgebundene Betriebsaufträge implementiert. Modulprüfungen für 1/2/8 Systeme sowie gemeinsame/getrennte MQTT-Parents vorhanden. |
 | Sichtbarer Systemwechsel | An Test-Symcon 9.1 bestätigt: richtige Geräte/Gruppen und Vorbelegung, getrennte lokale Änderungen, Hin-/Zurückwechsel und exakte Wiederherstellung. Bericht vom 04.11.2026 in DEVELOPMENT.md. |

@@ -8,6 +8,7 @@ import {installTransfers} from './transfer.js';
 import {installRuntime} from './runtime.js';
 import {installCatalogRefresh} from './catalog.js';
 import {installManagement, matchesRuleState} from './management.js';
+import {installLayout} from './layout.js';
 (() => {
     'use strict';
     const $ = selector => document.querySelector(selector);
@@ -28,6 +29,7 @@ import {installManagement, matchesRuleState} from './management.js';
     let stateFilter = 'all';
     let management = null;
     let eventImport = null;
+    let updateLayout = () => {};
     const systemViews = new Map();
     const token = location.hash.slice(1);
     const endpoint = new URL('data', location.href);
@@ -85,6 +87,8 @@ import {installManagement, matchesRuleState} from './management.js';
     const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});
     function renderRuntimeStatus() {
         $('#runtime-status').textContent = data?.status?.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision ?? '—'}` : 'Betrieb noch nicht bestätigt';
+        $('#runtime-status').classList.toggle('running', !!data?.status?.confirmed && !!data.status.executing);
+        updateLayout();
     }
 
     function triggerSummary(trigger) {
@@ -130,11 +134,13 @@ import {installManagement, matchesRuleState} from './management.js';
 
     function card(kind, index, title, summary, tag = '') {
         const key = `${kind}:${index}`;
-        return `<button class="flow-card read-card ${selectedPart === key ? 'selected' : ''}" data-part="${key}" aria-pressed="${selectedPart === key}"><span class="card-mark">${icon(kind === 'conditions' ? 'condition' : kind === 'actions' ? 'bolt' : 'device')}</span><span class="card-content"><strong>${esc(title)}</strong><span class="read-summary">${esc(summary)}</span>${tag ? `<span class="card-tag">${esc(tag)}</span>` : ''}</span><span class="card-number">${index + 1}</span></button>`;
+        const type = current()?.[kind]?.[index]?.type;
+        const symbol = kind === 'conditions' ? 'condition' : kind === 'actions' ? (type === 'sequence' ? 'flow' : type === 'scene' ? 'bolt' : 'lamp') : type === 'time' || type === 'sun' ? 'clock' : 'device';
+        return `<button class="flow-card read-card ${selectedPart === key ? 'selected' : ''}" data-part="${key}" aria-pressed="${selectedPart === key}"><span class="card-mark">${icon(symbol)}</span><span class="card-content"><strong>${esc(title)}</strong><span class="read-summary">${esc(summary)}</span>${tag ? `<span class="card-tag">${icon('clock')}${esc(tag)}</span>` : ''}</span><span class="card-number">${index + 1}</span></button>`;
     }
 
     function section(title, type, content) {
-        return `<section class="flow-section ${type}-section"><div class="section-title"><span class="section-symbol">${icon(type === 'condition' ? 'condition' : type === 'action' ? 'bolt' : 'clock')}</span><h3>${esc(title)}</h3></div>${content}</section>`;
+        return `<section class="flow-section ${type}-section"><div class="section-title"><span class="section-symbol">${icon(type === 'condition' ? 'condition' : type === 'action' ? 'bolt' : category === 'device' ? 'device' : 'clock')}</span><h3>${esc(title)}</h3></div>${content}</section>`;
     }
 
     function renderFlow() {
@@ -197,6 +203,10 @@ import {installManagement, matchesRuleState} from './management.js';
         }
         $('#inspector-title').textContent = title;
         $('#inspector-subtitle').textContent = category === 'catalog' ? 'Gerätedaten zur Auswahl in Automationen.' : entry?.kind === 'sequence' ? 'Für Änderungen „Aktionsfolge bearbeiten“ wählen. Verwendende Regeln nutzen danach dieselbe Folge.' : 'Bausteindetails anzeigen. Für Änderungen „Automation bearbeiten“ wählen.';
+        if (entry && category !== 'catalog') {
+            const allowed = entry.kind === 'sequence' ? data?.sequenceAllowed : data?.editAllowed;
+            html += `<button class="primary inspector-edit" data-edit-current="true" ${allowed ? '' : 'disabled'}>${icon('settings')}${entry.kind === 'sequence' ? 'Aktionsfolge bearbeiten' : 'Automation bearbeiten'}</button>`;
+        }
         $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
     }
 
@@ -217,6 +227,7 @@ import {installManagement, matchesRuleState} from './management.js';
         if (button.dataset.part) { selectedPart = button.dataset.part; renderFlow(); renderInspector(); }
         if (button === detailsButton) { selectedPart = null; renderFlow(); renderInspector(); }
         if (button.dataset.sequence) { category = 'sequence'; $('#search').value = ''; selectEntry('sequence:' + button.dataset.sequence); }
+        if (button.dataset.editCurrent && !$('#edit-automation-button').disabled) $('#edit-automation-button').click();
     });
     $('#search').addEventListener('input', renderNavigation);
     $('#validate-button').addEventListener('click', load);
@@ -284,7 +295,7 @@ import {installManagement, matchesRuleState} from './management.js';
             message(text); $('#feedback').dataset.tone = 'error';
             $('#issues').hidden = false; $('#issues').textContent = text;
             return false;
-        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); updatePermissions(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
+        } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); updatePermissions(); management?.refresh(category, stateFilter); eventImport?.refresh(); updateLayout(); }
     }
     editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onCreated: async ruleId => {
         const refreshed = await load(ruleId);
@@ -303,6 +314,7 @@ import {installManagement, matchesRuleState} from './management.js';
         filterChanged: value => { stateFilter = value; renderNavigation(); }});
     eventImport = installEventImport({getData: () => data, isLoading: () => busy, reload: () => load(), message,
         onImported: async ruleId => { if (!await load(ruleId)) message('Ereignis wurde ausgeschaltet übernommen. Bitte die Ansicht aktualisieren.'); }});
+    updateLayout = installLayout({getData: () => data});
     render();
     load();
 })();

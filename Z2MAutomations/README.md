@@ -454,6 +454,38 @@ Entwurf. Entfernen und automatische Übernahme werden noch nicht angeboten.
 
 ## Automationsdesigner im Browser
 
+### Darstellung und Bedienbereiche
+
+Der Designer folgt automatisch der Hell-/Dunkeleinstellung Ihres Browsers.
+Schrift und Anordnung passen sich an die verfügbare Browserbreite an. Auf
+breiten Ansichten stehen die Automationsliste, der Ablauf und die Eigenschaften
+nebeneinander. Bei weniger Platz rücken die Eigenschaften unter den Ablauf;
+auf schmalen Ansichten lassen sich Liste und Eigenschaften aufklappen.
+
+Die farblich unterschiedenen Bereiche **Wenn**, **Nur wenn** und **Dann** zeigen
+Auslöser, Bedingungen und Aktionen. Symbole und Beschriftungen ergänzen die
+Farben. Über **Automation bearbeiten** beziehungsweise **Aktionsfolge bearbeiten**
+in der Übersicht oder bei den Eigenschaften öffnen Sie den vollständigen
+Bearbeitungsdialog mit den vorhandenen Angaben.
+
+Die drei Bereiche **Prüfen & übertragen**, **Betrieb** und **Gerätedaten** sind
+zunächst zugeklappt. Ein Klick zeigt die bisherigen Bedienelemente; laufende
+Aufträge und Hinweise sind bereits am Bereichsbutton erkennbar. Das Öffnen
+dieser Bereiche sendet keinen Auftrag. Erst die jeweiligen Prüf-, Lade-,
+Speicher- oder Betriebsbuttons führen ihre beschriebene Funktion aus.
+
+Unter **Verwaltung** finden Sie **Neue Aktionsfolge**, **Systeme und Diagnose**,
+**Partnerfreigaben** und **Symcon-Ereignisse importieren**. Die Wahl des
+Z2M-Systems bleibt oberhalb des Editors sichtbar. Hinweise zur zuletzt
+eingelesenen Ansicht stehen unter dem Editor; Fehlermeldungen bleiben zusätzlich
+oberhalb des Arbeitsbereichs sichtbar. Lokaler Entwurf und bestätigter
+Automatikbetrieb werden weiterhin getrennt angezeigt.
+
+Für die neue Darstellung genügt das Modulupdate und ein erneutes Öffnen des
+Designers. Eine erneute Installation der Z2M-Erweiterung ist dafür nicht nötig.
+
+### Gerätedaten und lokale Entwürfe
+
 Im nativen Modul steht „Nur Gerätedaten aktualisieren“ bereit. Damit lesen Sie
 Geräte, Kanäle, Gruppen und Szenen aus Z2M neu ein. Symcon ergänzt die Zuordnung
 zu seinen Variablen: Sensoren bleiben für Auslöser und Bedingungen verfügbar;

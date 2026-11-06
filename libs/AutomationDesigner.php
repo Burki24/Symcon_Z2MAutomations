@@ -20,7 +20,7 @@ trait AutomationDesigner
     use AutomationDesignerSequences;
     use AutomationDesignerManagement;
     use AutomationDesignerImport;
-    private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'startup.js' => 'application/javascript',
+    private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
         'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
@@ -106,6 +106,7 @@ trait AutomationDesigner
                     throw new \RuntimeException('Designer asset unavailable.');
                 }
                 if ($asset === 'index.html') {
+                    $this->DebugEvent('AKTION', 'Responsive Designeroberfläche ausgeliefert. Darstellung folgt dem Browser; Verwaltungsbereiche bleiben bis zum Öffnen zugeklappt. Keine Z2M-Anfrage.');
                     $body = str_replace(
                         ['defer src="designer.js"', "connect-src 'none'", '<body>', 'VORSCHAU', 'Klickbarer Oberflächenentwurf',
                             'Beispieldaten · keine Verbindung zu Symcon oder Z2M · Änderungen gelten nur in diesem Fenster.'],
