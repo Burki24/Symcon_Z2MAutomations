@@ -14,7 +14,7 @@ jeweiligen Z2M-System.
 - [1. Voraussetzungen](#1-voraussetzungen)
 - [2. Funktionsumfang](#2-funktionsumfang)
 - [3. Installation](#3-installation)
-- [4. Konfiguration in IP-Symcon](#4-konfiguration-in-ip-symcon)
+- [4. Konfiguration in Symcon](#4-konfiguration-in-ip-symcon)
 - [5. Verbindung prüfen und Erweiterung einrichten](#5-verbindung-prüfen-und-erweiterung-einrichten)
 - [6. Gerätedaten und Automationszentrale](#6-gerätedaten-und-automationszentrale)
 - [7. Statusanzeigen](#7-statusanzeigen)
@@ -24,7 +24,7 @@ jeweiligen Z2M-System.
 
 ## 1. Voraussetzungen
 
-- IP-Symcon ab Version **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
+- Symcon ab Version **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
 - Ein erreichbares Zigbee2MQTT-System und dessen genaues **Basistopic**.
 - Ein vorhandener Symcon **MQTT Client** oder **MQTT Server**, über den dieses
   Z2M-System erreichbar ist.
@@ -65,7 +65,7 @@ Für ein zweites Z2M-System eine weitere Verbindung anlegen, etwa **Z2M – Gart
 Die Anzahl richtet sich nach den Z2M-Systemen, nicht nach der Anzahl der Broker:
 Auch zwei Z2M-Systeme an einem gemeinsamen Broker benötigen zwei Verbindungsinstanzen.
 
-## 4. Konfiguration in IP-Symcon
+## 4. Konfiguration in Symcon
 
 ### 4.1 Die passende MQTT-Schnittstelle auswählen
 

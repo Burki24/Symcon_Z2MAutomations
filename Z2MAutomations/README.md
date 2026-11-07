@@ -29,7 +29,7 @@ Zugang zu demselben Designer.
 
 ## 1. Voraussetzungen
 
-- IP-Symcon ab **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
+- Symcon ab **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
 - Für jedes Z2M-System eine eingerichtete **Zigbee2MQTT Verbindung**. Diese
   verwendet den passenden Symcon MQTT Client oder MQTT Server und das genaue
   Basistopic. Die Einrichtung beschreibt die [Anleitung des Verbindungsmoduls](../Z2MConnection/README.md).
@@ -180,6 +180,13 @@ schließen und **Ansicht aktualisieren** wählen.
 **Ladestatus prüfen** liest nur das Ergebnis eines Abrufs und startet keinen neuen.
 
 ### Zugang zum Designer
+
+**Sprache:** Oben im Designer und auch in geöffneten Bearbeitungsdialogen können
+Sie zwischen **Deutsch** und **English** wechseln. Zunächst gilt die
+Browsersprache; Ihre Auswahl wird im Browser gespeichert. Andere
+Browsersprachen verwenden Englisch. Offene Eingaben bleiben beim Wechsel
+erhalten. Gerätenamen, eigene Regelnamen, Szenennamen und technische Werte
+werden nicht übersetzt. Die nativen Symcon-Debugausgaben bleiben deutsch.
 
 Der Zugang gilt zunächst 15 Minuten. Bei sichtbarer Ansicht wird er alle vier
 Minuten automatisch verlängert. **Zugang verlängern** führt dies sofort aus,

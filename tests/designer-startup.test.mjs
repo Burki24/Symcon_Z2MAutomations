@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import * as localization from '../Z2MAutomations/visualization/localization.js';
 
 const source = readFileSync(new URL('../Z2MAutomations/visualization/startup.js', import.meta.url), 'utf8');
 async function start(failure) {
@@ -12,11 +13,11 @@ async function start(failure) {
         if (!nodes.has(selector)) nodes.set(selector, {textContent: '', disabled: false, dataset: {}, addEventListener: (name, fn) => listeners.set(name, fn)});
         return nodes.get(selector);
     }};
-    vm.runInNewContext(source.replace("import('./reader.js')", 'loadReader()'), {
-        document, location: {reload: () => reloads++},
+    vm.runInNewContext(source.replace("import('./reader.js')", 'loadReader()').replace("import('./localization.js')", 'loadLocalization()'), {
+        document, loadLocalization: () => Promise.resolve(localization), location: {reload: () => reloads++},
         loadReader: () => { imports++; return failure ? Promise.reject(failure) : Promise.resolve(); }
     });
-    await Promise.resolve();
+    for (let index = 0; index < 8; index++) await Promise.resolve();
     return {nodes, listeners, imports, reloads: () => reloads};
 }
 

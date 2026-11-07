@@ -1,3 +1,5 @@
+import {designerRequest as fetch, isDesktop} from './transport.js';
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
 import {installEditing} from './editor.js';
 import {installEventImport} from './imports.js';
@@ -13,15 +15,15 @@ import {installAccessRenewal} from './access.js';
 import {installNativeEmbedding} from './embedding.js';
 (() => {
     'use strict';
-    const access = installAccessRenewal();
+    const access = isDesktop() ? null : installAccessRenewal();
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char]));
     const icon = name => `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
-    const compare = {eq: 'ist gleich', ne: 'ist ungleich', gt: 'ist größer als', gte: 'ist mindestens', lt: 'ist kleiner als', lte: 'ist höchstens'};
-    const areas = {device: ['Geräteausgelöst', 'device'], time: ['Zeit & Astro', 'clock'], sequence: ['Aktionsfolgen', 'flow'], catalog: ['Geräte & Kanäle', 'search']};
-    const days = values => (values ?? []).map(day => ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][day - 1] ?? '?').join(', ');
-    const values = new Map([['ON', 'Ein'], ['OFF', 'Aus'], ['TOGGLE', 'Umschalten']]);
-    const valueText = value => typeof value === 'boolean' ? (value ? 'Ja / erkannt' : 'Nein / nicht erkannt') : (values.get(value) ?? (typeof value === 'object' ? JSON.stringify(value) : String(value ?? '—')));
+    const compare = localizeRecord(() => ({eq: t("ui.is.equal.to.456b1261"), ne: t("ui.is.not.equal.to.c72da4b0"), gt: t("ui.is.greater.than.c23edfd9"), gte: t("ui.is.at.least.8adebfa3"), lt: t("ui.is.less.than.f2641c8f"), lte: t("ui.is.at.most.53bbaac0")}));
+    const areas = localizeRecord(() => ({device: [t("ui.device.triggered.082d7271"), 'device'], time: [t("ui.time.solar.63529d1e"), 'clock'], sequence: [t("ui.action.sequences.9d9eee7e"), 'flow'], catalog: [t("ui.devices.channels.8c7ad6a2"), 'search']}));
+    const days = values => (values ?? []).map(day => [t("ui.mon.d23e867e"), t("ui.tue.16ab7287"), t("ui.wed.d8f33a13"), t("ui.thu.30094e0b"), t("ui.fri.eed8f901"), t("ui.sat.a951efc7"), t("ui.sun.fb1df1a2")][day - 1] ?? '?').join(', ');
+    const values = localizeRecord(() => (new Map([['ON', t("ui.on.b9a637bc")], ['OFF', t("ui.off.f0ce9450")], ['TOGGLE', t("ui.toggle.77fec02e")]])));
+    const valueText = value => typeof value === 'boolean' ? (value ? t("ui.yes.detected.f51e55b6") : t("ui.no.not.detected.2e04e05d")) : (values.get(value) ?? (typeof value === 'object' ? JSON.stringify(value) : String(value ?? '—')));
     let data = null;
     let category = 'device';
     let selected = null;
@@ -40,25 +42,31 @@ import {installNativeEmbedding} from './embedding.js';
     endpoint.hash = '';
 
     document.body.classList.add('module-designer');
-    $('.toolbar').setAttribute('aria-label', 'Modulansicht und neue Automation');
-    $('.preview-label').textContent = 'ENTWURF';
-    $('.preview-notice strong').textContent = 'Automationen im lokalen Entwurf';
-    $('.preview-notice > span:last-child').textContent = 'Automationen und Aktionsfolgen bearbeiten. Entwürfe werden erst mit den jeweiligen Systembuttons an Z2M übertragen oder gestartet.';
-    $('#validate-button').innerHTML = icon('check') + 'Ansicht aktualisieren';
+    installLanguagePicker({report: async event => {
+        const endpoint = new URL('language', location.href); endpoint.hash = '';
+        const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': token},
+            body: JSON.stringify(event), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(5000)});
+        if (!response.ok) throw new Error('Language audit unavailable.');
+    }});
+    bindAttribute($('.toolbar'), 'aria-label', () => t("ui.module.view.and.new.automation.318f4386"));
+    bindText($('.preview-label'), () => t("ui.draft.90845583"));
+    bindText($('.preview-notice strong'), () => t("ui.automations.in.local.draft.a90839b2"));
+    bindText($('.preview-notice > span:last-child'), () => t("ui.edit.automations.and.action.sequences.54d7f355"));
+    bindHTML($('#validate-button'), () => icon('check') + t("ui.refresh.view.6540358c"));
     $('#validate-button').removeAttribute('data-action');
     ['#save-button', '#activate-button', '#stop-button', '.toolbar-divider', '.navigation-footer', '.activity', '#new-dialog', '#confirm-dialog'].forEach(selector => $(selector).remove());
     document.querySelectorAll('.entry-tools [data-action]:not([data-action="select-rule"])').forEach(button => button.remove());
     const detailsButton = $('[data-action="select-rule"]');
-    detailsButton.setAttribute('aria-label', 'Details der ausgewählten Regel anzeigen');
-    detailsButton.title = 'Regeldetails';
-    $('#selection-hint').textContent = 'Baustein anklicken → Details ansehen';
-    $('.canvas-footer > span:last-child').textContent = 'Automationen und Aktionsfolgen bearbeiten · Z2M bleibt unverändert';
-    $('#draft-status').textContent = 'Moduldaten werden geladen …';
-    $('#runtime-status').textContent = 'Betrieb noch nicht gelesen';
-    $('#flow').innerHTML = '';
-    $('#entry-title').textContent = 'Automationsdesigner';
-    $('#entry-subtitle').textContent = 'Verbindung zur ausgewählten Modulinstanz';
-    $('#inspector-fields').textContent = 'Hier erscheinen die Details des ausgewählten Bausteins.';
+    bindAttribute(detailsButton, 'aria-label', () => t("ui.show.details.of.the.selected.184b3936"));
+    detailsButton.title = t("ui.rule.details.6fddd9e0");
+    bindText($('#selection-hint'), () => t("ui.click.a.block.view.details.0734abf7"));
+    bindText($('.canvas-footer > span:last-child'), () => t("ui.edit.automations.and.action.sequences.2b7902b6"));
+    bindText($('#draft-status'), () => t("ui.loading.module.data.7d76c819"));
+    bindText($('#runtime-status'), () => t("ui.operation.not.read.yet.8f184d91"));
+    bindHTML($('#flow'), () => '');
+    bindText($('#entry-title'), () => t("ui.automation.designer.c22fc391"));
+    bindText($('#entry-subtitle'), () => t("ui.connection.to.the.selected.module.cf5e3972"));
+    bindText($('#inspector-fields'), () => t("ui.details.of.the.selected.block.e9029868"));
 
     function entries() {
         const rules = (data?.configuration?.automations ?? []).map(rule => ({...rule, kind: rule.triggers?.some(trigger => trigger.type === 'device') ? 'device' : 'time'}));
@@ -71,18 +79,18 @@ import {installNativeEmbedding} from './embedding.js';
     const targetDevice = target => data?.devices.find(device => device.target.type === target?.type && device.target.id === target?.id
         && (device.target.system ?? '') === (target?.system ?? ''));
     const sourceDevice = id => data?.devices.find(device => device.target.type === 'device' && device.target.id === id && !device.target.system);
-    const targetName = target => targetDevice(target)?.name ?? `${target?.system ? target.system + ' · ' : ''}${target?.type === 'group' ? 'Gruppe ' : 'Gerät '}${target?.id ?? 'unbekannt'} (Gerätedaten fehlen)`;
-    const sourceName = id => sourceDevice(id)?.name ?? `${id} (Gerätedaten fehlen)`;
+    const targetName = target => targetDevice(target)?.name ?? t("ui.device.data.missing.25af8c67", {p1: target?.system ? target.system + ' · ' : '', p2: target?.type === 'group' ? t("ui.group.375adc53") : t("ui.device.d97ee209"), p3: target?.id ?? t("ui.unknown.a418e69e")});
+    const sourceName = id => sourceDevice(id)?.name ?? t("ui.device.data.missing.6c193ebe", {p1: id});
     const propertyName = (device, property) => device?.properties.find(meta => meta.id === property)?.label ?? property;
     const displayValue = (device, property, value) => {
         const meta = device?.properties.find(meta => meta.id === property);
         return (meta?.valueLabels?.find(entry => entry.value === value)?.label ?? valueText(value)) + (typeof value === 'number' && meta?.unit ? ' ' + meta.unit : '');
     };
     const field = (label, value) => `<div class="read-field"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
-    const message = text => { $('#feedback').textContent = text; };
+    const message = text => { bindText($('#feedback'), () => text); };
     const updateSystems = installSystemSelection({getData: () => data, message, isLoading: () => busy, select: async id => {
         const previous = systemId; systemId = id;
-        if (!await load()) { systemId = previous; throw new Error('Die neue Systemansicht konnte nicht vollständig geladen werden. Bitte „Ansicht aktualisieren“ wählen.'); }
+        if (!await load()) { systemId = previous; throw new MessageError("ui.the.new.system.view.could.a0f27b22"); }
     }});
     const updateDiagnostics = installDiagnostics({getData: () => data, isLoading: () => busy, chooseSystem: id => updateSystems.choose(id), message, reload: () => load()});
     const updatePermissions = installPermissions({getData: () => data, isLoading: () => busy, message, reload: () => load()});
@@ -90,50 +98,50 @@ import {installNativeEmbedding} from './embedding.js';
     const updateCatalog = installCatalogRefresh({getData: () => data, reload: () => load(), isLoading: () => busy, message});
     const updateRuntime = installRuntime({getData: () => data, reload: () => load(), isLoading: () => busy, message, onStatus: () => renderRuntimeStatus()});
     function renderRuntimeStatus() {
-        $('#runtime-status').textContent = data?.status?.confirmed ? `Zuletzt bestätigt: ${data.status.executing ? 'Automatik aktiv' : 'Automatik gestoppt'} · aktive Revision ${data.status.activeRevision ?? '—'}` : 'Betrieb noch nicht bestätigt';
+        bindText($('#runtime-status'), () => data?.status?.confirmed ? t("ui.last.confirmed.active.revision.26a50546", {p1: data.status.executing ? t("ui.automatic.operation.active.5be9b590") : t("ui.automatic.operation.stopped.46b63e37"), p2: data.status.activeRevision ?? '—'}) : t("ui.operation.not.confirmed.yet.162d963a"));
         $('#runtime-status').classList.toggle('running', !!data?.status?.confirmed && !!data.status.executing);
         updateLayout();
     }
 
     function triggerSummary(trigger) {
         if (trigger.type === 'device') return `${sourceName(trigger.device)} · ${propertyName(sourceDevice(trigger.device), trigger.property)} ${compare[trigger.operator] ?? trigger.operator} ${displayValue(sourceDevice(trigger.device), trigger.property, trigger.value)}`;
-        if (trigger.type === 'time') return `${trigger.at} · ${trigger.timezone}`;
-        if (trigger.type === 'sun') return `${trigger.event === 'sunrise' ? 'Sonnenaufgang' : 'Sonnenuntergang'} · ${trigger.offset_minutes >= 0 ? '+' : ''}${trigger.offset_minutes} Minuten · ${trigger.timezone}`;
-        return `Weiterer Auslöser (${trigger.type})`;
+        if (trigger.type === 'time') return t("ui.text.db1b0c15", {p1: trigger.at, p2: trigger.timezone});
+        if (trigger.type === 'sun') return t("ui.minutes.548e9541", {p1: trigger.event === 'sunrise' ? t("ui.sunrise.5788b301") : t("ui.sunset.5998441f"), p2: trigger.offset_minutes >= 0 ? '+' : '', p3: trigger.offset_minutes, p4: trigger.timezone});
+        return t("ui.additional.trigger.7786f267", {p1: trigger.type});
     }
 
     function conditionSummary(condition) {
         if (condition.type === 'device_value') return `${sourceName(condition.device)} · ${propertyName(sourceDevice(condition.device), condition.property)} ${compare[condition.operator] ?? condition.operator} ${displayValue(sourceDevice(condition.device), condition.property, condition.value)}`;
         if (condition.type === 'time_window') return `${condition.after} bis ${condition.before} · ${condition.timezone}${condition.weekdays ? ' · ' + days(condition.weekdays) : ''}`;
-        if (condition.type === 'weekday') return `${days(condition.weekdays)} · ${condition.timezone}`;
-        return `Weitere Bedingung (${condition.type})`;
+        if (condition.type === 'weekday') return t("ui.text.db1b0c15", {p1: days(condition.weekdays), p2: condition.timezone});
+        return t("ui.additional.condition.e6b03139", {p1: condition.type});
     }
 
     function actionSummary(action) {
-        if (action.type === 'sequence') return `Aktionsfolge: ${entries().find(entry => entry.kind === 'sequence' && entry.id === action.sequence_id)?.name ?? action.sequence_id}`;
+        if (action.type === 'sequence') return t("ui.action.sequence.b63db3a8", {p1: entries().find(entry => entry.kind === 'sequence' && entry.id === action.sequence_id)?.name ?? action.sequence_id});
         if (action.type === 'scene') {
             const device = targetDevice(action.target);
             const scene = device?.properties.find(meta => meta.sceneEndpoint === (action.endpoint ?? 0))?.sceneNames?.[action.scene_id];
-            return `${targetName(action.target)} · Szene: ${scene ?? action.scene_id}${action.endpoint ? ' · Kanal ' + action.endpoint : ''}`;
+            return t("ui.scene.46b80b02", {p1: targetName(action.target), p2: scene ?? action.scene_id, p3: action.endpoint ? ' · Kanal ' + action.endpoint : ''});
         }
-        if (action.type === 'toggle') return `${targetName(action.target)} · ${propertyName(targetDevice(action.target), action.property)} umschalten`;
-        if (action.type === 'set') return `${targetName(action.target)} · ${Object.entries(action.values ?? {}).map(([key, value]) => `${propertyName(targetDevice(action.target), key)}: ${displayValue(targetDevice(action.target), key, value)}`).join(' · ')}`;
-        return `Weitere Aktion (${action.type})`;
+        if (action.type === 'toggle') return t("ui.toggle.796320a0", {p1: targetName(action.target), p2: propertyName(targetDevice(action.target), action.property)});
+        if (action.type === 'set') return t("ui.text.db1b0c15", {p1: targetName(action.target), p2: Object.entries(action.values ?? {}).map(([key, value]) => `${propertyName(targetDevice(action.target), key)}: ${displayValue(targetDevice(action.target), key, value)}`).join(' · ')});
+        return t("ui.additional.action.e2b7f366", {p1: action.type});
     }
 
     function renderNavigation() {
         const all = entries();
-        $('#entry-count').textContent = all.filter(entry => entry.kind !== 'sequence').length;
-        $('#categories').innerHTML = Object.entries(areas).map(([kind, [label, symbol]]) => `<button class="category ${category === kind ? 'active' : ''}" data-area="${kind}" aria-pressed="${category === kind}">${icon(symbol)}${label}<span class="category-count">${kind === 'catalog' ? data?.devices.length ?? 0 : all.filter(entry => entry.kind === kind).length}</span></button>`).join('');
-        $('#list-label').textContent = areas[category][0];
-        const search = $('#search').value.trim().toLocaleLowerCase('de');
-        const options = category === 'catalog' ? (data?.devices ?? []).map(device => ({key: device.key, title: device.name, subtitle: `${device.target.system ?? data.module.baseTopic} · ${device.target.id}`}))
+        bindText($('#entry-count'), () => all.filter(entry => entry.kind !== 'sequence').length);
+        bindHTML($('#categories'), () => Object.entries(areas).map(([kind, [label, symbol]]) => `<button class="category ${category === kind ? 'active' : ''}" data-area="${kind}" aria-pressed="${category === kind}">${icon(symbol)}${label}<span class="category-count">${kind === 'catalog' ? data?.devices.length ?? 0 : all.filter(entry => entry.kind === kind).length}</span></button>`).join(''));
+        bindText($('#list-label'), () => areas[category][0]);
+        const search = $('#search').value.trim().toLocaleLowerCase(locale());
+        const options = category === 'catalog' ? (data?.devices ?? []).map(device => ({key: device.key, title: device.name, subtitle: t("ui.text.db1b0c15", {p1: device.target.system ?? data.module.baseTopic, p2: device.target.id})}))
             : all.filter(entry => entry.kind === category).map(entry => ({key: entryKey(entry), title: entry.name,
-                subtitle: entry.kind === 'sequence' ? `${entry.actions.length} Schritte` : (entry.triggers ?? []).map(triggerSummary).join(' ODER '), enabled: entry.enabled}));
-        const visible = options.filter(entry => `${entry.title} ${entry.subtitle}`.toLocaleLowerCase('de').includes(search) && matchesRuleState(entry, stateFilter));
-        $('#list-count').textContent = `${visible.length} / ${options.length}`;
-        $('#entry-list').innerHTML = visible.map(entry => `<button class="entry ${selected === entry.key ? 'active' : ''}" data-entry="${esc(entry.key)}" aria-pressed="${selected === entry.key}"><span class="entry-title-row"><strong>${esc(entry.title)}</strong>${entry.enabled !== undefined ? `<span class="enabled-dot ${entry.enabled ? 'on' : ''}" title="Im Entwurf ${entry.enabled ? 'eingeschaltet' : 'ausgeschaltet'}"></span>` : ''}</span><small>${esc(entry.subtitle)}</small></button>`).join('')
-            || '<p class="empty-list">Keine passenden Einträge. Die Ansicht verwendet ausschließlich vorhandene Moduldaten.</p>';
+                subtitle: entry.kind === 'sequence' ? t("ui.steps.af057682", {p1: entry.actions.length}) : (entry.triggers ?? []).map(triggerSummary).join(t("ui.or.5f15b341")), enabled: entry.enabled}));
+        const visible = options.filter(entry => `${entry.title} ${entry.subtitle}`.toLocaleLowerCase(locale()).includes(search) && matchesRuleState(entry, stateFilter));
+        bindText($('#list-count'), () => `${visible.length} / ${options.length}`);
+        bindHTML($('#entry-list'), () => visible.map(entry => `<button class="entry ${selected === entry.key ? 'active' : ''}" data-entry="${esc(entry.key)}" aria-pressed="${selected === entry.key}"><span class="entry-title-row"><strong>${esc(entry.title)}</strong>${entry.enabled !== undefined ? `<span class="enabled-dot ${entry.enabled ? 'on' : ''}" title="${t("draft.in")} ${entry.enabled ? t("ui.enabled.aae668f6") : t("ui.disabled.1fa013fd")}"></span>` : ''}</span><small>${esc(entry.subtitle)}</small></button>`).join('')
+            || `<p class="empty-list">${t("ui.no.matching.entries.this.view.ca6ab1c2")}</p>`);
     }
 
     function card(kind, index, title, summary, tag = '') {
@@ -149,69 +157,69 @@ import {installNativeEmbedding} from './embedding.js';
 
     function renderFlow() {
         const entry = current();
-        $('#entry-type').textContent = areas[category][0].toUpperCase();
-        $('#entry-title').textContent = entry?.name ?? 'Keine Auswahl';
+        bindText($('#entry-type'), () => areas[category][0].toUpperCase());
+        bindText($('#entry-title'), () => entry?.name ?? t("ui.no.selection.146bfc6e"));
         detailsButton.disabled = !entry;
-        $('#entry-subtitle').textContent = entry ? category === 'catalog' ? 'Geladene Eigenschaften, Kanäle und Szenen' : entry.kind === 'sequence' ? 'Wiederverwendbare Aktionsfolge im lokalen Entwurf'
-            : `Im Entwurf ${entry.enabled ? 'eingeschaltet' : 'ausgeschaltet'} · ${entry.actions.length} ${entry.actions.length === 1 ? 'Aktionsschritt' : 'Aktionsschritte'}` : 'Links einen vorhandenen Eintrag auswählen.';
-        if (!entry) { $('#flow').innerHTML = '<p class="sequence-note">Hier werden vorhandene Regeln und Gerätedaten angezeigt. Es werden keine Beispiele ergänzt.</p>'; return; }
+        bindText($('#entry-subtitle'), () => entry ? category === 'catalog' ? t("ui.loaded.properties.channels.and.scenes.0c23a181") : entry.kind === 'sequence' ? t("ui.reusable.action.sequence.in.local.d55beb51")
+            : t("rule.summary", {state: entry.enabled ? t("ui.enabled.aae668f6") : t("ui.disabled.1fa013fd"), count: entry.actions.length}) : t("ui.select.an.existing.entry.on.e1b9ca5a"));
+        if (!entry) { bindHTML($('#flow'), () => `<p class="sequence-note">${t("ui.existing.rules.and.device.data.91262889")}</p>`); return; }
         if (category === 'catalog') {
-            $('#flow').innerHTML = section('EIGENSCHAFTEN UND KANÄLE', 'when', entry.properties.map((meta, index) => card('properties', index, meta.label, meta.id,
-                meta.writable ? 'Schaltbar in Symcon' : meta.readable ? 'Nur lesbar' : 'Nicht als Aktion verfügbar')).join(''));
+            bindHTML($('#flow'), () => section(t("ui.properties.and.channels.51118126"), 'when', entry.properties.map((meta, index) => card('properties', index, meta.label, meta.id,
+                meta.writable ? t("ui.controllable.in.symcon.87a0a2ce") : meta.readable ? t("ui.read.only.e7c58c99") : t("ui.unavailable.as.an.action.a3d93cf1"))).join('')));
             return;
         }
         let html = '';
         if (entry.kind !== 'sequence') {
-            html += section('1 · WENN', 'when', entry.triggers.map((trigger, index) => card('triggers', index, trigger.type === 'device' ? 'Geräteereignis' : trigger.type === 'sun' ? 'Sonnenzeit' : 'Uhrzeit', triggerSummary(trigger))).join('<div class="or-label">ODER</div>'));
-            html += '<div class="flow-connector"></div>' + section('2 · NUR WENN', 'condition', entry.conditions.length ? entry.conditions.map((condition, index) => card('conditions', index, condition.type === 'device_value' ? 'Gerätebedingung' : condition.type === 'weekday' ? 'Wochentage' : 'Zeitfenster', conditionSummary(condition), condition.start_only ? 'Nur beim Start' : '')).join('') : '<p class="field-help">Keine zusätzlichen Bedingungen.</p>') + '<div class="flow-connector"></div>';
+            html += section(t("ui.1.when.91055bf0"), 'when', entry.triggers.map((trigger, index) => card('triggers', index, trigger.type === 'device' ? t("ui.device.event.704e02c3") : trigger.type === 'sun' ? t("ui.solar.event.63a4e157") : t("ui.time.317f0a69"), triggerSummary(trigger))).join(`<div class="or-label">${t("ui.or.43e40606")}</div>`));
+            html += `<div class="flow-connector"></div>` + section(t("ui.2.only.if.d315c02f"), 'condition', entry.conditions.length ? entry.conditions.map((condition, index) => card('conditions', index, condition.type === 'device_value' ? t("ui.device.condition.b046563c") : condition.type === 'weekday' ? t("ui.weekdays.b73421c5") : t("ui.time.window.85f012d6"), conditionSummary(condition), condition.start_only ? t("ui.only.at.start.cc0a97a5") : '')).join('') : `<p class="field-help">${t("ui.no.additional.conditions.008dbb31")}</p>`) + `<div class="flow-connector"></div>`;
         }
-        html += section(`${entry.kind === 'sequence' ? '' : '3 · '}DANN`, 'action', entry.actions.map((action, index) => card('actions', index, `Schritt ${index + 1}`, actionSummary(action), action.delay_seconds ? `Vorher ${action.delay_seconds} Sekunden warten` : 'Sofort ausführen')).join(''));
-        $('#flow').innerHTML = html;
+        html += section(`${entry.kind === 'sequence' ? '' : '3 · '}DANN`, 'action', entry.actions.map((action, index) => card('actions', index, t("ui.step.b4fefd27", {p1: index + 1}), actionSummary(action), action.delay_seconds ? t("ui.wait.seconds.first.c3ce31af", {p1: action.delay_seconds}) : t("ui.run.immediately.81aa8578"))).join(''));
+        bindHTML($('#flow'), () => html);
     }
 
     function renderInspector() {
         const entry = current();
         let html = '';
-        let title = 'Details';
+        let title = t("ui.details.45989de4");
         if (entry && category === 'catalog') {
             const property = selectedPart?.startsWith('properties:') ? entry.properties[Number(selectedPart.split(':')[1])] : null;
-            title = property?.label ?? 'Gerät / Gruppe';
-            html = field('Name', entry.name) + field('Z2M-System', entry.target.system ?? data.module.baseTopic) + field('Kennung', entry.target.id);
+            title = property?.label ?? t("ui.device.group.fe09aa58");
+            html = field(t("ui.name.dcd1d522"), entry.name) + field(t("ui.z2m.system.7a27be0b"), entry.target.system ?? data.module.baseTopic) + field(t("ui.identifier.f1f479e2"), entry.target.id);
             if (property) {
-                html += field('Eigenschaft / Kanal', property.id) + field('Lesbar', property.readable ? 'Ja' : 'Nein') + field('In Symcon schaltbar', property.writable ? 'Ja' : 'Nein');
-                if (property.unit) html += field('Einheit', property.unit);
-                for (const [key, label] of [['minimum', 'Minimum'], ['maximum', 'Maximum'], ['step', 'Schrittweite']]) if (property[key] !== undefined) html += field(label, property[key]);
-                if (property.values.length) html += field(property.sceneNames ? 'Vorhandene Szenen' : 'Verfügbare Werte', property.values.map(value => displayValue(entry, property.id, value)).join(', '));
+                html += field(t("ui.property.channel.b524f965"), property.id) + field(t("ui.readable.738bdf22"), property.readable ? t("ui.yes.cde9e58a") : t("ui.no.90ebc1bd")) + field(t("ui.controllable.in.symcon.edc60e84"), property.writable ? t("ui.yes.cde9e58a") : t("ui.no.90ebc1bd"));
+                if (property.unit) html += field(t("ui.unit.d5ba1549"), property.unit);
+                for (const [key, label] of [['minimum', t("ui.minimum.735beee2")], ['maximum', t("ui.maximum.66c9ab17")], ['step', t("ui.step.size.0d1486f0")]]) if (property[key] !== undefined) html += field(label, property[key]);
+                if (property.values.length) html += field(property.sceneNames ? t("ui.existing.scenes.5fb74b19") : t("ui.available.values.4daebbce"), property.values.map(value => displayValue(entry, property.id, value)).join(', '));
             }
         } else if (entry) {
             const [kind, position] = selectedPart?.split(':') ?? [];
             const item = entry[kind]?.[Number(position)];
-            title = item ? ({triggers: 'Auslöser', conditions: 'Bedingung', actions: 'Aktion'}[kind]) + ' ' + (Number(position) + 1) : entry.kind === 'sequence' ? 'Aktionsfolge' : 'Automation';
-            html = field('Name', entry.name) + field('Regelkennung', entry.id);
-            if (!item && entry.kind !== 'sequence') html += field('Im lokalen Entwurf', entry.enabled ? 'Eingeschaltet' : 'Ausgeschaltet') + field('Bei erneuter Auslösung', {ignore: 'Neue Auslösung ignorieren', restart: 'Von vorn beginnen', extend: 'Laufende Wartezeit zurücksetzen'}[entry.retrigger ?? 'ignore']);
+            title = item ? ({triggers: t("ui.trigger.9137c3bf"), conditions: t("ui.condition.c1d1da5a"), actions: t("ui.action.a4ad259e")}[kind]) + ' ' + (Number(position) + 1) : entry.kind === 'sequence' ? t("ui.action.sequence.35690788") : t("ui.automation.d909750b");
+            html = field(t("ui.name.dcd1d522"), entry.name) + field(t("ui.rule.id.0dd56b69"), entry.id);
+            if (!item && entry.kind !== 'sequence') html += field(t("ui.in.local.draft.706365af"), entry.enabled ? t("ui.enabled.58279f72") : t("ui.disabled.a21a5188")) + field(t("ui.on.retrigger.7588befa"), {ignore: t("ui.ignore.new.trigger.0724102c"), restart: t("ui.restart.from.the.beginning.f723ba35"), extend: t("ui.reset.current.delay.2561f6e5")}[entry.retrigger ?? 'ignore']);
             if (item) {
-                html += field('Beschreibung', kind === 'triggers' ? triggerSummary(item) : kind === 'conditions' ? conditionSummary(item) : actionSummary(item));
-                if (item.device) html += field('Gerät', sourceName(item.device));
-                if (item.target) html += field('Ziel', targetName(item.target)) + field('Z2M-System', item.target.system ?? data.module.baseTopic);
-                if (item.property) html += field('Eigenschaft / Kanal', propertyName(item.target ? targetDevice(item.target) : sourceDevice(item.device), item.property));
-                if (Object.hasOwn(item, 'value')) html += field('Vergleichswert', displayValue(sourceDevice(item.device), item.property, item.value));
+                html += field(t("ui.description.e9262f00"), kind === 'triggers' ? triggerSummary(item) : kind === 'conditions' ? conditionSummary(item) : actionSummary(item));
+                if (item.device) html += field(t("ui.device.b32db786"), sourceName(item.device));
+                if (item.target) html += field(t("ui.target.f487ce39"), targetName(item.target)) + field(t("ui.z2m.system.7a27be0b"), item.target.system ?? data.module.baseTopic);
+                if (item.property) html += field(t("ui.property.channel.b524f965"), propertyName(item.target ? targetDevice(item.target) : sourceDevice(item.device), item.property));
+                if (Object.hasOwn(item, 'value')) html += field(t("ui.comparison.value.b6e7150f"), displayValue(sourceDevice(item.device), item.property, item.value));
                 if (item.values) for (const [key, value] of Object.entries(item.values)) html += field(propertyName(targetDevice(item.target), key), displayValue(targetDevice(item.target), key, value));
-                if (item.for_seconds !== undefined) html += field('Mindestdauer', `${item.for_seconds} Sekunden`);
-                if (kind === 'triggers' && item.type === 'device') html += field('Nur bei Wertänderung', item.on_change ? 'Ja' : 'Nein');
-                if (kind === 'conditions' && item.type === 'device_value') html += field('Nur beim Start prüfen', item.start_only ? 'Ja' : 'Nein');
-                if (kind === 'actions') html += field('Wartezeit vor diesem Schritt', `${item.delay_seconds ?? 0} Sekunden`);
-                if (item.type === 'scene') html += field('Szenennummer', item.scene_id) + (item.endpoint ? field('Kanal', item.endpoint) : '');
-                if (item.type === 'sun') html += field('Breitengrad', item.latitude) + field('Längengrad', item.longitude);
-                if (item.type === 'sequence') html += `<button data-sequence="${esc(item.sequence_id)}">Aktionsfolge ansehen</button>`;
+                if (item.for_seconds !== undefined) html += field(t("ui.minimum.duration.cfb985d9"), t("duration.seconds", {count: item.for_seconds}));
+                if (kind === 'triggers' && item.type === 'device') html += field(t("ui.only.on.value.change.141310cb"), item.on_change ? t("ui.yes.cde9e58a") : t("ui.no.90ebc1bd"));
+                if (kind === 'conditions' && item.type === 'device_value') html += field(t("ui.check.only.at.start.a6aa3b78"), item.start_only ? t("ui.yes.cde9e58a") : t("ui.no.90ebc1bd"));
+                if (kind === 'actions') html += field(t("ui.delay.before.this.step.6b19a697"), t("duration.seconds", {count: item.delay_seconds ?? 0}));
+                if (item.type === 'scene') html += field(t("ui.scene.number.1e84cb7e"), item.scene_id) + (item.endpoint ? field(t("ui.channel.fe59abe1"), item.endpoint) : '');
+                if (item.type === 'sun') html += field(t("ui.latitude.c5049879"), item.latitude) + field(t("ui.longitude.4c9aacde"), item.longitude);
+                if (item.type === 'sequence') html += `<button data-sequence="${esc(item.sequence_id)}">${t("ui.view.action.sequence.54ed1798")}</button>`;
             }
         }
-        $('#inspector-title').textContent = title;
-        $('#inspector-subtitle').textContent = category === 'catalog' ? 'Gerätedaten zur Auswahl in Automationen.' : entry?.kind === 'sequence' ? 'Für Änderungen „Aktionsfolge bearbeiten“ wählen. Verwendende Regeln nutzen danach dieselbe Folge.' : 'Bausteindetails anzeigen. Für Änderungen „Automation bearbeiten“ wählen.';
+        bindText($('#inspector-title'), () => title);
+        bindText($('#inspector-subtitle'), () => category === 'catalog' ? t("ui.device.data.for.use.in.9b68fab3") : entry?.kind === 'sequence' ? t("ui.to.make.changes.choose.edit.0f85714b") : t("ui.view.block.details.to.make.59bc1283"));
         if (entry && category !== 'catalog') {
             const allowed = entry.kind === 'sequence' ? data?.sequenceAllowed : data?.editAllowed;
-            html += `<button class="primary inspector-edit" data-edit-current="true" ${allowed ? '' : 'disabled'}>${icon('settings')}${entry.kind === 'sequence' ? 'Aktionsfolge bearbeiten' : 'Automation bearbeiten'}</button>`;
+            html += `<button class="primary inspector-edit" data-edit-current="true" ${allowed ? '' : 'disabled'}>${icon('settings')}${entry.kind === 'sequence' ? t("ui.edit.action.sequence.2e8a0548") : t("ui.edit.automation.ac46d0d5")}</button>`;
         }
-        $('#inspector-fields').innerHTML = html || '<p class="field-help">Wähle links einen Eintrag und anschließend einen Baustein.</p>';
+        bindHTML($('#inspector-fields'), () => html || `<p class="field-help">${t("ui.choose.an.entry.on.the.81b6eb13")}</p>`);
     }
 
     function render() { embedding.update(data); renderNavigation(); renderFlow(); renderInspector(); editing?.refresh(); management?.refresh(category, stateFilter); eventImport?.refresh(); }
@@ -236,12 +244,52 @@ import {installNativeEmbedding} from './embedding.js';
     $('#search').addEventListener('input', renderNavigation);
     $('#validate-button').addEventListener('click', load);
 
+    function paintStatus() {
+        if (!data) return;
+        if (isDesktop()) {
+            document.title = 'Z2M-Automations';
+            bindText($('.preview-label'), () => t('desktop.readOnly'));
+            bindText($('.preview-notice strong'), () => t('desktop.offline'));
+            bindText($('.preview-notice > span:last-child'), () => t('desktop.notice'));
+            bindText($('#draft-status'), () => t('desktop.examples'));
+            bindText($('#runtime-status'), () => t('desktop.noConnection'));
+            bindText($('.canvas-footer > span:last-child'), () => t('desktop.notice'));
+            bindText($('#entry-subtitle'), () => t('desktop.examples'));
+            $('#issues').hidden = true;
+            message(() => t('desktop.notice'));
+            return;
+        }
+        if (data.workspace) bindText($('.preview-notice > span:last-child'), () => t("ui.edit.drafts.per.z2m.system.e393812e"));
+        bindText($('.canvas-footer > span:last-child'), () => data.workspace ? t("ui.edit.local.drafts.transfer.only.004f4782") : t("ui.edit.automations.and.action.sequences.2b7902b6"));
+        document.title = t("ui.automation.designer.draft.47bd558d", {p1: data.module.name});
+        bindText($('#draft-status'), () => data.draftAvailable ? t("ui.local.draft.revision.b3e4c474", {p1: data.configuration.revision}) : t("ui.no.matching.editor.draft.loaded.8fabd4d0"));
+        renderRuntimeStatus();
+        $('#draft-status').className = 'status-chip';
+        const notices = [t("ui.topic.module.data.no.live.baaf06b9", {p1: data.module.name, p2: data.module.baseTopic})];
+        const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
+            ? new Date(data.catalogLoadedAt * 1000).toLocaleString(locale()) : null;
+        const storedTime = Number.isSafeInteger(data.catalogRefresh?.storedAt) && data.catalogRefresh.storedAt > 0
+            ? new Date(data.catalogRefresh.storedAt * 1000).toLocaleString(locale()) : null;
+        notices[0] += catalogTime ? t("ui.device.data.last.refreshed.7a5587aa", {p1: catalogTime})
+            : storedTime ? t("ui.device.data.previously.saved.20fb84c1", {p1: storedTime}) : t("ui.device.data.refresh.time.is.c4aac5f2");
+        if (!data.catalogAvailable) notices.push(data.workspace
+            ? (data.catalogRefresh?.storedAt ? t("ui.saved.device.data.is.not.ee025668")
+                : t("ui.device.data.is.missing.for.db0f1bfb"))
+            : t("ui.device.data.is.missing.for.23e595fa"));
+        if (!data.draftAvailable && !data.draftMismatch) notices.push(data.workspace ? t("ui.this.system.has.no.local.5787ff4b") : t("ui.no.automation.draft.has.been.549085f2"));
+        if (data.draftMismatch) notices.push(t("ui.the.yaml.draft.differs.from.417e170d"));
+        if (data.openFormEdits) notices.push(t("ui.the.native.form.has.input.d0b78d48"));
+        $('#issues').hidden = data.catalogAvailable && data.draftAvailable && !data.openFormEdits;
+        bindText($('#issues'), () => notices.join(' '));
+        $('#feedback').dataset.tone = '';
+        message(() => (notices[0]));
+    }
     async function load(preferredRule = '', preferredSequence = '') {
         if (busy) return false;
         busy = true; $('#validate-button').disabled = true;
-        message('Vorhandene Moduldaten werden gelesen. Es wird keine Z2M-Abfrage gestartet.');
+        message(() => (t("ui.reading.existing.module.data.no.53b451b0")));
         try {
-            if (!/^[a-f0-9]{64}$/.test(token)) throw new Error('access');
+            if (!isDesktop() && !/^[a-f0-9]{64}$/.test(token)) throw new Error('access');
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 10000);
             let response; let text;
@@ -251,9 +299,9 @@ import {installNativeEmbedding} from './embedding.js';
             } finally { clearTimeout(timeout); }
             if (!response.ok) throw new Error(response.status === 403 ? 'access' : 'transport');
             if (text.length > 2097152) throw new Error('invalid');
-            const next = JSON.parse(text);
+            const next = localizeResponse(JSON.parse(text));
             if (next.contractVersion !== 1 || next.mode !== 'read' || !Array.isArray(next.devices) || !next.module || !next.status) throw new Error('invalid');
-            await loadSystemDevices(next, {token, signal: controller.signal, onProgress: (loaded, total) => message(`Gerätedaten werden gelesen: ${loaded} von ${total}. Entwürfe bleiben unverändert.`)});
+            await loadSystemDevices(next, {token, signal: controller.signal, onProgress: (loaded, total) => message(() => (t("ui.reading.device.data.of.drafts.6ef5f0ac", {p1: loaded, p2: total})))});
             const previousSystem = data?.workspaceContext?.systemId ?? '';
             const nextSystem = next.workspaceContext?.systemId ?? '';
             if (previousSystem !== nextSystem) {
@@ -264,30 +312,7 @@ import {installNativeEmbedding} from './embedding.js';
                 $('#search').value = view?.search ?? '';
             }
             data = next; systemId = nextSystem; updateSystems(data);
-            if (data.workspace) $('.preview-notice > span:last-child').textContent = 'Entwürfe je Z2M-System bearbeiten, ausdrücklich prüfen und übertragen. Es wird keine Automation automatisch aktiviert.';
-            $('.canvas-footer > span:last-child').textContent = data.workspace ? 'Lokale Entwürfe bearbeiten · Übertragung nur nach Bestätigung' : 'Automationen und Aktionsfolgen bearbeiten · Z2M bleibt unverändert';
-            document.title = `${data.module.name} · Automationsdesigner · Entwurf`;
-            $('#draft-status').textContent = data.draftAvailable ? `Lokaler Entwurf · Revision ${data.configuration.revision}` : 'Kein passender Editorentwurf geladen';
-            renderRuntimeStatus();
-            $('#draft-status').className = 'status-chip';
-            const notices = [`${data.module.name} · Topic ${data.module.baseTopic} · Stand aus dem Modul, keine Live-Prüfung.`];
-            const catalogTime = Number.isSafeInteger(data.catalogLoadedAt) && data.catalogLoadedAt > 0
-                ? new Date(data.catalogLoadedAt * 1000).toLocaleString('de-DE') : null;
-            const storedTime = Number.isSafeInteger(data.catalogRefresh?.storedAt) && data.catalogRefresh.storedAt > 0
-                ? new Date(data.catalogRefresh.storedAt * 1000).toLocaleString('de-DE') : null;
-            notices[0] += catalogTime ? ` Gerätedaten zuletzt aktualisiert: ${catalogTime}.`
-                : storedTime ? ` Gerätedaten früher gespeichert: ${storedTime}.` : ' Aktualisierungszeit der Gerätedaten noch unbekannt.';
-            if (!data.catalogAvailable) notices.push(data.workspace
-                ? (data.catalogRefresh?.storedAt ? 'Gespeicherte Gerätedaten sind derzeit nicht bestätigt. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.'
-                    : 'Gerätedaten fehlen für dieses System. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.')
-                : 'Gerätedaten fehlen für diese Verbindung. Im nativen Modul „Nur Gerätedaten aktualisieren“ wählen, danach hier „Ansicht aktualisieren“. Entwürfe bleiben erhalten.');
-            if (!data.draftAvailable && !data.draftMismatch) notices.push(data.workspace ? 'Für dieses System fehlt noch ein lokaler Entwurf. Im nativen Formular „Direkt aus Z2M einrichten“ öffnen: Automationen sicher einlesen, Vorschau prüfen und Verbindung übernehmen. Z2M läuft dabei unverändert weiter.' : 'Für diese Verbindung ist noch kein Automationsentwurf geladen. Die Gerätedaten können Sie unabhängig davon ansehen. Gespeicherte Regeln werden erst mit „Geräte und gespeicherte Automationen laden“ übernommen.');
-            if (data.draftMismatch) notices.push('Der YAML-Entwurf weicht vom geladenen Editorstand ab. Bitte im nativen Formular prüfen; hier wird nichts ersetzt.');
-            if (data.openFormEdits) notices.push('Im nativen Formular gibt es noch nicht in den Entwurf übernommene Eingaben. Diese sind hier noch nicht enthalten und bleiben erhalten.');
-            $('#issues').hidden = data.catalogAvailable && data.draftAvailable && !data.openFormEdits;
-            $('#issues').textContent = notices.join(' ');
-            $('#feedback').dataset.tone = '';
-            message(notices[0]);
+            paintStatus();
             if (typeof preferredRule === 'string' && data.configuration?.automations.some(rule => rule.id === preferredRule)) {
                 category = entries().find(entry => entry.id === preferredRule && entry.kind !== 'sequence').kind; selected = 'rule:' + preferredRule; selectedPart = null; $('#search').value = '';
             } else if (preferredSequence && data.configuration?.sequences?.some(sequence => sequence.id === preferredSequence)) {
@@ -301,30 +326,31 @@ import {installNativeEmbedding} from './embedding.js';
             render();
             return true;
         } catch (error) {
-            const text = error.message === 'access' ? 'Der Lesezugang fehlt oder ist abgelaufen. Bitte den Designer erneut im Modul öffnen.' : 'Moduldaten konnten nicht gelesen werden. Verbindung und Debug prüfen; die bisherige Anzeige ist möglicherweise veraltet.';
+            const text = error.message === 'access' ? t("ui.read.access.is.missing.or.e380a485") : t("ui.module.data.could.not.be.80c47bf5");
             message(text); $('#feedback').dataset.tone = 'error';
-            $('#issues').hidden = false; $('#issues').textContent = text;
+            $('#issues').hidden = false; bindText($('#issues'), () => text);
             return false;
         } finally { busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); updatePermissions(); management?.refresh(category, stateFilter); eventImport?.refresh(); updateLayout(); }
     }
     editing = installEditing({getData: () => data, getRule: current, reload: () => load(), summaries: {triggers: triggerSummary, conditions: conditionSummary, actions: actionSummary}, onCreated: async ruleId => {
         const refreshed = await load(ruleId);
-        message(refreshed ? 'Neue Automation ausgeschaltet im lokalen Symcon-Entwurf ergänzt. In Z2M wurde nichts geändert.'
-            : 'Die Automation wurde im Entwurf ergänzt. Die Ansicht konnte noch nicht aktualisiert werden; bitte „Ansicht aktualisieren“ wählen.');
+        message(() => (refreshed ? t("ui.new.automation.added.disabled.to.6f562419")
+            : t("ui.the.automation.was.added.to.9cc3bca1")));
     }, onEdited: async ruleId => {
         const refreshed = await load(ruleId);
-        message(refreshed ? 'Änderung im lokalen Symcon-Entwurf übernommen. In Z2M wurde nichts gespeichert oder aktiviert.'
-            : 'Die Änderung wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
+        message(() => (refreshed ? t("ui.change.applied.to.the.local.9b87dbaf")
+            : t("ui.the.change.was.applied.to.0df2d1eb")));
     }, onSequenceSaved: async sequenceId => {
         const refreshed = await load('', sequenceId);
-        message(refreshed ? 'Aktionsfolge im lokalen Symcon-Entwurf übernommen. Sie kann als Aktion einer Automation verwendet werden. In Z2M wurde nichts geändert.'
-            : 'Die Aktionsfolge wurde im Entwurf übernommen. Bitte die Ansicht erneut aktualisieren.');
+        message(() => (refreshed ? t("ui.action.sequence.applied.to.the.37c830cc")
+            : t("ui.the.action.sequence.was.applied.226c343e")));
     }});
     management = installManagement({getData: () => data, getEntry: current, isLoading: () => busy, reload: () => load(), copied: ruleId => load(ruleId), message,
         filterChanged: value => { stateFilter = value; renderNavigation(); }});
     eventImport = installEventImport({getData: () => data, isLoading: () => busy, reload: () => load(), message,
-        onImported: async ruleId => { if (!await load(ruleId)) message('Ereignis wurde ausgeschaltet übernommen. Bitte die Ansicht aktualisieren.'); }});
+        onImported: async ruleId => { if (!await load(ruleId)) message(() => (t("ui.event.imported.disabled.refresh.the.338172e3"))); }});
     updateLayout = installLayout({getData: () => data});
+    onLanguageChange(() => { paintStatus(); render(); updateTransfers(); updateRuntime(); updateCatalog(); updateLayout(); });
     render();
     embedding.ready.then(load);
 })();

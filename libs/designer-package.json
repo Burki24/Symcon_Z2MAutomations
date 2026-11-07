@@ -1,0 +1,41 @@
+{
+    "format": 1,
+    "name": "@z2ma/designer",
+    "version": "0.2.0",
+    "source": "https://github.com/Burki24/Z2M-Automations",
+    "origin": {
+        "repository": "https://github.com/Burki24/Symcon_Z2MAutomations",
+        "commit": "cd5cfc33c921365c69814078238444c3ea7d5ac5"
+    },
+    "license": "PolyForm-Noncommercial-1.0.0",
+    "content": "7909e0e7638c49a1fd4f6c58d35a0347005a1568fddcaa9fa9725c11e0d39007",
+    "assets": {
+        "access.js": "d70817675bc4a9e16fa0dfcb175ff201b20aef097b5df4cfbb637b24b3e2e901",
+        "action-order.js": "4b1e9861ec83b7830919fa769658772a1c3cb1c9a695ec5683575610d254c7e9",
+        "catalog.js": "60d81550d85655e64c27938b1199075cafb428a9ee38f352a0fed0b42e16d44f",
+        "creator.js": "e6332b2e68c22ac3bb389196e90210e18a6dec84ad77cc4d205a2f67c1457f8b",
+        "designer.css": "0dd1bb8fd1beda9cbcc4771b77ff1b4a8bc8a883d80a176fce4585e74263bb4a",
+        "designer.js": "11483efa243e3e8ea53153d48038fe53a4fe64357fb61a8b5d4b29e6d8535056",
+        "diagnostics.js": "6c0b723d02e3d479edce2ea48116ba167ab4da1b5c43b6337333792fd0412bd7",
+        "editor.js": "ed329d1ad050e5af56660c1c453e1a3f4ee827b77f6ad5193e4cf6024a6c8cb8",
+        "embedding.js": "e4f9e3e3c1a2b834ba43574ed9852816a3bee7f5bc238b82664cb7f228f37c4d",
+        "identity.js": "28f9a24379e6b3852229121f43c8a0b54d661dd2f846f2c063296a72a185bc6a",
+        "imports.js": "4d37d009ed27f4013151f966b6f82c5178c44869e83de5a6fa56530d264f655b",
+        "index.html": "01969607df60a242e3a071b86e23d74c3f29cbda13b378002f96047b5d2717c6",
+        "installation.js": "21af7ccc17ae26bb18f47880b5eed83fa2f50e5ca8b29f8c5e2cb6f12084ff73",
+        "layout.js": "efd0edd14e0b56729dafe377294330b94322c24afae3b739df2352e0e6b22bcb",
+        "locales.js": "95ee0388d2ff46fdcbfc6c0a3b5f3a46abc098839fc6f021c3641d2fd13f5822",
+        "locales/de.json": "2c9a0ef0897db88d1894838932c14646e7a54b83c38fca394f5aaaccba958407",
+        "locales/en.json": "c927d6db1696db9e9a4fd1153e427b42f39858b2df0c10335d0df518bce87ff5",
+        "locales/messages.json": "5bdaf465e148e4778faa7e8239e5addb0e40b8da62a4e1f1bc354f773105825c",
+        "localization.js": "7c59a66327f9da4999eb93a4fd045d56ad22a6633945a8c4dbe50d4c72ebfdfb",
+        "management.js": "be993220dad0c435b7f4ad33da2d652aacf11c29f5b42cc483c4001e20c1b2a9",
+        "permissions.js": "7c73bf6b5804bf4c8cc0c3e39a7d9feeff846c4a4aa77f69dae1a40099403b94",
+        "reader.js": "56465915d0251b9e3ab0b169eb4a5b6498865adfb1bd91e9556c0efbcff11c1d",
+        "runtime.js": "0dd8ef36d68f1f9359400204e54359ab7deaaa40af1ee2bebb2911e897367f0a",
+        "startup.js": "0a44cf8b5cb7d7ef1f327ddde602779c03eea6787880be6ef92ef2ded3984818",
+        "transfer.js": "e846754ee14e8b8fc30de39ee696635140c84c0273d592e89a2981c01d06c139",
+        "transport.js": "cef435a52f0c34d581bacc1f245c2b37fc02220d72318021598e15a184d151f4",
+        "workspace.js": "7dbfbc22e502f727ee89d8948c837107dc87fb2c348fe7766fffd75b4d526dfb"
+    }
+}

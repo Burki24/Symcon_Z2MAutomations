@@ -221,6 +221,7 @@ require __DIR__ . '/designer-edit.inc.php';
 require __DIR__ . '/designer-sequence.inc.php';
 require __DIR__ . '/designer-manage.inc.php';
 require __DIR__ . '/designer-full-create.inc.php';
+require __DIR__ . '/designer-localization.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);
 $check($mismatch['draftMismatch'] && !$mismatch['draftAvailable'] && $mismatch['configuration'] === null, 'Changed YAML is not presented as current editor rules');

@@ -1,3 +1,5 @@
+import {designerRequest as fetch} from './transport.js';
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
@@ -5,7 +7,7 @@ import {systemHeaders} from './workspace.js';
 export async function runtimeRequest(data, action, {token, rule = '', run = '', resume = true,
     request = fetch, base = location.href, requestId = createUUID()} = {}) {
     const ctx = data?.workspaceContext;
-    if (!ctx || !data.runtime || !['poll', 'status', 'activate', 'deactivate', 'run_once', 'stop_rule'].includes(action)) throw new Error('Bitte zuerst ein Z2M-System auswählen.');
+    if (!ctx || !data.runtime || !['poll', 'status', 'activate', 'deactivate', 'run_once', 'stop_rule'].includes(action)) throw new MessageError("ui.please.select.a.z2m.system.ec4dffcc");
     const endpoint = new URL(action === 'poll' ? 'runtime-status' : 'runtime', base); endpoint.hash = '';
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
     try {
@@ -15,26 +17,26 @@ export async function runtimeRequest(data, action, {token, rule = '', run = '', 
                 headers: {'X-Z2MA-Read-Token': token, ...systemHeaders(data), ...(action === 'poll' ? {} : {'Content-Type': 'application/json'})},
                 ...(action === 'poll' ? {} : {body: JSON.stringify({action, context: data.runtime.context, requestId, rule, run, resume})}),
                 credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
-            result = await response.json();
+            result = localizeResponse(await response.json());
         } catch (error) {
             if (error.name === 'AbortError') throw error;
-            throw new Error('Keine lesbare Rückmeldung. Es wird nichts erneut gesendet. Bitte den Betriebsstatus aktualisieren.');
+            throw new MessageError("ui.no.readable.reply.nothing.will.1cec30cf");
         }
-        if (!response.ok || !result.ok) throw new Error(result.message || 'Betriebsauftrag nicht bestätigt. Bitte den Betriebsstatus aktualisieren.');
+        if (!response.ok || !result.ok) throw new ResponseError(result, () => t("ui.operating.request.not.confirmed.refresh.5f6bc90b"));
         const view = result.runtime;
         if (view?.systemId !== ctx.systemId || view?.generation !== ctx.generation || typeof view.context !== 'string'
             || typeof view.fingerprint !== 'string' || typeof view.message !== 'string' || typeof view.pending !== 'boolean'
             || typeof view.canActivate !== 'boolean' || typeof view.canStop !== 'boolean' || typeof view.canRefresh !== 'boolean'
             || !view.rules || typeof view.rules !== 'object' || Object.values(view.rules).some(r => !r || typeof r.name !== 'string'
                 || typeof r.run !== 'string' || typeof r.message !== 'string' || typeof r.canRun !== 'boolean' || typeof r.canStop !== 'boolean')) {
-            throw new Error('Die Rückmeldung gehört nicht zum gewählten System oder ist unvollständig. Bitte die Ansicht aktualisieren.');
+            throw new MessageError("ui.the.reply.does.not.belong.a2b7d3c8");
         }
         return view;
     } finally { clearTimeout(timeout); }
 }
 
 export function installRuntime({getData, reload, isLoading = () => false, message, onStatus = () => {}}) {
-    const element = (type, text = '') => { const node = document.createElement(type); node.textContent = text; return node; };
+    const element = (type, text = '') => { const node = document.createElement(type); bindText(node, () => text); return node; };
     const panel = element('section'); panel.className = 'system-transfer system-runtime'; panel.hidden = true;
     const heading = element('strong');
     const status = element('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
@@ -43,17 +45,17 @@ export function installRuntime({getData, reload, isLoading = () => false, messag
     resumeLabel.append(resume, element('span', ' Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen'));
     const actions = element('div'); actions.className = 'transfer-actions';
     const buttons = {};
-    for (const [action, text] of [['activate', 'Gespeicherte Automationen aktivieren'], ['deactivate', 'Alle Automationen dieses Systems stoppen'], ['status', 'Betriebsstatus in Z2M aktualisieren']]) {
+    for (const [action, text] of [['activate', t("ui.activate.saved.automations.89243fd1")], ['deactivate', t("ui.stop.all.automations.of.this.baed310b")], ['status', t("ui.refresh.z2m.operating.status.e313db3d")]]) {
         const button = element('button', text); button.type = 'button'; button.addEventListener('click', () => send(action)); buttons[action] = button; actions.append(button);
     }
-    const selectionLabel = element('label', 'Eine gespeicherte Automation auswählen'); const selection = element('select'); selection.setAttribute('aria-label', 'Automation für Einzelstart oder gezielten Stopp');
+    const selectionLabel = element('label', t("ui.select.a.saved.automation.b565d8b4")); const selection = element('select'); bindAttribute(selection, 'aria-label', () => t("ui.automation.for.single.run.or.e7f85af7"));
     selectionLabel.append(selection);
     const runStatus = element('p'); runStatus.setAttribute('role', 'status');
     const runActions = element('div'); runActions.className = 'transfer-actions';
-    for (const [action, text] of [['run_once', 'Einmal mit Bedingungen starten'], ['stop_rule', 'Nur diesen Lauf stoppen']]) {
+    for (const [action, text] of [['run_once', t("ui.run.once.with.condition.checks.04b18ecd")], ['stop_rule', t("ui.stop.only.this.run.61c5770e")]]) {
         const button = element('button', text); button.type = 'button'; button.addEventListener('click', () => send(action)); buttons[action] = button; runActions.append(button);
     }
-    const note = element('p', 'Einzelstart prüft die Bedingungen auch bei ausgeschalteten Regeln. Andere Automationen und der Automatikbetrieb bleiben dabei unverändert. Stoppen nimmt bereits gesendete Befehle nicht zurück.'); note.className = 'field-help';
+    const note = element('p', t("ui.single.run.checks.conditions.even.a8f08d10")); note.className = 'field-help';
     panel.append(heading, status, notice, resumeLabel, actions, selectionLabel, runStatus, runActions, note);
     document.querySelector('.system-selector').after(panel);
     const selections = new Map(); const preferences = new Map();
@@ -66,19 +68,19 @@ export function installRuntime({getData, reload, isLoading = () => false, messag
         const data = getData(); const v = data?.runtime;
         panel.hidden = !data?.workspace || !v;
         if (panel.hidden) return;
-        heading.textContent = `Betrieb steuern · ${data.module.baseTopic}`;
-        const mode = !v.confirmed ? 'Betrieb noch nicht bestätigt.' : v.executing ? 'Automatikbetrieb aktiv.' : 'Automatikbetrieb gestoppt.';
-        status.textContent = `${mode} ${v.message}`; notice.textContent = v.startNotice || '';
+        bindText(heading, () => t("ui.control.operation.1f1b8543", {p1: data.module.baseTopic}));
+        const mode = !v.confirmed ? t("ui.operation.not.confirmed.yet.ad7a9926") : v.executing ? t("ui.automatic.operation.active.b3fb2e84") : t("ui.automatic.operation.stopped.c6ae748f");
+        bindText(status, () => `${mode} ${v.message}`); bindText(notice, () => v.startNotice || '');
         resume.checked = preferences.get(key(data)) ?? v.resumeAfterRestart;
         resume.disabled = busy || isLoading();
         selection.replaceChildren();
-        const placeholder = element('option', 'Bitte Automation auswählen'); placeholder.value = ''; selection.append(placeholder);
+        const placeholder = element('option', t("ui.select.automation.7886e3a5")); placeholder.value = ''; selection.append(placeholder);
         for (const [id, rule] of Object.entries(v.rules)) { const option = element('option', rule.name); option.value = id; selection.append(option); }
         const selected = selections.get(key(data)) ?? '';
         selection.value = Object.hasOwn(v.rules, selected) ? selected : '';
         const rule = v.rules[selection.value];
         selection.disabled = busy || isLoading();
-        runStatus.textContent = rule?.message ?? 'Bitte eine gespeicherte Automation für den Einzelstart oder Stopp auswählen.';
+        bindText(runStatus, () => rule?.message ?? t("ui.select.a.saved.automation.for.53527a68"));
         buttons.activate.disabled = busy || isLoading() || !v.canActivate;
         buttons.deactivate.disabled = busy || isLoading() || !v.canStop;
         buttons.status.disabled = busy || isLoading() || !v.canRefresh;
@@ -93,13 +95,13 @@ export function installRuntime({getData, reload, isLoading = () => false, messag
         if (busy || isLoading()) { if (automatic) schedule(); return; }
         const data = getData(); const v = data?.runtime; if (!v) return;
         const ruleId = selections.get(key(data)) ?? ''; const rule = v.rules[ruleId];
-        if (action !== 'poll' && document.querySelector('dialog[open]')) { message('Bitte die offene Bearbeitung zuerst übernehmen oder schließen.'); return; }
+        if (action !== 'poll' && document.querySelector('dialog[open]')) { message(() => (t("ui.apply.or.close.the.open.fc12a342"))); return; }
         if (action === 'activate' && !v.canActivate || action === 'deactivate' && !v.canStop || action === 'status' && !v.canRefresh
             || action === 'run_once' && !rule?.canRun || action === 'stop_rule' && !rule?.canStop) return;
         const target = `„${data.module.baseTopic}“`;
-        const prompt = action === 'activate' ? `Gespeicherte Automationen in ${target} aktivieren? Geräte können dadurch geschaltet werden.`
-            : action === 'deactivate' ? `Alle Automationen in ${target} stoppen? Bereits gesendete Befehle bleiben wirksam.`
-                : action === 'run_once' ? `„${rule.name}“ in ${target} einmal mit Bedingungsprüfung starten? Geräte können geschaltet werden.` : '';
+        const prompt = action === 'activate' ? t("ui.activate.saved.automations.in.this.d652dc69", {p1: target})
+            : action === 'deactivate' ? t("ui.stop.all.automations.in.commands.da488c5b", {p1: target})
+                : action === 'run_once' ? t("ui.run.in.once.with.condition.e5366532", {p1: rule.name, p2: target}) : '';
         if (prompt && !confirm(prompt)) return;
         const choice = preferences.get(key(data)) ?? v.resumeAfterRestart;
         busy = true; clearTimeout(timer); paint(); if (!automatic) until = Date.now() + 120000;
@@ -112,7 +114,7 @@ export function installRuntime({getData, reload, isLoading = () => false, messag
             data.status = {...data.status, confirmed: view.confirmed, executing: view.executing, activeRevision: view.activeRevision, storedRevision: view.storedRevision};
             onStatus(data.status);
         } catch (error) {
-            if (current(data)) message(error.name === 'AbortError' ? 'Die Bestätigung steht noch aus. Kein erneuter Versand. Bitte den Betriebsstatus aktualisieren.' : error.message);
+            if (current(data)) message(() => (error.name === 'AbortError' ? t("ui.still.awaiting.confirmation.nothing.will.0bd206ce") : error.message));
         } finally { busy = false; paint(); schedule(); }
     }
     return () => {

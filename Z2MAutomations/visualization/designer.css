@@ -465,3 +465,9 @@ input, select { accent-color: var(--primary); }
 :root[data-native-embed="dark"] {color-scheme: dark;}
 :root[data-native-embed="light"] {color-scheme: light;}
 html[data-native-embed] body {color: var(--ink); background: var(--page);}
+
+/* Language controls remain reachable in native modal dialogs. */
+.designer-language {display: inline-flex; align-items: center; gap: .5rem; font-size: .9rem;}
+.designer-language select {min-height: 2.4rem; width: auto; max-width: 100%;}
+dialog > .designer-language {margin-top: .8rem;}
+@media (max-width: 760px) {.toolbar .designer-language {flex: 1 1 auto; justify-content: end;}}

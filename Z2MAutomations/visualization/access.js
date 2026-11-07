@@ -1,3 +1,4 @@
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* Refresh the same scoped capability; never reload editors or retry their writes. */
 export function installAccessRenewal(environment = window) {
     const {document, location} = environment;
@@ -6,8 +7,8 @@ export function installAccessRenewal(environment = window) {
     const endpoint = new URL('access-renew', location.href); endpoint.hash = '';
     const panel = document.createElement('aside'); panel.className = 'designer-access';
     const label = document.createElement('span'); label.setAttribute('role', 'status');
-    label.textContent = 'Designerzugang wird bei geöffneter Ansicht automatisch verlängert.';
-    const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Zugang verlängern';
+    bindText(label, () => t("ui.designer.access.is.renewed.automatically.4604c169"));
+    const button = document.createElement('button'); button.type = 'button'; bindText(button, () => t("ui.extend.access.c4f1b9a7"));
     panel.append(label, button); document.body.append(panel);
     let busy = false; let stopped = false;
     async function renew() {
@@ -21,14 +22,14 @@ export function installAccessRenewal(environment = window) {
                 if (response.status === 403) stopped = true;
                 throw new Error();
             }
-            const result = await response.json();
+            const result = localizeResponse(await response.json());
             if (result.ok !== true || !Number.isInteger(result.expires)) throw new Error();
-            label.textContent = 'Designerzugang verlängert bis ' + new Date(result.expires * 1000).toLocaleTimeString('de-DE') + '. Offene Eingaben bleiben erhalten.';
+            bindText(label, () => t("ui.designer.access.extended.until.f9c6fab5") + new Date(result.expires * 1000).toLocaleTimeString(locale()) + t("ui.unsaved.input.has.been.preserved.7eb1dc2b"));
             panel.dataset.tone = 'ok';
             return true;
         } catch {
-            label.textContent = stopped ? 'Der Designerzugang ist abgelaufen. Offene Eingaben bleiben sichtbar. Bitte den Designer über das Modul oder die Kachel erneut öffnen.'
-                : 'Der Zugang konnte noch nicht verlängert werden. Bitte die Verbindung prüfen und erneut versuchen; offene Eingaben bleiben erhalten.';
+            bindText(label, () => stopped ? t("ui.designer.access.has.expired.unsaved.4a300f04")
+                : t("ui.access.could.not.be.extended.0c3615f3"));
             panel.dataset.tone = 'error';
             return false;
         } finally { busy = false; button.disabled = stopped; }

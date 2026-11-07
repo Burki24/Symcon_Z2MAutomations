@@ -43,3 +43,10 @@ die zentralen principles/ und die relevanten standards/. Sie gelten für dieses 
   müssen mit deutschen, bereinigten nativen Debug-Ausgaben nachvollziehbar sein.
   Abläufe verwenden den kanonisch eingebundenen DebugFlowHelper; eigene Zähler
   oder parallele Maskierungslogik werden nicht eingeführt.
+
+- Gemeinsamer Designer: kanonische Quellen liegen jetzt in
+  Z2M-Automations/packages/designer/src. Die hier manifestierten Dateien unter
+  Z2MAutomations/visualization nicht eigenständig bearbeiten. Ein geprüftes
+  Paket wird mit tests/import-designer.mjs übernommen; tests/build-locales.mjs
+  prüft die festgeschriebenen Artefakte nur lesend. Native Kachel, Helper,
+  PHP-Anbindung sowie Erweiterung und Schema bleiben hier zuständig.

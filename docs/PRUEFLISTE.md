@@ -1,11 +1,22 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Aktueller Beta-Abschluss – 07.11.2026
+
+Lokaler Kandidat geprüft: 229 JavaScript-Tests samt PHP-Gesamtsuite,
+Paketgrenzen und isolierte echte Browserprüfung bestanden. B1–B4 sind
+abgeschlossen. Die automatische Versionierung arbeitet bereits auf GitHub;
+B5 betrifft den finalen Benutzer-Commit/Push, dessen CI und den festgelegten
+Veröffentlichungscommit. Storekonto/Kategorie sind nur lesend geprüft,
+Storetexte im [aktuellen Abnahmebericht](BETA_ABNAHME.md) vorbereitet.
+Keine erneute vollständige Praxisprüfung und keine Desktop-Funktion für die
+Beta ergänzen. Keine Änderung am Live-System oder am Dokumentationsaufbau.
+
 ## Live-Praxis bestätigt – 07.11.2026
 
 Symcon 9.0 und stabiles Z2M 2.14.2 sind vom Benutzer als erfolgreich live
 geprüft bestätigt. B1/B2 geschlossen; keine zusätzliche Agentenabnahme.
-R4/B3 und B4 sind ebenfalls abgeschlossen. Offen bleibt B5 mit dem tatsächlichen
-Lauf der neuen automatischen Versionierung, finaler CI und Store-/Releaseangaben.
+R4/B3 und B4 sind ebenfalls abgeschlossen. Offen bleibt B5 mit finaler CI, Veröffentlichungscommit und Storeabschluss.
+Der erste Lauf der automatischen Versionierung ist inzwischen bestätigt.
 Breitere Geräte-/Versionsprüfungen bleiben zusätzliche R5-Kompatibilitätsarbeit.
 Historische offene Bewertungen weiter unten werden durch diesen Nachtrag ersetzt.
 
@@ -180,11 +191,11 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] R3: S2 mit exaktem Vergleich beider lokalen Arbeitsbereiche und bestätigtem ursprünglichem Betrieb zuordnen.
 - [x] R3: Unabhängigen Vorher-/Nachher-Vergleich für S1 im selben automatischen Installationslauf am 06.11.2026 ergänzt; ursprüngliche lokale Bearbeitungsdaten und Betrieb wieder bestätigt.
 - [x] R4-Vorbereitung: vorhandene Belege abgleichen, verbleibende Fälle P0–P6 und isolierten Testaufbau festlegen; direkte Einrichtung, Altübernahme und echte Neustarts unterscheiden.
-- [ ] R4-Praxis: Zentralen-Restabnahme gemäß R4_ACCEPTANCE_PLAN.md durchführen und mit Versions-/Buildbezug und Rückweg abschließen.
-- [ ] R5: Vereinbarte Kompatibilitätsfälle aufnehmen und gezielt prüfen.
+- [x] R4-Praxis: Zentralen-Restabnahme gemäß R4_ACCEPTANCE_PLAN.md im dort abgegrenzten Umfang abgeschlossen, einschließlich nativer Klickprüfung und Rückweg.
+- [ ] R5, zusätzliche Kompatibilitätsarbeit: weitere Versionen und Converter nur auf konkreten Praxisauftrag prüfen; kein pauschales Hindernis der ersten Beta.
 - [x] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und mit regulär installiertem Paket praktisch nachprüfen.
 
-Erst danach über eine Veröffentlichung entscheiden. Die eigenständige
-Windows-Anwendung bleibt ein separates späteres Projekt. Diese Prüfliste
+Für die erste Beta den verbleibenden B5-Freigabeweg abschließen. Zusätzliche
+R5-Kompatibilität und die eigenständige Windows-/Linux-Anwendung bleiben getrennt. Diese Prüfliste
 erteilt weder eine Live-Freigabe noch einen Installations-, Neustart- oder
 Schaltauftrag.

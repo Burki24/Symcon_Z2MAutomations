@@ -540,3 +540,21 @@ Verbindungsmodul. Reine Autoritätsrückfragen sind lokal und rufen die gesperrt
 Verbindung nicht erneut auf. Einzellauf und Automatikbetrieb sind getrennt;
 Entwürfe werden durch Betriebsaufträge nicht geschrieben. Fehlende Antworten
 werden sichtbar, niemals durch automatisches Wiederholen ersetzt.
+
+## Gemeinsames Designer-Paket ab Desktop D1
+
+Die kanonische Designerquelle samt Sprachkatalogen liegt in
+Burki24/Z2M-Automations unter packages/designer/src. Symcon enthält weiterhin
+lokale, festgeschriebene Assets; zur Laufzeit und Prüfung wird kein Nachbarrepo
+oder Download benötigt. libs/designer-package.json hält Version, Herkunft,
+ursprünglichen Quellcommit und SHA-256 je Datei fest. Die bestehende Lizenz
+liegt unverändert unter libs/designer-LICENSE.
+
+Ein geprüftes npm-Archiv wird ausdrücklich mit node tests/import-designer.mjs
+<Archiv.tgz> eingelesen. Der Importer akzeptiert nur reguläre erlaubte Dateien,
+prüft Größe, Archiv- und Dateiprüfsummen vor dem Schreiben und erhält die lokale
+Kachel und den zentralen Interaktionshelper. npm run check:locales prüft das
+Paket nun lesend; Änderungen entstehen ausschließlich aus der gemeinsamen Quelle.
+Die Transportgrenze nutzt hier weiterhin die bisherigen HTTP-Routen samt
+Zugangs-, Besitzer- und Entwurfsprüfungen. Native Texte und Parametervorlagen
+bleiben erhalten. Erweiterung und YAML-Schema werden dadurch nicht verändert.

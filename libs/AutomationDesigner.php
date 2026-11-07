@@ -11,6 +11,7 @@ require_once __DIR__ . '/AutomationDesignerEditing.php';
 require_once __DIR__ . '/AutomationDesignerSequences.php';
 require_once __DIR__ . '/AutomationDesignerManagement.php';
 require_once __DIR__ . '/AutomationDesignerImport.php';
+require_once __DIR__ . '/DesignerPresentation.php';
 
 /** Scoped browser access to existing caches and guarded local draft creation. */
 trait AutomationDesigner
@@ -20,8 +21,9 @@ trait AutomationDesigner
     use AutomationDesignerSequences;
     use AutomationDesignerManagement;
     use AutomationDesignerImport;
-    private const DESIGNER_ASSETS = ['index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
-        'reader.js'                               => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript', 'access.js' => 'application/javascript', 'embedding.js' => 'application/javascript', 'interaction.js' => 'application/javascript'];
+    use DesignerPresentation;
+    private const DESIGNER_ASSETS = ['transport.js'    => 'application/javascript', 'localization.js' => 'application/javascript', 'locales.js' => 'application/javascript', 'index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
+        'reader.js'                                    => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript', 'access.js' => 'application/javascript', 'embedding.js' => 'application/javascript', 'interaction.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string
     {
@@ -53,18 +55,23 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = self::DESIGNER_ASSETS + ['access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
+            $types = self::DESIGNER_ASSETS + ['language' => 'application/json', 'access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['access-renew', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['language', 'access-renew', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
                 return;
             }
             try {
+                if ($asset === 'language') {
+                    [$status, $result] = $this->DesignerLanguageRequest();
+                    $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
+                    return;
+                }
                 if ($asset === 'access-renew') {
                     [$status, $result] = $this->RenewDesignerAccess();
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
@@ -110,7 +117,7 @@ trait AutomationDesigner
                 if ($asset === 'index.html') {
                     $this->DebugEvent('AKTION', 'Responsive Designeroberfläche ausgeliefert. Darstellung folgt dem Browser; Verwaltungsbereiche bleiben bis zum Öffnen zugeklappt. Keine Z2M-Anfrage.');
                     $body = str_replace(
-                        ['defer src="designer.js"', "connect-src 'none'", '<body>', 'VORSCHAU', 'Klickbarer Oberflächenentwurf',
+                        ['type="module" src="designer.js"', "connect-src 'none'", '<body>', 'VORSCHAU', 'Klickbarer Oberflächenentwurf',
                             'Beispieldaten · keine Verbindung zu Symcon oder Z2M · Änderungen gelten nur in diesem Fenster.'],
                         ['defer src="startup.js"', "connect-src 'self'", '<body class="module-designer">', 'ENTWURF', 'Modulansicht mit Regelerstellung',
                             'Neue Regeln werden ausgeschaltet im Symcon-Entwurf ergänzt. Übertragen und Aktivieren weiterhin im nativen Formular.'],
@@ -256,6 +263,7 @@ trait AutomationDesigner
 
     private function DesignerResponse(int $status, string $type, string $body): void
     {
+        if ($type === 'application/json') $body = $this->DesignerPresentationBody($body);
         $this->DebugEvent($status >= 400 ? 'FEHLER' : 'SENDEN', 'Designeraufruf beantwortet.', ['HTTP-Status' => $status, 'AusgabeBytes' => strlen($body)]);
         $this->SendResponse($status, $type, $body);
     }
