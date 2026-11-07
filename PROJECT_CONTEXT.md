@@ -2,6 +2,16 @@
 
 ## Aktuelle Ergänzung
 
+Desktop-Planung am 07.11.2026: Der Benutzer beauftragt eine gemeinsame
+Z2MAutomations-Desktop-Anwendung für Windows und Linux parallel; Ubuntu LTS
+auf x64 ist als Linux-Ziel bestätigt. [DESKTOP_PLAN.md](docs/DESKTOP_PLAN.md)
+und [ADR 0034](docs/adr/0034-desktop-windows-linux-and-localization.md) legen
+gemeinsamen Designer, Deutsch/Englisch, Electron-/MQTT-Unterbau, Übernahme und
+getrennte Plattformprüfungen fest. Zuerst Mehrsprachigkeit im bestehenden
+Designer, danach beide App-Ziele gemeinsam. Planungsstand, keine Umsetzung,
+kein Remote-Repository und keine Installation oder Veröffentlichung.
+Die Symcon-Beta und bestehende Live-Automationen bleiben davon unberührt.
+
 Dokumentationsaufbau am 07.11.2026 auf Benutzerwunsch erhalten: eigene
 Test-Symcon-Kategorie „Z2MAutomations – Dokumentationsbeispiele“ mit einer
 Zentrale, zwei Verbindungen und isolierten synthetischen MQTT-Gegenstellen.
