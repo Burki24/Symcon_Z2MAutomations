@@ -1,1839 +1,735 @@
-# Z2MAutomations
+# Zigbee2MQTT Automationszentrale
 
-## Native Symcon-Kachel und Designerzugang
+Mit der Automationszentrale erstellen und verwalten Sie Automationen für bis zu
+acht Zigbee2MQTT-Systeme. **Hauptarbeitsbereich ist der Automationsdesigner im
+Browser.** Geräte, Kanäle, Werte, Zeiten und Aktionen wählen Sie dort ohne
+Programmier- oder YAML-Kenntnisse aus.
 
-Die Automationszentrale zeigt den **vollständigen Designer direkt in der Kachel**.
-Das vorhandene Webfrontend bleibt zusätzlich verfügbar.
+Symcon überträgt die fertigen Regeln an die eigene Z2M-Erweiterung. Nach dem
+Speichern und Aktivieren führt Zigbee2MQTT sie selbstständig aus – auch wenn
+Symcon ausgeschaltet ist. Die native Symcon-Kachel bietet einen zusätzlichen
+Zugang zu demselben Designer.
 
-1. Nach dem Modulupdate die **Automationszentrale** als Objekt in die
-   Kachelvisualisierung aufnehmen. Der Designer verbindet sich beim Öffnen der
-   Kachel automatisch. Dabei werden keine Automationen übertragen oder gestartet.
-2. Im Designer das gewünschte **Z2M-System** auswählen. Geräte, Entwürfe und
-   Betriebsanzeigen gehören jeweils zu diesem System. Alle vorhandenen
-   Bearbeitungsfunktionen stehen auch innerhalb der Kachel zur Verfügung.
-3. Für mehr Platz **Kachel vergrößern** wählen. Ab **Symcon 9.1** bleibt der
-   HTML-Designer dabei in Symcons eigener Großansicht. Unter Symcon 9.0 ist die
-   Einbettung in der normalen Kachel verfügbar; diese sollte im Kachellayout
-   ausreichend groß eingestellt werden. Die HTML-Großansicht benötigt Symcon 9.1.
-   Ein offener Bearbeitungsdialog muss vor dem Vergrößern übernommen oder
-   geschlossen werden, damit seine Eingaben erhalten bleiben.
-4. **Status aktualisieren** liest den vorhandenen Modulstand. Wenn nach einem
-   Modulupdate noch keine Verbindung bestätigt ist, im Designer unter
-   **Systeme und Diagnose** die Verbindung prüfen. Diese Prüfung schaltet keine Geräte.
-5. **Zugang erneuern** verlängert den bestehenden Zugang des eingebetteten
-   Designers. Der Arbeitsbereich wird dabei nicht neu geladen; offene Eingaben
-   und die Systemauswahl bleiben erhalten. Es wird kein zusätzliches Browserfenster
-   geöffnet und keine Automation in Z2M gespeichert oder aktiviert.
+## Inhaltsverzeichnis
 
-Der Zugang ist zunächst 15 Minuten gültig. Bei sichtbarer Ansicht wird er alle
-vier Minuten automatisch verlängert; „Zugang verlängern“ im Designer führt dieselbe
-Prüfung sofort aus. Nach längerer Abwesenheit, einem Modulupdate, geänderten
-Systemzuordnungen oder spätestens acht Stunden muss die Kachel beziehungsweise
-der Designer erneut geöffnet werden. Ein abgelaufener Zugang lässt sich nicht
-mit dem alten Link verlängern. Offene Eingaben bleiben zunächst sichtbar und
-werden nicht automatisch verworfen oder nochmals an das Modul gesendet.
-Höchstens vier Designerzugänge sind gleichzeitig gültig; ein weiterer
-Öffnungsvorgang ersetzt den ältesten Zugang.
+- [1. Voraussetzungen](#1-voraussetzungen)
+- [2. Funktionsumfang](#2-funktionsumfang)
+- [3. Automationszentrale einrichten](#3-automationszentrale-einrichten)
+- [4. Im Browserdesigner arbeiten](#4-im-browserdesigner-arbeiten)
+- [5. Automationen erstellen](#5-automationen-erstellen)
+- [6. Vorhandene Regeln verwalten](#6-vorhandene-regeln-verwalten)
+- [7. Entwurf prüfen und an Z2M übertragen](#7-entwurf-prüfen-und-an-z2m-übertragen)
+- [8. Automationen aktivieren und stoppen](#8-automationen-aktivieren-und-stoppen)
+- [9. Aktionen zwischen Z2M-Systemen](#9-aktionen-zwischen-z2m-systemen)
+- [10. Symcon-Ereignisse importieren](#10-symcon-ereignisse-importieren)
+- [11. Native Bedienung und Kachel](#11-native-bedienung-und-kachel)
+- [12. Einstellungen und Statusanzeigen](#12-einstellungen-und-statusanzeigen)
+- [13. Skriptfunktionen](#13-skriptfunktionen)
+- [14. Lizenz](#14-lizenz)
 
-Innerhalb der Kachel richten sich Farben, Grundschriftgröße und verfügbare Breite
-nach dem Symcon-Client. Der eigenständige Browserdesigner folgt weiterhin der
-Hell-/Dunkeleinstellung des Browsers. Die Einbettung verwendet denselben Designer
-und dieselben gebundenen Aufträge; eine zusätzliche MQTT-Verbindung ist nicht nötig.
+## 1. Voraussetzungen
 
-Die Administration erfolgt über das Webfrontend oder die native Symcon-Kachel.
-Eine IPSView-Administrationsansicht wird nicht mehr bereitgestellt. Eine bisher
-verwendete IPSView-HTMLBox kann aus der Ansicht entfernt werden. Die frühere
-Variable **Automationsdesigner für IPSView** wird nicht mehr aktualisiert;
-zugehörige Zugänge sind gesperrt. Nach Entfernen ihrer Platzierungen und
-Verknüpfungen kann die Variable in Symcon manuell gelöscht werden.
+- IP-Symcon ab **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
+- Für jedes Z2M-System eine eingerichtete **Zigbee2MQTT Verbindung**. Diese
+  verwendet den passenden Symcon MQTT Client oder MQTT Server und das genaue
+  Basistopic. Die Einrichtung beschreibt die [Anleitung des Verbindungsmoduls](../Z2MConnection/README.md).
+- Die mitgelieferte Erweiterung **z2m-automations.mjs** auf jedem beteiligten
+  Z2M-System. Die Installation ist über die Verbindung oder die Zentrale möglich.
+  Externe JavaScript-Erweiterungen müssen in Z2M bereits erlaubt sein.
+- Für Geräteaktionen passende **schaltbare Symcon-Variablen** und schreibbare
+  Z2M-Eigenschaften. Lesbare Sensoren sind als Auslöser und Bedingungen erlaubt.
+- Ein Browser, der den Webserver derselben Symcon-Installation erreichen kann.
 
-Mit diesem Modul erstellen und bearbeiten Sie Automationen per Klick. Symcon
-überträgt die Regeln an die eigene Z2M-Erweiterung. Nach dem Speichern und
-Aktivieren führt Zigbee2MQTT sie auch bei ausgeschaltetem Symcon aus.
+Eine Zentrale verwaltet bis zu acht Systeme. Jedes davon besitzt einen eigenen
+Entwurf und seine eigene Verbindung. Mehrere Systeme dürfen denselben Broker
+nutzen; ihre Basistopics müssen für systemübergreifende Aktionen eindeutig sein.
 
-Für die neue gemeinsame Verwaltung beginnen Sie mit
-[Automationszentrale anlegen](#automationszentrale-anlegen).
-Die folgenden Schritte beschreiben die bisherigen Funktionen im Einzelbetrieb:
+Die [Kompatibilitätsübersicht](../docs/COMPATIBILITY.md) nennt die belegten Versionen.
 
-1. [MQTT-Verbindung einrichten](#voraussetzungen-und-einrichtung).
-2. [Erweiterung installieren](#erweiterung-installieren).
-3. [Erste Automation erstellen](#einfache-automation-per-klick-erstellen).
-4. [Änderungen übernehmen, prüfen, speichern und starten](#entwurf-speichern-und-starten).
+## 2. Funktionsumfang
 
-Für vorhandene Regeln: [Suchen und Kopieren](#viele-automationen-finden-und-kopieren),
-[Bearbeiten und Löschen](#vorhandene-automationen-bearbeiten-oder-löschen).
-Weitere Abläufe: [Zeit und Wochentage](#mehrere-uhrzeiten-und-erlaubte-wochentage),
-[Sonnenzeiten](#automationen-bei-sonnenauf--oder-sonnenuntergang),
-[gemeinsame Gerätebefehle und Farben](#mehrere-eigenschaften-gemeinsam-setzen-und-farben-auswählen),
-[Szenen](#vorhandene-szenen-aufrufen), [Aktionsfolgen](#eine-aktionsfolge-mehrfach-verwenden),
-[zweites Z2M-System](#ein-gerät-auf-dem-zweiten-z2m-system-schalten) und
-[Symcon-Ereignisse importieren](#symcon-ereignisse-in-der-zentrale-und-im-designer-importieren).
+- Geräteereignisse, Messwerte, Uhrzeiten und Sonnenzeiten als Auslöser.
+- Bis zu acht Auslöser pro Automation: Jeder kann die Regel allein starten.
+- Bedingungen für Gerätewerte, unabhängige Wochentage und Zeitfenster.
+- Geräte und Gruppen schalten, Werte und Farben setzen sowie vorhandene Szenen aufrufen.
+- Mehrere Aktionen mit Wartezeiten; Reihenfolge per Drag & Drop oder Pfeilbuttons ändern.
+- Wiederverwendbare Aktionsfolgen in mehreren Automationen verwenden.
+- Regeln bearbeiten, als ausgeschaltete Kopie anlegen, löschen und filtern.
+- Unterstützte Symcon-Ereignisse als ausgeschaltete Entwürfe importieren.
+- Entwürfe je System prüfen und übertragen; Automatikbetrieb und einzelne Läufe steuern.
+- Aktionen an andere freigegebene Z2M-Systeme senden.
+- Verbindung und Erweiterungsstand prüfen sowie die Erweiterung je System aktualisieren.
 
-Für mehrere unabhängige MQTT-Server:
-[Bis zu acht MQTT-Broker miteinander verbinden](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
-Die Anleitung beginnt mit zwei vorhandenen Mosquitto-Brokern und zeigt danach
-den schrittweisen Ausbau. Pro Z2M-System bleibt eine eigene Z2M-Verbindung in
-derselben Automationszentrale bestehen.
+| Grenze | Je Z2M-System beziehungsweise Automation |
+| --- | --- |
+| Automationen | Höchstens 100 je System |
+| Wiederverwendbare Aktionsfolgen | Höchstens 32 je System |
+| Auslöser | 1 bis 8 je Automation |
+| Bedingungen | Höchstens 16 je Automation, einschließlich Wochentagen und Zeitfenstern |
+| Ausgeführte Aktionsschritte | 1 bis 16 je Automation, einschließlich aufgerufener Folgen |
+| Eigenschaften in einem gemeinsamen Gerätebefehl | Höchstens 8 |
+| Wartezeit vor einem Schritt | 0 bis 86400 ganze Sekunden |
+| Größe der Automationsdatei | Höchstens 128 KiB je System |
 
-## Partnerfreigaben im Browserdesigner
+## 3. Automationszentrale einrichten
 
-Eine Partnerfreigabe erlaubt einem anderen Z2M-System, Geräte dieses Systems
-zu schalten. Sie gilt nur in eine Richtung. Beispiel: Soll ein Taster auf System A
-ein Licht auf System B schalten, geben Sie **auf System B das System A frei**.
+### Automationszentrale anlegen
 
-1. Im Designer oben das **empfangende System** auswählen und **Partnerfreigaben**
-   öffnen. Der Dialog zeigt dessen Namen und Basistopic.
-2. Die Systeme anhaken, von denen es Befehle annehmen darf. Ein entferntes Häkchen
-   entzieht die bisherige Freigabe. Die Gegenrichtung bleibt unverändert.
-3. **Änderungen prüfen** wählen. Vor einem Entzug sehen Sie die betroffenen
-   lokalen Automationen, auch ausgeschaltete Regeln und verwendete Aktionsfolgen.
-   Bei vielen Treffern werden die Gesamtzahl und die ersten 20 je Sender gezeigt.
-4. Mit **Freigaben im Entwurf übernehmen** bestätigen. Das ändert ausschließlich
-   den lokalen Entwurf des empfangenden Systems. Anschließend diesen Entwurf in
-   Z2M **prüfen, speichern und aktivieren**, damit die Freigaben dort gelten.
+1. Zuerst die benötigten [Z2M-Verbindungen](../Z2MConnection/README.md) anlegen
+   und deren Verbindung prüfen.
+2. Im Symcon-Objektbaum eine Instanz hinzufügen und nach
+   **Zigbee2MQTT Automationszentrale** suchen.
+3. Einen verständlichen Namen vergeben, beispielsweise **Z2M-Automationszentrale**.
+   Für die Zentrale selbst wird kein MQTT Client oder Server ausgewählt.
+4. Im Formular unter **Z2M-Systeme** die gewünschten Verbindungen in der Spalte
+   **Verwenden** anhaken. Die Liste zeigt Name, Basistopic und MQTT-Zuordnung.
+5. **Systemzuordnung übernehmen** wählen. Anschließend das gewünschte System in
+   **Entwurf dieses Systems bearbeiten** auswählen.
 
-Bisherige Freigaben für hier nicht zugeordnete Systeme bleiben angehakt sichtbar.
-Deren Automationen können hier nicht geprüft werden. Entfernen Sie diese Häkchen
-nur, wenn Sie die Freigaben wirklich entziehen möchten. Ohne geänderte Auswahl
-bleibt auch der genaue YAML-Text erhalten.
+![Native Einrichtung der Automationszentrale mit Verbindungen und Systemauswahl](../docs/screenshots/automationszentrale.png)
 
-Offene Eingaben zuerst übernehmen oder verwerfen. Hat sich während der Prüfung
-ein System oder Entwurf geändert, den Dialog schließen und erneut öffnen.
-Fehlt der Button nach einem Modulupdate, den Designer erneut im Modul öffnen.
-Die erforderliche MQTT-Verbindung zwischen zwei Brokern wird hier nicht
-eingerichtet. Gespeicherte und laufende Z2M-Automationen bleiben bis zu einer
-gesonderten Übertragung unverändert.
+Das Zuordnen allein übernimmt noch keine Regeln. Bereits zugeordnete Verbindungen
+bleiben erhalten. Eine Verbindung kann innerhalb dieser Symcon-Installation nur
+von einer Zentrale verwaltet werden. Neue Verbindungen erscheinen nach erneutem
+Öffnen des Formulars.
 
-## Systeme und Diagnose im Browserdesigner
+### Direkt aus Z2M einrichten
 
-**Systeme und Diagnose** zeigt alle der Zentrale zugeordneten Z2M-Systeme in
-einer Übersicht. Sichtbar sind Name, Basistopic, Z2M-Verbindung und MQTT-Gateway,
-Verbindungslage, Erweiterungsstand und Aufzeichnung. Durch Anklicken eines
-Systemnamens wechseln Sie über die vorhandene Systemauswahl zu dessen Diagnose.
-Offene native Eingaben werden dabei weiterhin geschützt.
-
-1. Den Designer im Zentralenformular öffnen und **Systeme und Diagnose** wählen.
-   Die Anzeige verwendet zunächst die zuletzt bekannten Daten aus Symcon.
-2. **Zigbee2MQTT-Verbindung prüfen** sendet eine neue Verbindungsprüfung an
-   genau dieses System. Erst die passende Antwort bestätigt den Erfolg.
-   Eine ausbleibende Antwort wird als Fehler angezeigt.
-3. **Erweiterungsstatus abfragen** bestätigt den Empfänger und aktualisiert
-   installierten Stand, mitgelieferten Stand und Updatehinweis. „Noch nicht
-   bestätigt“ bedeutet, dass der Stand zunächst geprüft werden muss. Es bedeutet
-   nicht automatisch, dass die Erweiterung fehlt. Ein fehlender Build einer
-   älteren Erweiterung wird gesondert erklärt.
-4. Für eine Ablaufprüfung das **native Debugfenster der angegebenen
-   Z2M-Verbindung** öffnen und dort die Anzeige starten. Im Designer eine Dauer
-   von 1, 5, 10 oder 15 Minuten wählen und **Aufzeichnung starten** drücken.
-   Die bestätigte Aufzeichnung und ihre absolute Endzeit werden angezeigt.
-5. Bei Aktionen zwischen zwei Z2M-Systemen auf beiden Seiten aufzeichnen.
-   Systembezug, gemeinsamer Regellauf und Aktionsschritt ermöglichen den Vergleich
-   der Meldungen in den beiden Debugfenstern. Die Aufzeichnungen sind voneinander
-   unabhängig; beide sind jeweils der zugehörigen Verbindung zugeordnet.
-6. **Eigene Aufzeichnung stoppen** beendet nur diese Aufzeichnung. Auch während
-   einer noch laufenden Statusprüfung ist ein Stopp möglich. Er stoppt keine
-   Automation und beendet keine Aufzeichnung einer anderen Verbindung.
-
-Die Aufzeichnung endet automatisch. Diagnoseabfragen verlängern sie nicht.
-Das Schließen des Dialogs beendet sie ebenfalls nicht; beim erneuten Öffnen
-wird die verbleibende Aufzeichnung angezeigt. Native Konsole und Browser
-bedienen dieselbe Aufzeichnung der jeweiligen Z2M-Verbindung.
-
-**Diagnosestand neu laden** liest nur den vorhandenen Stand aus Symcon.
-Solange der Dialog offen ist, wird dieser bei einer laufenden Prüfung oder
-Aufzeichnung regelmäßig nachgeladen. Es wird dabei kein Prüf- oder Startauftrag
-wiederholt. Nach einer unklaren Rückmeldung zuerst diesen Diagnosestand laden.
-Ein zwischenzeitlich geändertes System oder eine neue Aufzeichnung erfordert
-eine aktuelle Anzeige, bevor ein weiterer Auftrag angenommen wird.
-
-Entwürfe, offene Eingaben, Empfangsfreigaben und laufende Automationen bleiben
-bei diesen Diagnoseaktionen erhalten. Der Browser speichert keine eigene
-Kopie der Ablaufmeldungen. Bei einem Updatehinweis ist eine gesonderte
-Aktualisierung der Erweiterung erforderlich. Dafür steht nun der systemgebundene
-Installationsbutton im selben Dialog zur Verfügung; siehe den folgenden Abschnitt.
-Für die neue Diagnoseansicht genügt ein Library-Modulupdate; ein
-Z2M-Erweiterungsupdate ist nicht erforderlich.
-
-### Erweiterung eines Systems installieren oder aktualisieren
-
-1. Das gewünschte Z2M-System auswählen. Im nativen Zentralenformular den Bereich
-   **Z2M-Erweiterung dieses Systems installieren oder aktualisieren** öffnen;
-   im Designer **Systeme und Diagnose** öffnen.
-2. Installierten und mitgelieferten Build prüfen. Bei unbekanntem Stand zunächst
-   **Erweiterungsstatus abfragen** wählen. Für die Erstinstallation genügt eine
-   erreichbare, zugeordnete und noch besitzerlose Z2M-Verbindung.
-3. **Mitgelieferte Erweiterung auf diesem System installieren oder aktualisieren**
-   wählen. Die Bestätigung nennt System, Basistopic und mitgelieferten Build;
-   im Designer außerdem die Z2M-Verbindung und das MQTT-Gateway.
-4. Den Hinweis auf mögliche Unterbrechungen lesen und ausdrücklich bestätigen.
-   Erst dann prüft das Modul die Verbindung frisch und lädt ausschließlich die
-   mitgelieferte Datei „z2m-automations.mjs“ hoch. Externe Erweiterungen müssen
-   in Z2M bereits erlaubt sein; diese Einstellung wird nicht automatisch geändert.
-5. Die Rückmeldung abwarten. **Installation erfolgreich** erscheint erst nach
-   Bestätigung einer neuen Erweiterungssitzung mit erwartetem Build. Ist der
-   vorherige Speicherstand bekannt, müssen dessen Revision und Prüfsumme weiter
-   passen. Danach werden Geräte, Kanäle, Gruppen und Szenen dieses Systems
-   automatisch aktualisiert. Währenddessen steht dort **Gerätedaten werden
-   automatisch nachgeladen**. Erst nach dieser Rückmeldung ist der gesamte
-   Ablauf abgeschlossen. Der bestätigte Automatikzustand wird daneben angezeigt.
-
-Scheitert nur das Nachladen, steht dort ausdrücklich **Erweiterung installiert.
-Gerätedaten nicht aktualisiert** samt Ursache. Die Installation muss deshalb
-nicht wiederholt werden. Die Gerätedaten können später über **Gerätedaten
-aktualisieren** erneut geladen werden. Entwürfe, Partnerfreigaben und offene
-Eingaben bleiben erhalten. Ein Modulupdate unterbricht einen noch offenen
-Geräteabruf; danach bei Bedarf manuell nachladen.
-
-Ein Erweiterungswechsel kann laufende Abläufe und Aufzeichnungen beenden.
-Ist der automatische Wiederanlauf in Z2M eingeschaltet, können die gespeicherten
-freigegebenen Regeln danach wieder bereit sein. Das Modul sendet hierfür keinen
-zusätzlichen Aktivierungsbefehl. Entwürfe, Eingaben und Automationsdateien werden
-bei der Installation nicht übertragen. Andere Z2M-Systeme bleiben unverändert.
-
-Bei einer fehlenden oder unklaren Antwort zuerst **Diagnosestand neu laden**
-bzw. **Installationsstatus aktualisieren**, danach gegebenenfalls den
-Erweiterungsstatus abfragen. Kein Auftrag wird automatisch erneut hochgeladen,
-auch nicht nach einem Modulupdate. Ein eventuell nötiger Z2M-Neustart erfolgt
-gesondert. Im nativen Formular nach einer Änderung des Erweiterungsstands
-**Installationsansicht neu laden** wählen, bevor erneut bestätigt wird.
-Verwaltete Verbindungen akzeptieren den Upload ausschließlich von ihrer Zentrale.
-Die Erstinstallation übernimmt noch keine Regeln und wechselt keinen Besitzer;
-anschließend den normalen Einrichtungsweg nutzen.
-
-## Automationszentrale anlegen
-
-1. Z2MAutomations in der Symcon-Modulverwaltung aktualisieren. Ein Update der
-   Z2M-Erweiterung ist für diesen Einrichtungsweg nicht erforderlich.
-2. Im Objektbaum eine neue Instanz hinzufügen und nach
-   **Zigbee2MQTT Automationszentrale** suchen. Das ist das Modul Z2MAutomations.
-3. Die Instanz beispielsweise **Z2M-Automationszentrale** nennen und anlegen.
-   Es wird kein MQTT-Client oder -Server als Schnittstelle ausgewählt.
-4. Im Formular erscheint **Z2M-Systeme**. Vorhandene **Zigbee2MQTT Verbindung**-
-   Instanzen werden dort automatisch mit Name, Instanz-ID, Basistopic und ihrer
-   MQTT-Zuordnung angezeigt. Die gewünschten Zeilen unter **Verwenden** anhaken,
-   höchstens acht Systeme.
-5. **Systemzuordnung übernehmen** wählen. Anschließend steht die gemeinsame
-   Systemauswahl zur Verfügung. Dieser Schritt kopiert noch keine Automationen.
-
-Erscheint beim Anlegen weiterhin „Schnittstelle konfigurieren“ mit einer
-MQTT-Auswahl, den Dialog abbrechen und prüfen, ob das Modulupdate mit dem neuen
-Anlegeweg geladen ist. Keinen MQTT-Client als Platzhalter auswählen.
-
-Vorhandene Automationsinstanzen bleiben bis zur ausdrücklichen
-[gesicherten Übernahme](#sicherung-und-lokale-übernahme) erhalten. Das Anlegen der
-Zentrale und das Zuordnen ihrer Verbindungen übernehmen weder Entwürfe noch
-Besitzer und verändern keine Automationen in Z2M. Die Zentrale und die
-Z2M-Verbindungen sind die beiden unterschiedlichen Module dieser Library.
-
-Die Anzeige allein ordnet nichts zu. Bereits zugeordnete Systeme sind angehakt
-und gegen versehentliches Entfernen geschützt. Verbindungen einer anderen
-Zentrale und unvollständig eingerichtete Verbindungen werden mit einem Hinweis
-angezeigt und können nicht neu ausgewählt werden. Fehlt eine zuvor zugeordnete
-Instanz, bleibt ihre Zeile erhalten; ihr Entwurf wird nicht gelöscht.
-
-Neue Verbindungsinstanzen erscheinen nach erneutem Öffnen des Formulars. Hat
-sich zwischen Anzeige und Übernehmen eine Verbindung oder ihr Besitzer geändert,
-wird die Auswahl nicht gespeichert. Das Formular neu öffnen und die Angaben
-erneut prüfen. Die Liste liest lokale Instanzdaten und sendet keine MQTT-Anfrage.
-
-Erscheint „Das Modul ist gerade beschäftigt“, läuft noch ein anderer Vorgang.
-Die angeforderte Aktion wurde nicht ausgeführt. Kurz warten und anschließend
-erneut auslösen; beim Öffnen des Formulars dieses erneut öffnen. Entwürfe bleiben
-erhalten. Das Modul wiederholt die abgewiesene Aktion nicht automatisch.
-Ein Hinweis auf eine andere zuständige Verwaltungsinstanz bedeutet dagegen
-einen tatsächlichen Besitzerkonflikt und verlangt die dortige Bearbeitung oder
-den vorgesehenen gesicherten Rückweg.
-
-## Direkt aus Z2M einrichten
-
-Dieser Weg benötigt keine alten Automationsinstanzen. Nach dem Zuordnen der
-Z2M-Verbindungen wird jedes System einzeln eingerichtet:
+Jedes zugeordnete System wird einmal einzeln eingerichtet:
 
 1. Im nativen Zentralenformular das gewünschte **Z2M-System** auswählen.
-2. **Direkt aus Z2M einrichten** öffnen und **Z2M-Automationen sicher einlesen**
-   wählen. Der Abruf liest die gespeicherten Automationen und Gerätedaten.
-   Vorhandene lokale Entwürfe und Besitzer werden nicht ersetzt.
-3. Die Vorschau prüfen: Systemtopic, gespeicherte Revision, Anzahl der Regeln,
-   Aktionsfolgen und Partnerfreigaben sowie der zuletzt gelesene Betriebszustand.
-   Der Stand und die bisherige lokale Zuordnung sind zusätzlich privat gesichert.
-4. **Verbindung übernehmen und Entwurf einrichten** wählen und bestätigen.
-   Vor der Übernahme prüft das Modul den gespeicherten Stand erneut. Eine inzwischen
-   geänderte Datei, Sitzung oder Zuordnung verlangt eine neue Vorschau.
-5. Die Erfolgsmeldung abwarten. Danach können die Regeln im nativen Formular oder
-   Browserdesigner bearbeitet sowie systemweise geprüft und übertragen werden.
+2. Falls die Erweiterung fehlt, den Bereich **Z2M-Erweiterung dieses Systems
+   installieren oder aktualisieren** verwenden. Danach die Bestätigung abwarten.
+3. **Direkt aus Z2M einrichten** öffnen und **Z2M-Automationen sicher einlesen**
+   wählen. Der Abruf liest die gespeicherten Regeln und Gerätedaten als Vorschau.
+4. In der Vorschau System, gespeicherten Stand, Regeln, Aktionsfolgen und
+   Partnerfreigaben kontrollieren. Der bisherige lokale Stand wird zusätzlich gesichert.
+5. **Verbindung übernehmen und Entwurf einrichten** wählen und bestätigen.
+6. Nach der Erfolgsmeldung **Automationsdesigner öffnen** wählen.
 
-Die Einrichtung schreibt nichts nach Z2M und aktiviert oder stoppt keine Regeln.
-Gespeicherte YAML, Regelnamen, IDs, Aktivierungskennzeichen und Partnerfreigaben
-bleiben erhalten. Die Verbindung gehört anschließend innerhalb dieser Symcon-
-Installation ausschließlich dieser Zentrale. Andere Systeme behalten ihre Entwürfe.
-Die Einrichtung benötigt die bereits vorhandene eigene Z2M-Erweiterung; ein
-Erweiterungsupdate für diesen Einrichtungsweg ist nicht erforderlich.
+Dieser Ablauf liest aus Z2M. Er speichert, aktiviert oder stoppt dort keine
+Automation. Namen, Kennungen, Regelschalter und vorhandene Freigaben werden
+übernommen. Ist Z2M noch leer, entsteht ein leerer lokaler Entwurf. Ein nicht
+lesbarer Z2M-Speicher wird nicht als leer behandelt.
 
-Ist Z2M noch leer, wird nach Bestätigung ein leerer **lokaler** Entwurf vorbereitet.
-Ein beschädigter oder gesperrter Z2M-Speicher wird niemals als leer behandelt.
-Existiert bereits ein lokaler Entwurf oder eine zuständige bisherige
-Einzelinstanz, bleibt deren Stand geschützt. Dann zunächst
-die vorhandene Bearbeitung beziehungsweise den bisherigen Übernahmeweg klären.
+Besteht bereits ein lokaler Entwurf oder eine Zuständigkeit einer anderen
+Instanz, wird dieser Stand geschützt. Für vorhandene Automations-Einzelinstanzen
+gilt der [gesicherte Übernahmeweg](../docs/MIGRATION.md).
 
-**Vorschau verwerfen** beendet nur den eigenen Leseauftrag. Nach einem Timeout wird
-nichts automatisch erneut gesendet. Mit **Einrichtungsstatus aktualisieren oder
-fortsetzen** lässt sich ein unterbrochener lokaler Besitzerwechsel fortsetzen.
-**Letzte Einrichtung lokal zurücknehmen** gibt deren Verbindung wieder frei und
-stellt den vorherigen lokalen Platz wieder her. Spätere Entwurfsänderungen werden
-vorher zusätzlich privat gesichert. Andere Systeme bleiben erhalten. Nach einer
-möglichen Speicherung in Z2M ist dieser rein lokale Rückweg gesperrt.
+**Vorschau verwerfen** beendet die Vorbereitung. **Letzte Einrichtung lokal
+zurücknehmen** stellt die vorherige lokale Zuordnung wieder her und sichert
+spätere Entwurfsänderungen zusätzlich. Dieser Rückweg verändert keine Z2M-Datei.
+Sobald eine Speicherung, Installation oder ein Betriebswechsel nach Z2M gesendet
+worden sein könnte, kann der rein lokale Rückweg gesperrt sein. Die Meldung nennt
+den Grund; die Wiederherstellung des tatsächlichen Z2M-Betriebs ist dann getrennt zu planen.
 
-Die Einrichtung wird im nativen Zentralenformular bedient. Der Browserdesigner
-verweist bei fehlendem Entwurf auf diesen Bereich und kann den eingerichteten
-Entwurf danach anzeigen und bearbeiten.
+Sicherungen liegen außerhalb der Library unter
+`IPS_GetKernelDir()/Z2MAutomations-private/`. Sie enthalten eigene Konfigurationen
+und werden nicht automatisch gelöscht. Unter Windows gelten die lokalen
+Dateisystemrechte. Einzelheiten beschreibt [Sicherung und Rückweg](../docs/MIGRATION.md).
 
-## Bestandsprüfung für die zentrale Verwaltung
+## 4. Im Browserdesigner arbeiten
 
-Der zusätzliche Baustein [Z2M-Verbindung](../Z2MConnection/README.md) kann inzwischen
-einzelne Z2M-Systeme prüfen und ihre Gerätedaten laden. Bestehende Zuordnungen und
-Entwürfe werden dabei noch nicht umgestellt; dieses Automationsmodul arbeitet
-weiter wie bisher.
+### Automationsdesigner im Browser
 
-Die geplante zentrale Verwaltung für mehrere Z2M-Systeme wird schrittweise
-vorbereitet. Eine **lesende Bestandsvorschau** prüft vorhandene Instanzen.
-Zusätzlich gibt es bereits einen lokalen Arbeitsbereich über Modulfunktionen,
-aber noch keinen Übernahmebutton und keine automatische Migration:
+Im nativen Zentralenformular **Automationsdesigner öffnen** wählen. Der Designer
+öffnet den Arbeitsbereich der Zentrale. Oben wählen Sie das Z2M-System; links
+stehen dessen Automationen, Aktionsfolgen und Geräte.
 
-- `Z2MA_PreviewSystemMigration(InstanceID, SourceInstanceIDs)` prüft eine
-  ausdrücklich ausgewählte Liste von einer bis acht bisherigen Automationsinstanzen.
-  Der zweite Parameter ist eine JSON-Liste von Instanz-IDs.
-  Sie darf auch die aufrufende Instanz selbst enthalten. Die Prüfung liest
-  deren Bestand, ohne eine Übernahme oder einen Besitzerwechsel auszulösen.
-- Der Bericht nennt pro Quelle Verbindung, Basistopic, Regel-/Folgenanzahl,
-  lokale Änderungen und Konflikte. Offene Formulareingaben oder eine Abweichung
-  zwischen YAML und Editorstand werden erhalten und als Problem angezeigt.
-- „Für weitere Prüfung bereit“ bedeutet keine Übernahme- oder Betriebsfreigabe.
-  `canApply` bleibt immer `false`. Es wird nichts angelegt, umgehängt, gespeichert
-  oder aktiviert und keine MQTT-Anfrage ausgelöst. Der normale Editor arbeitet
-  weiterhin je Z2M-System wie bisher.
+![Browserdesigner mit Automationsliste, Ablauf und Eigenschaften](../docs/screenshots/webfrontend.png)
 
-`Z2MA_GetSystemMigrationSource(InstanceID)` liefert dafür nur begrenzte Metadaten
-und Prüfsummen. Es exportiert keine YAML, offenen Eingaben oder Sitzungskennungen
-und ersetzt keine Sicherung. Nach einem Modulupdate mit den neuen öffentlichen
-Funktionen ist deren erneute Registrierung in Symcon erforderlich.
+| Bereich | Bedienung |
+| --- | --- |
+| Z2M-System | Wählt das System, dessen Entwurf und Status angezeigt werden. |
+| Automationen links | Regeln suchen, filtern und auswählen; zwischen Geräte-, Zeitregeln und Aktionsfolgen wechseln. |
+| Ablauf in der Mitte | **Wenn**, **Nur wenn** und **Dann** zeigen Auslöser, Bedingungen und Aktionen. |
+| Eigenschaften rechts | Ein angeklickter Baustein zeigt seine vorhandenen Angaben. Zum Ändern **Automation bearbeiten** wählen. |
+| + Neue Automation | Öffnet den vollständigen Regel-Editor. |
+| Prüfen & übertragen | Entwurf in Z2M prüfen und nach Bestätigung speichern. |
+| Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
+| Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
+| Verwaltung | Aktionsfolgen, Systeme und Diagnose, Partnerfreigaben sowie Ereignisimport öffnen. |
 
-## Sicherung und lokale Übernahme
+Die Darstellung folgt der Hell-/Dunkeleinstellung des Browsers. Schrift und
+Anordnung passen sich an die verfügbare Breite an. Auf schmalen Ansichten lassen
+sich die Automationsliste und die Eigenschaften aufklappen.
 
-Vorhandene Instanzen können inzwischen ausdrücklich privat gesichert und einer
-eigenen zentralen Verwaltung zugeordnet werden. Dabei werden zunächst die Quellen
-gesichert und geprüft, danach ihre bisherigen Editoren gesperrt und zuletzt die
-zentralen Kopien freigegeben. Ein Rückweg sichert auch spätere zentrale Änderungen
-und gibt die bisherigen Instanzen wieder frei. Z2M-Dateien und laufende Regeln
-werden dabei nicht verändert.
+### System wechseln und Daten aktualisieren
 
-Die Übernahme wird noch über Modulfunktionen bedient. Ein Update führt keine
-Übernahme aus. Die Vorbereitung, Ablage,
-Funktionen und Konfliktfälle sind in [Sicherung und Rückweg](../docs/MIGRATION.md)
-beschrieben. Eine tatsächliche Umstellung zuerst auf Test gesondert prüfen.
+Vor einem Systemwechsel offene Bearbeitungen übernehmen oder mit **Abbrechen**
+schließen. Im nativen Formular müssen offene Eingaben ebenfalls zuerst übernommen
+oder ausdrücklich verworfen werden. Regeln und Aktionsfolgen bleiben je System getrennt.
 
-## Lokaler Arbeitsbereich für mehrere Systeme
+![Systemauswahl im Browserdesigner](../docs/screenshots/zentrale-systemauswahl.png)
 
-Im nativen Formular wählen Sie unter **Z2M-Systeme** bis zu acht automatisch
-gefundene Z2M-Verbindungen per Häkchen aus und übernehmen die Auswahl ausdrücklich.
-Unter **Entwurf dieses Systems bearbeiten** wählen Sie das
-System für die Bearbeitung. Dieselbe Auswahl finden Sie oben im Browserdesigner.
-Regeln und Aktionsfolgen werden ausschließlich im Entwurf des angezeigten Systems
-erstellt und bearbeitet. Die Felder werden aus diesem Entwurf vorbelegt.
+**Ansicht aktualisieren** liest nur den bereits vorhandenen Modulstand aus
+Symcon. Für frische Gerätedaten aus Z2M:
 
-Nicht übernommene Formulareingaben verhindern den Systemwechsel. Übernehmen Sie
-diese zuerst in den lokalen Entwurf oder verwerfen Sie sie ausdrücklich in der
-Bearbeitung. Im Browser schließen Sie zuerst den offenen Bearbeitungsdialog.
-Andere Systeme behalten ihre Entwürfe; vorhandene Partnerfreigaben bleiben erhalten.
-Bei einer veralteten Ansicht laden Sie diese erneut, bevor Sie Änderungen übernehmen.
+1. Das gewünschte System auswählen und **Gerätedaten** öffnen.
+2. **Gerätedaten aktualisieren** wählen.
+3. Die Verbindungsprüfung und den Geräteabruf abwarten. Währenddessen ist der
+   Ladebutton gesperrt; anschließend erscheinen Ladezeit und Anzahl der Einträge.
 
-Die gemeinsame Oberfläche kann den Entwurf des ausgewählten Systems prüfen,
-übertragen und dessen gespeicherte Automationen ausdrücklich starten oder stoppen.
-Jeder Bedienauftrag gilt genau für das ausgewählte Z2M-System.
+Entwürfe, Namen, Regelschalter, Aktionsfolgen und Freigaben bleiben erhalten.
+Der Abruf speichert oder aktiviert keine Automation. Ist währenddessen eine
+Bearbeitung geöffnet, bleibt sie geschützt. Danach gegebenenfalls die Bearbeitung
+schließen und **Ansicht aktualisieren** wählen.
 
-### Einen Systementwurf prüfen und übertragen
+**Gerätedaten geladen** bedeutet, dass sie für diese Verbindung bestätigt sind.
+**Nicht bestätigt** kennzeichnet einen früheren, derzeit nicht verwendbaren Stand.
+**Ladestatus prüfen** liest nur das Ergebnis eines Abrufs und startet keinen neuen.
 
-Voraussetzung ist eine abgeschlossene [direkte Einrichtung](#direkt-aus-z2m-einrichten)
-oder eine [Übernahme aus bisherigen Einzelinstanzen](#sicherung-und-lokale-übernahme).
-Die bloße Häkchenauswahl erteilt der Zentrale noch kein Schreibrecht. Fehlt die
-Einrichtung, bleiben Prüf- und Speicherbuttons gesperrt; der Hinweis führt zum
-nativen Bereich **Direkt aus Z2M einrichten**.
+### Zugang zum Designer
 
-1. Im nativen Formular oder oben im Designer das gewünschte **Z2M-System** wählen.
-2. Änderungen zunächst in dessen lokalen Entwurf übernehmen. Offene Eingaben
-   verhindern Prüfung und Speicherung.
-3. **Entwurf in Z2M prüfen** wählen. Der Auftrag wird nur an dieses System gesendet.
-   Bei Ablehnung stehen darunter Automation, betroffener Schritt und Ursache.
-   Die Meldung bleibt auch nach Statusabfragen bis zur nächsten Prüfung erhalten.
-4. Nach erfolgreicher Prüfung **Geprüften Entwurf in Z2M speichern** wählen und
-   bestätigen. Entwurfsänderungen oder ein Z2M-Neustart machen eine erneute Prüfung
-   nötig. Vor dem Senden werden die Schaltrechte der Aktionen erneut kontrolliert.
-5. Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
-   Die Datei wird nur auf diesem System ersetzt. Bei Änderungen stoppt dort die
-   bisherige Ausführung. Es wird keine Automation aktiviert.
+Der Zugang gilt zunächst 15 Minuten. Bei sichtbarer Ansicht wird er alle vier
+Minuten automatisch verlängert. **Zugang verlängern** führt dies sofort aus,
+ohne die Bearbeitung neu zu laden. Nach einem Modulupdate, geänderten
+Systemzuordnungen oder spätestens acht Stunden den Designer erneut im Modul öffnen.
 
-Während des Auftrags aktualisiert sich die Anzeige. **Übertragungsstatus
-aktualisieren** liest nur das vorhandene Ergebnis der Verbindung und wiederholt
-keinen Schreibauftrag. Fehlt die abschließende Bestätigung, zeigt das Modul den
-unsicheren Stand ausdrücklich an. Andere Systementwürfe bleiben erhalten und
-können unabhängig geprüft werden.
+Ein abgelaufener Link lässt sich nicht verlängern. Noch sichtbare Eingaben werden
+nicht automatisch verworfen oder erneut gesendet. Höchstens vier Zugänge sind
+gleichzeitig gültig; ein weiterer Öffnungsvorgang ersetzt den ältesten Zugang.
+Designerlinks gewähren Zugriff auf die Bearbeitung und sollten nicht weitergegeben werden.
 
-Nach einer möglichen Speicherung in Z2M ist der rein lokale Übernahme-Rückweg
-gesperrt: Er könnte die geänderte Z2M-Datei nicht wiederherstellen. Ein betrieblicher
-Rückweg muss dann gesondert mit dem tatsächlichen Z2M-Stand geplant werden.
+## 5. Automationen erstellen
 
-### Gespeicherte Automationen eines Systems steuern
+### Erste Automation: Licht bei Tastendruck
 
-Im nativen Formular heißt der Bereich **Gespeicherte Automationen dieses Systems
-steuern**, im Designer **Betrieb steuern**. Der Name des Systems beziehungsweise
-sein Basistopic steht direkt dabei.
+1. Das System des Tasters auswählen und **+ Neue Automation** öffnen.
+2. Einen Namen eintragen, beispielsweise **Flurlicht bei Tastendruck**.
+3. Unter **1. Wenn – Auslöser (ODER)** die Art **Geräteereignis** wählen.
+4. Über **Gerät suchen** den Taster finden und unter **Gerät** auswählen.
+5. **Eigenschaft / Kanal**, Vergleich und **Wert** wählen, beispielsweise
+   **Tasterereignis**, **ist gleich**, **Einfach drücken**.
+6. Unter **2. Nur wenn – Bedingungen (UND)** bei Bedarf Bedingungen ergänzen.
+   Für eine Regel ohne Einschränkung die Bedingungsliste leer lassen.
+7. Unter **3. Dann – Aktionen in dieser Reihenfolge** **Werte setzen** wählen,
+   das Zielgerät suchen und seinen Kanal sowie **Ein** auswählen.
+8. Einen weiteren Aktionsschritt ergänzen: dasselbe Licht, Wert **Aus**,
+   **Wartezeit vor diesem Schritt** beispielsweise 60 Sekunden.
+9. **Ausgeschaltet zum Entwurf hinzufügen** wählen. Die neue Regel liegt damit
+   im Symcon-Entwurf und kann weiter bearbeitet werden.
 
-1. Das gewünschte System auswählen. Bei unbekanntem Betrieb **Betriebsstatus in
-   Z2M aktualisieren** wählen. Das fragt ausdrücklich dieses Z2M-System ab.
-2. **Nach einem Z2M-Neustart automatisch wieder starten** nach Wunsch einstellen.
-   Im Designer heißt dieselbe Option **Automatikbetrieb nach einem Z2M-Neustart
-   wieder aufnehmen**. Sie wird mit der nächsten Aktivierung in Z2M gespeichert.
-3. **Automatik dieses Systems aktivieren** wählen; im Designer **Gespeicherte
-   Automationen aktivieren**. Alle im gespeicherten Stand eingeschalteten Regeln
-   werden bereit. Der lokale Entwurf muss dem gespeicherten Stand entsprechen.
-   Offene Bearbeitungen zuerst übernehmen, prüfen und speichern.
-4. Auf die Bestätigung warten. Erst eine zusätzliche frische Z2M-Statusantwort
-   bestätigt Aktivierung und Wiederanlaufeinstellung. Symcon wird danach für die
-   Ausführung nicht mehr benötigt.
-5. **Automatik dieses Systems stoppen** beziehungsweise **Alle Automationen
-   dieses Systems stoppen** beendet den Automatikbetrieb und die laufenden
-   Abläufe dieses Systems. Ein bewusster Stopp bleibt nach Z2M-Neustart wirksam.
-   Stoppen ist auch bei offenen Entwurfsänderungen möglich.
+Der folgende Ausschnitt zeigt Gerät, Kanal und Wert eines vorhandenen Auslösers:
 
-Für einen einzelnen Test unter **Eine gespeicherte Automation auswählen** die
-Regel wählen. **Einmal mit Bedingungen starten** (im nativen Formular
-**Ausgewählte Automation einmal starten**) prüft ihre Bedingungen und führt
-ihre Aktionsfolge einmal aus. Das geht auch bei ausgeschalteter Regel. Die Regel
-wird dabei nicht dauerhaft eingeschaltet, der Automatikbetrieb bleibt unverändert.
-Die Anzeige unterscheidet laufend, abgeschlossen, wegen einer Bedingung nicht
-ausgeführt, fehlgeschlagen und gestoppt. **Nur diesen Lauf stoppen** betrifft
-genau den angezeigten Lauf. Hat inzwischen ein neuer Lauf begonnen, wird der
-alte Stoppauftrag abgelehnt. Bereits gesendete Gerätebefehle werden nicht
-rückgängig gemacht; „abgeschlossen“ bestätigt keine gesonderte Gerätewirkung.
+![Geräteauslöser mit getrennter Geräte-, Kanal- und Wertauswahl](../docs/screenshots/zentrale-ausloeser.png)
 
-Bei ausbleibender Antwort steht ausdrücklich noch keine Bestätigung fest.
-Das Modul wiederholt keine Start-/Stoppbefehle. Den Betriebsstatus prüfen und
-erst danach bewusst neu entscheiden. Die laufende Anzeige liest vorhandene
-Rückmeldungen; ihr Aktualisieren sendet keine weiteren Schaltbefehle.
-Entwürfe, Partnerfreigaben und andere Systeme bleiben unverändert. Nach einem
-beauftragten Betriebswechsel ist der rein lokale Übernahme-Rückweg gesperrt,
-weil er den tatsächlichen Z2M-Betrieb nicht zurücksetzen könnte.
+Neue Regeln beginnen ausgeschaltet. Vor dem späteren Aktivieren muss ihr
+Regelschalter im Entwurf eingeschaltet und der geänderte Entwurf geprüft und
+gespeichert werden. Das Anlegen oder Bearbeiten allein schaltet kein Gerät.
 
-Das Eintragen einer Z2M-Verbindung erzeugt einen leeren lokalen Dokumentplatz.
-Es kopiert keine vorhandenen Automationen und erteilt keine Empfangsfreigaben.
-Bei gleichen Gerätenamen oder Kennungen bleibt die Systemzugehörigkeit eindeutig.
-Sensoren sind weiterhin als lokale Auslöser/Bedingungen möglich; als Aktionen
-erscheinen nur aktuell schaltbare Eigenschaften. Fremde Aktionen erfordern eine
-ausdrückliche gerichtete Empfangsfreigabe im Zielentwurf. Das ist zunächst eine
-lokale Planung, keine Bestätigung einer gespeicherten Z2M-Freigabe.
+### Geräteauslöser und mehrere Kanäle
 
-Die folgenden Funktionen richten sich an Skripte zur Vorbereitung. Alle Rückgaben sind
-JSON mit `version`, `ok`, `error` und einer verständlichen `message`.
+Mit **Art des neuen Eintrags** und **Eintrag hinzufügen** weitere Auslöser
+ergänzen. Bis zu acht Einträge können dieselbe Regel unabhängig starten (ODER),
+beispielsweise zwei Bewegungsmelder oder ein Bewegungsmelder und ein Taster.
+Die Bedingungen der Regel gelten für jeden dieser Auslöser.
 
-| Funktion nach `Z2MA_` | Weitere Parameter nach `int InstanceID` | Rückgabe / Wirkung |
+Mehrkanalgeräte bieten einzelne Eigenschaften wie **Zustand (Kanal L1)** und
+**Zustand (Kanal L2)**. Den gewünschten Kanal ausdrücklich wählen. Ein allgemeiner
+Zustand ersetzt keinen einzelnen Kanal.
+
+**Mindestdauer** 0 reagiert sofort. 1 bis 86400 Sekunden verlangen einen so lange
+anliegenden Zustand. Für kurze Tastendrücke normalerweise 0 verwenden.
+**Nur bei Wertänderung auslösen** verhindert, dass eine unveränderte passende
+Meldung erneut startet. Ereignisse ohne dauerhaft gespeicherten Zustand, etwa
+Tastendrücke, werden anhand der seit Aktivierung beobachteten Meldungen verglichen.
+
+Messwerte unterstützen gleich, ungleich, größer, kleiner, mindestens und höchstens.
+Bei Zuständen und Ereignissen stehen gleich und ungleich zur Verfügung.
+Ein Auslöser kann beispielsweise verlangen, dass die Helligkeit seit 30 Sekunden
+kleiner als 50 Lux ist.
+
+### Uhrzeiten und Sonnenzeiten
+
+Für einen zeitlichen Auslöser **Art des Eintrags → Uhrzeit** wählen, die Uhrzeit
+und Zeitzone eintragen. Weitere Uhrzeiten als zusätzliche Einträge hinzufügen.
+Der Browsereditor erlaubt bis zu acht Auslöser insgesamt. Ungültige oder doppelte
+Uhrzeiten lassen sich nicht übernehmen.
+
+![Uhrzeit und Zeitzone eines zeitlichen Auslösers](../docs/screenshots/zentrale-uhrzeit.png)
+
+Für Sonnenauf- oder Sonnenuntergang **Art des Eintrags → Sonnenzeit** wählen:
+
+1. Das gewünschte Sonnenereignis auswählen.
+2. Breitengrad und Längengrad des Standorts in Dezimalgrad eintragen.
+3. Die passende Zeitzone angeben; eine automatische Ortung findet nicht statt.
+4. Den **Zeitversatz** in ganzen Minuten einstellen: −30 bedeutet eine halbe
+   Stunde vorher, +15 eine Viertelstunde danach. Erlaubt sind −720 bis +720 Minuten.
+
+![Sonnenuntergang mit Standort, Zeitzone und negativem Zeitversatz](../docs/screenshots/zentrale-sonnenzeit.png)
+
+Ohne Bedingungen gelten Zeitregeln täglich. Z2M berechnet die Sonnenzeiten
+selbstständig. Verpasste Zeiten werden nicht nachgeholt. In einer bei der
+Zeitumstellung doppelt vorkommenden Stunde wird eine Uhrzeit nur einmal pro Tag
+ausgelöst. Die Sonnenberechnung berücksichtigt weder Gelände noch Wetter;
+an Tagen ohne das gewählte Sonnenereignis startet die Regel nicht.
+
+### Bedingungen: nur wenn alle Angaben passen
+
+Unter **2. Nur wenn – Bedingungen (UND)** Gerätewerte, Wochentage oder
+Zeitfenster hinzufügen. Alle eingetragenen Bedingungen müssen erfüllt sein.
+Insgesamt sind höchstens 16 Bedingungen erlaubt.
+
+- **Gerätewert:** Gerät, Eigenschaft, Vergleich und Wert wählen, etwa Helligkeit
+  kleiner als 50 Lux. Ein unbekannter Gerätewert erfüllt auch „ungleich“ nicht.
+- **Wochentage:** Mindestens einen Tag und die Zeitzone wählen. Das funktioniert
+  unabhängig von einem Zeitfenster, auch für Geräte- und Sonnenregeln.
+- **Zeitfenster:** Beginn, Ende und Zeitzone eintragen. Der Beginn zählt mit,
+  das Ende nicht; gleiche Zeiten sind ungültig. Ein Fenster Montag 22:00 bis
+  06:00 gilt bis Dienstagmorgen. Maßgeblich ist sein Starttag.
+
+![Unabhängige Wochentagsbedingung im Browsereditor](../docs/screenshots/zentrale-wochentage.png)
+
+Eine zusätzliche Wochentagsbedingung prüft den aktuellen Kalendertag. Soll das
+Montag-Zeitfenster auch am Dienstagmorgen gelten, muss die unabhängige
+Wochentagsbedingung daher ebenfalls Dienstag erlauben.
+
+Gerätebedingungen werden normalerweise beim Start und vor jeder Aktion erneut
+geprüft. Mit **Nur beim Start prüfen** gilt eine Gerätebedingung nur für den
+Beginn eines neuen Ablaufs. Das ist beispielsweise für eine Helligkeitsgrenze
+sinnvoll: Ein Bewegungsmelder soll das Licht nur im Dunkeln einschalten, nach
+der Wartezeit aber auch dann ausschalten, wenn es inzwischen heller geworden ist.
+Zeitfenster und Wochentage werden weiterhin erneut geprüft.
+
+### Aktionen, Wartezeiten und Reihenfolge
+
+Die Aktionen laufen von oben nach unten. Die **Wartezeit vor diesem Schritt**
+gilt jeweils vor der zugehörigen Aktion. 0 bedeutet sofort; bei weiteren Schritten
+beginnt die Wartezeit nach der Übergabe der vorherigen Aktion an Z2M.
+
+Das Beispiel schaltet sofort ein und wartet vor dem Ausschalten 60 Sekunden:
+
+![Ablauf mit Einschalten und verzögertem Ausschalten](../docs/screenshots/zentrale-aktionsablauf.png)
+
+Die Reihenfolge am Griff **Verschieben** ziehen oder mit **Nach oben** und
+**Nach unten** ändern. Die Wartezeit bleibt bei ihrem Schritt. Erst das
+Übernehmen der gesamten Regel speichert die geänderte Reihenfolge im Entwurf.
+
+| Aktionsart im Browser | Verwendung |
+| --- | --- |
+| Werte setzen | Gerät oder Gruppe wählen, Eigenschaft/Kanal und gewünschten Wert einstellen. |
+| Umschalten | Bekannten Ein-/Aus-Zustand umkehren. Bei unbekanntem Zustand endet der Schritt mit Fehler. |
+| Szene aufrufen | Eine bereits in Z2M vorhandene Szene eines Geräts oder einer Gruppe wählen. |
+| Aktionsfolge aufrufen | Eine wiederverwendbare Folge dieses Systementwurfs verwenden. |
+
+Nur schaltbare Eigenschaften werden als Aktionsziele angeboten. Für **Werte
+setzen** können Sie mit **Weiteren Wert hinzufügen** bis zu acht Eigenschaften
+desselben Geräts in einem Schritt kombinieren, etwa Einschalten, Helligkeit und
+Farbe. Der gemeinsame Befehl wird einmal an Z2M übergeben. Farbe und
+Farbtemperatur desselben Kanals in getrennte Schritte aufteilen.
+
+Für geeignete Farbleuchten erscheint eine Farbauswahl. Bei Gruppen werden nur
+die tatsächlich angebotenen Eigenschaften verwendet. Fehlt eine Eigenschaft,
+Geräteunterstützung und schaltbare Symcon-Variable prüfen und Gerätedaten nachladen.
+
+Szenen werden nur aufgerufen, nicht neu angelegt oder verändert. Fehlt die
+gewünschte Szene, zuerst in Z2M anlegen und danach die Gerätedaten aktualisieren.
+Die Ausführung einer Aktion bestätigt ihre Befehlsübergabe, nicht die physische
+Wirkung am Gerät. Bereits gesendete Befehle lassen sich durch Stoppen nicht zurücknehmen.
+
+### Wiederverwendbare Aktionsfolgen
+
+1. Unter **Verwaltung → Neue Aktionsfolge** einen Namen vergeben.
+2. Aktionen, Geräte, Kanäle, Werte und Wartezeiten wie bei einer Regel zusammenstellen.
+3. Die Reihenfolge anordnen und **Aktionsfolge in den Entwurf übernehmen** wählen.
+4. Eine Automation bearbeiten, als Aktion **Aktionsfolge aufrufen** wählen und
+   die gewünschte Folge auswählen.
+
+Vorhandene Folgen links unter **Aktionsfolgen** auswählen und mit **Aktionsfolge
+bearbeiten** öffnen. Die Anzeige nennt die verwendenden Automationen. Änderungen
+gelten nach dem Übertragen für alle diese Regeln. Eine Folge hat keinen eigenen
+Auslöser und keinen Regelschalter.
+
+Die Wartezeit am Aufruf kommt zur Wartezeit des ersten Folgenschritts hinzu:
+5 Sekunden am Aufruf plus 2 Sekunden am ersten Schritt ergeben 7 Sekunden.
+Pro Automation sind höchstens 16 tatsächlich ausgeführte Schritte erlaubt,
+einschließlich aufgerufener Folgen. Eine Folge kann keine weitere Folge aufrufen.
+Eine verwendete Folge lässt sich erst löschen, wenn ihre Aufrufe entfernt sind.
+
+### Erneute Auslösung und Nachlaufzeit
+
+Unter **Bei erneuter Auslösung** festlegen, was bei einer weiteren passenden
+Meldung während eines laufenden Ablaufs passieren soll:
+
+| Auswahl im Browser | Wirkung |
+| --- | --- |
+| Ignorieren | Die aktuelle Folge läuft unverändert weiter. |
+| Von vorn beginnen | Der noch offene Rest endet; die Folge beginnt wieder bei der ersten Aktion. |
+| Laufende Wartezeit zurücksetzen | Nur die aktuelle Wartezeit beginnt erneut mit ihrer vollen Dauer. Erledigte Aktionen werden nicht wiederholt. Ohne laufende Wartezeit hat die Meldung keine Wirkung. |
+
+Für ein Bewegungslicht mit Nachlaufzeit: einschalten, vor dem Ausschalten
+beispielsweise 60 Sekunden warten und **Laufende Wartezeit zurücksetzen** wählen.
+Jede passende neue Bewegung während dieser Wartezeit verlängert sie.
+
+Weitere Bedingungen müssen erneut passen, ausgenommen Gerätebedingungen mit
+**Nur beim Start prüfen**. Ein Neuanfang prüft alle Bedingungen wieder. Es läuft
+höchstens ein Ablauf derselben Regel; zwischen Startversuchen gilt eine Sperrzeit
+von einer Sekunde. Bei einem Neuanfang können bereits erledigte Aktionen erneut
+ausgeführt werden, auch Umschaltbefehle. Eine fehlgeschlagene oder nicht bestätigte
+vorherige Befehlsübergabe kann den vorgemerkten Neustart verhindern.
+
+## 6. Vorhandene Regeln verwalten
+
+Links eine Automation auswählen und **Automation bearbeiten** öffnen. Name,
+Regelschalter, Auslöser, Bedingungen und Aktionen werden vorbelegt. Danach
+**Änderungen in den Entwurf übernehmen** wählen.
+
+Der Regelschalter wirkt zunächst nur auf den Entwurf. Er verändert keine laufende
+Z2M-Regel. Fehlen Gerätedaten oder Schaltrechte oder ist ein Bereich nicht vollständig
+darstellbar, bleibt dieser geschützt erhalten. Name und Regelschalter können
+weiterhin bearbeitet werden. Eine Meldung erklärt die Einschränkung.
+
+- **Suchen und filtern:** Mit **Name oder Gerät suchen** die Liste eingrenzen.
+  **Regelschalter im Entwurf** filtert Alle, Aktiviert oder Deaktiviert. Der
+  Filter beschreibt den lokalen Entwurf, nicht den bestätigten Z2M-Betrieb.
+- **Kopieren:** **Automation kopieren** legt nach Bestätigung eine ausgeschaltete
+  Kopie mit eigener Kennung an. Auslöser, Bedingungen und Aktionen bleiben erhalten.
+  Verweise auf Aktionsfolgen zeigen weiterhin auf dieselben Folgen.
+- **Löschen:** **Automation löschen** entfernt die Regel nach Bestätigung aus dem
+  lokalen Entwurf. Erst Prüfung und Speicherung übertragen diese Änderung nach Z2M.
+- **Aktionsfolge löschen:** Nur für unbenutzte Folgen möglich. Der Dialog nennt
+  andernfalls die verwendenden Regeln, einschließlich ausgeschalteter Automationen.
+
+Suchtext, Filter und Auswahl bleiben je System getrennt. Ein leeres Suchergebnis
+löscht nichts. Bei zwischenzeitlichen Änderungen bleiben die eigenen Eingaben
+im Dialog; erst **Neu laden und Eingaben verwerfen** lädt nach Bestätigung den
+aktuellen Stand. **Abbrechen** verwirft nur die nicht übernommenen Dialogeingaben.
+
+## 7. Entwurf prüfen und an Z2M übertragen
+
+Die drei Schritte haben unterschiedliche Auswirkungen:
+
+| Schritt | Was passiert? |
+| --- | --- |
+| In den Entwurf übernehmen | Speichert die Bearbeitung lokal in Symcon. Z2M bleibt unverändert. |
+| In Z2M prüfen | Prüft, ob Z2M den Entwurf verwenden kann. Es wird keine Automation aktiviert. |
+| In Z2M speichern | Ersetzt die Automationsdatei genau dieses Systems. Bei geändertem Inhalt stoppt die bisherige Ausführung. |
+
+1. Das gewünschte Z2M-System auswählen und offene Bearbeitungen übernehmen oder schließen.
+2. **Prüfen & übertragen** öffnen und **Entwurf in Z2M prüfen** wählen.
+3. Bei erfolgreicher Prüfung **Geprüften Entwurf in Z2M speichern** wählen und
+   den Bestätigungsdialog lesen und bestätigen.
+4. Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
+5. Soll die neue Fassung laufen, anschließend im Bereich **Betrieb** aktivieren.
+
+![Bereich zum Prüfen und Übertragen des ausgewählten Systementwurfs](../docs/screenshots/zentrale-pruefen-uebertragen.png)
+
+Eine Entwurfsänderung oder ein Z2M-Neustart kann eine neue Prüfung erforderlich
+machen. Vor dem Senden werden die Schaltrechte erneut geprüft. Andere Systeme
+behalten ihre Entwürfe und ihren Betrieb.
+
+Bei Ablehnung nennt die Fehlerliste Automation, betroffenen Schritt und Ursache.
+Es werden bis zu 20 Fehler gleichzeitig angezeigt. Die Nummern beziehen sich auf
+die Reihenfolge aller Regeln der Datei, auch ausgeschalteter Regeln. Die Details
+bleiben bei Statusabfragen bis zur nächsten Entwurfsprüfung erhalten.
+
+**Übertragungsstatus aktualisieren** liest das vorhandene Ergebnis und wiederholt
+keinen Schreibauftrag. Eine Zeitüberschreitung beweist nicht, dass Z2M nichts
+gespeichert hat. Zuerst den Status und gespeicherten Stand prüfen. Fehlt nur die
+anschließende Betriebsbestätigung, nicht deshalb noch einmal speichern.
+
+## 8. Automationen aktivieren und stoppen
+
+### Automatikbetrieb eines Systems
+
+Im Designer **Betrieb** öffnen. Der Bereich nennt das ausgewählte System und
+den zuletzt bestätigten Zustand.
+
+1. Bei unbekanntem Stand **Betriebsstatus in Z2M aktualisieren** wählen.
+2. **Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen** nach Wunsch einstellen.
+3. **Gespeicherte Automationen aktivieren** wählen und bestätigen.
+4. Die frische Statusbestätigung abwarten. Erst dann gilt die Aktivierung als bestätigt.
+
+Aktiviert wird der gespeicherte Stand mit allen darin eingeschalteten Regeln.
+Der lokale Entwurf muss dazu passen. Ist der Aktivierungsbutton gesperrt,
+den angezeigten Hinweis beachten: gegebenenfalls offene Eingaben übernehmen,
+Änderungen prüfen und speichern oder den Betriebsstatus aktualisieren.
+
+**Alle Automationen dieses Systems stoppen** beendet den Automatikbetrieb und
+laufende Abläufe des Systems, einschließlich ausstehender Wartezeiten. Stoppen
+bleibt auch bei offenen Entwurfsänderungen möglich. Ein Timeout bestätigt keinen
+Stopp; in diesem Fall den Betriebsstatus erneut abfragen. Empfangene Partneraktionen
+werden bei gestoppter Automatik ebenfalls nicht ausgeführt.
+
+Ein ausgeschaltetes Symcon oder eine unterbrochene Verbindung zu Symcon stoppt
+die Z2M-Regeln nicht. Sie laufen nach erfolgreicher Aktivierung selbstständig weiter.
+
+### Automatischer Wiederanlauf
+
+Die Wiederanlaufoption wird erst mit der nächsten Aktivierung in Z2M gespeichert.
+Danach stellt Z2M nach einem Neustart denselben freigegebenen Regelstand selbst
+wieder bereit. Ein bewusster Stopp bleibt dauerhaft wirksam. Das bloße Speichern
+geänderter Regeln erteilt keine neue Wiederanlauffreigabe.
+
+Verpasste Schaltzeiten, unterbrochene Folgen und Wartezeiten werden nicht
+nachgeholt. Gerätebedingungen warten auf neue Werte. Fehlende Geräte,
+beschädigte Dateien oder ein abweichender Regelstand können den Wiederanlauf
+verhindern. Bei systemübergreifenden Aktionen brauchen beide Seiten ihre eigene
+Aktivierung und Wiederanlaufeinstellung.
+
+### Eine gespeicherte Regel einmal starten oder gezielt stoppen
+
+1. Unter **Eine gespeicherte Automation auswählen** die gewünschte Regel wählen.
+2. **Einmal mit Bedingungen starten** wählen und bestätigen. Auch eine
+   ausgeschaltete Regel kann so einmal ausgeführt werden; Geräte können schalten.
+3. Die Statusanzeige verfolgen: laufend, abgeschlossen, wegen einer Bedingung
+   nicht ausgeführt, fehlgeschlagen oder gestoppt.
+4. **Nur diesen Lauf stoppen** beendet genau den angezeigten Lauf. Bereits
+   gesendete Befehle werden nicht rückgängig gemacht.
+
+Ein Einzelstart ändert weder Regelschalter noch Automatikbetrieb. Bedingungen
+gelten weiterhin, auch vor späteren Aktionen, sofern nicht **Nur beim Start prüfen**
+gewählt ist. Ein späterer regulärer Auslöser darf erneut starten. Hat inzwischen
+ein anderer Lauf begonnen, wird ein veralteter Stoppauftrag abgelehnt.
+„Abgeschlossen“ bestätigt die Befehlsübergabe, nicht die tatsächliche Gerätewirkung.
+
+## 9. Aktionen zwischen Z2M-Systemen
+
+Eine Automation gehört zum System ihres Auslösers. Ihre Geräteauslöser und
+Gerätebedingungen stammen aus diesem System; Aktionen dürfen freigegebene Geräte,
+Gruppen und Szenen anderer Systeme verwenden.
+
+Bei einem gemeinsamen MQTT-Broker ist keine Broker-Bridge erforderlich. Bei
+getrennten Brokern muss der Bereich `z2ma/mesh/#` verbunden sein. Auch die Benutzer,
+mit denen sich Z2M selbst anmeldet, benötigen dort Lese- und Schreibrecht.
+Die vollständige Anleitung steht unter
+[Bis zu acht MQTT-Broker miteinander verbinden](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+
+### Partnerfreigaben im Browserdesigner
+
+Eine Freigabe gilt nur in eine Richtung. Soll ein Taster auf **System A** ein Licht
+auf **System B** schalten, geben Sie **auf System B das System A frei**.
+
+1. Oben das empfangende **System B** wählen.
+2. Unter **Verwaltung → Partnerfreigaben** das sendende **System A** anhaken.
+3. **Änderungen prüfen** wählen. Beim Entziehen einer Freigabe erscheinen die
+   betroffenen lokalen Automationen, einschließlich ausgeschalteter Regeln und Folgen.
+4. **Freigaben im Entwurf übernehmen** bestätigen.
+5. Den Entwurf des Empfängers in Z2M prüfen, speichern und aktivieren.
+6. Auf dem sendenden System die Geräte der Gegenseite laden, die gewünschte
+   Aktion auswählen und auch dessen fertigen Entwurf prüfen, speichern und aktivieren.
+
+Aktionsziele anderer Systeme tragen deren Basistopic vor dem Namen. Gerät,
+Kanal und Wert werden wie bei einem lokalen Ziel ausgewählt. Der Empfänger muss
+auch dann aktiviert sein, wenn er keine eigene eingeschaltete Automation besitzt.
+Stoppen auf der Empfangsseite sperrt auch Partneraktionen.
+
+Bisherige Freigaben für nicht zugeordnete Systeme bleiben sichtbar und angehakt;
+deren externe Nutzer können hier nicht geprüft werden. Bei vielen betroffenen
+Regeln werden Gesamtzahl und die ersten 20 je Sender angezeigt. Entfernen Sie
+eine solche Freigabe nur bewusst. Die Gegenrichtung bleibt unverändert.
+
+Fehlt eine Gegenstelle, endet die Aktionsfolge mit Fehler. Sie wird nicht
+automatisch nachgeholt. Eine Bestätigung des Zielsystems bedeutet, dass es den
+Befehl übernommen hat; sie ersetzt keine Prüfung der tatsächlichen Gerätewirkung.
+
+## 10. Symcon-Ereignisse importieren
+
+1. Das Z2M-System auswählen, zu dem der Auslöser gehört.
+2. Bei fehlenden Gerätedaten zuerst **Gerätedaten aktualisieren** wählen.
+3. Unter **Verwaltung → Symcon-Ereignisse importieren** den Button
+   **Vorhandene Ereignisse prüfen** betätigen.
+4. Nach Ereignis, Gerät oder Instanz-ID suchen; bei Bedarf **Nur importierbare
+   Ereignisse** anzeigen. Die Liste nennt Ereignis, auslösendes Gerät und ID.
+5. Einen Eintrag wählen und die Vorschau mit Auslöser, Kanal, Wert, Ziel und Aktion prüfen.
+6. **Ausgeschaltet zum Entwurf hinzufügen** wählen. Danach lässt sich die Regel
+   wie jede andere Automation bearbeiten.
+7. Vor dem späteren Aktivieren in Z2M das zugehörige Originalereignis in Symcon
+   ausschalten, damit beide Systeme nicht dieselbe Aktion ausführen.
+
+Die Suche ordnet Ereignisse anhand der Variablen-IDs, MQTT-Verbindung und des
+Basistopics zu. Namen sind nur Anzeige; auch namenlose Ereignisse können
+importiert und danach umbenannt werden. Das Ereignis kann im Baum beim Zielgerät
+liegen und trotzdem eine Variable eines anderen Geräts überwachen.
+
+Unterstützt sind Auslöser **Bei bestimmtem Wert**, native Ein-/Aus- und direkt
+zuordenbare Text-/Auswahlaktionen sowie **Wert umschalten**. Zusätzliche Bedingungen,
+Ausführungsbegrenzungen, PHP-Code, Ablaufpläne oder nicht sicher zuordenbare
+Zahlenskalierungen werden mit Begründung abgewiesen. Es wird keine unvollständige
+Teilregel erzeugt und kein PHP-Code ausgeführt.
+
+Die Importprüfung sagt **Importierbar**, **Nicht importierbar** oder
+**Noch nicht prüfbar**, jeweils mit Erklärung. Ist die wiederholte Ausführung im
+Originalereignis ausgeschaltet, erhält der Auslöser **Nur bei Wertänderung**.
+Der Import selbst ändert oder deaktiviert das Originalereignis nicht.
+
+Ein bereits importiertes Ereignis erzeugt keine zweite Regel. Geänderte Ereignisse
+oder offene Eingaben verhindern eine unbemerkte Übernahme. Andere Entwürfe und
+Freigaben bleiben erhalten. Die Suche ist auf 4096 Ereignisse und 256 passende
+Quellen begrenzt; erreichte Grenzen werden angezeigt. Ein entferntes Aktionsziel
+benötigt die zuvor eingerichtete Partnerfreigabe.
+
+## 11. Native Bedienung und Kachel
+
+### Bearbeitung im nativen Formular
+
+Das native Formular bietet dieselben getrennten Systementwürfe. Unter
+**Entwurf dieses Systems bearbeiten** das System auswählen. Geräte- und
+zeitgesteuerte Regeln besitzen eigene Bereiche; Name, Auslöser, Bedingungen und
+Aktionsliste werden beim Auswählen vorbelegt.
+
+Neue Regeln über **Neue Automation erstellen** beginnen. Bestehende Änderungen
+mit dem Button **Änderungen in den Entwurf übernehmen** anwenden. Das ist ein
+eigener Bearbeitungsschritt: Der normale orange Symcon-Button **Übernehmen**
+ersetzt ihn nicht. Vor einem Regel- oder Bereichswechsel offene Angaben übernehmen
+oder ausdrücklich verwerfen.
+
+Prüfen und Übertragen erfolgt gemeinsam im Bereich **Entwurf für dieses System
+prüfen und übertragen**. Betriebssteuerung steht unter **Gespeicherte Automationen
+dieses Systems steuern**. Die Buttons gelten jeweils nur für das dort genannte System.
+
+Der **Erweiterte YAML-Editor** zeigt in der Zentrale den vorhandenen Entwurf an;
+das Textfeld ist dort gegen direkte Änderungen gesperrt. Zur grafischen Bedienung
+muss dieser Bereich nicht geöffnet werden. Nicht vollständig darstellbare Regeln
+bleiben erhalten; Name und Regelschalter können weiterhin bearbeitet werden.
+
+### Native Symcon-Kachel und Designerzugang
+
+1. Die Automationszentrale als Objekt in die Kachelvisualisierung aufnehmen.
+2. Die Kachel öffnen. Der vollständige Designer verbindet sich direkt darin.
+3. Das gewünschte System wählen und den Designer wie im Browser bedienen.
+
+![Vollständiger Automationsdesigner in der normalen Symcon-Kachel](../docs/screenshots/kachelansicht.png)
+
+Die Aufnahme zeigt die Ansicht als Kachel. Farben, Grundschriftgröße und Breite
+richten sich nach dem Symcon-Client. **Status aktualisieren** liest den vorhandenen
+Modulstand. **Zugang erneuern** verlängert den Zugang, ohne offene Eingaben oder
+die Systemauswahl zu verwerfen.
+
+Die normale Kachel ist unter Symcon 9.0 verfügbar. **Kachel vergrößern** verwendet
+ab Symcon 9.1 dessen native HTML-Großansicht. Vor dem Vergrößern offene Dialoge
+übernehmen oder schließen. Für Symcon 9.0 die Kachel im Layout ausreichend groß einstellen.
+
+Eine IPSView-Administrationsansicht wird nicht angeboten. Frühere IPSView-Platzierungen
+und die nicht mehr aktualisierte Variable **Automationsdesigner für IPSView** können
+nach Entfernen ihrer Verknüpfungen manuell entfernt werden.
+
+## 12. Einstellungen und Statusanzeigen
+
+Die Zentrale braucht keine eigenen MQTT-Zugangsdaten. Broker, Basistopic und
+Antwortzeit werden in den [Verbindungsmodulen](../Z2MConnection/README.md) eingerichtet.
+
+| Einstellung | Speicherung und Bedeutung |
+| --- | --- |
+| Z2M-Systeme / Verwenden | Leere Anfangsauswahl; 1 bis 8 vorhandene Verbindungen ausdrücklich zuordnen. Bereits zugeordnete Systeme bleiben erhalten. |
+| Entwurf dieses Systems bearbeiten / Z2M-System | Auswahl eines zugeordneten Systems; die Bearbeitung gilt ausschließlich für dessen lokalen Entwurf. |
+| Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen | Boolean je System; gilt erst mit der nächsten bestätigten Aktivierung in Z2M. |
+
+Die Systemliste und Wiederanlaufoption werden über die jeweiligen Bedienbuttons
+verwaltet, nicht durch manuelles Ändern der alten MQTT-Properties des Moduls.
+`Active`, `BaseTopic`, `PeerModuleID`, `RequestTimeout` und die bisherige
+`ResumeAfterRestart`-Property betreffen den noch vorhandenen Einzelbetrieb.
+Ihre vollständige Referenz steht unter [Bestehende Einzelinstanzen](../docs/SINGLE_INSTANCE_REFERENCE.md).
+
+Die folgenden zusätzlichen Zentralenvariablen sind reine Textanzeigen ohne
+Schaltaktion und ohne Einheit:
+
+| Anzeige / Ident | Typ | Bedeutung |
 | --- | --- | --- |
-| GetWorkspaceOverview | keine | Kleine Systemübersicht und ihr `fingerprint`; keine vollständigen Kataloge oder YAML. |
-| ConfigureWorkspace | `string Connections, string Fingerprint, string OperationID` | Eine JSON-Liste von 1 bis 8 Verbindungsinstanz-IDs zuordnen. Keine Migration; bestehende Systeme werden nicht entfernt. |
-| GetWorkspaceSystem | `string SystemID` | Eigenes Dokument, Auswahl, offene Eingaben, Generation und Bearbeitungsfingerabdruck dieses Systems. |
-| UpdateWorkspaceSystem | `string SystemID, int Generation, string Fingerprint, string Data, string OperationID, bool ChangePermissions` | Vollständige lokale Bearbeitungsdaten als JSON übernehmen. `ChangePermissions: false` schützt bestehende Freigaben; Änderungen daran müssen ausdrücklich mit true bestätigt werden. Keine Übertragung an Z2M. |
-| SelectWorkspaceSystem | `string SystemID, string Fingerprint, string OperationID` | Auswahl ändern; offene nicht übernommene Eingaben blockieren den Wechsel. Der Bestandseditor wird nicht umgebunden. |
-| RefreshWorkspaceCatalog | `string SystemID, int Generation, string Fingerprint, string OperationID` | Bereits bestätigten Katalog aus der Verbindung lokal einlesen. Keine neue MQTT-Anfrage und keine Entwurfsänderung. |
-| RequestWorkspaceTransfer | `string SystemID, int Generation, string Fingerprint, string Action, string OperationID, string TransferContext` | Ausschließlich `validate` oder `store` für den exakt angezeigten Entwurf. `TransferContext` aus dem vorherigen Transferstatus. Speicherung verlangt eine aktuelle erfolgreiche Prüfung und eine abgeschlossene Übernahme. |
-| GetWorkspaceTransferStatus | `string SystemID` | Lokales Auftragsergebnis unter `transfer`, einschließlich Freigabe der Buttons, Meldung und Fehlerdetails; keine MQTT-Anfrage. |
-| RefreshWorkspaceTransfers | keine | Lokale Ergebnisse laufender Systemaufträge einlesen und Anzeige aktualisieren; keine erneute Übertragung. Rückgabe void. |
-| GetWorkspaceEntities | `string SourceSystemID, string TargetSystemID, string Use, int Offset, int Limit` | Geräte-/Gruppen-/Szeneneigenschaften für `trigger`, `condition` oder `action`; 1 bis 100 Einträge je Seite. Rückgabe nennt total und hasMore. |
+| Gewähltes Z2M-System für Prüfung und Übertragung / `TransferSystem` | String | System, auf dessen Entwurf sich die angezeigte Prüfung oder Übertragung bezieht. |
+| Prüfung und Übertragung / `TransferStatus` | String | Fortschritt beziehungsweise Ergebnis dieses Auftrags. |
+| Einzelheiten zur Entwurfsprüfung / `TransferError` | String | Details der letzten Prüfung, einschließlich betroffener Regel und Angabe. |
+| Gewähltes Z2M-System für Betriebssteuerung / `RuntimeSystem` | String | System, auf das sich die Betriebsanzeige bezieht. |
+| Betriebssteuerung und Einzelstart / `RuntimeStatus` | String | Bestätigter Automatikzustand und Rückmeldung zur Betriebssteuerung. |
 
-Bis auf RefreshWorkspaceTransfers liefern diese Funktionen einen String. SystemID und Generation aus der Übersicht
-oder den Systemdetails verwenden. Es sind keine frei gewählten Namen oder
-Symcon-Objekt-IDs. Bei ConfigureWorkspace und SelectWorkspaceSystem stammt der
-Fingerabdruck aus der Übersicht; bei UpdateWorkspaceSystem und
-RefreshWorkspaceCatalog aus den Details des betroffenen Systems. Eine Änderung
-eines anderen Systems entwertet diesen eigenen Bearbeitungskontext nicht.
+Der Betriebsstatus jedes Systems steht im Designer und in der zugehörigen
+Z2M-Verbindung. Die aus dem Einzelbetrieb vorhandenen MQTT-/Laufzeitvariablen
+der Zentrale sind keine gemeinsame Betriebsanzeige aller Systeme. Insbesondere
+ist ihr eigener MQTT-Instanzstatus kein Nachweis für den Zustand der Z2M-Verbindungen.
 
-OperationID ist eine neue 32-stellige kleingeschriebene Hexkennung, etwa aus
-`bin2hex(random_bytes(16))`. Bei Wiederholung desselben Auftrags dieselbe Kennung
-und exakt dieselben Parameter verwenden. Die letzten 32 erfolgreichen Aufträge
-liefern ihre ursprüngliche Quittung ohne zweite Änderung. Andere Angaben mit
-derselben Kennung werden abgewiesen. Quittungen sind keine aktuelle Betriebsfreigabe.
+### Systeme und Diagnose im Browserdesigner
 
-Beispiel mit **synthetischen Instanz-IDs**, vor Nutzung durch eigene IDs ersetzen:
+Unter **Verwaltung → Systeme und Diagnose** sehen Sie alle zugeordneten Systeme
+mit Name, Basistopic, Verbindung, MQTT-Zuordnung, Erweiterungsstand und Aufzeichnung.
+Das gewünschte System anklicken, bevor Sie eine Aktion ausführen.
+
+![Systemübersicht mit Verbindung, Erweiterungsständen und Aktualisierung](../docs/screenshots/z2m-systemuebersicht.png)
+
+- **Zigbee2MQTT-Verbindung prüfen** fragt das gewählte System frisch ab und
+  zeigt die Rückmeldung an. Eine MQTT-Verbindung allein bestätigt nur den Brokerkontakt.
+- **Erweiterungsstatus abfragen** aktualisiert installierten und mitgelieferten
+  Erweiterungsstand samt Buildkennung. **Noch nicht bestätigt** bedeutet nicht
+  automatisch, dass die Erweiterung fehlt.
+- **Diagnosestand neu laden** liest den vorhandenen Symcon-Stand und sendet
+  keinen neuen Prüfauftrag.
+
+Zum Aktualisieren **Mitgelieferte Erweiterung auf diesem System installieren
+oder aktualisieren** wählen und die Bestätigung prüfen. Die Installation kann
+laufende Abläufe kurz unterbrechen. Erfolg wird erst nach Bereitschaftsbestätigung
+der neuen Erweiterung gemeldet. Danach werden Gerätedaten automatisch nachgeladen;
+Entwürfe und offene Eingaben bleiben erhalten.
+
+Scheitert nur das Nachladen, meldet die Anzeige **Erweiterung installiert.
+Gerätedaten nicht aktualisiert**. Dann den Geräteabruf erneut starten, ohne
+deshalb die Erweiterung nochmals zu installieren. Nach einem Erweiterungswechsel
+gilt die in Z2M gespeicherte Wiederanlaufeinstellung; es wird kein zusätzlicher
+Aktivierungsauftrag aus Symcon gesendet.
+
+Für eine zeitlich begrenzte Ablaufaufzeichnung:
+
+1. Das native Debugfenster der angezeigten **Z2M-Verbindung** öffnen und starten.
+2. Im Designer 1, 5, 10 oder 15 Minuten wählen und **Aufzeichnung starten** betätigen.
+3. Die bestätigte Aufzeichnung und Endzeit abwarten. Bei Partneraktionen beide
+   Verbindungen aufzeichnen, um denselben Regellauf und Aktionsschritt zu verfolgen.
+4. **Eigene Aufzeichnung stoppen** beendet nur diese Aufzeichnung, keine Automation.
+
+Die Aufzeichnung endet automatisch zur ursprünglichen Endzeit. Statusabfragen
+verlängern sie nicht; das Schließen des Dialogs beendet sie nicht vorzeitig.
+Der Browser speichert keine eigene Kopie der Ablaufmeldungen.
+
+## 13. Skriptfunktionen
+
+Für die normale Bedienung genügt das Formular beziehungsweise der Browserdesigner.
+Für zusätzliche Symcon-Skripte stehen unter anderem folgende Funktionen bereit.
+`InstanceID` ist die ID der **Automationszentrale**, nicht die einer Verbindung.
+
+| Funktion | Rückgabe und Wirkung |
+| --- | --- |
+| `Z2MA_OpenAutomationDesigner(int InstanceID): string` | Erstellt einen befristeten Designerzugang als `link:`-Adresse; leer bei Fehler. Den Link nicht veröffentlichen. |
+| `Z2MA_GetDesignerData(int InstanceID): string` | Liest den vorhandenen Designerstand als JSON; sendet keine Z2M-Anfrage. |
+| `Z2MA_GetWorkspaceOverview(int InstanceID): string` | Systemübersicht mit Zuordnung und Fingerabdruck als JSON. |
+| `Z2MA_GetWorkspaceSystem(int InstanceID, string SystemID): string` | Dokument, Auswahl und offene Eingaben des genannten Systems als JSON. |
+| `Z2MA_GetWorkspaceTransferStatus(int InstanceID, string SystemID): string` | Liest das bestehende Prüf-/Speicherergebnis; wiederholt keine Übertragung. |
+| `Z2MA_GetWorkspaceRuntimeStatus(int InstanceID, string SystemID): string` | Liest den bestehenden Betriebsauftrag und die Laufstatusanzeige. |
+| `Z2MA_GetWorkspaceDeviceCatalogStatus(int InstanceID, string SystemID): string` | Liest den vorhandenen Geräteabrufstatus. |
+| `Z2MA_GetWorkspaceDiagnostics(int InstanceID, string SystemID): string` | Systemdiagnose, Erweiterungsstände und Aufzeichnungsstatus als JSON. |
+| `Z2MA_GetWorkspaceInstallationStatus(int InstanceID, string SystemID): string` | Liest den vorhandenen Installations- und Geräteabrufstatus. |
+| `Z2MA_GetWorkspaceSetupStatus(int InstanceID): string` | Liest Vorschau, Übernahme oder lokalen Rückweg der direkten Einrichtung. |
+
+Die Arbeitsbereichsfunktionen melden `ok`, `error` und eine verständliche
+`message`. `SystemID` ist die stabile UUID aus der Übersicht beziehungsweise
+`binding.systemId`, kein frei gewählter Name, Basistopic oder Symcon-Objekt-ID.
+`GetDesignerData` verwendet dagegen den eigenen Designer-Datenaufbau.
+
+Beispiel einer rein lesenden Systemübersicht mit synthetischer Instanz-ID:
 
 ```php
-$automationID = 12345;
-$connections = [23456, 34567];
-$overview = json_decode(Z2MA_GetWorkspaceOverview($automationID), true);
-$result = json_decode(Z2MA_ConfigureWorkspace(
-    $automationID,
-    json_encode($connections),
-    $overview['fingerprint'],
-    bin2hex(random_bytes(16))
-), true);
-```
-
-`Data` enthält genau `document`, `selection` und `work`. Der anfängliche Wert ist:
-
-```json
-{
-    "document": null,
-    "selection": {"rule": "", "sequence": ""},
-    "work": {"rule": null, "sequence": null}
+$automationID = 12345; // Durch die ID der eigenen Automationszentrale ersetzen.
+$overview = json_decode(Z2MA_GetWorkspaceOverview($automationID), true, 32, JSON_THROW_ON_ERROR);
+if (!$overview['ok']) {
+    echo $overview['message'];
+    return;
+}
+foreach ($overview['systems'] as $system) {
+    echo $system['name'] . ' – ' . $system['binding']['baseTopic'] . PHP_EOL;
 }
 ```
 
-Ein Dokument enthält `yaml` als exakten UTF-8-Text und `editorDraft` mit
-`configuration`, `baseRevision`, `baseChecksum` und `draftChecksum`.
-draftChecksum ist der SHA-256 der YAML-Bytes; bei baseRevision 0 ist baseChecksum
-null, ansonsten die bekannte SHA-256-Prüfsumme. Auswahlwerte sind vorhandene
-Regel-/Folgenkennungen. Offene Bearbeitungen enthalten je `dirty` als Boolean und
-`input` als JSON-Objekt oder -Liste. Dokumente bleiben ausdrücklich **ungeprüft**;
-die lokale Strukturprüfung ersetzt keine spätere Prüfung in Z2M.
-
-Pro System gelten weiterhin 128 KiB YAML, 100 Regeln und 32 Aktionsfolgen.
-Die gesamten Bearbeitungsdaten sind auf 512 KiB, offene Eingaben auf je 64 KiB
-und eine einzelne Antwort auf 2 MiB begrenzt. Auslöser und Bedingungen dürfen
-keine Sensoren eines fremden Systems verwenden. Fehlende Rechte oder ein
-geänderter Verbindungskontext sperren die betroffene Auswahl und erhalten den
-Entwurf. Entfernen und automatische Übernahme werden noch nicht angeboten.
-
-## Automationsdesigner im Browser
-
-### Darstellung und Bedienbereiche
-
-Der Designer folgt automatisch der Hell-/Dunkeleinstellung Ihres Browsers.
-Schrift und Anordnung passen sich an die verfügbare Browserbreite an. Auf
-breiten Ansichten stehen die Automationsliste, der Ablauf und die Eigenschaften
-nebeneinander. Bei weniger Platz rücken die Eigenschaften unter den Ablauf;
-auf schmalen Ansichten lassen sich Liste und Eigenschaften aufklappen.
-
-Die farblich unterschiedenen Bereiche **Wenn**, **Nur wenn** und **Dann** zeigen
-Auslöser, Bedingungen und Aktionen. Symbole und Beschriftungen ergänzen die
-Farben. Über **Automation bearbeiten** beziehungsweise **Aktionsfolge bearbeiten**
-in der Übersicht oder bei den Eigenschaften öffnen Sie den vollständigen
-Bearbeitungsdialog mit den vorhandenen Angaben.
-
-Die drei Bereiche **Prüfen & übertragen**, **Betrieb** und **Gerätedaten** sind
-zunächst zugeklappt. Ein Klick zeigt die bisherigen Bedienelemente; laufende
-Aufträge und Hinweise sind bereits am Bereichsbutton erkennbar. Das Öffnen
-dieser Bereiche sendet keinen Auftrag. Erst die jeweiligen Prüf-, Lade-,
-Speicher- oder Betriebsbuttons führen ihre beschriebene Funktion aus.
-
-Unter **Verwaltung** finden Sie **Neue Aktionsfolge**, **Systeme und Diagnose**,
-**Partnerfreigaben** und **Symcon-Ereignisse importieren**. Die Wahl des
-Z2M-Systems bleibt oberhalb des Editors sichtbar. Hinweise zur zuletzt
-eingelesenen Ansicht stehen unter dem Editor; Fehlermeldungen bleiben zusätzlich
-oberhalb des Arbeitsbereichs sichtbar. Lokaler Entwurf und bestätigter
-Automatikbetrieb werden weiterhin getrennt angezeigt.
-
-Für die neue Darstellung genügt das Modulupdate und ein erneutes Öffnen des
-Designers. Eine erneute Installation der Z2M-Erweiterung ist dafür nicht nötig.
-
-### Gerätedaten und lokale Entwürfe
-
-Im nativen Modul steht „Nur Gerätedaten aktualisieren“ bereit. Damit lesen Sie
-Geräte, Kanäle, Gruppen und Szenen aus Z2M neu ein. Symcon ergänzt die Zuordnung
-zu seinen Variablen: Sensoren bleiben für Auslöser und Bedingungen verfügbar;
-Aktionen setzen eine tatsächlich schaltbare Symcon-Variable voraus. Entwürfe,
-offene Eingaben und laufende Automationen bleiben erhalten. Danach im Browser
-„Ansicht aktualisieren“ wählen. Die letzte erfolgreiche Geräteaktualisierung
-wird im Modul und im Browser angezeigt; sie gilt für diese Z2M-Verbindung.
-Bei einem zweiten System dessen Gerätedaten im zugehörigen Modul aktualisieren.
-Für diese Funktion auch die mitgelieferte Z2M-Erweiterung aktualisieren.
-
-„Geräte und gespeicherte Automationen laden“ bleibt ein eigener Vorgang:
-Dieser lädt zusätzlich die gespeicherten Regeln und ersetzt nach Bestätigung
-den lokalen Entwurf. Verwenden Sie ihn nicht nur zum Aktualisieren der Geräte.
-Gespeicherte Regeln und Freigaben für ein zweites Z2M-System werden dabei
-unverändert geladen. Der Ladevorgang speichert oder aktiviert nichts in Z2M.
-Auch beim Hinzufügen oder Bearbeiten einer Automation bleiben vorhandene
-Freigaben erhalten, wenn hier kein zweites Automationsmodul ausgewählt oder
-verfügbar ist. Ziele des zweiten Systems benötigen weiterhin dessen Auswahl.
-
-„Automationsdesigner öffnen“ öffnet die übersichtliche Browseransicht
-dieser Modulinstanz. Links Regeln, Zeitautomationen, Aktionsfolgen oder
-„Geräte & Kanäle“ auswählen. In der Mitte einen Baustein anklicken; rechts
-erscheinen seine Angaben. Auch Bedingungen, Wartezeiten, Szenen, gemeinsame
-Gerätebefehle und Ziele des zweiten Systems werden dargestellt.
-
-Die Designerdateien werden beim Öffnen automatisch geladen. Scheitert der Start,
-erscheint eine Fehlermeldung mit „Designer neu laden“. Damit versuchen Sie das
-Öffnen erneut; vorhandene Entwürfe und laufende Automationen bleiben erhalten.
-
-Die Ansicht zeigt die bereits im Modul vorhandenen Daten.
-„Ansicht aktualisieren“ liest sie erneut aus dem Modul. Es fragt keine Geräte
-oder Z2M ab und ersetzt keine Entwürfe. Der angezeigte Betrieb ist der zuletzt
-bestätigte Stand; ein eingeschalteter Regelschalter im Entwurf bedeutet nicht
-automatisch, dass diese Fassung bereits läuft.
-
-Fehlen Daten für die aktuelle Verbindung, erscheint ein Hinweis. Ein noch aus
-einer anderen Verbindung stammender Entwurf wird nicht als aktueller Stand
-angezeigt oder überschrieben. Bitte den vorhandenen Entwurf zuerst im nativen
-Formular prüfen. Noch nicht übernommene Formulareingaben bleiben dort erhalten
-und werden in der Browseransicht lediglich als ausstehend gemeldet.
-
-Mit **„Neue Automation“** und **„Automation bearbeiten“** verwenden Sie denselben
-Editor. Eine neue Regel kann vor dem ersten Übernehmen vollständig eingerichtet werden:
-
-1. Einen verständlichen Namen eintragen. Unter **1. Wenn – Auslöser (ODER)**
-   die **Art des Eintrags** wählen: Geräteereignis, Uhrzeit oder Sonnenzeit.
-   Beim Gerät zuerst suchen und auswählen, danach Eigenschaft/Kanal, Vergleich
-   und auslösenden Wert festlegen. Lesbare Sensoren sind erlaubt.
-2. Mit **Art des neuen Eintrags** und **Eintrag hinzufügen** weitere Auslöser
-   ergänzen. Bis zu acht Auslöser können dieselbe Regel jeweils allein starten.
-   Für mehrere Uhrzeiten je einen Uhrzeit-Eintrag anlegen und die Zeitzone angeben.
-3. Bei **Sonnenzeit** Sonnenaufgang oder Sonnenuntergang, Breitengrad und
-   Längengrad in Dezimalgrad sowie die Zeitzone angeben. Der **Zeitversatz**
-   gilt in ganzen Minuten: -30 bedeutet eine halbe Stunde vorher, 30 eine halbe
-   Stunde danach. Möglich sind bis zu zwölf Stunden davor oder danach.
-4. Unter **2. Nur wenn – Bedingungen (UND)** bei Bedarf Gerätewerte,
-   Wochentage oder Zeitfenster ergänzen. Alle eingetragenen Bedingungen müssen
-   erfüllt sein. Ohne Bedingungen gelten Zeit- und Sonnenregeln täglich.
-5. Unter **3. Dann – Aktionen in dieser Reihenfolge** bis zu 16 Schritte
-   zusammenstellen: Werte setzen, Umschalten, vorhandene Szene oder Aktionsfolge
-   aufrufen. Zielgerät suchen und auswählen, dann Kanal und Wert festlegen.
-   Nur schaltbare Ziele werden angeboten; eingerichtete Partnersysteme sind enthalten.
-   Mehrere Werte eines Schritts werden als gemeinsamer Gerätebefehl gesendet.
-6. Schritte am Griff **Verschieben** mit der Maus ziehen oder mit **Nach oben**
-   und **Nach unten** anordnen. Die Markierung zeigt die Ablageposition.
-   Die Wartezeit bleibt immer bei ihrem Schritt und gilt vor dessen Ausführung.
-   Dasselbe funktioniert beim Erstellen und Bearbeiten von Aktionsfolgen.
-7. **Ausgeschaltet zum Entwurf hinzufügen** wählen. Die neue Regel erscheint
-   vollständig im passenden Bereich und bleibt ausgeschaltet. Bestehende Regeln
-   und Partnerfreigaben bleiben erhalten. Zum späteren Ändern auswählen und
-   **Automation bearbeiten** öffnen; alle unterstützten Angaben sind vorbelegt.
-
-Als Zeitzone ist Europe/Berlin vorbelegt; bitte die passende Zone eintragen.
-Eine Ortung findet nicht statt. Z2M berechnet die Sonnenzeiten selbstständig;
-verpasste Zeiten werden nicht nachgeholt. Fehlende Angaben, doppelte Uhrzeiten
-und ungültige Werte verhindern die gesamte Übernahme. Die Eingaben bleiben
-im Dialog. Ziehen, Pfeilbuttons und Abbrechen ändern den gespeicherten Entwurf
-noch nicht. Erst das Übernehmen speichert lokal; es schaltet kein Gerät.
-
-Die Erstellung benötigt passende Gerätedaten und einen geladenen Entwurf.
-Fehlt dieser, zuerst im nativen Formular „Geräte und gespeicherte Automationen
-laden“ wählen. Dabei wird der lokale Entwurf nach Bestätigung ersetzt: Offene
-Arbeit zuerst prüfen. Ein abweichender alter Entwurf wird im Browser niemals
-automatisch überschrieben. Bekannte offene Eingaben im nativen Formular müssen
-vor dem Hinzufügen übernommen oder zurückgenommen werden. Bei einer inzwischen
-geänderten Auswahl bleiben die Browserangaben im Dialog erhalten. Dort die
-Ansicht aktualisieren und die Angaben nochmals prüfen. Abbrechen verwirft nur
-die noch nicht hinzugefügte Browserregel.
-
-Mit **„Automation bearbeiten“** ändern Sie eine links ausgewählte Regel:
-
-1. Name, Regelschalter, Auslöser, Bedingungen und Aktionen sind bereits vorbelegt.
-   Geräte, Kanäle und Werte können Sie getrennt auswählen. Uhrzeiten und
-   Sonnenzeiten sowie Wochentage und Zeitfenster lassen sich ebenfalls bearbeiten.
-2. Öffnen Sie den gewünschten Bereich. Weitere Einträge hinzufügen oder entfernen;
-   Aktionsschritte am Griff „Verschieben“ ziehen oder mit „Nach oben“ und „Nach unten“ anordnen. Die Wartezeit gilt
-   jeweils vor dem zugehörigen Schritt. Vorhandene Szenen und Aktionsfolgen sind
-   auswählbar; deren Definition wird dabei nicht geändert.
-3. „Änderungen in den Entwurf übernehmen“ wählen. Das ändert nur diese Regel
-   im lokalen Symcon-Entwurf. Andere Regeln und vorhandene Freigaben bleiben erhalten.
-
-Der Regelschalter im Browser betrifft ebenfalls nur den Entwurf. Er startet
-oder stoppt keine laufende Automation. Fehlen Gerätedaten oder Schaltrechte,
-bleibt der betroffene Bereich geschützt und vollständig erhalten. Andere
-Angaben, etwa der Name, können weiterhin geändert werden. Für Änderungen am
-geschützten Bereich zuerst die Gerätedaten bzw. das native Formular prüfen.
-
-Bei zwischenzeitlichen Änderungen wird nichts überschrieben: Ihre Eingaben
-bleiben im Dialog. „Neu laden und Eingaben verwerfen“ lädt nach Bestätigung den
-aktuellen Entwurf; eigene noch nicht übernommene Eingaben gehen dabei verloren.
-„Abbrechen“ verwirft nur die nicht übernommenen Eingaben dieses Dialogs.
-
-Mit **„+ Neue Aktionsfolge“** legen Sie einen Ablauf an, den mehrere Automationen
-verwenden können. Namen eingeben, Gerät suchen, Kanal und Wert wählen und bei
-Bedarf weitere Schritte ergänzen. Auch Umschalten, vorhandene Szenen und Geräte
-eines eingerichteten Partners sind auswählbar. Die Wartezeit gilt jeweils vor
-dem Schritt. Mit „Verschieben“, „Nach oben“, „Nach unten“ und „Eintrag entfernen“ ordnen Sie
-den Ablauf. Anschließend **„Aktionsfolge in den Entwurf übernehmen“** wählen.
-
-Vorhandene Folgen links unter **„Aktionsfolgen“** auswählen und mit
-**„Aktionsfolge bearbeiten“** öffnen. Alle Schritte werden vorbelegt. Eine
-Meldung nennt, wie viele Automationen diese Folge verwenden: Änderungen gelten
-nach dem Übertragen für alle diese Regeln. Die Definition behält ihre Kennung;
-die Verweise in den Automationen bleiben erhalten. Eine Folge kann bis zu
-16 Schritte enthalten und keine weitere Folge aufrufen. Insgesamt sind bis zu
-32 Folgen möglich. Würde eine verwendende Automation durch die Änderung mehr
-als 16 Schritte ausführen, wird die Änderung abgelehnt und der Entwurf erhalten.
-
-Zum Verwenden eine Automation bearbeiten und bei den Aktionen
-**„Aktionsfolge aufrufen“** sowie die gewünschte Folge wählen. Reine Folgen
-haben keinen eigenen Auslöser und keinen Regelschalter.
-
-In der Zentrale sind Prüfen und Übertragen je System direkt im Designer verfügbar.
-Die systemgebundenen Betriebsbuttons stehen ebenfalls im Designer zur Verfügung.
-Im bisherigen Einzelbetrieb erfolgen Prüfen, Übertragen und Betriebssteuerung im nativen Formular. Das Erstellen und Bearbeiten
-im Browser schaltet keine Geräte. Nach 15
-Minuten den Designer im Modul erneut öffnen; Aktualisieren verlängert den Zugang
-nicht. Der Browser muss den Symcon-Webserver derselben Installation erreichen
-können. Ein Modulupdate genügt, die Z2M-Erweiterung bleibt unverändert.
-
-Der Designer kann auch über die HTTP-Adresse des Symcon-Servers im lokalen Netz
-verwendet werden. Nach einem Modulupdate den Designer schließen und erneut im
-Modul öffnen, damit alle aktualisierten Browserdateien geladen werden.
-
-Die [Offline-Designer-Vorschau](../docs/prototypes/automation-designer/README.md)
-bleibt zusätzlich mit erfundenen Beispielen zum Ausprobieren verfügbar. Ihre
-simulierten Speicher- und Betriebsbuttons sind vom echten Moduldesigner
-getrennt.
-
-## Voraussetzungen und Einrichtung
-
-IP-Symcon ab 9.0 mit PHP 8.5 sowie eine konfigurierte MQTT-Client- oder
-MQTT-Server-Instanz, die mit derselben Z2M-Installation verbunden ist.
-
-1. Instanz anlegen und als übergeordnete Verbindung den vorhandenen MQTT Client
-   oder MQTT Server auswählen. Gemeinsame Nutzung mit anderen Modulen ist möglich.
-2. Das Basistopic der Z2M-Installation eintragen.
-3. Bei MQTT Client das Basistopic mit /bridge/# und /symcon/automations/#
-   abonnieren. Ein umfassenderes Abonnement wie # genügt. Die Gateway-
-   Einstellungen werden nicht geändert.
-4. „MQTT-Anbindung aktivieren“ einschalten und Änderungen übernehmen.
-5. Bei Bedarf „Zigbee2MQTT-Verbindung prüfen“ betätigen. Das Ergebnis erscheint
-   als Popup und in der Statusvariable „Verbindungsprüfung“.
-
-Broker, Zugangsdaten und TLS werden ausschließlich im vorhandenen Gateway und
-seiner Socket-Verbindung eingerichtet. Die Library benötigt keine eigene Kopie.
-
-## MQTT-Gateway und Suchbereich
-
-Für zwei Z2M-Systeme mit unterschiedlichen Basistopics werden zwei getrennte
-Automationsinstanzen verwendet, auch bei einem gemeinsamen MQTT-Broker oder
-Symcon-MQTT-Client.
-Jede Instanz nutzt ausschließlich ihre eigene übergeordnete MQTT-Verbindung
-und das unter **Zigbee2MQTT-Basistopic** konfigurierte Topic (Groß-/Kleinschreibung
-beachten). Gleichlautende Topics, IEEE-Kennungen oder Gruppen-IDs an anderen
-Gateways werden nicht vermischt.
-
-Unter **An diesem MQTT-Gateway gefundene Basistopics** lassen sich Topics aus
-vorhandenen Z2M-Geräte-, Gruppen- und Bridge-Instanzen auswählen. Die Auswahl
-befüllt nur das Basistopic-Feld; eine manuelle Eingabe bleibt möglich. Danach
-**Änderungen übernehmen** und für den Import den Z2M-Katalog neu laden.
-Die Auswahl ändert weder das Gateway noch Konfigurationen anderer Instanzen.
-Die Vorschläge werden beim Öffnen des Formulars aus der lokalen Installation
-ermittelt; es wird kein MQTT-Netzwerkscan durchgeführt.
-
-Nach **Gateway ändern** wird die Topic-Auswahl im geöffneten Formular erneuert.
-Dabei wird das Formular neu geladen. Übernehmen Sie noch offene Formulareingaben
-vor dem Gateway-Wechsel; bereits übernommene Regelentwürfe bleiben erhalten.
-Das bisher gespeicherte Basistopic bleibt erhalten. Steht dort **hier nicht
-gefunden**, wählen Sie das passende Topic aus der Liste oder tragen es manuell
-ein und übernehmen die Einstellungen. Bei mehreren Z2M-Systemen am selben
-Gateway muss das gewünschte System ausdrücklich ausgewählt werden. Ein
-Gateway-Wechsel allein ändert keine Regelentwürfe. Passt das bisher gespeicherte
-Topic nach dem Wechsel nicht zu den erkannten Topics, wartet die automatische
-Statusprüfung auf die Übernahme der Einstellungen. Auch ein bewusst manuell
-eingetragenes Topic lässt sich übernehmen und prüfen.
-
-**Vorhandene Ereignisse prüfen** findet passende Symcon-Ereignisse anhand ihrer
-Quellvariablen unabhängig vom Ablageort im Objektbaum. Auch ohne geladenen
-Z2M-Katalog werden diese Ereignisse angezeigt. Ob sie importierbar sind, wird
-anschließend gegen den Katalog desselben Gateways und Topics geprüft. Nach einem
-Gateway- oder Topic-Wechsel werden bisherige Suchergebnisse und Freigaben nicht
-weiter angeboten. Es sind keine konkreten Instanz-IDs im Modul hinterlegt.
-
-## Verbindung prüfen und Rückmeldung erhalten
-
-Mit **Zigbee2MQTT-Verbindung prüfen** starten Sie eine Prüfung über das zugeordnete
-MQTT-Gateway. Sobald eine passende Antwort vorliegt, erscheint ein Popup mit dem
-Ergebnis. Bei Erfolg bestätigt es, dass Zigbee2MQTT erreichbar ist und einen
-fehlerfreien Zustand meldet. Meldet Z2M ein Problem, fehlt die Verbindung oder
-bleibt die Antwort aus, nennt das Popup den nächsten Prüfschritt.
-
-Der Versand allein wird noch nicht als Erfolg angezeigt. Mehrere Klicks während
-derselben Prüfung erzeugen keine weiteren Anfragen. Automatische Prüfungen beim
-Öffnen des Formulars, nach einem Modulupdate oder nach Wiederverbindung bleiben
-ohne Popup. Die Prüfung schaltet keine Geräte und verändert keine Automationen.
-
-## Erweiterung installieren
-
-Z2M muss erreichbar sein und externe JavaScript-Erweiterungen erlauben.
-Ist diese Funktion in Z2M ausgeschaltet, lehnt das Modul die Installation ab.
-Fehlt dazu noch eine Statusinformation, prüft die offizielle Z2M-Schnittstelle
-den Installationsauftrag. Das Modul schaltet diese Funktion nicht selbst ein.
-Die bisher praktisch belegte Z2M-Version ist **2.14.2-dev**. Z2M 2.14.2 ist
-das Schnittstellenziel; für die unveränderte stabile Ausgabe liegt keine eigene
-Praxisabnahme vor. Siehe [Versionsübersicht und Grenzen](../docs/COMPATIBILITY.md).
-
-„Mitgelieferte Erweiterung installieren oder aktualisieren“ lädt ausschließlich
-die mitgelieferte z2m-automations.mjs über MQTT hoch. Die Bestätigung weist auf
-das Ersetzen einer bereits vorhandenen Datei dieses Namens hin. Nach der
-Z2M-Upload-Antwort fragt das Modul den Empfänger aktiv ab. Erst dessen passende
-Antwort bestätigt die erfolgreiche Installation. Eine vorhandene Datei oder
-ein gespeicherter MQTT-Status allein genügen nicht.
-
-Die Z2M-API schreibt die JavaScript-Datei vor dem Laden. Ein Ladefehler ist
-deshalb kein Nachweis einer unveränderten früheren Datei. Das Modul führt
-keine automatische Rücknahme auf eine vorherige JavaScript-Version aus.
-
-Der Installationsbutton zeigt nach Abschluss ein Popup mit Erfolg oder einer
-Fehlerbeschreibung. Erfolgreicher Upload und bestätigte Bereitschaft der
-Erweiterung sind beide erforderlich. Ein bloßer Dateieintrag reicht nicht.
-Z2M lädt die Erweiterung beim Speichern über seine Schnittstelle neu; ein
-zusätzlicher manueller Neustart ist dafür nicht nötig.
-
-Bei bereits installierter Erweiterung genügt „Erweiterungsstatus abfragen“.
-Das Modul aktiviert kein externes JavaScript und löst keinen Z2M-Neustart aus.
-
-## Erweiterungsstand und Updatehinweis
-
-Unter **Einrichtung und Diagnose** stehen der **installierte Erweiterungsstand**
-und der **mitgelieferte Erweiterungsstand**, jeweils mit Version und kurzer
-Buildkennung. Die Kennung wird automatisch aus dem Erweiterungscode erzeugt.
-Sie erkennt Änderungen auch dann, wenn die Versionsnummer gleich bleibt.
-
-**Aktuell** bedeutet, dass beide Stände übereinstimmen. **Aktualisierung verfügbar**
-bedeutet, dass sie sich unterscheiden. Mit **Mitgelieferte Erweiterung installieren
-oder aktualisieren** übernehmen Sie den Stand aus dem Modul. Die Kennung selbst
-ist kein Datum und sagt nicht, welcher Stand jünger ist.
-
-Beim Öffnen des Formulars und nach einem Modulupdate erfolgt die vorhandene
-automatische Statusprüfung. **Erweiterungsstatus abfragen** aktualisiert die
-Anzeige auch manuell. Nach bestätigter Installation wird der Stand erneut geprüft.
-Die Anzeige installiert oder aktiviert selbst keine Erweiterung oder Automation.
-
-Bei **Noch nicht geprüft** fehlt eine bestätigte Statusantwort. Meldet eine ältere
-Erweiterung **ohne Buildkennung**, lässt sich ihr Stand noch nicht vergleichen.
-Installieren beziehungsweise aktualisieren Sie dann die mitgelieferte Erweiterung
-und fragen Sie deren Status erneut ab. Für die neue Anzeige zunächst das Modul
-aktualisieren; für den vollständigen Vergleich auch die Erweiterung aktualisieren.
-
-## Einfache Automation per Klick erstellen
-
-1. Neue mitgelieferte Erweiterung installieren bzw. aktualisieren und den
-   Erweiterungsstatus abfragen.
-2. „Geräte und gespeicherte Automationen laden“ bestätigen. Damit wird der lokale
-   Entwurf neu geladen; die in Z2M gespeicherten Regeln werden noch nicht geändert.
-3. Den Bereich „Durch ein Gerät ausgelöste Automationen“ öffnen und in der Auswahl
-   „Neue Automation erstellen“ wählen und „Automation bearbeiten“ aufklappen. Die Bearbeitung öffnet sich direkt in diesem Bereich.
-   Namen eingeben und unter „Wenn ein Gerät ein Ereignis meldet“ in der
-   Auslöserliste ein Gerät und Ereignis hinzufügen, beispielsweise
-   „Tasterereignis: Einfach drücken“. Weitere Auslöser sind optional.
-   Für eine Uhrzeitregel stattdessen im Bereich „Zeitgesteuerte Automationen“
-   „Neue Automation erstellen“ wählen, die Bearbeitung aufklappen und
-   Uhrzeit/Zeitzone einstellen.
-4. Bei Bedarf „Nur wenn … (optional)“ öffnen und Bedingungen hinzufügen.
-   Unter „Dann diese Aktionen ausführen“ einen Schritt hinzufügen, Gerät und Aktion auswählen,
-   beispielsweise „Zustand: Ein“, und die Wartezeit vor diesem Schritt eingeben.
-5. „Automation zum Entwurf hinzufügen“ betätigen. Weitere einfache Regeln können
-   vor der Übertragung ergänzt werden. Vorhandene gespeicherte Regeln bleiben
-   im Entwurf vollständig erhalten.
-6. „Entwurf in Z2M prüfen“ und anschließend „Geprüften Entwurf in Z2M speichern“
-   bestätigen. Die YAML wird automatisch erzeugt; sie muss weder angezeigt noch
-   bearbeitet werden. Die Liste zeigt Namen, erste Quelle, erstes Ziel und den
-   gewünschten Aktivierungszustand der Regeln im Entwurf.
-7. „Gespeicherte Automationen in Z2M aktivieren“ bestätigen.
-
-Der Editor bietet Geräteereignisse, Zustände und Messwerte als Auslöser sowie
-Geräte- und Gruppenaktionen, Szenen, Zahlenwerte und Farben an, soweit das Gerät
-und seine Symcon-Variablen sie unterstützen. Gerät, Eigenschaft bzw. Kanal und
-Wert werden getrennt gewählt. Reine Anzeigevariablen stehen für Auslöser und
-Bedingungen bereit, für Aktionen nur schaltbare Variablen mit Z2M-Schreibrecht.
-
-Der Gerätekatalog ist begrenzt: höchstens 256 Geräte und insgesamt 1024
-Auswahlwerte. Grundlegende Schaltzustände erhalten Vorrang vor Sonderoptionen.
-Nicht unterstützte Eigenschaften werden ausgelassen. Die IEEE-Adresse neben
-dem Gerätenamen unterscheidet gleichnamige Geräte. Gemischte Geräte-/Zeit-
-auslöser und andere nicht darstellbare Strukturen bleiben der erweiterten
-YAML-Ansicht vorbehalten. Solche Regeln lassen sich im Formular umbenennen,
-ein-/ausschalten oder löschen; ihre übrigen Angaben bleiben erhalten.
-
-## Bearbeitungsstand erkennen und Änderungen übernehmen
-
-Der Bereich **Bearbeitungsstand und Z2M-Betrieb** erklärt den aktuellen Stand:
-
-- **Formular:** Haben Sie Felder geändert, sind diese Angaben zunächst noch
-  nicht im Entwurf. Klicken Sie im jeweiligen Bearbeitungsbereich auf den Button
-  zum Übernehmen in den Entwurf. Für diese Bearbeitung erscheint kein allgemeiner
-  orangefarbener Übernehmen-Button von Symcon.
-- **Entwurf:** Die Änderungen liegen anschließend in Symcon. Die Anzeige sagt,
-  ob der Entwurf noch geprüft werden muss, erfolgreich geprüft oder bereits in
-  Z2M gespeichert ist. Zum Übertragen verwenden Sie die gemeinsamen Buttons
-  **Entwurf in Z2M prüfen** und **Geprüften Entwurf in Z2M speichern**.
-- **Z2M-Betrieb:** Diese Angabe zeigt den bestätigten Ausführungszustand.
-  Bereits laufende Automationen verwenden weiterhin den gespeicherten Stand,
-  solange Änderungen nur im Formular oder im Entwurf stehen. Nach dem Speichern
-  aktivieren Sie die gespeicherten Automationen wie bisher.
-
-Beim Wechsel zu einer anderen Automation, zwischen geräteausgelöster und
-zeitgesteuerter Bearbeitung oder zu einer anderen Aktionsfolge fragt das Modul
-bei offenen Änderungen nach. **Weiter bearbeiten** erhält Ihre Eingaben und die
-bisherige Auswahl. Nur **Änderungen verwerfen und wechseln** verwirft die
-Formulareingaben. Der vorhandene Entwurf und die in Z2M gespeicherten Regeln
-werden dabei nicht geändert.
-
-Prüfung, Laden gespeicherter Regeln, Import, Löschen, Speicherung und Aktivierung
-weisen bei offenen Formulareingaben auf die nötige Übernahme hin. Statusabfragen
-und Stopp können Sie weiterhin verwenden. Regelbearbeitung und Aktionsfolgen
-werden getrennt verfolgt; das Übernehmen einer Regel verwirft keine offene
-Bearbeitung einer Aktionsfolge. Die Änderung benötigt nur ein Modulupdate.
-
-## Entwurf, Speichern und Starten
-
-Ein **Entwurf** sind die Automationen, die Sie gerade in Symcon bearbeiten.
-**Prüfen** kontrolliert, ob Z2M diesen Entwurf verwenden kann. **Speichern** sendet
-ihn an Z2M und ersetzt dort die bisher gespeicherten Automationen. Bei geändertem
-Inhalt wird die bisherige Ausführung gestoppt. Erst **Aktivieren** startet alle
-in diesem gespeicherten Stand eingeschalteten Regeln. **Stoppen** beendet die
-Ausführung, ohne die gespeicherten Regeln zu löschen.
-
-Die Meldungen zeigen, ob ein Vorgang erfolgreich, fehlgeschlagen oder noch offen
-ist. Wenn eine Aktion erforderlich ist, nennt die Meldung den nächsten Schritt.
-„Noch nicht geprüft“ oder „Noch nicht bestätigt“ bedeutet nicht automatisch,
-dass die Verbindung gestört ist. Mit **Erweiterungsstatus abfragen** lässt sich
-der aktuelle Stand aus Z2M laden.
-
-Nach dem Speichern bestätigt das Modul den aktuellen Z2M-Status automatisch.
-Währenddessen steht dort **Die Automationen sind in Z2M gespeichert. Der aktuelle
-Laufzeitstatus wird automatisch abgefragt. Bitte kurz warten.** Sobald die passende
-Antwort vorliegt, wird der Aktivierungsbutton freigegeben. Dies aktiviert noch
-keine Regel. Ein bereits gespeicherter unveränderter Entwurf wird als gespeichert
-angezeigt; erst neue Änderungen benötigen wieder eine Prüfung und Speicherung.
-
-Fehlt die anschließende Statusantwort, bleibt die Speicherung trotzdem bestätigt.
-Die Meldung fordert dann **Erweiterungsstatus abfragen**. Wegen dieser Meldung
-nicht erneut speichern. Die Aktivierung bleibt bis zur Statusbestätigung gesperrt.
-
-Lehnt **Entwurf in Z2M prüfen** eine Datei ab, zeigt die Fehlerliste die Nummer
-der Automation und die betroffene Angabe, zum Beispiel **Automation 12 → Aktion 2
-→ Wartezeit vor dem Schritt: Der Wert muss mindestens 0 sein**. Bei Entwürfen aus
-dem Klick-Editor steht zusätzlich der Name der Automation dabei. Die Nummern
-beziehen sich auf die Reihenfolge aller Automationen in der geprüften Datei,
-einschließlich ausgeschalteter Regeln. Bei selbst geschriebener YAML helfen die
-Nummer sowie bei Syntaxfehlern nach Möglichkeit Zeile und Spalte.
-
-Es erscheinen bis zu 20 Fehler gleichzeitig. Nach der Korrektur die Änderung
-zunächst in den Entwurf übernehmen und erneut prüfen. Die Fehlerliste gehört zur
-letzten Prüfung und bleibt auch bei automatischen und manuellen Statusabfragen
-erhalten. Erst beim Start der nächsten Entwurfsprüfung wird sie durch deren
-Ergebnis ersetzt. Meldet ein anderer Vorgang einen Fehler, erscheint dieser
-zusätzlich unter der Fehlerliste. Für diese ausführlichen Rückmeldungen müssen
-sowohl das Modul als auch die mitgelieferte Z2M-Erweiterung aktualisiert sein.
-
-## Ausführung aktivieren und stoppen
-
-Die Aktivierung bezieht sich auf die **gespeicherte** Revision, nicht auf einen
-unveröffentlichten Entwurf. Das Modul fragt den aktuellen Zustand und die frische
-Einmalkennung ab, sendet den Aktivierungsauftrag und prüft danach den tatsächlichen
-Status erneut. Erst dann werden aktive Revision und Regelanzahl angezeigt.
-Eine ältere Erweiterung wird mit einer verständlichen Update-Meldung erkannt.
-
-„Automationen in Z2M stoppen“ verwirft ausstehende Auslöser und Verzögerungen.
-Ein Stopp erhält Vorrang vor einem noch laufenden Modulauftrag. Bei aktiver
-MQTT-Anbindung darf er auch bei noch unbekanntem Bridge-Onlinezustand versucht
-werden. Ein Timeout bestätigt keinen Stopp: Dann bleibt der Ausführungsstatus
-unbekannt und muss erneut abgefragt werden. Bereits gesendete Gerätebefehle lassen
-sich nicht zurückrufen.
-
-**Symcon ist nach erfolgreicher Aktivierung für die Ausführung nicht erforderlich.**
-Geräteaktionen übergibt die Erweiterung direkt an Z2Ms interne Befehlsverarbeitung.
-Die Ausführung benötigt keine Rückzustellung eigener MQTT-Veröffentlichungen.
-Der Ausführungsstatus bestätigt die aktive Regel, nicht die physische Wirkung
-jeder Aktion. Spätere Converter-/Zigbee-Fehler sind im Z2M-Protokoll nachzusehen.
-Auch das Deaktivieren der MQTT-Anbindung oder eine Unterbrechung der Symcon-
-Verbindung stoppt die Regeln in Z2M nicht automatisch. Erst der ausdrücklich an
-Z2M gesendete Stopp beendet die Ausführung. Nach einem Z2M-/Erweiterungsneustart gilt die gespeicherte Wiederanlauf-Einstellung.
-Nach dem Speichern geänderter Regeln ist erneut ausdrücklich zu aktivieren.
-
-## Nach einem Z2M-Neustart automatisch weiterarbeiten
-
-Unter **Betrieb der Automationen** ist **Aktivierte Automationen nach einem
-Z2M-Neustart automatisch fortsetzen** standardmäßig eingeschaltet. Einstellungen
-übernehmen und anschließend **Gespeicherte Automationen in Z2M aktivieren** wählen:
-Erst diese Aktivierung überträgt die Option und speichert den Betriebszustand in Z2M.
-Eine reine Änderung im Symcon-Formular ändert den bereits gespeicherten Z2M-Zustand nicht.
-
-Danach aktiviert Z2M denselben geprüften Regelstand nach einem Neustart selbstständig,
-auch wenn Symcon nicht läuft. **Stoppen** wird ebenfalls dauerhaft gespeichert;
-bewusst gestoppte Automationen bleiben aus. Das bloße Speichern geänderter Regeln
-berechtigt nicht zum Wiederanlauf. Ohne eingeschaltete Option ist nach einem
-Z2M-Neustart eine manuelle Aktivierung erforderlich. Die Statuszeile zeigt das
-von Z2M bestätigte Verhalten und einen gegebenenfalls fehlgeschlagenen Wiederanlauf.
-
-Verpasste Schaltzeiten werden nicht nachgeholt, unterbrochene Aktionsfolgen und
-Wartezeiten werden verworfen. Gerätebedingungen warten auf neue Sensorwerte.
-Fehlende Geräte, beschädigte Dateien oder ein veränderter Regelstand verhindern
-den Wiederanlauf. Bei Speicherfehlern wird Aktivierung oder Stopp nicht als
-dauerhaft bestätigt; Fehler beheben und den Auftrag erneut ausführen.
-
-Nach erstmaliger Installation dieser Erweiterung einmal ausdrücklich aktivieren,
-um die Wiederanlauf-Freigabe anzulegen. Ein Update allein aktiviert keine Regeln.
-Auch ein Neuladen der Erweiterung verwendet anschließend den gespeicherten
-Betriebszustand. Beide Partner einer systemübergreifenden Automation benötigen
-jeweils ihre eigene Aktivierung und Wiederanlauf-Freigabe.
-
-## Übersicht und Bearbeitung
-
-Geräteausgelöste und zeitgesteuerte Automationen besitzen jeweils eine eigene
-Übersicht und die Auswahl „Automation bearbeiten“. Die Auswahl lädt die Regel
-in die Bearbeitung direkt im jeweiligen Bereich. Dort erscheinen nur die
-passenden Auslöserfelder; bestehende Bedingungen werden aufgeklappt. Jeder
-Bereich besitzt eigene Eingabefelder, eine Aktionsliste und Übernehmen-/Löschen-
-Buttons. Die Auslöserart ergibt sich aus dem Bereich und wird nicht zusätzlich
-ausgewählt. Es wird jeweils eine Regel bearbeitet; vor dem Wechsel Änderungen
-in den lokalen Entwurf übernehmen. Beide Bearbeitungsüberschriften bleiben
-sichtbar; das Öffnen aktiviert den jeweiligen Bereich. Ein zusätzlicher Neu-Button
-ist nicht erforderlich.
-Regeln mit gemischten oder anderen nicht darstellbaren Auslösern bleiben mit ihrer sicheren
-Metadatenbearbeitung unter „Weitere Automationen“ erreichbar. Unterstützte
-Bearbeitung und der Schutz erweiterter Regeln gelten weiter.
-
-Die Spalte „Im Entwurf eingeschaltet“ zeigt den gewünschten Regelschalter,
-nicht den aktuellen Z2M-Betrieb. Der Schalter in einer neuen, noch nicht
-übernommenen Bearbeitung ändert keine vorhandene Listenzeile.
-
-„Prüfen und an Z2M übertragen“ enthält Prüfung, Speicherung und Aktivierung.
-Aktivieren und Stoppen beziehen sich auf die gesamte gespeicherte Konfiguration.
-Ausführungsstatus und Stopp stehen oben. MQTT-Einstellungen, Einrichtung/Diagnose
-und der erweiterte YAML-Editor sind normalerweise eingeklappt. Die Bearbeitung
-ändert zuerst den lokalen Entwurf; Z2M ändert sich erst beim Speichern.
-
-## Viele Automationen finden und kopieren
-
-Die Übersichten zeigen jeweils zehn Regeln auf einmal. Name, Auslöser und
-Ziel teilen sich die verfügbare Breite. Weitere Einträge erreichen Sie über
-die Bildlaufleiste der jeweiligen Liste.
-
-Mit **Nach Automations- oder Gerätenamen suchen** grenzen Sie die Übersicht
-und die Auswahl zum Bearbeiten ein. Die Suche berücksichtigt auch Geräte in
-Auslösern, Bedingungen und Aktionsfolgen. Groß- und Kleinschreibung spielen
-keine Rolle. Mehrere Suchwörter müssen alle gefunden werden. Die Anzeige nennt
-die Zahl der Treffer. Unter **Regel aktiviert im Entwurf** wählen Sie zusätzlich
-alle, eingeschaltete oder ausgeschaltete Regeln. Dieser Filter bezieht sich
-auf den Regelschalter im Entwurf und verändert den Z2M-Betrieb nicht.
-
-Jeder Bereich hat eigene Filter. Leeren Sie die Suche und wählen Sie **Alle
-Regeln**, um wieder alles zu sehen. Eine bereits geöffnete Automation bleibt
-mit einem Hinweis in der Bearbeitungsauswahl, auch wenn sie nicht zum Filter
-passt. Ihre Eingaben bleiben erhalten. Auch eine leere Trefferliste löscht
-keine Automation. Die Suchtexte werden nicht im Debug ausgegeben.
-
-Wählen Sie eine bestehende Automation und klicken Sie auf **Ausgewählte
-Automation kopieren**. Offene Eingaben müssen Sie zuerst in den Entwurf
-übernehmen. Die Kopie erhält eine eigene Kennung, einen ergänzten Namen und
-wird direkt zum Bearbeiten geöffnet. Der Filter dieses Bereichs wird dafür
-zurückgesetzt. Der ursprüngliche Regelinhalt bleibt erhalten.
-
-Kopien sind zunächst **ausgeschaltet**. Auslöser, Bedingungen, Szenen,
-Zeitversätze, Wartezeiten und Ziele im zweiten Z2M-System bleiben erhalten.
-Verweise auf wiederverwendbare Aktionsfolgen bleiben mit denselben Folgen
-verbunden; deren Definitionen werden nicht mitkopiert. Die Kopie liegt zuerst
-nur im Symcon-Entwurf. Für den späteren Betrieb müssen Sie sie nach Wunsch
-bearbeiten, den Regelschalter setzen und den Entwurf wie bisher prüfen und
-in Z2M speichern. Insgesamt sind weiterhin höchstens 100 Regeln erlaubt.
-Für diese Erweiterung genügt ein Modulupdate.
-
-## Vorhandene Automationen bearbeiten oder löschen
-
-1. Geräte und gespeicherte Automationen laden. Unter „Automation bearbeiten“
-   die gewünschte Regel auswählen. Die Nummer neben dem Namen unterscheidet
-   gleichnamige Regeln; intern bleibt jede Regel über ihre feste ID zugeordnet.
-2. Bei unterstützten Regeln werden Name, Aktivierung, Auslöser, Bedingungen und
-   sämtliche Aktionsschritte vorbelegt. Änderungen mit „Änderungen in den Entwurf übernehmen“
-   anwenden. „Regel aktiviert“ legt fest, ob die Regel bei der nächsten Aktivierung
-   der gespeicherten Konfiguration mitläuft; es schaltet nicht sofort ein Gerät.
-3. Alternativ „Ausgewählte Automation aus dem Entwurf löschen“ betätigen und
-   bestätigen. Nur die ausgewählte Regel wird entfernt. Auch die letzte Regel
-   darf gelöscht werden; es entsteht eine gültige leere Konfiguration.
-4. Den geänderten Entwurf in Z2M prüfen und anschließend speichern. Erst diese
-   Übertragung verändert Z2M. Eine geänderte Konfiguration ist danach gestoppt
-   und muss bei Bedarf erneut ausdrücklich aktiviert werden.
-
-Weitere lokale Änderungen können vor dem Übertragen gesammelt werden. Nach
-einer erfolgreichen Übertragung den Editor neu laden, bevor weitere Regeln
-bearbeitet werden. Einfache Regeln behalten beim Bearbeiten ihre ID und Position;
-andere Regeln bleiben unverändert. Bei erweiterten Regeln oder inzwischen
-fehlenden Auswahlwerten werden Geräte-/Aktionsfelder gesperrt. Name und
-Aktivierungszustand bleiben änderbar; vorhandene Bedingungen und Schritte bleiben
-vollständig erhalten. Löschen ist auch für diese Regeln möglich.
-
-Zum erneuten Laden wird das Verwerfen des lokalen Entwurfs
-ausdrücklich bestätigt. Manuelle YAML-Änderungen oder eine inzwischen geänderte
-Speicherrevision werden nicht unbemerkt überschrieben. Eine veraltete Auswahl,
-auch aus einem zweiten geöffneten Formular, wird abgewiesen. In diesem Fall
-die Regel erneut auswählen bzw. den Editor nach Speicherung neu laden.
-
-## Mehrkanaltaster und Schaltkanäle
-
-Einzelne Kanäle erscheinen bei Auslösern und Aktionen als „Zustand (Kanal L1)“,
-„Zustand (Kanal L2)“ usw., jeweils mit Ein/Aus. Den passenden Kanal ausdrücklich
-wählen. Der allgemeine Zustand bleibt davon getrennt; er ersetzt keinen Kanal.
-Beim erneuten Auswählen einer Automation werden Kanal, Zustand und Mindestdauer
-bzw. Wartezeit wieder geladen. Nach diesem Update die mitgelieferte Erweiterung
-aktualisieren und anschließend Geräte und gespeicherte Automationen neu laden.
-
-## Mehrere Geräteauslöser (ODER)
-
-Im Gerätebereich enthält die Auslöserliste ein bis acht Einträge. Jeden Eintrag
-über Hinzufügen anlegen und Gerät mit Ereignis/Zustand wählen. Bewegungsmelder,
-Taster und andere angebotene Geräteereignisse können kombiniert werden. Sobald
-einer der Einträge zutrifft, kann dieselbe Aktionsfolge starten. Die zusätzlichen
-Bedingungen gelten für jeden Auslöser gemeinsam. Eine UND-Verknüpfung mehrerer
-Ereignisse ist hier nicht vorgesehen.
-
-„Mindestdauer des Zustands“ wird je Eintrag eingestellt: 0 reagiert sofort,
-1 bis 86400 fordert einen entsprechend lange anliegenden Zustand. Für einen
-kurzen Tastendruck normalerweise 0 verwenden. Einträge sind bearbeitbar und
-löschbar; ihre Reihenfolge ist für ODER ohne Bedeutung. Vorhandene Einzelregeln
-erscheinen als eine Zeile, unterstützte Mehrfachregeln mit allen Einträgen.
-
-Danach in den Entwurf übernehmen, gemeinsam prüfen und speichern. Die Engine
-verhindert parallele Läufe derselben Regel und besitzt einen Schutzabstand von
-einer Sekunde zwischen Regelstarts. Bedingungen und Wartezeiten verändern diese
-Regeln nicht. Gemischte Zeit-/Geräteauslöser und nicht darstellbare Vergleiche
-bleiben in der erweiterten YAML bzw. der begrenzten Metadatenbearbeitung erhalten.
-
-## Messwertauslöser und mehrere Bedingungen
-
-Beim Hinzufügen oder Bearbeiten eines Geräteauslösers stehen Gerät,
-Eigenschaft/Kanal, Vergleich, Wert und Mindestdauer getrennt bereit.
-Für Messwerte sind „Ist gleich“, „Ist ungleich“, „Ist größer als“,
-„Ist mindestens“, „Ist kleiner als“ und „Ist höchstens“ möglich. Für Zustände
-und Ereignisse stehen Gleichheit und Ungleichheit zur Verfügung.
-Beispiel: Helligkeit ist seit 30 Sekunden kleiner als 50 Lux.
-Mehrere Auslöser sind weiterhin ODER-verknüpft.
-
-Unter „Nur wenn …“ können in beiden Automationsbereichen mehrere Geräte- und
-Messwertbedingungen hinzugefügt, bearbeitet und gelöscht werden. Alle Zeilen
-und das optionale Zeitfenster müssen gemeinsam erfüllt sein (UND). Insgesamt
-sind höchstens 16 Bedingungen einschließlich Wochentagen und Zeitfenster möglich. Eine leere
-Gerätebedingungsliste fügt keine Einschränkung hinzu. Das Zeitfenster kann
-unabhängig davon eingeschaltet bleiben.
-
-Vorhandene Regeln laden ihre Vergleiche und sämtliche unterstützten Bedingungen
-wieder in die Zeilen. Änderungen werden erst in den lokalen Entwurf übernommen,
-anschließend geprüft und nach Bestätigung gespeichert. Nicht darstellbare
-Regelstrukturen bleiben gegen ein versehentliches Ersetzen geschützt.
-Unbekannte Gerätewerte erfüllen eine Bedingung nicht; Z2M verwendet die seit der
-Aktivierung beobachteten Werte. Gerätewerte müssen weiterhin lesbar sein;
-Aktionsziele benötigen unverändert eine schaltbare Symcon-Variable und Z2M-Schreibrecht.
-Ein numerischer Vergleichswert darf zwischen Meldeschritten oder außerhalb des
-Sensorbereichs liegen. Das erweitert nicht die erlaubten Werte einer Aktion.
-
-## Zeitsteuerungen und Bedingungen per Klick
-
-Zuerst die aktualisierte mitgelieferte Erweiterung installieren und die Geräte
-erneut laden. Ihr Katalog liefert auch lesbare Messgrößen für Zahlenbedingungen.
-
-- Für Geräteereignisse den Gerätebereich öffnen. Für feste Uhrzeiten im Bereich
-  „Zeitgesteuerte Automationen“ eine bis acht Startzeiten als HH:MM oder HH:MM:SS
-  und die gemeinsame Zeitzone auswählen.
-  Ohne Bedingungen läuft die Regel täglich. Verpasste Zeitpunkte werden nicht
-  nachgeholt; bei der Zeitumstellung wird ein Zeitpunkt höchstens einmal am Tag
-  ausgelöst. Geräteereignisse können eine Mindestdauer in Sekunden erhalten.
-- „Nur in einem Zeitfenster“ erlaubt eine zusätzliche Begrenzung nach Uhrzeit,
-  Zeitzone und Wochentagen. Der Beginn zählt mit, das Ende nicht. Ein Fenster
-  Montag 22:00 bis 06:00 gilt bis Dienstagmorgen; maßgeblich ist der Starttag.
-  Mindestens ein Tag muss gewählt sein. Gleiche Start-/Endzeiten sind ungültig.
-- In der Liste „Gerätebedingungen“ lassen sich mehrere Zustände oder Messwerte
-  hinzufügen. Je Zeile Gerät, Eigenschaft bzw. Kanal, Vergleich und Wert auswählen.
-  Zustände unterstützen gleich/ungleich, Messwerte zusätzlich größer, kleiner,
-  mindestens und höchstens. Die Einheit steht neben der Messgröße. Beispiel:
-  täglich 07:15 Uhr, nur wenn die Temperatur kleiner als 18,5 °C ist.
-- Bei Bedarf eine Wartezeit vor der Aktion angeben. Alle eingeschalteten
-  Bedingungen müssen zum Start erfüllt sein. Ohne „Nur beim Start“ werden sie
-  zusätzlich vor jeder Aktion erneut geprüft.
-
-Bei einer Gerätebedingung können Sie **Nur beim Start** einschalten. Das ist
-zum Beispiel für eine Helligkeitsgrenze sinnvoll: Das Licht soll bei Bewegung
-nur im Dunkeln angehen, nach der Wartezeit aber auch dann ausgehen, wenn es
-inzwischen heller geworden ist. Weitere Bewegung darf die laufende Wartezeit
-ebenfalls verlängern. Ein vollständig neuer Ablauf und **Aktionsfolge von vorn
-beginnen** prüfen die Helligkeit wieder. Ohne Häkchen gilt die Bedingung weiterhin
-auch für spätere Aktionen und das Verlängern. Zeitfenster und Wochentage werden
-immer erneut geprüft. Für die neue Auswahl Modul und Z2M-Erweiterung aktualisieren.
-
-Zeitfenster, unabhängige Wochentage und Gerätebedingungen können gemeinsam verwendet
-werden. Insgesamt sind höchstens 16 Bedingungen erlaubt. Eine
-Gerätebedingung verwendet nur Werte, die Z2M seit der Aktivierung beobachtet hat.
-Ein unbekannter Wert erfüllt auch „ungleich“ nicht. Es werden keine zusätzlichen
-Geräteabfragen erzeugt.
-
-Neue Regeln zum Entwurf hinzufügen, bestehende Regeln auswählen und Änderungen
-in den Entwurf übernehmen. Zeiten, Wochentage, Bedingungen und Verzögerungen werden
-beim Bearbeiten wieder vorbelegt. Danach wie gewohnt prüfen, speichern und bei
-Bedarf aktivieren. Erstellen oder Bearbeiten führt noch keine Aktion aus.
-
-## Mehrere Uhrzeiten und erlaubte Wochentage
-
-Im Zeitbereich wählen Sie **Feste Uhrzeit** und tragen in **Startzeiten** eine
-bis acht Uhrzeiten ein. Mit **Hinzufügen** kommt eine weitere Uhrzeit hinzu;
-vorhandene Einträge können Sie bearbeiten oder löschen. Zum Beispiel startet
-eine Regel um 07:00 und um 18:30 jeweils dieselbe Aktionsfolge. Die Uhrzeiten
-verwenden die gemeinsam ausgewählte Zeitzone. Leere, ungültige und doppelte
-Einträge lassen sich nicht in den Entwurf übernehmen.
-Läuft die Aktionsfolge noch, gilt für eine weitere Uhrzeit die Auswahl zum
-erneuten Auslösen. Ein zweiter gleichzeitiger Ablauf derselben Regel entsteht
-dabei nicht.
-
-Unter **Nur wenn …** können Sie **Nur an ausgewählten Wochentagen** einschalten.
-Wählen Sie mindestens einen Tag und die Zeitzone dafür. Das funktioniert auch
-ohne Zeitfenster und ebenso bei Geräte- und Sonnenauf-/untergangsregeln.
-Ohne diese Einschränkung sind alle Wochentage erlaubt. Beispiel: Montag bis
-Freitag um 07:00 und 18:30, ohne zusätzlich ein Zeitfenster einzurichten.
-
-Ein zusätzliches Zeitfenster schränkt die Ausführung weiter ein. Seine Felder
-**Zeitfenster beginnt am Montag** usw. bestimmen weiterhin die Starttage des
-Fensters. Montag 22:00 bis 06:00 gilt bis Dienstagmorgen. Die unabhängige
-Wochentagsauswahl prüft dagegen immer den aktuellen Kalendertag. Sollen auch
-die Stunden am Dienstagmorgen erlaubt sein, muss dort zusätzlich Dienstag
-ausgewählt sein. Beide Einschränkungen und alle Gerätebedingungen müssen passen.
-
-Die Angaben werden beim Auswählen und Laden vorhandener Regeln vorbelegt.
-Übernehmen Sie Änderungen zuerst in den lokalen Entwurf, prüfen und speichern
-Sie ihn anschließend in Z2M. Verpasste Uhrzeiten werden nicht nachgeholt. Bei
-der Zeitumstellung läuft jede eingetragene Uhrzeit in einer doppelt vorkommenden
-Stunde nur einmal. Bedingungen ohne „Nur beim Start“ werden vor verzögerten Aktionen erneut geprüft.
-
-Für diese Funktion müssen **Modul und mitgelieferte Z2M-Erweiterung** aktualisiert
-werden. Ein älterer Empfänger lehnt die neue Wochentagsbedingung ab; es erfolgt
-keine automatische Umdeutung. Regeln mit unterschiedlichen Zeitzonen je
-Einzelauslöser bleiben erhalten und lassen sich im Klick-Editor nur umbenennen
-oder ein-/ausschalten, bis ihre Zeiten in YAML angepasst werden.
-
-## Automationen bei Sonnenauf- oder Sonnenuntergang
-
-Im Bereich „Zeitgesteuerte Automationen“ unter „Startzeitpunkt“ Sonnenaufgang
-oder Sonnenuntergang auswählen. Breitengrad und Längengrad des gewünschten
-Standorts eintragen; Dezimalpunkt und Dezimalkomma werden akzeptiert. Ein leerer
-Standort wird nicht stillschweigend durch 0/0 ersetzt. Die Zeitzone bestimmt den
-örtlichen Kalendertag des Sonnenereignisses.
-
-Der Zeitversatz wird in ganzen Minuten eingegeben: −30 startet eine halbe Stunde
-vor dem Ereignis, +15 eine Viertelstunde danach. Möglich sind −720 bis +720
-Minuten. Der Start darf dadurch auf den vorherigen oder folgenden Tag fallen.
-Bedingungen gelten zum tatsächlichen Start; ohne „Nur beim Start“ auch vor den weiteren Aktionsschritten.
-
-Die Regel wie gewohnt in den Entwurf übernehmen, prüfen, speichern und aktivieren.
-Z2M berechnet die Zeiten täglich selbst, auch wenn Symcon ausgeschaltet ist.
-Die Näherungszeiten werden auf Minuten gerundet; Gelände, Höhe und aktuelle
-Wetterbedingungen fließen nicht ein. An Tagen ohne das gewählte Sonnenereignis
-(zum Beispiel Polartag) startet die Regel nicht. Verpasste Zeiten werden nach
-einem Neustart nicht nachgeholt.
-
-Beim Bearbeiten bleiben Ereignis, Standort, Versatz, Zeitzone und Aktionsfolge
-vorbelegt. Zurückwechseln auf „Feste Uhrzeit“ ersetzt den Sonnenauslöser vollständig.
-Modul und mitgelieferte Z2M-Erweiterung müssen für diese Funktion aktualisiert
-werden. Standortdaten werden mit der YAML im eigenen Z2M gespeichert, aber nicht
-im Debug ausgegeben.
-
-## Mehrere Aktionen per Klick
-
-Die Liste „Aktionsfolge“ enthält bis zu 16 Schritte. Über „Hinzufügen“ Gerät und
-Aktion auswählen; vorhandene Schritte über die Bearbeitung ändern oder löschen.
-Die Reihenfolge durch Ziehen der Zeilen ändern. Sie wird von oben nach unten
-ausgeführt. Geräte dürfen in mehreren Schritten vorkommen.
-
-„Wartezeit vor diesem Schritt“ ist eine ganze Sekundenzahl von 0 bis 86400.
-0 bedeutet sofort; bei späteren Schritten beginnt die Wartezeit nach der Übergabe
-der vorherigen Aktion an Z2M. Beispiel: Licht ein mit 0 Sekunden, Licht aus mit
-30 Sekunden. Eine Übergabe bestätigt noch keine tatsächliche Gerätewirkung.
-Auch vor dem ersten Schritt darf eine Wartezeit stehen.
-
-Danach „Automation zum Entwurf hinzufügen“ bzw. „Änderungen in den Entwurf
-übernehmen“ betätigen und den Entwurf prüfen und speichern. Mindestens ein
-gültiger Schritt ist erforderlich. Änderungen an der Liste alleine ändern weder
-den Regelentwurf noch Z2M. Bei Auswahl einer vorhandenen Automation werden alle
-unterstützten Schritte einschließlich ihrer Wartezeiten geladen. Einzelaktionen
-erscheinen als eine Zeile. Die Wartezeit gehört zum Schritt und wandert beim
-Umsortieren mit.
-
-Alle Bedingungen ohne „Nur beim Start“ werden vor jedem Schritt erneut geprüft. Ist eine solche Bedingung
-nicht mehr erfüllt, endet die verbleibende Folge. „Automationen in Z2M stoppen“
-verwirft ausstehende Wartezeiten; bereits übergebene Aktionen werden nicht rückgängig
-gemacht. Die Ausführung der gespeicherten, aktivierten Folge benötigt kein Symcon.
-
-## Mehrere Eigenschaften gemeinsam setzen und Farben auswählen
-
-Ein Aktionsschritt kann mehrere Eigenschaften **desselben Geräts** gemeinsam
-setzen, zum Beispiel Einschalten, Helligkeit und Farbe. Wählen Sie im
-Schrittdialog **Mehrere Eigenschaften gemeinsam setzen** und das Gerät.
-Wählen Sie dann jeweils eine Eigenschaft bzw. einen Kanal und den gewünschten
-Wert. Mit **Eigenschaft hinzufügen oder ersetzen** nehmen Sie diesen Wert in
-die darunter angezeigte Zusammenstellung auf. Wiederholen Sie das für weitere
-Eigenschaften. Die Zusammenstellung zeigt, was tatsächlich übernommen wird;
-das bloße Ändern eines Wertefelds verändert sie noch nicht.
-
-Zum Ändern wählen Sie eine bereits enthaltene Eigenschaft: Ihr bisheriger Wert
-wird vorbelegt. Ändern Sie ihn und klicken Sie erneut auf **Eigenschaft hinzufügen
-oder ersetzen**. Mit **Ausgewählte Eigenschaft entfernen** entfernen Sie genau
-diese Eigenschaft. Bestätigen Sie anschließend den Schrittdialog und übernehmen
-Sie die Automation in den Entwurf. Danach wie gewohnt prüfen und in Z2M speichern.
-Die Wartezeit gilt vor dem gesamten Schritt. Der gemeinsame Befehl wird einmal
-an Z2M übergeben; daraus folgt keine Garantie, dass das Gerät alle Eigenschaften
-physisch gleichzeitig ändert.
-
-Bei geeigneten Farbleuchten erscheint für **Farbe** die native Farbauswahl.
-Sie können auch einen eigenen Schritt nur für die Farbe verwenden. Es werden
-nur Eigenschaften angeboten, die Z2M zum Schreiben bereitstellt und für die
-in Symcon eine schaltbare Variable vorhanden ist. Reine Anzeigevariablen
-bleiben für Aktionen ausgeschlossen. Fehlt eine Farbeigenschaft, laden Sie
-nach dem Erweiterungsupdate die Gerätedaten erneut. Das Gerät und sein
-Symcon-Modul müssen diese Farbeigenschaft unterstützen.
-
-Ein gemeinsamer Schritt enthält höchstens acht Eigenschaften. Farbe und
-Farbtemperatur desselben Kanals gehören in getrennte Schritte. **Umschalten**
-und Szenenaufrufe bleiben eigene Aktionen. Die Funktion steht auch in
-wiederverwendbaren Aktionsfolgen und für Geräte des ausgewählten zweiten
-Z2M-Systems zur Verfügung. Gruppen erhalten keine zusätzlich angenommenen
-Farbfähigkeiten; bei ihnen werden weiterhin nur die bekannten Eigenschaften
-angeboten. Komplexere, im Editor nicht vollständig darstellbare YAML-Befehle
-bleiben erhalten und können dort nur umbenannt oder ein-/ausgeschaltet werden.
-
-Für die Farbauswahl sind **Modul- und Erweiterungsupdate** sowie das erneute
-Laden der Gerätedaten nötig. Native Bearbeitung und Speicherung sind in Symcon
-9.1 geprüft. Ein gemeinsamer Befehl für Einschalten, Helligkeit und Farbe ist
-zusätzlich an einer Farbleuchte real bestätigt. Die Farbausführung am jeweiligen
-Gerät hängt von dessen Unterstützung durch Z2M und den Geräte-Converter ab.
-
-## Vorhandene Szenen aufrufen
-
-Mit **Geräte und gespeicherte Automationen laden** werden auch die in Z2M
-bekannten Szenen geladen. Fügen Sie in der Aktionsfolge einen Schritt hinzu,
-wählen Sie das Gerät oder die Gruppe und anschließend **Szene aufrufen**.
-Bei Geräten wird der zugehörige Kanal angezeigt. Wählen Sie die Szene anhand
-ihres Namens aus und stellen Sie bei Bedarf eine Wartezeit vor diesem Schritt ein.
-Die Auswahl wird beim Bearbeiten einer vorhandenen Automation wieder vorbelegt.
-
-Angeboten werden Szenen, deren zugehöriger Schaltkanal in Symcon schaltbar ist.
-Für das zweite Z2M-System wählen Sie ein Ziel mit dessen Basistopic vor dem Namen;
-zuvor müssen die Gerätedaten auch im Partnermodul geladen sein. Die Freigaben und
-die Aktivierung beider Systeme gelten genauso wie bei anderen entfernten Aktionen.
-
-Diese Funktion ruft vorhandene Szenen auf. Sie legt keine Szene an und verändert
-keine gespeicherten Szeneneinstellungen. Fehlt eine Szene, laden Sie die Gerätedaten
-neu und wählen Sie eine vorhandene Szene. Lokale Szenen werden auch bei der
-Entwurfsprüfung kontrolliert; Szenen des zweiten Systems prüft dessen Erweiterung
-unmittelbar vor der Ausführung. Eine erfolgreiche Befehlsübergabe bestätigt noch
-nicht die tatsächliche Gerätewirkung.
-
-## Eine Aktionsfolge mehrfach verwenden
-
-Im Bereich **Wiederverwendbare Aktionsfolgen** wählen Sie **Neue Aktionsfolge
-erstellen**, vergeben einen Namen und fügen die gewünschten Schritte hinzu.
-Gerät, Eigenschaft beziehungsweise Kanal und Wert wählen Sie wie bei einer
-Automation. Vorhandene Szenen und Ziele des zweiten Z2M-Systems sind ebenfalls
-möglich. Ordnen Sie die Schritte und stellen Sie die Wartezeit vor jedem Schritt
-ein. Mit **Aktionsfolge in den Entwurf übernehmen** speichern Sie die Bearbeitung
-zunächst in Symcon.
-
-Fügen Sie anschließend in einer geräteausgelösten oder zeitgesteuerten Automation
-einen Aktionsschritt hinzu. Wählen Sie als Aktionsart **Wiederverwendbare
-Aktionsfolge** und anschließend die gewünschte Folge. So können beispielsweise
-ein Taster und eine Zeitregel denselben Ablauf verwenden. Auch das Bearbeiten
-einer vorhandenen Automation füllt diese Auswahl und die Wartezeit wieder aus.
-
-Die Wartezeit am Aufruf gilt zusätzlich zur Wartezeit vor dem ersten Schritt
-der Folge. Beispiel: fünf Sekunden am Aufruf und zwei Sekunden am ersten Schritt
-ergeben sieben Sekunden bis zur ersten Aktion. Pro Automation sind insgesamt
-höchstens 16 tatsächlich ausgeführte Schritte erlaubt, einschließlich aller
-aufgerufenen Folgen. Eine Folge kann selbst keine weitere Folge aufrufen.
-
-Wählen Sie eine vorhandene Folge zum Bearbeiten aus, werden Name und Schritte
-vorbelegt. Änderungen gelten für alle Automationen, die sie verwenden. Die
-Übersicht zeigt die Anzahl dieser Automationen. Solange eine Folge verwendet
-wird, ist ihr Löschen gesperrt. Entfernen Sie zuvor die entsprechenden Aufrufe.
-
-Danach den gemeinsamen Entwurf **prüfen**, **in Z2M speichern** und **aktivieren**.
-Die Bedingungen der jeweiligen Automation gelten auch innerhalb der Folge.
-**Diesen Ablauf stoppen** beendet deren laufenden Aufruf einschließlich der
-verbleibenden Wartezeiten und Schritte. Andere Automationen bleiben unabhängig.
-Z2M führt die gespeicherten Folgen anschließend ohne laufendes Symcon aus.
-Für diese Funktion Modul und Erweiterung aktualisieren.
-
-## Ein Gerät auf dem zweiten Z2M-System schalten
-
-Jedes Z2M-System erhält sein eigenes Automationsmodul mit eigenem Basistopic.
-Die Systeme dürfen einen Broker und denselben Symcon-MQTT-Client verwenden.
-Bei einem gemeinsamen Broker wird keine Broker-Bridge benötigt; beide Z2M-Benutzer
-brauchen Zugriff auf den gemeinsamen Bereich `z2ma/mesh/#`.
-Unter **Aktionen zwischen zwei Z2M-Systemen** wählen Sie in beiden Modulen das
-jeweils andere Modul. Die Basistopics müssen verschieden sein. Anschließend
-die Gerätedaten in beiden Modulen laden und das Formular erneut öffnen.
-
-Bei den Aktionen erscheinen die schaltbaren Geräte und Gruppen des zweiten
-Systems mit dessen Basistopic vor dem Namen. Gerät, Kanal und Wert werden wie
-bei lokalen Aktionen ausgewählt. Vorhandene Regeln lassen sich damit bearbeiten
-und passende Symcon-Ereignisse als deaktivierte Entwürfe importieren. Ein
-Geräteauslöser und seine Bedingungen gehören weiterhin zum eigenen System.
-
-Beide Entwürfe prüfen, speichern und aktivieren. Die empfangende Seite muss
-auch dann aktiviert werden, wenn sie keine eigene eingeschaltete Regel besitzt.
-Die Statusvariable **Aktionen vom zweiten Z2M-System freigegeben** zeigt die
-bestätigte Empfangsbereitschaft nach einer Statusabfrage. **Stoppen** auf der
-empfangenden Seite sperrt auch Aktionen des anderen Systems. Bereits gesendete
-Gerätebefehle lassen sich dadurch nicht zurückholen.
-
-Bei getrennten Brokern ist eine eingerichtete Broker-Verbindung für `z2ma/mesh/#`
-Voraussetzung.
-Der Benutzer, mit dem sich **Z2M selbst** anmeldet, benötigt auf seinem Broker
-zusätzlich Lese- und Schreibrecht für diesen Bereich. Der Bridge-Benutzer allein
-genügt nicht. Das Modul ändert keine Brokerberechtigungen und benötigt keine
-Brokerpasswörter. Details für die Einrichtung stehen in [MQTT](../docs/MQTT.md).
-
-Die Regel läuft nach erfolgreicher Einrichtung ohne Symcon. Bei fehlender
-Gegenstelle wird die Aktionsfolge abgebrochen und nicht automatisch nachgeholt.
-Eine Bestätigung bedeutet, dass das Ziel-Z2M den Gerätebefehl übernommen hat;
-die tatsächliche Gerätewirkung ist damit noch nicht bestätigt.
-
-## Symcon-Ereignisse in der Zentrale und im Designer importieren
-
-1. In der Zentrale das **Z2M-System** auswählen, dessen Geräte die Automation
-   auslösen sollen. Das Modul sucht selbst im Symcon-Objektbaum nach den
-   passenden Ereignissen. Entscheidend sind MQTT-Verbindung **und** Basistopic;
-   derselbe Broker kann mehrere getrennte Z2M-Systeme bedienen.
-2. Bei fehlenden Gerätedaten im Designer **Gerätedaten aktualisieren** wählen.
-   Vorhandene Entwürfe bleiben erhalten. Im nativen Formular können bereits
-   bestätigte Daten mit **Bestätigte Gerätedaten dieses Systems einlesen**
-   übernommen werden. Zum eigentlichen Import ist kein weiterer Z2M-Abruf nötig.
-3. **Symcon-Ereignisse importieren** öffnen und **Vorhandene Ereignisse prüfen**
-   wählen. Die Suche startet erst mit diesem Klick. Das Öffnen des Designers
-   prüft oder importiert keine Ereignisse automatisch.
-4. Die Übersicht nennt Ereignisname, auslösendes Gerät und dessen Instanz-ID.
-   Im Designer zusätzlich nach Ereignis, Gerät oder ID suchen und bei Bedarf
-   **Nur importierbare Ereignisse** anzeigen. Die Importprüfung sagt ausdrücklich,
-   ob die Übernahme möglich ist. Fehlende Daten werden als **Noch nicht prüfbar**
-   angezeigt. Suchgrenzen werden sichtbar gemeldet.
-5. Einen Eintrag auswählen und die **Vorschau** prüfen: Auslöser, Kanal, Wert,
-   Ziel und Aktion. Nicht unterstützte Ereignisse nennen den Grund; der
-   Übernehmen-Button bleibt dann gesperrt. Auch namenlose Ereignisse lassen
-   sich prüfen und erhalten beim Import einen vorläufigen Namen.
-6. Im Designer **Ausgeschaltet zum Entwurf hinzufügen** wählen; im nativen
-   Formular **Ereignis in den Entwurf übernehmen**. Direkt davor werden Ereignis,
-   Gerätezuordnung und Schaltrechte erneut geprüft. Die neue Regel beginnt
-   ausgeschaltet und lässt sich anschließend im gemeinsamen Editor bearbeiten.
-7. Weitere Importe können vor dem Prüfen und Übertragen gesammelt werden.
-   **Vor dem späteren Aktivieren in Z2M das zugehörige Originalereignis in Symcon
-   ausschalten**, damit die Aktion nicht doppelt ausgeführt wird. Der Import
-   selbst schaltet kein Ereignis aus und startet keine Automation.
-
-Lesbare Sensoren sind als Auslöser erlaubt. Ziele benötigen die ursprüngliche
-schaltbare Z2M-Variable; reine Anzeigen, gesperrte Variablen und eigene
-Aktionsskripte werden nicht als Ziele übernommen. Ein Ziel in einem anderen
-System ist nur mit den bereits eingerichteten passenden Freigaben möglich.
-Dann liegt die Regel beim auslösenden System und die Aktion verweist ausdrücklich
-auf das Zielsystem. Der Import richtet keine Freigaben oder Broker-Brücken ein.
-
-Geänderte Ereignisse und offene Formularänderungen verhindern eine unbemerkte
-Übernahme. Die vorhandenen Entwürfe anderer Systeme, Partnerfreigaben und
-Aktionsfolgen bleiben erhalten. Bereits übernommene Ereignisse werden nicht
-erneut angelegt. Im Designer bleiben Suchergebnisse und Vorschau beim Schließen
-erhalten. Eine Vorschau gilt nur für ihr jeweiliges System und den dabei geprüften
-Katalog.
-**Ansicht aktualisieren** liest nur den vorhandenen Modulstand.
-
-Unterstützt sind weiterhin Ereignisse **Bei bestimmtem Wert**, native Ein-/Aus-
-und Text-/Auswahlaktionen sowie **Wert umschalten**. Ereignisse mit zusätzlichen
-Bedingungen, Ausführungsbegrenzungen, PHP-Code oder ungesicherter Zahlenskalierung
-werden vollständig abgewiesen. Es wird kein PHP-Code ausgewertet oder ausgeführt.
-Für diese Erweiterung genügt ein Modulupdate; ein Z2M-Erweiterungsupdate ist
-nicht erforderlich.
-
-## Ereignisimport im bisherigen Einzelmodul
-
-Die Prüfung unterscheidet zwischen dem Gerät und der einzelnen Variable:
-Ein Gerät kann richtig verbunden sein, obwohl eine seiner Variablen noch nicht
-importiert werden kann. In diesem Fall nennt die Meldung die betroffene Variable.
-Die **auslösende Variable** wird überwacht; die **zu schaltende Variable** ist das
-Ziel der Aktion. Das Ereignis kann im Objektbaum beim Ziel liegen und trotzdem
-eine Variable eines anderen Geräts überwachen.
-
-Ein leerer Ereignisname verhindert den Import nicht. Das Modul vergibt dann
-„Importierte Automation“ mit der Ereignisnummer als Namen. Dieser lässt sich
-anschließend im Entwurf ändern; das ursprüngliche Ereignis bleibt unverändert.
-
-Die Übersicht zeigt Ereignisname, **auslösendes Gerät** und dessen
-**Symcon-Instanz-ID**. Die Liste bietet Platz für 15 sichtbare Einträge;
-weitere Einträge sind durch Scrollen erreichbar. Auch in der Ereignisauswahl stehen diese Angaben, damit
-sich gleichnamige Ereignisse unterscheiden lassen.
-
-Die Importprüfung nennt das Ergebnis ausdrücklich: **Importierbar** oder
-**Nicht importierbar**, jeweils mit einer Erklärung.
-
-Fehlt die Gerätezuordnung aus Z2M für die gewählte Verbindung, steht in der
-Übersicht **Noch nicht prüfbar: Gerätedaten fehlen**. Die Meldung darunter verweist direkt
-auf **Gerätedaten für den Import laden**. Dieser Button lädt Geräte, Gruppen und
-gespeicherte Regeln über die Erweiterung. Nach der Antwort wird die Übersicht
-aktualisiert und das gewählte Ereignis erneut geprüft. Dafür ist kein erneutes
-Öffnen des Formulars notwendig. Ein unterstütztes Ereignis lässt sich danach
-übernehmen; andernfalls erscheint der konkrete Ablehnungsgrund.
-
-Beim Nachladen über **Gerätedaten für den Import laden** bleiben vorhandene
-Entwürfe in Symcon erhalten. Erst wenn es noch keinen Entwurf gibt, werden die
-in Z2M gespeicherten Regeln als Ausgangspunkt geladen. Der separate Button
-**Geräte und gespeicherte Automationen laden** ersetzt weiterhin den Entwurf
-nach Bestätigung. Bei zwischenzeitlichen Änderungen in Z2M oder unübernommenen
-Änderungen im YAML-Editor wird das Nachladen abgebrochen und der Entwurf erhalten.
-Während der Antwort aus Z2M bleiben Laden und Übernahme gesperrt. Ladefehler
-werden verständlich angezeigt und bleiben beim erneuten Öffnen sichtbar.
-
-
-1. Modul und mitgelieferte Z2M-Erweiterung auf denselben aktuellen Stand bringen.
-2. **Geräte und gespeicherte Automationen laden**. Das ersetzt den lokalen Entwurf;
-   vorherige Änderungen deshalb zuerst übernehmen bzw. speichern.
-3. **Symcon-Ereignisse importieren** öffnen und **Vorhandene Ereignisse prüfen** wählen.
-4. Ein Ereignis auswählen und die Vorschau mit Auslöser, Ziel und Aktion prüfen.
-5. **Ereignis in den Entwurf übernehmen** wählen. Die deaktivierte Regel öffnet
-   sich vorbefüllt im Bereich der geräteausgelösten Automationen und lässt sich
-   dort ohne YAML bearbeiten. Anschließend gemeinsam prüfen und speichern.
-
-Der Import unterstützt ausgelöste Ereignisse **bei bestimmtem Wert** mit oder
-ohne **mehrmalige Auslösung bei wiederholt erfüllter Bedingung**, ohne zusätzliche
-Bedingungen oder Ausführungsbegrenzung. Unterstützt sind native feste boolesche
-bzw. unmittelbar zuordenbare Text-/Auswahlwerte sowie **Wert umschalten** für
-Ein-/Aus-Zustände. Zahlenwerte mit möglicher Symcon-Skalierung, Prozent-/Farbaktionen,
-PHP-Code, Ablaufpläne und weitere Aktionsarten werden mit Begründung abgewiesen.
-Es wird keine teilweise vereinfachte Regel erzeugt.
-
-Aktionen direkt unter einer Variablen verwenden diese als Ziel. Auch die native
-Instanzaktion **Statusvariable schalten** wird unterstützt: Die Statusvariable
-wird über ihren Ident ausgewählt und ihre enthaltene feste Wert-/Umschaltaktion
-übernommen. Das Ereignis muss kein ausdrücklich gespeichertes TARGET enthalten.
-
-Ist die wiederholte Ausführung in Symcon ausgeschaltet, erhält der Auslöser im
-Klick-Editor die Einstellung **Nur bei Wertänderung**. Eine gleiche passende
-Meldung startet dann keinen zweiten Lauf. Die Einstellung lässt sich im
-Auslöserdialog ändern. Beim Aktivieren verwendet Z2M seinen vorhandenen
-Quellzustand als Ausgangspunkt. Für nicht gespeicherte Ereigniswerte (etwa
-Tastendrücke) zählt die erste frische Meldung als Änderung; danach wird der
-letzte beobachtete Wert verglichen. Ein-/Ausführung und Sperrzeit gelten weiter.
-
-Die Zuordnung verwendet die referenzierten Variablen-IDs, den Instanztyp, die
-Gateway-Verbindung, das konfigurierte Basistopic und die Z2M-Geräte-/Gruppenkennung. Namen sind nur Anzeige.
-Aktionsziele benötigen eine native schaltbare Variable ohne eigene Aktionsskripte
-und eine passende schreibbare Katalogeigenschaft. Sensoren bleiben lesbare Quellen.
-Gruppen sind als Aktionsziele für ihren Ein-/Aus-Zustand verfügbar.
-
-**Wert umschalten** verwendet unmittelbar vor der Aktion den in Z2M bekannten
-Zustand der Gruppe bzw. des Gerätekanals und sendet den entgegengesetzten
-Ein-/Aus-Wert. Bei unbekanntem Zustand wird der Schritt mit Fehler abgebrochen.
-Es wird kein möglicherweise veralteter Symcon-Wert übernommen und kein pauschaler
-TOGGLE-Befehl an alle Gruppenmitglieder gesendet.
-
-Das ursprüngliche Symcon-Ereignis wird weder geändert noch deaktiviert.
-**Vor Aktivierung der importierten Regel in Z2M das Originalereignis deaktivieren**,
-damit beide Systeme die Aktion nicht doppelt ausführen. Die allgemeinen
-Laufzeitgrenzen gelten weiter, insbesondere eine Sekunde Sperrzeit pro Regel und
-keine parallelen Läufe derselben Regel. Das ist keine Garantie identischer
-Ausführungshäufigkeit wie in Symcon.
-
-Die Vorschau wird vor der Übernahme erneut geprüft. Geänderte Ereignisse,
-Zuordnungen oder ungespeicherte YAML-Änderungen werden nicht stillschweigend
-übernommen. Ein bereits importiertes Ereignis erzeugt keine zweite Regel.
-Die Suche berücksichtigt höchstens 4096 Ereignisse und zeigt maximal 256 passende
-Quellen aus dem geladenen Katalog; eine erreichte Grenze wird angezeigt.
-
-## Eine gespeicherte Automation einmal ausführen
-
-Im Bereich **Gespeicherte Automation einmal ausführen** wählen Sie eine Regel
-und klicken auf **Jetzt einmal ausführen**. Nach der Bestätigung führt Z2M
-nur diese gespeicherte Regel einmal aus. Das funktioniert auch bei deaktivierten
-Regeln und bei gestopptem Automatikbetrieb. Änderungen im Entwurf müssen zuvor
-geprüft und gespeichert werden. Alternativ laden Sie den gespeicherten Stand neu.
-
-Die Bedingungen gelten auch beim einmaligen Start. Bedingungen ohne „Nur beim
-Start“ werden vor jeder Aktion erneut geprüft. Unbekannte Sensorwerte erlauben keine Ausführung. Für die erste
-Prüfung verwendet Z2M seine zuletzt bekannten Sensorwerte; deshalb muss ein
-Sensor nicht erst erneut auslösen. Uhrzeitbedingungen gelten zum Ausführungszeitpunkt.
-Die Statusanzeige erklärt, ob der Ablauf läuft, abgeschlossen, wegen einer
-Bedingung ausgelassen, fehlgeschlagen oder gestoppt ist. Während der ausgewählte
-Ablauf läuft, wird sein Status automatisch abgefragt. Mit **Status des einzelnen
-Ablaufs aktualisieren** können Sie ihn auch selbst abfragen.
-
-**Diesen Ablauf stoppen** beendet ausschließlich den aktuell angezeigten Lauf.
-Noch ausstehende Schritte und Wartezeiten werden verworfen. Bereits gesendete
-Befehle lassen sich nicht zurücknehmen. Normale Auslöser, andere Automationen,
-die Option **Regel aktiviert** und der automatische Wiederanlauf bleiben unverändert.
-Ein späterer regulärer Auslöser darf die Regel erneut starten. Ein einmaliger
-Testlauf selbst wird nach einem Z2M-Neustart nicht fortgesetzt.
-
-Vorhandene Szenen und Aktionen im zweiten Z2M-System funktionieren ebenfalls.
-Dessen Empfangsfreigabe muss wie bisher aktiv sein. Ein abgeschlossener Ablauf
-bestätigt die Befehlsübergabe; die tatsächliche Gerätewirkung müssen Sie prüfen.
-Für detaillierte Ablaufmeldungen öffnen Sie das Instanzdebug und starten die
-zeitlich begrenzte Z2M-Aufzeichnung. Modul und Erweiterung gemeinsam aktualisieren.
-
-## Wenn eine laufende Automation erneut ausgelöst wird
-
-Unter **Wenn die laufende Automation erneut ausgelöst wird** wählen Sie:
-
-- **Neue Auslösung ignorieren:** Die aktuelle Folge läuft unverändert weiter.
-  Das ist auch das bisherige Verhalten vorhandener Regeln.
-- **Aktionsfolge von vorn beginnen:** Der noch offene Rest wird beendet und
-  die Folge startet wieder bei der ersten Aktion. Eine gerade laufende
-  Befehlsübergabe wird vorher abgewartet. Bei einer fehlgeschlagenen oder nicht
-  rechtzeitig bestätigten Übergabe wird der vorgemerkte Neustart verworfen.
-- **Laufende Wartezeit zurücksetzen:** Nur die aktuelle Wartezeit beginnt
-  wieder mit ihrer vollen Dauer. Bereits erledigte Schritte werden nicht
-  wiederholt. Ohne laufende Wartezeit bleibt die neue Auslösung ohne Wirkung.
-
-Beispiel: Ein Bewegungsmelder schaltet das Licht ein, wartet fünf Minuten und
-schaltet es aus. Mit **Laufende Wartezeit zurücksetzen** beginnt die Wartezeit
-bei jeder passenden neuen Bewegung erneut. Die Einschaltaktion wird dabei
-nicht wiederholt. Meldet ein Auslöser nur Wertänderungen, muss zunächst wieder
-eine solche Änderung vorliegen; nicht jede unveränderte Sensormeldung zählt.
-
-Die Auswahl gilt auch für weitere Geräteauslöser derselben Regel sowie für
-Uhrzeit- und Astro-Auslöser. Bedingungen ohne „Nur beim Start“ müssen auch beim
-Verlängern erneut passen; ein Neuanfang prüft alle Bedingungen. Die
-Sperrzeit von einer Sekunde bleibt bestehen. Beim Neuanfang können bereits
-erledigte Aktionen nochmals ausgeführt werden, auch ein Umschaltbefehl.
-Einmalige manuelle Starts ersetzen einen laufenden Ablauf nicht. Stoppen und
-Neustarts von Z2M setzen unterbrochene Schritte nicht später fort.
-
-Übernehmen Sie die Änderung wie gewohnt in den Entwurf, prüfen und speichern
-Sie ihn in Z2M. Für diese Erweiterung sind Modul- und Erweiterungsupdate nötig.
-
-## Erweiterte YAML-Ansicht
-
-Den Bereich „Erweiterter YAML-Editor“ aufklappen, um die YAML direkt anzuzeigen
-oder zu bearbeiten. Für die grafische Erstellung muss dieser Bereich nicht
-geöffnet werden.
-
-1. YAML in „YAML-Entwurf der Automationen“ einfügen. Ein
-   [synthetisches Beispiel](../libs/z2m/examples/automations.yaml) und der
-   [YAML-Vertrag](../docs/YAML_SCHEMA.md) beschreiben das Format.
-2. Für eine neue Fassung die nächste Revision verwenden. Eine leere Installation
-   beginnt mit Revision 1. Eine unveränderte Kopie der bereits gespeicherten
-   Fassung kann nach erneuter Prüfung idempotent bestätigt werden.
-3. „Entwurf in Z2M prüfen“ starten. Das Modul fragt zuerst den aktuellen Empfänger-
-   und Speicherzustand ab und sendet dann die YAML zur dortigen Schema-Prüfung.
-4. In der Vorschau Revision, Anzahl der Automationen, bisher gespeicherte
-   Revision und SHA-256 kontrollieren.
-5. „Geprüften Entwurf in Z2M speichern“ bestätigen. Das Modul prüft Sitzung und
-   Revision erneut, bevor genau die geprüften Bytes übertragen werden.
-
-Der zuletzt zur Prüfung oder Speicherung eingereichte Entwurf bleibt beim
-erneuten Öffnen des Formulars erhalten. Reines Tippen ohne Bedienaktion wird
-nicht gespeichert. Der Entwurf ist kein PHP-Skript und wird niemals ausgeführt.
-Es wird auch keine bereits in Z2M gespeicherte YAML automatisch in den Editor geladen.
-
-Textänderungen, Topic-/Gateway-Wechsel, ein Erweiterungsneustart oder eine
-geänderte gespeicherte Revision machen die bisherige Prüffreigabe ungültig.
-Bei Konflikten wird keine neue Revision automatisch erzeugt und nichts blind
-überschrieben. Ein Empfängerspeicher in Fehler- oder Sicherungslesemodus blockiert
-die Übertragung. Fehlermeldungen stehen im Formular und in „Letzter Erweiterungsfehler“.
-
-Eine Zeitüberschreitung beweist nicht, dass Z2M nichts gespeichert hat. Vor erneutem
-Übertragen den Erweiterungsstatus abfragen, Revision prüfen und den Entwurf bei
-Bedarf erneut validieren. Das Modul wiederholt Installationen oder Speicheraufträge
-nicht automatisch. „YAML gespeichert“ bestätigt Persistenz, keine Ausführung.
-
-## Automatische Statusprüfung
-
-Nach Anwenden der Einstellungen bzw. einem Modulupdate und beim Öffnen des
-Formulars prüft das aktive Modul einmalig die Erreichbarkeit von Zigbee2MQTT.
-Eine passende positive Health-Antwort startet anschließend die Abfrage des
-Erweiterungsstatus. Die Statusanzeige aktualisiert sich anhand der Antworten.
-
-Die Prüfung startet verzögert nach etwa einer Sekunde und benötigt eine
-verbundene MQTT-Schnittstelle. Aufrufe innerhalb von zehn Sekunden werden
-zusammengefasst. Laufende Aufträge haben Vorrang; Fehler oder Zeitüberschreitungen
-führen nicht zu einer automatischen Wiederholung. Entwürfe werden nicht verändert;
-Installation, Übertragung und Aktivierung bleiben ausdrückliche Bedienaktionen.
-Die manuellen Prüfbuttons stehen weiterhin zur Verfügung.
-
-## Einstellungen
-
-| Feld | Standard | Bedeutung |
-| --- | --- | --- |
-| MQTT-Anbindung aktivieren (Active, Boolean) | Aus | Empfang sowie automatische Statusprüfung und manuelle Anfragen erlauben |
-| Zigbee2MQTT-Basistopic (BaseTopic, String) | zigbee2mqtt | Exaktes Topic der Installation, auch mehrstufig |
-| Wartezeit auf eine Antwort (RequestTimeout, Integer) | 10 Sekunden | Wartezeit auf eine Antwort; 1 bis 120 Sekunden |
-| Automationsmodul des zweiten Z2M-Systems (PeerModuleID, Integer) | 0: kein Partner | ID des anderen Automationsmoduls; eigenes Modul und gleiches Basistopic sind nicht erlaubt. Auswahl auf beiden Seiten, Gerätedaten laden und beide Stände speichern/aktivieren |
-| Aktivierte Automationen nach einem Z2M-Neustart automatisch fortsetzen (ResumeAfterRestart, Boolean) | Ein | Wird erst bei der nächsten Aktivierung in Z2M wirksam; bewusstes Stoppen bleibt dauerhaft wirksam |
-
-Die Liste gefundener Basistopics ist eine Auswahlhilfe für BaseTopic, keine
-weitere Verbindungseinstellung. Suchfelder, Zeilendialoge und die Auswahl einer
-Automation sind Bearbeitungshilfen und keine dauerhaft gespeicherten Properties.
-
-Basistopics dürfen keine MQTT-Platzhalter +/#, Steuerzeichen oder leeren
-Pfadabschnitte enthalten. Führende und abschließende Schrägstriche sind ungültig.
-Ein Wechsel des Topics oder MQTT-Gateways verwirft den bisherigen Statuscache
-und eine noch offene Anfrage.
-
-## Statusvariablen
-
-Die Erweiterung kann ausdrücklich aktivierte Speicherrevisionen ausführen;
-[Ausführungsregeln und Aktivierungsbefehle](../docs/RUNTIME.md). Speichern aktiviert nichts; eine
-geänderte erfolgreich gespeicherte Revision stoppt die bisherige Ausführung.
-`GetTransportState` übernimmt den gemeldeten Boolean `extension.executing`,
-ohne damit eine konkrete Gerätewirkung zu bestätigen.
-
-Alle Variablen sind ausschließlich lesbar und besitzen keine Schaltaktion.
-
-| Ident | Typ | Bedeutung |
-| --- | --- | --- |
-| MQTTConnected | Boolean | Anbindung aktiviert, Konfiguration gültig und MQTT-Gateway aktiv |
-| BridgeOnline | Boolean | Zusätzlich hat Z2M den Zustand online gemeldet |
-| Z2MVersion | String | Gemeldete Z2M-Version; leer bis zur ersten gültigen Information |
-| ExtensionInstalled | Boolean | z2m-automations.mjs in der Erweiterungsliste gefunden, Upload bestätigt oder bereiter Empfänger durch passende Statusantwort bestätigt |
-| HealthStatus | String | Noch nicht geprüft, Antwort ausstehend, funktionsfähig, nicht funktionsfähig, Fehler, Zeitüberschreitung oder abgebrochen |
-| ExtensionReady | Boolean | Empfängerprotokoll und Version durch eine frische passende Antwort bestätigt |
-| StoredRevision | Integer | Zuletzt gemeldete Speicherrevision; 0 auch bei noch unbekanntem Zustand |
-| OperationStatus | String | Fortschritt und Ergebnis der letzten Erweiterungsaktion |
-| LastError | String | Feste verständliche Meldung zum letzten Erweiterungsfehler |
-| ExecutionActive | Boolean | Ausführung durch einen frischen Antwortablauf bestätigt; false kann auch unbekannt bedeuten |
-| ActiveRevision | Integer | Bestätigte aktive Revision; 0 bei gestopptem oder unbekanntem Zustand |
-| EnabledAutomations | Integer | Bestätigte Anzahl aktivierter Regeln |
-| ExecutionStatus | String | Maßgebliche Unterscheidung zwischen aktiv, gestoppt und unbekannt |
-| RuntimeError | String | Feste Erklärung des zuletzt gemeldeten Engine-Fehlers |
-| MeshReady | Boolean | Bestätigte Freigabe für Aktionen des zweiten Z2M-Systems; false auch bei unbekanntem Zustand |
-
-Eine erkannte Erweiterungsdatei bestätigt noch nicht deren Betriebsbereitschaft.
-Die beiden Online-Anzeigen unterscheiden die MQTT-Verbindung vom Zustand der
-Z2M-Bridge. Nach Verbindungsabbruch ist eine neue Bridge-Statusmeldung nötig.
-Eine Gesundheitsantwort setzt den Bridge-Onlinezustand nicht eigenständig.
-StoredRevision allein bestätigt keinen eigenen Speicherauftrag: Auch eine
-Statusmeldung kann diesen Wert aktualisieren. Maßgeblich ist das bestätigte
-Ergebnis in OperationStatus.
-
-## Instanzstatus
-
-| Code | Bedeutung |
-| --- | --- |
-| 102 | MQTT verbunden und Z2M meldet online |
-| 104 | Anbindung deaktiviert |
-| 200 | Ungültiges Topic oder Antwortzeitlimit |
-| 201 | Keine aktive kompatible MQTT-Verbindung |
-| 202 | MQTT verbunden, Z2M offline oder noch kein Bridge-Status empfangen |
-
-## Öffentliche Funktionen
-
-Für eigene Skripte stehen die folgenden Aufrufe zur Verfügung. Die Bedienung
-per Formular benötigt keinen Programmcode. InstanceID ist immer die ID Ihrer
-Automationsinstanz. Alle Parameter müssen beim nativen Symcon-Aufruf ausdrücklich
-angegeben werden, auch wenn die PHP-Methode einen Standardwert besitzt.
-
-| Aufruf nach dem Präfix Z2MA_ | Rückgabe und Bedeutung |
-| --- | --- |
-| CheckConnection(int InstanceID) | String: startet die Verbindungsprüfung mit Ergebnis-Popup; entspricht dem Formularbutton |
-| CheckHealth(int InstanceID, bool RefreshExtension) | String: Gesundheitsanfrage ohne Popup; true fragt nach positiver Antwort zusätzlich den Erweiterungsstatus ab |
-| GetTransportState(int InstanceID) | String: JSON mit zuletzt bekanntem Verbindungs-, Speicher-, Prüf- und Ausführungszustand |
-| InstallExtension(int InstanceID, bool Notify) | String: mitgelieferte Erweiterung installieren/ersetzen und Bereitschaft prüfen; true zeigt das Ergebnis-Popup |
-| RequestExtensionStatus(int InstanceID) | String: aktuellen Empfänger-/Speicher-/Betriebszustand anfragen |
-| LoadAutomationEditor(int InstanceID) | String: Geräte und gespeicherte Regeln laden; ersetzt nach erfolgreicher Antwort den lokalen Entwurf. Vorher eigene Änderungen sichern |
-| ValidateAutomationDraft(int InstanceID) | String: aktuellen lokalen Entwurf in Z2M prüfen |
-| StoreAutomationDraft(int InstanceID) | String: genau den erfolgreich geprüften lokalen Entwurf in Z2M speichern |
-| ValidateYaml(int InstanceID, string Yaml) | String: übergebenen UTF-8-Text in Z2M prüfen; höchstens 128 KiB |
-| StoreYaml(int InstanceID, string Yaml) | String: genau die zuvor erfolgreich geprüften Bytes speichern |
-| ActivateAutomations(int InstanceID) | String: gespeicherten Stand aktivieren; eingeschaltete Regeln und Empfangsfreigaben werden wirksam |
-| StopAutomations(int InstanceID) | String: gesamten Automatikbetrieb und Empfangsfreigaben stoppen |
-| RunAutomationOnce(int InstanceID, string RuleID, string CurrentDraft, bool CheckDraft) | String: gespeicherte Regel einmal ausführen, auch bei ausgeschaltetem Regelschalter; Bedingungen gelten weiter |
-| StopAutomationRun(int InstanceID, string RuleID) | String: den zugehörigen laufenden Ablauf stoppen, andere Auslöser und Regeln bleiben erhalten |
-| RefreshExecutionStatus(int InstanceID) | Keine Rückgabe: Zustände einzelner Läufe anfragen |
-| StartRuntimeDebug(int InstanceID, int Seconds) | Boolean: zeitlich begrenzte Ablaufaufzeichnung anfragen; 1 bis 900 Sekunden |
-| StopRuntimeDebug(int InstanceID) | Boolean: nur die eigene Aufzeichnung beenden |
-
-Die String-Rückgabe eines Auftrags ist dessen Anfragekennung oder ein leerer
-String, wenn nichts gestartet wurde. Sie bestätigt noch keinen Erfolg.
-Die Boolean-Rückgaben der Aufzeichnung bestätigen ebenfalls nur den angefragten
-Versand. Maßgeblich sind die nachfolgende passende Antwort, OperationStatus und
-der bestätigte Laufzeitstatus. Gleichartige Doppelklicks erzeugen keinen zweiten
-Auftrag; andere Aufträge können währenddessen als beschäftigt abgewiesen werden.
-
-GetTransportState liefert unter anderem mqttConnected, bridgeState
-(unknown/online/offline), version, health, extension, extensionConfirmed,
-runtimeConfirmed, operation, validation, validationDetails, execution und
-lastError. Fehlende oder alte Statusdaten sind kein bestätigter aktueller Betrieb.
-Interne Sitzungskennungen und vollständige YAML werden nicht ausgegeben.
-
-RuleID ist die feste id einer Automation im gespeicherten Dokument, nicht ihr
-Name, ihre Listennummer oder eine Symcon-Objekt-ID. Einmalige Ausführung erfordert,
-dass der lokale Entwurf zum gespeicherten Stand passt. Mit CurrentDraft und
-CheckDraft=true wird zusätzlich der übergebene Text gegen den lokalen Entwurf
-verglichen. Für einen Aufruf ohne diesen Zusatzvergleich ausdrücklich leeren
-String und false übergeben. Die normale Prüfung des gespeicherten Stands bleibt
-wirksam. Ein Start kann echte Geräte schalten; Stopp nimmt gesendete Befehle
-nicht zurück.
-
-Beispiel für eine reine Verbindungsprüfung mit einer synthetischen Instanz-ID:
-
-```php
-$instanceID = 12345; // Durch die ID Ihrer Automationsinstanz ersetzen.
-$request = Z2MA_CheckHealth($instanceID, false);
-echo $request === '' ? 'Keine Anfrage gestartet.' : 'Anfrage gestartet; Antwort abwarten.';
-```
-
-Nach der Antwort lässt sich der Zustand separat lesen:
-
-```php
-$state = json_decode(Z2MA_GetTransportState($instanceID), true, 32, JSON_THROW_ON_ERROR);
-echo $state['health'];
-```
-
-Weitere öffentliche Methoden dienen Formularcallbacks und Timern. Sie werden
-durch das Modul aufgerufen und sind nicht für die manuelle Skriptbedienung nötig.
-Hinweise zur begrenzten Ablaufaufzeichnung stehen in
-[Debug und MQTT-Diagnose](../docs/DEBUG.md).
-
-## Regeln im Browserdesigner verwalten
-
-Wählen Sie das Z2M-System und anschließend die gewünschte Automation aus.
-**Automation kopieren** legt nach Bestätigung eine neue, ausgeschaltete Kopie
-mit eigenem Namen an. Auslöser, Bedingungen und Aktionen werden vollständig
-übernommen. Das Original bleibt erhalten.
-
-**Automation löschen** entfernt die ausgewählte Regel nach Bestätigung aus dem
-lokalen Entwurf. Eine bereits in Z2M gespeicherte oder laufende Regel wird damit
-noch nicht entfernt: Dafür den geänderten Entwurf später ausdrücklich prüfen
-und übertragen.
-
-Im Bereich **Aktionsfolgen** entfernt **Aktionsfolge löschen** ausschließlich
-unbenutzte Folgen. Wird die Folge noch verwendet, zeigt der Dialog die
-betroffenen Automationen an. Entfernen oder ersetzen Sie dort zuerst die
-Folgenaufrufe. Das gilt auch für ausgeschaltete Regeln.
-
-Mit **Regelschalter im Entwurf** wählen Sie **Alle**, **Aktiviert** oder
-**Deaktiviert**. Der Filter beschreibt den Regelschalter im lokalen Entwurf,
-nicht die zuletzt bestätigte Ausführung in Z2M. Er lässt sich mit der Textsuche
-kombinieren. Suchtext, Filter und Auswahl bleiben je System getrennt.
-Aktionsfolgen und Gerätelisten werden vom Regelfilter nicht ausgeblendet.
-
-Offene, noch nicht übernommene Eingaben im nativen Formular und veraltete
-Ansichten verhindern widersprüchliche Änderungen. Nach fehlender Bestätigung
-kann derselbe unveränderte Auftrag erneut bestätigt werden; er wird nicht
-zweimal ausgeführt. Native Debugmeldungen erklären den Vorgang ohne
-Regelinhalte oder Zugangsdaten.
-
-## Gerätedaten direkt im Browserdesigner aktualisieren
-
-1. Oben das gewünschte **Z2M-System** auswählen.
-2. Im Bereich **Gerätedaten** auf **Gerätedaten aktualisieren** klicken.
-3. Die Anzeige meldet zuerst die Verbindungsprüfung und danach das Laden der
-   Geräte, Kanäle, Gruppen und Szenen. Währenddessen ist der Ladebutton gesperrt.
-4. Nach erfolgreichem Abschluss erscheinen Ladezeit und Anzahl der Geräte,
-   Gruppen und Szenen. Die Geräteauswahl wird automatisch nachgeladen.
-
-**Gerätedaten geladen** bedeutet, dass die Daten für die aktuelle Verbindung
-bestätigt und im Editor verfügbar sind. **Nicht bestätigt** bedeutet, dass ein
-früherer Stand noch gespeichert ist, derzeit aber nicht verwendet werden kann.
-Dann **Gerätedaten aktualisieren** wählen. Das frühere Datum steht in den Details
-als **Früher gespeichert**. **Ansicht aktualisieren** erscheint, wenn bereits
-bestätigte neue Daten vorliegen, die geöffnete Bearbeitung aber noch den alten
-Stand zeigt. Offene Eingaben zuerst übernehmen oder schließen und dann die
-Ansicht aktualisieren.
-
-Dabei werden ausschließlich Gerätedaten dieses Systems abgefragt. Vorhandene
-Entwürfe, Namen, Regelaktivierungen, Aktionsfolgen und Partnerfreigaben bleiben
-erhalten. In Z2M wird keine Automation gespeichert, gestartet oder gestoppt.
-Auch offene Eingaben im nativen Formular bleiben erhalten.
-
-**Ladestatus prüfen** liest nur die vorhandene Rückmeldung und startet keinen
-neuen Abruf. Bei fehlender Antwort, ungültigen Daten oder einer geänderten
-Verbindung nennt die Anzeige den nächsten Schritt. Der bisherige Katalog und
-alle Entwürfe bleiben erhalten. Es wird nichts automatisch erneut gesendet.
-
-Ist während des Ladens eine Browserbearbeitung geöffnet worden, wird diese
-nicht überschrieben. Nach Abschluss die Bearbeitung schließen und **Ansicht
-aktualisieren** wählen. Veraltete Bearbeitungen können eine erneute Geräteauswahl
-erfordern; ihre Eingaben werden bei einer Ablehnung nicht verworfen.
-
-**Ansicht aktualisieren** lädt weiterhin nur den bereits vorhandenen Stand aus
-Symcon. Für neue Gerätedaten aus Z2M verwenden Sie **Gerätedaten aktualisieren**.
-Beim Öffnen des Designers wird kein Geräteabruf automatisch gestartet.
+Aufrufe zum Ändern benötigen zusätzlich die aktuelle Systemgeneration,
+Bearbeitungsfingerabdrücke und eine Auftragskennung. Formulare und Designer
+übergeben diese automatisch. Parameter und Datenformate für eigene Skripte
+stehen in der [Skriptreferenz des zentralen Arbeitsbereichs](../docs/CENTRAL_SCRIPTING.md).
+Die [Übernahmereferenz](../docs/MIGRATION.md) erläutert Sicherung und Rückweg.
+Die [Arbeitsbereichsreferenz](../docs/WORKSPACE.md) enthält die weiteren
+systemgebundenen Aufträge für Geräteabruf, Installation, Diagnose und Betrieb.
+
+Ein angenommener Auftrag ist noch kein bestätigter Erfolg. Nach einer fehlenden
+Antwort zuerst den jeweiligen Status lesen; Speicher-, Installations- und
+Betriebsaufträge werden nicht automatisch erneut gesendet. Die direkten
+Funktionen bisheriger Einzelinstanzen sind in deren
+[separater Referenz](../docs/SINGLE_INSTANCE_REFERENCE.md) dokumentiert.
+
+## 14. Lizenz
+
+[PolyForm Noncommercial License 1.0.0](../LICENSE).
