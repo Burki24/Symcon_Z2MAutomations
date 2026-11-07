@@ -1,221 +1,304 @@
 # Z2M-Verbindung
 
-Dieses Modul verbindet genau ein Zigbee2MQTT-System mit Symcon. Es verwendet
-einen vorhandenen MQTT Client oder MQTT Server. Anmeldung, Passwort, TLS und
-Abonnements werden dort eingestellt.
+Verbindet ein Zigbee2MQTT-System mit der Automationszentrale. Das Modul verwendet
+eine vorhandene MQTT-Anbindung von Symcon und stellt Verbindung, Erweiterungsstand
+und Gerätedaten bereit. Für jedes Z2M-System wird eine eigene Verbindungsinstanz
+angelegt; eine Zentrale kann bis zu acht davon verwalten.
 
-Die Automationszentrale verwaltet bis zu acht solcher Verbindungen. Dieser
-Baustein kann Verbindung, Erweiterungsstand und Gerätedaten prüfen sowie
-Automationsabläufe zeitlich begrenzt aufzeichnen. Bestehende Automationsinstanzen
-und Entwürfe bleiben erhalten. Sie werden durch ein Modulupdate oder das Anlegen
-einer Verbindung **noch nicht in eine zentrale Instanz übernommen**.
+Die Automationen werden im [Webfrontend der Zentrale](../Z2MAutomations/README.md#automationsdesigner-im-browser)
+erstellt und bearbeitet. Das Verbindungsmodul sorgt für den Austausch mit dem
+jeweiligen Z2M-System.
 
-Eine ausdrücklich gestartete [direkte Einrichtung](../Z2MAutomations/README.md#direkt-aus-z2m-einrichten)
-oder [lokale Übernahme aus Einzelinstanzen](../docs/MIGRATION.md) ordnet diese
-Verbindung genau einer zentralen Verwaltung zu. Zwei Verwaltungen
-können sie danach nicht unabhängig beschreiben. Status, Katalog und Debug bleiben
-an dieser Verbindung verfügbar; ein unabhängiger Erweiterungsupload ist nach
-dem Besitzerwechsel gesperrt. Der Rückweg löst die Besitzerzuordnung, ohne die
-Instanz, MQTT-Einstellungen oder Geräte zu löschen.
+## Inhaltsverzeichnis
 
-## Voraussetzungen und Einrichtung
+- [1. Voraussetzungen](#1-voraussetzungen)
+- [2. Funktionsumfang](#2-funktionsumfang)
+- [3. Installation](#3-installation)
+- [4. Konfiguration in IP-Symcon](#4-konfiguration-in-ip-symcon)
+- [5. Verbindung prüfen und Erweiterung einrichten](#5-verbindung-prüfen-und-erweiterung-einrichten)
+- [6. Gerätedaten und Automationszentrale](#6-gerätedaten-und-automationszentrale)
+- [7. Statusanzeigen](#7-statusanzeigen)
+- [8. Skriptfunktionen](#8-skriptfunktionen)
+- [Bis zu acht MQTT-Broker miteinander verbinden](#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+- [9. Lizenz](#9-lizenz)
 
-Bei mehreren unabhängigen Brokern beschreibt die
-[Schritt-für-Schritt-Anleitung](#bis-zu-acht-mqtt-broker-miteinander-verbinden)
-deren Verbindung. Mehrere Z2M-Systeme am selben Broker benötigen keine Bridge.
+## 1. Voraussetzungen
 
-- IP-Symcon 9.0 mit PHP 8.5 und ein erreichbares Zigbee2MQTT-System.
-- Ein vorhandenes MQTT-Gateway zum zugehörigen Broker.
-- Für Erweiterungsstatus, Gerätedaten und Ablaufaufzeichnung die eigene
-  z2m-automations.mjs in diesem Z2M-System.
+- IP-Symcon ab Version **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
+- Ein erreichbares Zigbee2MQTT-System und dessen genaues **Basistopic**.
+- Ein vorhandener Symcon **MQTT Client** oder **MQTT Server**, über den dieses
+  Z2M-System erreichbar ist.
+- Für die Geräteauswahl und Ausführung der Automationen die mitgelieferte
+  Erweiterung **z2m-automations.mjs** im jeweiligen Z2M-System. Sie lässt sich
+  nach der Verbindungsprüfung aus dem Modul beziehungsweise aus der Zentrale installieren.
+- Für diese Installation muss die Verwendung externer JavaScript-Erweiterungen
+  in Zigbee2MQTT bereits erlaubt sein. Die Library schaltet diese Freigabe nicht ein.
 
-1. Instanz „Zigbee2MQTT Verbindung“ anlegen und mit dem vorhandenen MQTT-Gateway
-   verbinden. Das Modul legt weder einen MQTT-Client noch Geräte an.
-2. Das exakte Z2M-Basistopic eintragen; Groß-/Kleinschreibung beachten.
-3. Im MQTT Client `BaseTopic/bridge/#` und `BaseTopic/symcon/automations/#`
-   abonnieren. Ein bereits vorhandenes `#` genügt ebenfalls.
-4. MQTT-Anbindung einschalten und die Einstellungen übernehmen.
-5. „Zigbee2MQTT-Verbindung prüfen“ wählen. Das Ergebnis erscheint nach der
-   passenden Antwort als Popup. Bei ausbleibender Antwort erscheint ein Hinweis.
-6. „Erweiterungsstatus abfragen“ und danach „Gerätedaten aktualisieren“ wählen.
-   Die Rückmeldungen stehen direkt darunter.
+Die [Kompatibilitätsübersicht](../docs/COMPATIBILITY.md) nennt die belegten
+Symcon- und Z2M-Versionen.
 
-Mehrere Verbindungen dürfen denselben MQTT Client verwenden, wenn ihre
-Basistopics verschieden sind. Unterschiedliche Broker benötigen jeweils ihre
-eigene native MQTT-Anbindung. Gleiche Topics auf getrennten Brokern sind für
-den einzelnen Transport unterscheidbar; für einen gemeinsamen Automationsverbund
-bleiben eindeutige Basistopics erforderlich.
+## 2. Funktionsumfang
 
-Das Öffnen des Formulars und Übernehmen unveränderter Einstellungen senden
-keine MQTT-Anfrage. Die Prüfung wird über die beschriebenen Buttons gestartet.
+- Eine vorhandene Symcon-MQTT-Anbindung für genau ein Z2M-System verwenden.
+- Prüfen, ob Zigbee2MQTT erreichbar ist, und das Ergebnis als Popup anzeigen.
+- Installierten und mitgelieferten Erweiterungsstand vergleichen und einen
+  Updatehinweis anzeigen.
+- Die eigene Z2M-Erweiterung installieren oder aktualisieren.
+- Geräte, Eigenschaften, Kanäle, Gruppen und vorhandene Z2M-Szenen laden.
+- Prüf-, Speicher- und Betriebsaufträge der zuständigen Automationszentrale
+  an das zugehörige Z2M-System weitergeben.
+- Den zuletzt bestätigten Verbindungs- und Automationsstatus als Variablen anzeigen.
 
-## Einstellungen
+Das Anlegen einer Verbindung ersetzt keine vorhandenen Geräteinstanzen und
+ändert keine gespeicherten Automationen. Vorhandene Regeln werden erst über die
+[Einrichtung der Zentrale](../Z2MAutomations/README.md#direkt-aus-z2m-einrichten)
+als lokale Entwürfe eingelesen.
 
-Die zentrale Browseransicht **Systeme und Diagnose** kann die vorhandenen
-Verbindungs- und Erweiterungsprüfungen sowie die befristete Ablaufaufzeichnung
-dieser Verbindung bedienen. Sie verwendet dieselbe Aufzeichnung wie das native
-Formular. Ablaufmeldungen erscheinen weiterhin im Debugfenster dieser Instanz.
-Die Anzeige nennt dafür ausdrücklich Name und Instanz-ID der Z2M-Verbindung.
-Statusabfragen und ein Update der Zentrale verlängern die gewählte Endzeit nicht.
-Siehe [Bedienung](../Z2MAutomations/README.md#systeme-und-diagnose-im-browserdesigner).
+## 3. Installation
 
-| Feld / Property | Typ | Standard | Bedeutung |
-| --- | --- | --- | --- |
-| MQTT-Anbindung aktivieren / `Active` | Boolean | false | Empfang und Anfragen dieser Verbindung einschalten. |
-| Zigbee2MQTT-Basistopic / `BaseTopic` | String | zigbee2mqtt | Höchstens 128 Zeichen; Buchstaben, Ziffern, Unterstrich und Bindestrich, optional durch `/` getrennt. Keine Platzhalter. |
-| Wartezeit auf eine Antwort / `RequestTimeout` | Integer | 10 | 1 bis 120 Sekunden pro Anfragephase. |
-| `SystemID` | String | automatisch erzeugte UUID | Stabile interne Systemkennung; nicht von Hand ändern. |
-| `Generation` | Integer | 1 | Interne Zuordnungsgeneration; nicht von Hand ändern. Zulässig sind 1 bis 9007199254740991. |
+Die Library **Z2MAutomations** über die Symcon-Modulverwaltung installieren.
+Anschließend im Objektbaum eine Instanz hinzufügen und nach
+**Zigbee2MQTT Verbindung** suchen. Einen passenden Namen vergeben, zum Beispiel
+**Z2M – Wohnhaus**.
 
-Gateway, Topic, Systemkennung und Generation begrenzen, zu welchem System
-Antworten und Gerätedaten gehören. Nach einem Wechsel ist eine neue Bestätigung
-nötig. Ein vorhandener Katalog bleibt gespeichert, wird für eine geänderte oder
-nicht bestätigte Verbindung jedoch nicht als aktuell ausgegeben.
+Für ein zweites Z2M-System eine weitere Verbindung anlegen, etwa **Z2M – Garten**.
+Die Anzahl richtet sich nach den Z2M-Systemen, nicht nach der Anzahl der Broker:
+Auch zwei Z2M-Systeme an einem gemeinsamen Broker benötigen zwei Verbindungsinstanzen.
 
-## Erweiterung und Aufzeichnung
+## 4. Konfiguration in IP-Symcon
 
-Die Anzeige nennt installierte und mitgelieferte Erweiterungsstände und weist
-auf unterschiedliche Builds hin. Ein unbekannter Stand gilt nicht als aktuell.
-„Mitgelieferte Erweiterung installieren oder aktualisieren“ verwendet die
-offizielle Z2M-Schnittstelle und fordert vorher eine Bestätigung an. Externes
-JavaScript muss in Z2M bereits freigegeben sein. Das Modul schaltet es nicht ein.
-Ein Update kann laufende Automationen kurz unterbrechen. Erfolg wird erst nach
-Bestätigung des neu geladenen Empfängers gemeldet.
+### 4.1 Die passende MQTT-Schnittstelle auswählen
 
-„Aufzeichnung für 10 Minuten starten“ macht die Ablaufmeldungen im Debugfenster
-dieser Instanz sichtbar. Bei Aktionen zwischen Systemen beide Verbindungen
-aufzeichnen. „Eigene Aufzeichnung beenden“ beendet nur die eigene Aufzeichnung.
-Sie endet auch automatisch; Automationen werden dadurch weder gestartet noch
-gestoppt. Unveränderte Einstellungen und Formularaufrufe verlängern ihre Endzeit
-nicht. Bei geänderter Verbindung oder Empfängersitzung endet die Aufzeichnung.
+Beim Anlegen die vorhandene MQTT-Schnittstelle auswählen, über die das gewünschte
+Z2M-System erreichbar ist. Bei einer bestehenden Instanz lässt sich die Zuordnung
+über **Gateway ändern** anpassen; **Gateway konfigurieren** öffnet die Einstellungen
+der zugeordneten Schnittstelle.
 
-## Statusvariablen
-
-Alle Variablen dienen der Anzeige und sind nicht schaltbar.
-
-| Ident | Typ / Einheit | Bedeutung |
-| --- | --- | --- |
-| MQTTConnected | Boolean / keine | Native MQTT-Anbindung aktiv und verbunden. |
-| BridgeOnline | Boolean / keine | Z2M hat online gemeldet oder die Verbindungsprüfung beantwortet. |
-| Z2MVersion | String / keine | Zuletzt empfangene Z2M-Version der aktuellen Verbindung. |
-| ExtensionInstalled | Boolean / keine | Erweiterung in der Z2M-Liste erkannt, Upload bestätigt oder bereiter Empfänger durch passende Statusantwort bestätigt. |
-| HealthStatus | String / keine | Ergebnis der Verbindungsprüfung, zum Beispiel „Funktionsfähig“, „Antwort von Z2M steht noch aus“ oder „Keine rechtzeitige Antwort“. |
-| ExtensionReady | Boolean / keine | Empfänger durch passende frische Antwort bestätigt. |
-| StoredRevision | Integer / keine | Bestätigte gespeicherte Revision; 0 bedeutet leer oder nicht bestätigt. |
-| OperationStatus | String / keine | Laufender oder zuletzt abgeschlossener Erweiterungsauftrag. |
-| LastError | String / keine | Verständlicher Grund eines fehlgeschlagenen Auftrags. |
-| ExecutionActive | Boolean / keine | Ausführung laut zuletzt bestätigtem Z2M-Status aktiv. False bedeutet gestoppt oder nicht bestätigt. |
-
-„Online“ und „Ausführung aktiv“ sind Zustandsmeldungen, keine ständige Prüfung.
-Bei Verbindungsabbruch verlieren Bestätigungen ihre Gültigkeit. Nach erneutem
-Verbinden den Status abfragen. Eine laufende Z2M-Automation arbeitet unabhängig
-von der Erreichbarkeit von Symcon weiter.
-
-## Öffentliche Funktionen
-
-`InstanceID` ist jeweils die ID dieser Verbindungsinstanz im Symcon-Objektbaum.
-
-| Funktion | Rückgabe und Wirkung |
+| Vorhandener Aufbau | Schnittstelle für die Z2M-Verbindung |
 | --- | --- |
-| `Z2MC_CheckConnection(int InstanceID): string` | Startet Verbindungsprüfung mit Popup; Transaktionskennung bei angenommener Anfrage, sonst leer. |
-| `Z2MC_CheckHealth(int InstanceID, bool RefreshExtension = false): string` | Gleiche Prüfung ohne Popup; optional anschließend einmalig Erweiterungsstatus abfragen. |
-| `Z2MC_RequestExtensionStatus(int InstanceID): string` | Auftragskennung oder leer. Liest Status und Build; verändert keine Regeln. |
-| `Z2MC_RequestDeviceCatalog(int InstanceID): string` | Auftragskennung oder leer. Prüft zuerst den Empfänger, lädt danach Geräte, Kanäle, Gruppen und Szenen. Überträgt keine Entwürfe. |
-| `Z2MC_InstallExtension(int InstanceID, bool Notify = false): string` | Auftragskennung oder leer. Lädt ausschließlich die mitgelieferte Datei hoch und prüft anschließend die Bereitschaft. `Notify` aktiviert die Popup-Rückmeldung. |
-| `Z2MC_GetConnectionInfo(int InstanceID): string` | JSON mit Vertragsversion, Systemkennung, Generation, Gateway, Topic und bereinigtem Status; keine neue MQTT-Anfrage. |
-| `Z2MC_GetConnectionDiagnostics(int InstanceID): string` | Lesende Build- und Aufzeichnungsansicht mit Systembindung und absoluter Endzeit. Client, Empfängersitzung und Transaktionen werden nicht ausgegeben. |
-| `Z2MC_GetTransportState(int InstanceID): string` | Bereinigter lokaler Transportstatus als JSON; keine neue MQTT-Anfrage. |
-| `Z2MC_GetDeviceCatalog(int InstanceID): string` | JSON mit Systemkennung, Generation, `available`, Ladezeit und normalisiertem Katalog; keine neue MQTT-Anfrage. Bei `available: false` leere Gerätelisten. |
-| `Z2MC_StartRuntimeDebug(int InstanceID, int Seconds = 600): bool` | Fragt eine eigene Aufzeichnung für 1 bis 900 Sekunden an. True bedeutet Anfrage gesendet, noch nicht von Z2M bestätigt. |
-| `Z2MC_StopRuntimeDebug(int InstanceID): bool` | Fragt Ende der eigenen Aufzeichnung an; True bedeutet gesendet. |
-| `Z2MC_ExpireRequest(int InstanceID): void` | Prüft lokale Anfragezeitlimits; vom Modultimer verwendet. |
-| `Z2MC_ExpireRuntimeDebug(int InstanceID): void` | Prüft Ende der lokalen Aufzeichnung; vom Modultimer verwendet. |
-| `Z2MC_GetCompatibleParents(int InstanceID): string` | JSON mit den unterstützten nativen MQTT-Gateways für die Konsole. |
+| Zigbee2MQTT verwendet einen externen Broker, beispielsweise Mosquitto. | Den Symcon **MQTT Client** auswählen, der mit genau diesem Broker verbunden ist. |
+| Zigbee2MQTT verwendet Symcon selbst als MQTT-Broker. | Den entsprechenden Symcon **MQTT Server** auswählen. |
 
-Eine Auftragskennung bestätigt das Annehmen beziehungsweise Absenden der Anfrage,
-nicht ihren erfolgreichen Abschluss. Der Status folgt erst nach passender
-Z2M-Antwort. Je Verbindung läuft höchstens ein Erweiterungsauftrag; eine zweite
-Anfrage ersetzt ihn nicht. Zeitablauf führt zu keiner automatischen Wiederholung.
+Serveradresse, Port, Benutzername, Passwort und Verschlüsselung werden in der
+nativen MQTT-Anbindung eingestellt. Im Z2M-Verbindungsmodul sind dafür keine
+zusätzlichen Zugangsdaten nötig.
 
-Der Katalog enthält die von Z2M gemeldeten Zugriffsrechte (`access`: 1 lesbar,
-2 schreibbar, 3 beides). Diese Daten ersetzen nicht die zusätzliche Prüfung der
-Symcon-Schaltrechte im Automationseditor. `loadedAt` ist ein UTC-Unixzeitstempel
-in Sekunden; er zeigt den Ladezeitpunkt, keine permanente Aktualität.
+### 4.2 Basistopic und Wartezeit einstellen
 
-Das Modul stellt in dieser Stufe keine Funktionen zum Speichern, Aktivieren
-oder Stoppen von Automationsregeln bereit. Dafür wird weiterhin die vorhandene
-[Z2MAutomations-Instanz](../Z2MAutomations/README.md) verwendet.
+Im Bereich **MQTT-Einstellungen** das **Zigbee2MQTT-Basistopic** eintragen.
+Es muss genau dem `base_topic` der zugehörigen Z2M-Installation entsprechen.
+Groß- und Kleinschreibung beachten. Das Topic ist nicht die IP-Adresse oder
+der Rechnername des Brokers.
 
-Lizenz: [PolyForm Noncommercial License 1.0.0](../LICENSE).
+Beispiele sind `zigbee2mqtt` oder `beispiel/wohnhaus`. An dieser Stelle keine
+Platzhalter wie `#` oder `+` und kein angehängtes `/bridge/#` eintragen.
 
-## Entwürfe aus der zuständigen Zentrale
+![MQTT-Einstellungen des Z2M-Verbindungsmoduls](../docs/screenshots/z2m-verbindung-einstellungen.png)
 
-Nach abgeschlossener gesicherter Übernahme nimmt diese Verbindung Prüf- und
-Speicheraufträge ausschließlich von ihrem eingetragenen Besitzer an. Die
-Zentrale nennt jeweils genau dieses System und den zugehörigen Entwurfsstand.
-Andere Verbindungen sind von einem Fehler oder einer ausbleibenden Antwort
-nicht betroffen. Die Verbindung legt keine zweite bearbeitbare Entwurfskopie an.
+| Formularfeld / Property | Datentyp | Standard | Bedeutung |
+| --- | --- | --- | --- |
+| MQTT-Anbindung aktivieren / `Active` | Boolean | false | Schaltet Empfang und Anfragen dieser Verbindung ein. |
+| Zigbee2MQTT-Basistopic / `BaseTopic` | String | zigbee2mqtt | Basistopic des zugehörigen Z2M-Systems; höchstens 128 Zeichen. Erlaubt sind Buchstaben, Ziffern, Unterstrich und Bindestrich, bei Bedarf durch `/` getrennt. |
+| Wartezeit auf eine Antwort (Sekunden) / `RequestTimeout` | Integer | 10 | Zeitlimit von 1 bis 120 Sekunden je Antwort. Bei mehreren Teilschritten kann der gesamte Vorgang länger dauern. |
 
-Prüfung und Speicherung verwenden die bestehende Z2M-Erweiterung. Vor dem
-Speichern muss die Prüfung noch zur aktuellen Empfängersitzung und Revision
-passen. Eine neue Statusabfrage bestätigt anschließend die gespeicherte Datei.
-Bei einem Abbruch wird der Auftrag nicht automatisch erneut gesendet. Es wird
-keine Automation aktiviert; bei geänderter Datei stoppt die bestehende Ausführung.
+Die technischen Eigenschaften `SystemID` und `Generation` werden für die
+Systemzuordnung verwendet. Sie werden nicht für die normale Einrichtung
+bearbeitet: `SystemID` ist eine automatisch erzeugte UUID, `Generation` hat
+anfangs den Wert 1.
 
-Die Funktionen `Z2MC_RequestDraftTransfer(InstanceID, Owner, OperationID, Yaml)`
-und `Z2MC_GetDraftTransferResult(InstanceID, Owner, OperationID)` sind für den
-internen Aufruf der zuständigen Zentrale bestimmt. Der erste Auftrag benötigt
-deren aktuelle systemgebundene Freigabe. Ein bloß übergebener Besitzerwert ist
-keine Berechtigung. Der zweite Aufruf liest nur das vorhandene Ergebnis.
+### 4.3 Die benötigten Topics abonnieren
 
-## Lesen für die direkte Einrichtung
+Bei Verwendung eines **MQTT Client** müssen dessen Abonnements die Z2M-Meldungen
+enthalten. Für das Basistopic `zigbee2mqtt` sind dies:
 
-Die Zentrale kann über diese Verbindung zuerst eine reine Vorschau gespeicherter
-Z2M-Automationen samt Gerätedaten abrufen. Vor dem ausdrücklichen Besitzerwechsel
-wird der gespeicherte Stand durch eine frische Statusantwort erneut geprüft.
-Ohne passende Freigabe und Zuordnung wird kein Auftrag angenommen. Der Abruf
-verwendet ausschließlich die vorhandenen Z2M-Befehle status und editor; keine
-Speicherung, Aktivierung, Deaktivierung oder Geräteaktion.
+```text
+zigbee2mqtt/bridge/#
+zigbee2mqtt/symcon/automations/#
+```
 
-`RequestWorkspaceSnapshot`, `GetWorkspaceSnapshotResult`, `CancelWorkspaceSnapshot`
-und `ClaimWorkspaceConnection` mit Präfix Z2MC dienen der internen Abstimmung mit
-der Zentrale. Der begrenzte private Rückgabestand ist kein zweiter bearbeitbarer
-Entwurf. Sitzungsdaten, YAML und Kataloginhalte werden nicht ins Debug geschrieben.
-Die vorhandene Anbindung und ihre Passwörter werden durch die Einrichtung nicht
-umgestellt.
+Bei einem anderen Basistopic `zigbee2mqtt` durch den eigenen Wert ersetzen.
+Ein bereits vorhandenes Abonnement `#` schließt beide Bereiche ein.
+Die hier verwendeten Platzhalter gehören in die Abonnements des MQTT Client,
+nicht in das Basistopic des Verbindungsmoduls.
 
-## Betriebsaufträge der Zentrale
+### 4.4 Die Verbindung einschalten und speichern
 
-Die zuständige Zentrale kann gespeicherte Automationen aktivieren oder stoppen
-und einzelne Regeln einmal starten oder gezielt stoppen. Die Verbindung führt
-die bestehenden Z2M-Befehle aus; sie bearbeitet keinen eigenen Entwurf.
-Aktivierung und globaler Stopp benötigen nach der Antwort eine weitere frische
-Statusbestätigung. Einzelne Laufmeldungen bleiben an System und Laufkennung
-gebunden. Bei verlorenen Antworten wird kein Befehl wiederholt.
+1. **MQTT-Anbindung aktivieren** einschalten.
+2. Die Einstellungen mit dem normalen Symcon-Button **Übernehmen** speichern.
+3. Anschließend die Verbindung wie im nächsten Abschnitt beschrieben prüfen.
 
-`Z2MC_RequestRuntimeControl(InstanceID, Owner, OperationID)` benötigt einen
-vorbereiteten Auftrag der tatsächlich zuständigen Zentrale.
-`Z2MC_GetRuntimeControlResult(InstanceID, Owner, OperationID)` liest nur dessen
-dauerhaftes Ergebnis. Der Besitzerwert allein erteilt keine Berechtigung.
-`GetConnectionInfo` liefert den Sitzungsbezug als SHA-256-Vergleichswert,
-keinen Aktivierungstoken. Deutsche Status- und Debugmeldungen erklären die
-Bestätigung und Fehler; Namen, YAML und Aktionswerte erscheinen nicht im Debug.
+Mehrere Z2M-Verbindungen dürfen denselben MQTT Client verwenden, wenn ihre
+Basistopics unterschiedlich sind. Bei getrennten Brokern die jeweils passende
+MQTT-Anbindung auswählen. Für systemübergreifende Automationen benötigt jedes
+Z2M-System im Verbund ein eindeutiges Basistopic, auch bei getrennten Brokern.
 
-## Erweiterungsinstallation der Zentrale
+Nach einem späteren Wechsel von Gateway oder Basistopic die Verbindung erneut
+prüfen und die Gerätedaten neu laden. Gespeicherte Gerätedaten bleiben erhalten,
+gelten für eine geänderte Verbindung aber erst nach erneuter Bestätigung als aktuell.
 
-RequestOwnedInstallation und GetOwnedInstallationResult mit Präfix Z2MC benötigen
-einen ausdrücklich bestätigten Auftrag. System, Verbindung, Zuordnung, Build
-und tatsächliche Dateibytes sind fest gebunden. Ein beliebiger Besitzerwert
-erteilt keine Berechtigung. Vor der ersten Übernahme ist die Installation nur
-möglich, solange die Verbindung noch keinen Besitzer hat.
+## 5. Verbindung prüfen und Erweiterung einrichten
 
-Die Verbindung nutzt ihren bestehenden Installer und die offizielle
-bridge/request/extension/save-Schnittstelle. Eine neue Sitzung mit erwartetem
-Build bestätigt das Ergebnis; ein bloßes Upload-OK genügt nicht. Dauerhafte
-Quittungen verhindern Doppelversand. Statusabfragen senden keine Datei erneut.
-Der direkte InstallExtension-Einstieg bleibt bei verwalteten Verbindungen
-gesperrt. Es werden keine Automationsdateien gespeichert oder Startbefehle
-gesendet. Z2Ms vorhandene Wiederanlaufeinstellung gilt weiterhin.
+### 5.1 Zigbee2MQTT-Verbindung prüfen
+
+Im Bereich **Einrichtung und Diagnose** auf **Zigbee2MQTT-Verbindung prüfen** klicken.
+Das Modul sendet eine Anfrage an das eingestellte Z2M-System und wartet auf dessen
+Antwort. Bei Erfolg erscheint ein Popup mit der Bestätigung. Antwortet Z2M nicht
+rechtzeitig, nennt das Popup den Grund beziehungsweise die ausstehende Antwort.
+
+![Bestätigung einer erfolgreichen Zigbee2MQTT-Verbindungsprüfung](../docs/screenshots/z2m-verbindung-pruefung.png)
+
+Ein verbundener MQTT Client bestätigt zunächst nur den Kontakt zum Broker.
+Erst die Antwort auf die Verbindungsprüfung bestätigt auch die Erreichbarkeit
+von Zigbee2MQTT. Falls sie ausbleibt, MQTT-Zuordnung, Basistopic und Abonnements
+mit der zugehörigen Z2M-Installation vergleichen.
+
+Das Öffnen des Formulars allein startet keine neue Verbindungsprüfung.
+
+### 5.2 Erweiterungsstand abfragen
+
+Auf **Erweiterungsstatus abfragen** klicken. Danach nennt das Formular:
+
+- **Installierter Erweiterungsstand:** die in Z2M bestätigte Erweiterung.
+- **Mitgelieferter Erweiterungsstand:** die zur installierten Library gehörende Datei.
+- **Aktuell** oder einen Hinweis, dass eine Aktualisierung erforderlich ist.
+
+Die Buildkennung unterscheidet den tatsächlichen Inhalt zweier Erweiterungsdateien,
+auch wenn ihre Versionsbezeichnung gleich ist. Die Version der Erweiterung muss
+nicht mit der Versionsnummer der Symcon-Library übereinstimmen.
+
+Ein noch nicht bestätigter Stand bedeutet, dass das Modul noch keine passende
+Antwort erhalten hat. Die Erweiterung wird dann nicht als aktuell ausgegeben.
+
+### 5.3 Erweiterung installieren oder aktualisieren
+
+Solange die Verbindung noch keiner Zentrale zugeordnet ist:
+
+1. Sicherstellen, dass Z2M erreichbar und die Verwendung externer
+   JavaScript-Erweiterungen dort freigegeben ist.
+2. **Mitgelieferte Erweiterung installieren oder aktualisieren** wählen.
+3. Den Bestätigungsdialog lesen und bestätigen. Eine vorhandene Datei
+   `z2m-automations.mjs` wird durch die mitgelieferte Fassung ersetzt.
+4. Die abschließende Rückmeldung abwarten. Ein Erfolg wird erst gemeldet,
+   wenn die neu geladene Erweiterung ihre Bereitschaft bestätigt hat.
+
+Ist die Verbindung bereits einer Automationszentrale zugeordnet, die Installation
+oder Aktualisierung dort ausführen: im Webfrontend unter **Verwaltung → Systeme
+und Diagnose** das gewünschte System auswählen und den Installationsbutton verwenden.
+Alternativ steht der Installationsbereich im nativen Zentralenformular bereit.
+
+Ein Erweiterungsupdate kann laufende Abläufe kurz unterbrechen. Die gespeicherten
+Regeln und die gewählte Wiederanlaufeinstellung bleiben maßgeblich. Nach einer
+bestätigten Installation über die Zentrale werden die Gerätedaten automatisch
+nachgeladen; vorhandene Entwürfe bleiben erhalten.
+
+## 6. Gerätedaten und Automationszentrale
+
+### 6.1 Geräte, Kanäle, Gruppen und Szenen laden
+
+Im Verbindungsmodul **Gerätedaten aktualisieren** wählen. Voraussetzung ist eine
+bereite Z2M-Erweiterung. Das Modul liest Geräte, deren Eigenschaften und Kanäle,
+Gruppen sowie vorhandene Szenen dieses Systems. Der Ladezustand und das Ergebnis
+stehen im Formular unter dem Button.
+
+Der Abruf erstellt keine Automationen und überschreibt keine vorhandenen Entwürfe.
+Er legt auch keine zusätzlichen Symcon-Geräteinstanzen an.
+
+### 6.2 Die Verbindung der Zentrale zuordnen
+
+1. Eine **Zigbee2MQTT Automationszentrale** anlegen oder die vorhandene öffnen.
+2. Unter **Z2M-Systeme** die gewünschte Verbindung anhaken und
+   **Systemzuordnung übernehmen** wählen.
+3. Das System auswählen und über **Z2M-Automationen sicher einlesen** die
+   gespeicherten Regeln mit Gerätedaten als Vorschau laden.
+4. Die Vorschau prüfen und die Verbindung ausdrücklich übernehmen.
+5. **Automationsdesigner öffnen** wählen. Die weitere Einrichtung der Regeln
+   erfolgt im eigenen Webfrontend.
+
+![Automationszentrale mit Systemauswahl und Zugang zum Webfrontend](../docs/screenshots/automationszentrale.png)
+
+Eine Verbindung wird von genau einer Zentrale verwaltet. Die Zuordnung übernimmt
+keine Zugangsdaten eines anderen Brokers und ändert keine Gerätezuordnungen.
+Die direkte Einrichtung liest den vorhandenen Z2M-Stand ein; sie aktiviert keine
+Regeln und ersetzt keine gespeicherte Automationsdatei.
+
+Für vorhandene Entwürfe aus bisherigen Einzelinstanzen den
+[gesicherten Übernahmeweg](../docs/MIGRATION.md) verwenden. Die
+[detaillierte Einrichtung der Zentrale](../Z2MAutomations/README.md#direkt-aus-z2m-einrichten)
+beschreibt Vorschau, Übernahme und lokalen Rückweg.
+
+### 6.3 Systeme im Webfrontend verwalten
+
+Im Automationsdesigner unter **Verwaltung → Systeme und Diagnose** stehen die
+zugeordneten Verbindungen mit MQTT-Status, Z2M-Erreichbarkeit und Erweiterungsstand.
+Das gewünschte System auswählen, bevor eine Prüfung oder Aktualisierung gestartet wird.
+
+![Systemübersicht und Erweiterungsstände im Webfrontend](../docs/screenshots/z2m-systemuebersicht.png)
+
+Gerätedaten lassen sich im Hauptbereich des Designers unter **Gerätedaten** für
+das ausgewählte System nachladen. Die Anzeige verwendet zunächst die zuletzt in
+Symcon bestätigten Daten. Eine neue Abfrage erfolgt erst über den jeweiligen Button.
+
+Das Webfrontend bietet auch eine zeitlich begrenzte Ablaufaufzeichnung. Sie verändert
+keine Regeln und startet oder stoppt keine Automation. Bei Aktionen zwischen zwei
+Systemen auf beiden Seiten aufzeichnen. Die Bedienung ist in der
+[Anleitung der Zentrale](../Z2MAutomations/README.md#systeme-und-diagnose-im-browserdesigner)
+beschrieben.
+
+## 7. Statusanzeigen
+
+Die Statusvariablen dieser Verbindung dienen ausschließlich der Anzeige.
+Sie sind nicht schaltbar und geben den zuletzt bestätigten Stand wieder.
+
+| Anzeige / Ident | Typ / Einheit | Bedeutung |
+| --- | --- | --- |
+| MQTT verbunden / `MQTTConnected` | Boolean / keine | Die zugeordnete MQTT-Anbindung ist aktiv und verbunden. |
+| Zigbee2MQTT online / `BridgeOnline` | Boolean / keine | Z2M hat sich online gemeldet oder auf die Verbindungsprüfung geantwortet. |
+| Zigbee2MQTT-Version / `Z2MVersion` | String / keine | Zuletzt gemeldete Z2M-Version dieser Verbindung. |
+| Automationserweiterung installiert / `ExtensionInstalled` | Boolean / keine | Die Erweiterung wurde in Z2M erkannt oder durch eine passende Antwort bestätigt. |
+| Verbindungsprüfung / `HealthStatus` | String / keine | Ergebnis der Prüfung, etwa „Funktionsfähig“, „Antwort von Z2M steht noch aus“ oder „Keine rechtzeitige Antwort“. |
+| Erweiterung in Z2M ist bereit / `ExtensionReady` | Boolean / keine | Die Erweiterung wurde durch eine passende aktuelle Antwort bestätigt. |
+| In Z2M gespeicherter Stand / `StoredRevision` | Integer / keine | Bestätigte gespeicherte Revision. 0 bedeutet leer oder noch nicht bestätigt. |
+| Erweiterungsaktion / `OperationStatus` | String / keine | Laufender oder zuletzt abgeschlossener Auftrag. |
+| Letzter Erweiterungsfehler / `LastError` | String / keine | Rückmeldung zu einem fehlgeschlagenen Auftrag. |
+| Automationen laufen in Z2M / `ExecutionActive` | Boolean / keine | Die Ausführung ist laut zuletzt bestätigtem Z2M-Status aktiv. False bedeutet gestoppt oder noch nicht bestätigt. |
+
+Nach einer Unterbrechung oder einem Neustart den Verbindungs- und Erweiterungsstatus
+erneut abfragen. Ein gespeicherter Wert allein ist keine dauernde Erreichbarkeitsprüfung.
+Bereits aktivierte Automationen laufen in Z2M unabhängig von Symcon weiter.
+
+## 8. Skriptfunktionen
+
+Für die normale Bedienung genügen die Buttons im Modul und im Webfrontend.
+Die folgenden Funktionen sind für die zusätzliche Verwendung in Symcon-Skripten vorgesehen.
+`InstanceID` ist jeweils die ID der gewünschten **Zigbee2MQTT Verbindung** im Objektbaum.
+
+| Funktion | Parameter, Rückgabe und Wirkung |
+| --- | --- |
+| `Z2MC_CheckConnection(int InstanceID): string` | Startet die Verbindungsprüfung mit Popup. Gibt eine Auftragskennung zurück, sonst eine leere Zeichenfolge. |
+| `Z2MC_CheckHealth(int InstanceID, bool RefreshExtension = false): string` | Prüfung ohne Popup. Bei `RefreshExtension = true` anschließend einmalig den Erweiterungsstatus abfragen. Rückgabe: Auftragskennung oder leer. |
+| `Z2MC_RequestExtensionStatus(int InstanceID): string` | Liest Erweiterungsstatus und Build. Rückgabe: Auftragskennung oder leer. |
+| `Z2MC_RequestDeviceCatalog(int InstanceID): string` | Lädt nach Prüfung der Erweiterung Geräte, Kanäle, Gruppen und Szenen. Rückgabe: Auftragskennung oder leer. |
+| `Z2MC_InstallExtension(int InstanceID, bool Notify = false): string` | Installiert nur die mitgelieferte Erweiterung. `Notify = true` aktiviert die Popup-Rückmeldung. Rückgabe: Auftragskennung oder leer. Bei einer verwalteten Verbindung die Installation über deren Zentrale ausführen. |
+| `Z2MC_GetConnectionInfo(int InstanceID): string` | Liest vorhandene Systemzuordnung und Verbindungsstatus als JSON; sendet keine neue Anfrage. |
+| `Z2MC_GetConnectionDiagnostics(int InstanceID): string` | Liest vorhandene Erweiterungsstände und Aufzeichnungsstatus als JSON. |
+| `Z2MC_GetTransportState(int InstanceID): string` | Liest den vorhandenen Transportstatus als JSON. |
+| `Z2MC_GetDeviceCatalog(int InstanceID): string` | Liest den gespeicherten Katalog als JSON. `available = false` bedeutet, dass er für diese Verbindung nicht aktuell bestätigt ist; die Gerätelisten sind dann leer. `loadedAt` ist der Ladezeitpunkt als UTC-Unixzeitstempel in Sekunden. |
+| `Z2MC_StartRuntimeDebug(int InstanceID, int Seconds = 600): bool` | Fordert eine eigene Aufzeichnung für 1 bis 900 Sekunden an. True bedeutet gesendet, noch nicht von Z2M bestätigt. |
+| `Z2MC_StopRuntimeDebug(int InstanceID): bool` | Fordert das Ende der eigenen Aufzeichnung an. True bedeutet gesendet. |
+| `Z2MC_GetCompatibleParents(int InstanceID): string` | Liefert die unterstützten nativen MQTT-Gateways für die Schnittstellenauswahl als JSON. |
+
+Beispiel einer manuellen Verbindungsprüfung:
+
+```php
+$connectionID = 12345; // Durch die ID der eigenen Z2M-Verbindung ersetzen.
+$request = Z2MC_CheckConnection($connectionID);
+```
+
+Eine Auftragskennung bestätigt das Absenden beziehungsweise Annehmen der Anfrage,
+nicht deren erfolgreichen Abschluss. Das Ergebnis folgt erst mit der Antwort aus
+Z2M und wird in den Statusvariablen angezeigt. Steht noch eine Antwort aus, deren
+Abschluss abwarten; eine zweite Anfrage ersetzt den laufenden Auftrag nicht.
+Nach einem Zeitablauf wird der Auftrag nicht automatisch wiederholt.
 
 ## Bis zu acht MQTT-Broker miteinander verbinden
 
@@ -708,3 +791,7 @@ Grundlage der Beispiele sind die offiziellen Beschreibungen für
 Die hier verwendeten 2.0.x-Optionen sind außerdem gegen die offizielle
 [Mosquitto-2.0.11-Konfigurationsreferenz](https://github.com/eclipse-mosquitto/mosquitto/blob/v2.0.11/man/mosquitto.conf.5.xml)
 abgeglichen; das neuere Clientargument `-o` wird nicht benötigt.
+
+## 9. Lizenz
+
+[PolyForm Noncommercial License 1.0.0](../LICENSE).
