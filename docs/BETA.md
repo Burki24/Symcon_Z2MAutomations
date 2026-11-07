@@ -53,7 +53,7 @@ als allgemeine Versions- oder Gerätefreigabe beschrieben werden.
 
 Die [Modulanleitung](../Z2MAutomations/README.md) beschreibt die einzelnen
 Bedienelemente. Für getrennte Broker gilt zusätzlich die
-[Mosquitto-Schrittfolge](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+[Mosquitto-Schrittfolge](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
 Die Library installiert und konfiguriert keine Broker.
 
 ## Erste Regel vorbereiten
