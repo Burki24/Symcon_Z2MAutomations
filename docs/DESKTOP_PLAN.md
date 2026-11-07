@@ -140,7 +140,8 @@ Repository wird für den Einstieg nicht benötigt.
    benötigen für die UI auflösbare Kennungen; ein deutscher fertiger Satz ist
    kein zuverlässiger internationaler Datenvertrag. Für den Übergang erhalten
    bestehende Antwortfelder ihre Bedeutung, zusätzliche Kennungen werden geprüft.
-3. i18next lokal bündeln; deutsche und englische Kataloge vollständig pflegen.
+3. Lokale JSON-Kataloge mit eigenem kleinem Resolver verwenden; keine zusätzliche
+   Übersetzungsabhängigkeit. Deutsche und englische Kataloge vollständig pflegen.
    Vorhandene UI-Texte zuerst inhaltlich übernehmen, nicht nebenbei umdeuten.
 4. Browser-/Systemsprache als Vorgabe, manuelle Auswahl mit Vorrang und
    gespeicherter Präferenz je Benutzer. Englisch als definierte Ersatzsprache.
@@ -292,11 +293,15 @@ Beta-Nachweise bleiben erhalten, belegen aber keine neue Desktop-Unterstützung.
 
 ## 11. Unmittelbar nächster Arbeitsschritt
 
-**D0 zuerst:** Textinventar und Meldungsvertrag festlegen, i18next lokal anbinden,
-Deutsch/Englisch im aktuellen Designer vollständig durchziehen und mit erhaltenen
-Eingaben prüfen. Danach D1 mit beiden nativen App-Zielen beginnen. Diesen Plan
-bei der Projektanlage in das neue Repository übernehmen und dort als operative
-Desktop-Agenda führen; die Symcon-Änderungen hier referenzieren ihn weiterhin.
+**D0 lokal umgesetzt:** JSON-Kataloge und eigener Resolver, Sprachwechsel mit
+erhaltenen Eingaben, Darstellungskennungen und sichere Debugbestätigung.
+Synthetische Nachweise und Grenzen: [LOCALIZATION.md](LOCALIZATION.md).
+Eine tatsächliche Modul-/Kachelprüfung nach Update bleibt separat.
+
+**D1 folgt:** Beide nativen App-Ziele und den eingeschränkten Desktop-Adapter
+beginnen; den Designer einmal kontrolliert extrahieren. Die operative Agenda
+liegt inzwischen im Repository Z2M-Automations. Keine Desktop-Abnahme durch
+die bisherigen Symcon-/Browsernachweise ableiten.
 
 ## 12. Geprüfte technische Quellen
 
@@ -311,5 +316,4 @@ und unterstützte OS-Stände vor Implementierung erneut fest binden.
 - [Tauri: plattformspezifische Voraussetzungen](https://v2.tauri.app/start/prerequisites/)
 - [MQTT.js: Node-/TLS-Anbindung und Wiederverbindung](https://github.com/mqttjs/MQTT.js)
 - [Z2M: Exposes und Zugriffsbits](https://www.zigbee2mqtt.io/guide/usage/exposes.html)
-- [i18next: lokale Ressourcen und Einbindung](https://www.i18next.com/overview/getting-started)
 - [Ubuntu: unterstützte LTS-Ausgaben](https://ubuntu.com/about/release-cycle)

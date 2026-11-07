@@ -181,6 +181,13 @@ schließen und **Ansicht aktualisieren** wählen.
 
 ### Zugang zum Designer
 
+**Sprache:** Oben im Designer und auch in geöffneten Bearbeitungsdialogen können
+Sie zwischen **Deutsch** und **English** wechseln. Zunächst gilt die
+Browsersprache; Ihre Auswahl wird im Browser gespeichert. Andere
+Browsersprachen verwenden Englisch. Offene Eingaben bleiben beim Wechsel
+erhalten. Gerätenamen, eigene Regelnamen, Szenennamen und technische Werte
+werden nicht übersetzt. Die nativen Symcon-Debugausgaben bleiben deutsch.
+
 Der Zugang gilt zunächst 15 Minuten. Bei sichtbarer Ansicht wird er alle vier
 Minuten automatisch verlängert. **Zugang verlängern** führt dies sofort aus,
 ohne die Bearbeitung neu zu laden. Nach einem Modulupdate, geänderten

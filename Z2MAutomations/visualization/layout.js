@@ -1,13 +1,14 @@
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* Presentation only: existing controls and their listeners are moved, never cloned. */
 export function layoutStatus(data) {
     const transfer = data?.transfer;
     const runtime = data?.runtime;
     const catalog = data?.catalogRefresh;
     return {
-        transfer: !transfer ? 'Nicht verfügbar' : transfer.pending ? 'Auftrag läuft' : transfer.error || transfer.details ? 'Hinweis beachten' : transfer.canStore ? 'Geprüft' : transfer.status === 'stored' ? 'Gespeichert' : 'Entwurf prüfen',
-        runtime: !runtime?.confirmed ? 'Nicht bestätigt' : runtime.pending ? 'Auftrag läuft' : runtime.executing ? 'Automatik aktiv' : 'Automatik gestoppt',
-        catalog: !catalog ? 'Nicht verfügbar' : catalog.pending ? 'Wird geladen' : catalog.error ? 'Hinweis beachten'
-            : data.catalogAvailable === true && catalog.loadedAt ? 'Gerätedaten geladen' : catalog.loadedAt ? 'Ansicht aktualisieren' : catalog.storedAt ? 'Nicht bestätigt' : 'Noch nicht geladen'
+        transfer: !transfer ? t("ui.unavailable.5db96a2a") : transfer.pending ? t("ui.request.in.progress.315d385a") : transfer.error || transfer.details ? t("ui.check.notice.3bc4e09a") : transfer.canStore ? t("ui.validated.db2c6cfa") : transfer.status === 'stored' ? t("ui.saved.5e2338e2") : t("ui.check.draft.d0fa1aa4"),
+        runtime: !runtime?.confirmed ? t("ui.not.confirmed.d70bfbb5") : runtime.pending ? t("ui.request.in.progress.315d385a") : runtime.executing ? t("ui.automatic.operation.active.5be9b590") : t("ui.automatic.operation.stopped.46b63e37"),
+        catalog: !catalog ? t("ui.unavailable.5db96a2a") : catalog.pending ? t("ui.loading.d0e1f091") : catalog.error ? t("ui.check.notice.3bc4e09a")
+            : data.catalogAvailable === true && catalog.loadedAt ? t("ui.device.data.loaded.de8568c7") : catalog.loadedAt ? t("ui.refresh.view.6540358c") : catalog.storedAt ? t("ui.not.confirmed.d70bfbb5") : t("ui.not.loaded.yet.f12d0120")
     };
 }
 
@@ -15,7 +16,7 @@ export function installLayout({getData}) {
     const node = (tag, className, text) => {
         const el = document.createElement(tag);
         if (className) el.className = className;
-        if (text) el.textContent = text;
+        if (text) bindText(el, () => text);
         return el;
     };
     const icon = name => {
@@ -26,7 +27,7 @@ export function installLayout({getData}) {
     };
     const toolbar = document.querySelector('.toolbar');
     const menu = node('details', 'designer-menu');
-    const summary = node('summary', '', 'Verwaltung'); summary.prepend(icon('settings'));
+    const summary = node('summary', '', () => (t("ui.management.2456bb8e"))); summary.prepend(icon('settings'));
     const menuBody = node('div', 'designer-menu-items');
     menu.append(summary, menuBody); toolbar.append(menu);
     for (const selector of ['#new-sequence-button', '#diagnostics-button', '.permissions-open', '#event-import-button']) {
@@ -35,18 +36,18 @@ export function installLayout({getData}) {
     }
     menu.addEventListener('click', event => { if (event.target.closest('button') && !event.target.closest('button').disabled) menu.open = false; });
     menu.addEventListener('keydown', event => { if (event.key === 'Escape') { menu.open = false; summary.focus(); } });
-    const feedback = node('div', 'designer-feedback'); feedback.setAttribute('aria-label', 'Rückmeldung zur Ansicht');
+    const feedback = node('div', 'designer-feedback'); bindAttribute(feedback, 'aria-label', () => t("ui.view.feedback.68df1297"));
     feedback.append(document.querySelector('#feedback')); document.querySelector('.workspace').after(feedback);
-    const controls = node('section', 'designer-controls'); controls.setAttribute('aria-label', 'Aufträge für das ausgewählte Z2M-System');
+    const controls = node('section', 'designer-controls'); bindAttribute(controls, 'aria-label', () => t("ui.requests.for.the.selected.z2m.982736e9"));
     const tabs = node('div', 'designer-control-tabs');
     const bodies = node('div', 'designer-control-bodies');
     controls.append(tabs, bodies); document.querySelector('.system-selector').after(controls);
     const panels = {};
     let opened = ''; let system = '';
     for (const [name, selector, label, symbol] of [
-        ['transfer', '.system-transfer:not(.system-runtime)', 'Prüfen & übertragen', 'save'],
-        ['runtime', '.system-runtime', 'Betrieb', 'play'],
-        ['catalog', '.system-catalog', 'Gerätedaten', 'device']
+        ['transfer', '.system-transfer:not(.system-runtime)', () => t("ui.validate.transfer.471b554a"), 'save'],
+        ['runtime', '.system-runtime', () => t("ui.operation.2145893c"), 'play'],
+        ['catalog', '.system-catalog', () => t("ui.device.data.6ac5cb61"), 'device']
     ]) {
         const panel = document.querySelector(selector);
         const button = node('button', 'designer-control-button'); button.type = 'button';
@@ -54,7 +55,7 @@ export function installLayout({getData}) {
         const state = node('span', 'designer-control-state');
         button.append(icon(symbol), title, state);
         const body = node('div', 'designer-control-body'); body.hidden = true;
-        body.id = 'designer-' + name; body.setAttribute('role', 'region'); body.setAttribute('aria-label', label);
+        body.id = 'designer-' + name; body.setAttribute('role', 'region'); bindAttribute(body, 'aria-label', () => label);
         button.setAttribute('aria-controls', body.id); button.setAttribute('aria-expanded', 'false');
         if (panel) body.append(panel);
         button.addEventListener('click', () => { opened = opened === name ? '' : name; update(); });
@@ -63,7 +64,7 @@ export function installLayout({getData}) {
     for (const {panel} of Object.values(panels)) if (panel) new MutationObserver(() => update()).observe(panel, {childList: true, subtree: true, attributes: true});
     const media = matchMedia('(max-width: 760px)');
     const folds = [];
-    for (const [selector, caption] of [['.navigation', 'Automationen und Geräte auswählen'], ['.inspector', 'Eigenschaften des Bausteins']]) {
+    for (const [selector, caption] of [['.navigation', () => t("ui.select.automations.and.devices.3cc3ba00")], ['.inspector', () => t("ui.block.properties.a8e85650")]]) {
         const panel = document.querySelector(selector);
         const fold = node('details', 'designer-fold');
         const title = node('summary', 'designer-fold-title', caption); title.prepend(icon(selector === '.navigation' ? 'flow' : 'condition'));
@@ -91,7 +92,7 @@ export function installLayout({getData}) {
         controls.hidden = !data?.workspace;
         const states = layoutStatus(data);
         for (const [name, item] of Object.entries(panels)) {
-            item.state.textContent = states[name];
+            bindText(item.state, () => states[name]);
             item.button.disabled = !data?.[name === 'catalog' ? 'catalogRefresh' : name];
             item.button.setAttribute('aria-expanded', String(opened === name));
             const view = data?.[name === 'catalog' ? 'catalogRefresh' : name];

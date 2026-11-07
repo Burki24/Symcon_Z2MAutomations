@@ -1,3 +1,11 @@
+## Designer-Sprachkataloge – 07.11.2026
+
+Deutsch/Englisch mit eigenem Resolver und lokalen JSON-Quellen.
+Bauen: `npm run build:locales`; prüfen: `npm run check:locales`.
+`php tests/run.php` umfasst den Katalogcheck und die Sprachregressionen.
+Browser-/Adaptervertrag und isolierte Nachweise: [LOCALIZATION.md](LOCALIZATION.md).
+Keine neue npm-Abhängigkeit, keine Änderung am Erweiterungsartefakt.
+
 ## Automatische Library-Versionierung – 07.11.2026
 
 Startversion ist auf Benutzerauftrag `0.161`. Der Workflow

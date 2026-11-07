@@ -1,3 +1,4 @@
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
@@ -18,14 +19,14 @@ export function checkedPermissions(view, context) {
 
 export function permissionChanges(view, selected) {
     if (!Array.isArray(selected) || selected.length > 8 || new Set(selected).size !== selected.length || selected.some(peer => !view.choices.some(row => row.topic === peer))) {
-        throw new Error('Bitte höchstens acht angezeigte Partnersysteme auswählen.');
+        throw new MessageError("ui.select.at.most.eight.displayed.f5a13cb6");
     }
     return {added: view.choices.filter(row => selected.includes(row.topic) && !row.selected), removed: view.choices.filter(row => row.selected && !selected.includes(row.topic))};
 }
 
 export async function permissionsRequest(data, payload, {token, base = location.href, request = fetch} = {}) {
     const context = data?.workspaceContext;
-    if (!context) throw new Error('Bitte zuerst das empfangende Z2M-System auswählen.');
+    if (!context) throw new MessageError("ui.select.the.receiving.z2m.system.6bff0c29");
     const endpoint = new URL(payload ? 'permissions' : 'permissions-status', base); endpoint.hash = '';
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
     try {
@@ -33,33 +34,33 @@ export async function permissionsRequest(data, payload, {token, base = location.
         try {
             response = await request(endpoint, {method: payload ? 'POST' : 'GET', headers: {'X-Z2MA-Read-Token': token, ...systemHeaders(data), ...(payload ? {'Content-Type': 'application/json'} : {})},
                 ...(payload ? {body: JSON.stringify(payload)} : {}), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
-            const text = await response.text(); if (text.length > (payload ? 16384 : 262144)) throw Error('response_limit'); result = JSON.parse(text);
-        } catch { throw new Error('Keine eindeutige Rückmeldung erhalten. Es wird nicht automatisch erneut gesendet. Bitte den Stand neu laden oder denselben Auftrag ausdrücklich erneut bestätigen.'); }
-        if (!response.ok || !result?.ok) throw new Error(typeof result?.message === 'string' ? result.message : 'Die Partnerfreigaben konnten nicht übernommen werden. Bitte den Stand neu laden.');
+            const text = await response.text(); if (text.length > (payload ? 16384 : 262144)) throw Error('response_limit'); result = localizeResponse(JSON.parse(text));
+        } catch { throw new MessageError("ui.no.clear.reply.was.received.d6dae662"); }
+        if (!response.ok || !result?.ok) throw new ResponseError(result, () => t("ui.partner.permissions.could.not.be.2b201914"));
         if (payload ? result.permissionsSaved !== true || result.systemId !== context.systemId || result.generation !== context.generation || !digest(result.fingerprint)
             || typeof result.changed !== 'boolean' || !Number.isSafeInteger(result.peerCount) || result.peerCount < 0 || result.peerCount > 8 || typeof result.notice !== 'string'
-            : !checkedPermissions(result.permissions, context)) throw new Error('Die Rückmeldung passt nicht zum gewählten System. Bitte den Stand neu laden.');
+            : !checkedPermissions(result.permissions, context)) throw new MessageError("ui.the.reply.does.not.match.9f9eb2a4");
         return payload ? result : result.permissions;
     } finally { clearTimeout(timeout); }
 }
 
 /** Receiver grants senders access; changing a grant never sends MQTT or alters a partner document. */
 export function installPermissions({getData, reload, message, isLoading = () => false}) {
-    const button = document.createElement('button'); button.type = 'button'; button.className = 'permissions-open'; button.textContent = 'Partnerfreigaben';
+    const button = document.createElement('button'); button.type = 'button'; button.className = 'permissions-open'; bindText(button, () => t("ui.partner.permissions.38f831bd"));
     document.querySelector('.toolbar').append(button);
     const dialog = document.createElement('dialog'); dialog.id = 'permissions-dialog'; dialog.className = 'creation-dialog permissions-dialog';
     dialog.setAttribute('aria-labelledby', 'permissions-title');
-    dialog.innerHTML = '<h2 id="permissions-title">Partnerfreigaben</h2><p class="permissions-target"></p><p class="permissions-notice"></p>'
-        + '<div class="permissions-edit"><p>Von welchen Systemen darf dieses System Befehle empfangen?</p><div class="permissions-choices"></div></div>'
-        + '<section class="permissions-review" hidden><h3>Diese Änderungen übernehmen?</h3><div class="permissions-changes"></div></section>'
-        + '<p class="permissions-feedback" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" class="permissions-cancel">Abbrechen</button>'
-        + '<button type="button" class="permissions-back" hidden>Auswahl ändern</button><button type="button" class="permissions-check">Änderungen prüfen</button>'
-        + '<button type="button" class="permissions-accept primary" hidden>Freigaben im Entwurf übernehmen</button></div>';
+    bindHTML(dialog, () => `<h2 id="permissions-title">${t("ui.partner.permissions.38f831bd")}</h2><p class="permissions-target"></p><p class="permissions-notice"></p>`
+        + `<div class="permissions-edit"><p>${t("ui.which.systems.may.send.commands.d112b167")}</p><div class="permissions-choices"></div></div>`
+        + `<section class="permissions-review" hidden><h3>${t("ui.apply.these.changes.b6d9f5cc")}</h3><div class="permissions-changes"></div></section>`
+        + `<p class="permissions-feedback" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" class="permissions-cancel">${t("ui.cancel.f7ff1178")}</button>`
+        + `<button type="button" class="permissions-back" hidden>${t("ui.change.selection.14435c47")}</button><button type="button" class="permissions-check">${t("ui.review.changes.f539371f")}</button>`
+        + `<button type="button" class="permissions-accept primary" hidden>${t("ui.apply.permissions.to.draft.988ac517")}</button></div>`);
     document.body.append(dialog);
     const $ = selector => dialog.querySelector(selector);
     let busy = false; let captured = null; let view = null; let pending = null;
     const current = data => data?.workspaceContext?.systemId === getData()?.workspaceContext?.systemId && data?.workspaceContext?.generation === getData()?.workspaceContext?.generation;
-    const feedback = text => { $('.permissions-feedback').textContent = text; };
+    const feedback = text => { bindText($('.permissions-feedback'), () => text); };
     function paint() {
         const data = getData(); button.hidden = !data?.workspace; button.disabled = busy || isLoading() || !data?.permissionsAllowed || !data?.workspaceContext;
         dialog.setAttribute('aria-busy', String(busy));
@@ -67,66 +68,66 @@ export function installPermissions({getData, reload, message, isLoading = () => 
         if (view && !view.canEdit) $('.permissions-check').disabled = true;
         dialog.querySelectorAll('input').forEach(input => { input.disabled = busy || !view?.canEdit; });
     }
-    const paragraph = (parent, text) => { const item = document.createElement('p'); item.textContent = text; parent.append(item); };
+    const paragraph = (parent, text) => { const item = document.createElement('p'); bindText(item, () => text); parent.append(item); };
     function stage(review) {
         $('.permissions-edit').hidden = review; $('.permissions-review').hidden = !review;
         $('.permissions-check').hidden = review; $('.permissions-back').hidden = !review; $('.permissions-accept').hidden = !review;
     }
     button.addEventListener('click', async () => {
         if (busy || isLoading() || !getData()?.permissionsAllowed || document.querySelector('dialog[open]')) return;
-        captured = structuredClone(getData()); view = null; pending = null; busy = true; stage(false); feedback('Partnerfreigaben werden gelesen …');
-        $('.permissions-target').textContent = `Empfangendes System: ${captured.module?.name ?? ''} · ${captured.module?.baseTopic ?? ''}`;
-        $('.permissions-notice').textContent = ''; $('.permissions-choices').replaceChildren(); dialog.showModal(); paint();
+        captured = structuredClone(getData()); view = null; pending = null; busy = true; stage(false); feedback(() => (t("ui.reading.partner.permissions.1e7aa977")));
+        bindText($('.permissions-target'), () => t("ui.receiving.system.3b367bca", {p1: captured.module?.name ?? '', p2: captured.module?.baseTopic ?? ''}));
+        bindText($('.permissions-notice'), () => ''); $('.permissions-choices').replaceChildren(); dialog.showModal(); paint();
         try {
             const loaded = await permissionsRequest(captured, null, {token: location.hash.slice(1)});
             if (!current(captured)) { dialog.close(); return; }
             view = loaded; captured.workspaceContext.fingerprint = view.fingerprint;
-            $('.permissions-target').textContent = `Empfangendes System: ${view.name} · ${view.baseTopic}`;
-            $('.permissions-notice').textContent = view.notice;
+            bindText($('.permissions-target'), () => t("ui.receiving.system.3b367bca", {p1: view.name, p2: view.baseTopic}));
+            bindText($('.permissions-notice'), () => view.notice);
             for (const row of view.choices) {
                 const label = document.createElement('label'); label.className = 'permissions-choice';
                 const input = document.createElement('input'); input.type = 'checkbox'; input.value = row.topic; input.checked = row.selected;
-                const caption = document.createElement('span'); caption.textContent = `${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`;
+                const caption = document.createElement('span'); bindText(caption, () => `${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`);
                 label.append(input, caption); $('.permissions-choices').append(label);
-                if (!row.assigned) paragraph($('.permissions-choices'), 'Dieses bisher freigegebene System ist hier nicht zugeordnet. Seine Regeln können nicht geprüft werden. Ohne Änderung bleibt die Freigabe erhalten.');
+                if (!row.assigned) paragraph($('.permissions-choices'), () => (t("ui.this.previously.allowed.system.is.72f27cef")));
             }
-            if (!view.choices.length) paragraph($('.permissions-choices'), 'Noch kein weiteres System zugeordnet.');
-            feedback(view.message);
-        } catch (error) { feedback(error.message); } finally { busy = false; paint(); if (!view) $('.permissions-check').disabled = true; }
+            if (!view.choices.length) paragraph($('.permissions-choices'), () => (t("ui.no.other.system.assigned.yet.62aa9ee0")));
+            feedback(() => (view.message));
+        } catch (error) { feedback(() => (error.message)); } finally { busy = false; paint(); if (!view) $('.permissions-check').disabled = true; }
     });
     $('.permissions-check').addEventListener('click', () => {
         if (busy || !view?.canEdit || !current(captured)) return;
         try {
             const peers = [...dialog.querySelectorAll('input:checked')].map(input => input.value);
             const changes = permissionChanges(view, peers); const content = $('.permissions-changes'); content.replaceChildren();
-            for (const row of changes.added) paragraph(content, `Neu erlauben: ${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`);
+            for (const row of changes.added) paragraph(content, () => (t("ui.new.permission.e8c09b47", {p1: row.name, p2: row.topic, p3: view.name, p4: view.baseTopic})));
             for (const row of changes.removed) {
-                paragraph(content, `Freigabe entziehen: ${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`);
-                paragraph(content, row.assigned ? (row.affectedCount === 1 ? '1 lokale Automation verwendet diese Verbindung.' : `${row.affectedCount} lokale Automationen verwenden diese Verbindung.`)
-                    + ' Nach Übertragung des Entzugs werden ihre Befehle abgelehnt.' : 'Nicht zugeordnetes System: Betroffene Automationen sind unbekannt.');
-                for (const rule of row.affected) paragraph(content, `• ${rule.name} (im Entwurf ${rule.enabled ? 'eingeschaltet' : 'ausgeschaltet'})`);
+                paragraph(content, () => (`Freigabe entziehen: ${row.name} · ${row.topic} → ${view.name} · ${view.baseTopic}`));
+                paragraph(content, () => (row.assigned ? (row.affectedCount === 1 ? t("ui.1.local.automation.uses.this.52f68b96") : t("ui.local.automations.use.this.connection.812f035e", {p1: row.affectedCount}))
+                    + t("ui.after.transferring.the.revocation.their.0b0d1318") : t("ui.unassigned.system.affected.automations.are.7d2b1ce3")));
+                for (const rule of row.affected) paragraph(content, () => (t("ui.in.draft.3669fe1d", {p1: rule.name, p2: rule.enabled ? t("ui.enabled.aae668f6") : t("ui.disabled.1fa013fd")})));
                 if (row.affectedCount > row.affected.length) {
                     const remaining = row.affectedCount - row.affected.length;
-                    paragraph(content, remaining === 1 ? 'Eine weitere Automation ist betroffen.' : `Weitere ${remaining} Automationen sind betroffen.`);
+                    paragraph(content, () => (remaining === 1 ? t("ui.one.more.automation.is.affected.c86b9588") : t("ui.another.automations.are.affected.2f643224", {p1: remaining})));
                 }
             }
-            if (!changes.added.length && !changes.removed.length) paragraph(content, 'Die Auswahl ist unverändert. Der Entwurf wird nicht neu geschrieben.');
-            pending = {requestId: createUUID(), context: view.context, peers, confirmed: true}; stage(true); feedback('Nur der lokale Entwurf des empfangenden Systems wird geändert. Der laufende Betrieb bleibt unverändert.');
-        } catch (error) { feedback(error.message); }
+            if (!changes.added.length && !changes.removed.length) paragraph(content, () => (t("ui.the.selection.is.unchanged.the.021fd1d2")));
+            pending = {requestId: createUUID(), context: view.context, peers, confirmed: true}; stage(true); feedback(() => (t("ui.only.the.receiving.system.s.0f3bc990")));
+        } catch (error) { feedback(() => (error.message)); }
     });
-    $('.permissions-back').addEventListener('click', () => { if (!busy) { pending = null; stage(false); feedback(view.message); } });
+    $('.permissions-back').addEventListener('click', () => { if (!busy) { pending = null; stage(false); feedback(() => (view.message)); } });
     $('.permissions-cancel').addEventListener('click', () => { if (!busy) dialog.close(); });
     dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
     $('.permissions-accept').addEventListener('click', async () => {
         if (busy || !pending || !current(captured)) return;
-        busy = true; paint(); feedback('Partnerfreigaben werden im lokalen Entwurf übernommen …');
+        busy = true; paint(); feedback(() => (t("ui.applying.partner.permissions.in.the.eded4f61")));
         try {
             const result = await permissionsRequest(captured, pending, {token: location.hash.slice(1)});
             if (!current(captured)) { dialog.close(); return; }
-            pending = null; dialog.close(); message(result.notice);
-            if (!await reload()) message(`${result.notice} Bitte „Ansicht aktualisieren“ wählen.`);
-            else message(result.notice);
-        } catch (error) { feedback(error.message); } finally { busy = false; paint(); }
+            pending = null; dialog.close(); message(() => (result.notice));
+            if (!await reload()) message(() => (t("ui.choose.refresh.view.15583429", {p1: result.notice})));
+            else message(() => (result.notice));
+        } catch (error) { feedback(() => (error.message)); } finally { busy = false; paint(); }
     });
     return () => { if (dialog.open && captured && !current(captured)) dialog.close(); paint(); };
 }

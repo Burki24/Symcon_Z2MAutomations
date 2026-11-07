@@ -1,10 +1,11 @@
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 import {createUUID} from './identity.js';
 import {systemHeaders} from './workspace.js';
 
 /* An explicit POST starts the read workflow. Polling never starts or repeats MQTT. */
 export async function catalogRequest(data, action, {token, request = fetch, base = location.href, requestId = createUUID()} = {}) {
     const ctx = data?.workspaceContext;
-    if (!ctx || !['refresh', 'status'].includes(action)) throw new Error('Bitte zuerst ein Z2M-System auswählen.');
+    if (!ctx || !['refresh', 'status'].includes(action)) throw new MessageError("ui.please.select.a.z2m.system.ec4dffcc");
     const endpoint = new URL(action === 'refresh' ? 'catalog-refresh' : 'catalog-status', base); endpoint.hash = '';
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 10000);
     try {
@@ -14,18 +15,18 @@ export async function catalogRequest(data, action, {token, request = fetch, base
                 headers: {'X-Z2MA-Read-Token': token, ...systemHeaders(data), ...(action === 'refresh' ? {'Content-Type': 'application/json'} : {})},
                 ...(action === 'refresh' ? {body: JSON.stringify({requestId})} : {}),
                 credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
-            const text = await response.text(); if (text.length > 16384) throw new Error('response_limit'); result = JSON.parse(text);
+            const text = await response.text(); if (text.length > 16384) throw new Error('response_limit'); result = localizeResponse(JSON.parse(text));
         } catch {
-            throw new Error('Keine eindeutige Rückmeldung zu den Gerätedaten erhalten. Der Ladeauftrag wird nicht erneut gesendet. Bitte „Ladestatus prüfen“ wählen.');
+            throw new MessageError("ui.no.clear.reply.about.device.44125747");
         }
-        if (!response.ok || !result.ok) throw new Error(result.message || 'Gerätedaten konnten nicht aktualisiert werden. Der vorhandene Entwurf bleibt erhalten.');
+        if (!response.ok || !result.ok) throw new ResponseError(result, () => t("ui.device.data.could.not.be.2b5c6d20"));
         const view = result.catalogRefresh;
         if (view?.systemId !== ctx.systemId || view.generation !== ctx.generation || typeof view.message !== 'string'
             || typeof view.fingerprint !== 'string' || typeof view.operation !== 'string' || typeof view.phase !== 'string'
             || typeof view.pending !== 'boolean' || typeof view.canRefresh !== 'boolean'
             || !view.counts || !['devices', 'groups', 'scenes'].every(key => Number.isSafeInteger(view.counts[key]) && view.counts[key] >= 0)
             || !(view.loadedAt === null || Number.isSafeInteger(view.loadedAt))
-            || !(view.storedAt === null || Number.isSafeInteger(view.storedAt))) throw new Error('Die Rückmeldung gehört nicht zum gewählten System oder ist unvollständig. Bitte die Ansicht aktualisieren.');
+            || !(view.storedAt === null || Number.isSafeInteger(view.storedAt))) throw new MessageError("ui.the.reply.does.not.belong.a2b7d3c8");
         return view;
     } finally { clearTimeout(timeout); }
 }
@@ -36,11 +37,11 @@ export function installCatalogRefresh({getData, reload, isLoading = () => false,
     const status = document.createElement('p'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     const details = document.createElement('p'); details.className = 'field-help';
     const actions = document.createElement('div'); actions.className = 'catalog-actions';
-    const refresh = document.createElement('button'); refresh.type = 'button'; refresh.textContent = 'Gerätedaten aktualisieren';
-    const poll = document.createElement('button'); poll.type = 'button'; poll.textContent = 'Ladestatus prüfen';
+    const refresh = document.createElement('button'); refresh.type = 'button'; bindText(refresh, () => t("ui.refresh.device.data.150e4e86"));
+    const poll = document.createElement('button'); poll.type = 'button'; bindText(poll, () => t("ui.check.loading.status.d0ff7371"));
     actions.append(refresh, poll);
     const note = document.createElement('p'); note.className = 'field-help';
-    note.textContent = 'Lädt nur Geräte, Kanäle, Gruppen und Szenen dieses Systems. Automationsentwürfe und laufende Regeln bleiben erhalten.';
+    bindText(note, () => t("ui.loads.only.devices.channels.groups.813e397b"));
     panel.append(heading, status, details, actions, note); document.querySelector('.system-selector').after(panel);
     let busy = false; let timer = null; let observed = ''; let windowEnd = 0; let localError = null;
     const current = captured => getData()?.workspaceContext?.systemId === captured?.workspaceContext?.systemId
@@ -49,16 +50,16 @@ export function installCatalogRefresh({getData, reload, isLoading = () => false,
         const data = getData(); const view = data?.catalogRefresh;
         panel.hidden = !data?.workspace || !view;
         if (panel.hidden) return;
-        heading.textContent = `Gerätedaten · ${data.module.baseTopic}`;
-        status.textContent = localError && current(localError.data) ? localError.message : view.message;
-        details.textContent = view.loadedAt === null ? (view.storedAt === null ? 'Noch kein bestätigter Gerätekatalog eingelesen.'
-            : `Früher gespeichert: ${new Date(view.storedAt * 1000).toLocaleString('de-DE')} · derzeit nicht bestätigt`)
-            : `Zuletzt eingelesen: ${new Date(view.loadedAt * 1000).toLocaleString('de-DE')} · ${view.counts.devices} Geräte · ${view.counts.groups} Gruppen · ${view.counts.scenes} Szenen`;
+        bindText(heading, () => t("ui.device.data.1fc04522", {p1: data.module.baseTopic}));
+        bindText(status, () => localError && current(localError.data) ? localError.message : view.message);
+        bindText(details, () => view.loadedAt === null ? (view.storedAt === null ? t("ui.no.confirmed.device.catalog.has.5b10c8e4")
+            : t("ui.previously.saved.not.currently.confirmed.16ba7ca9", {p1: new Date(view.storedAt * 1000).toLocaleString(locale())}))
+            : t("ui.last.loaded.devices.groups.scenes.917d026d", {p1: new Date(view.loadedAt * 1000).toLocaleString(locale()), p2: view.counts.devices, p3: view.counts.groups, p4: view.counts.scenes}));
         panel.setAttribute('aria-busy', String(busy || view.pending));
         panel.classList.toggle('is-loading', busy || view.pending);
         refresh.disabled = busy || isLoading() || !view.canRefresh;
         poll.disabled = busy || isLoading();
-        refresh.textContent = view.pending ? 'Gerätedaten werden geladen …' : 'Gerätedaten aktualisieren';
+        bindText(refresh, () => view.pending ? t("ui.loading.device.data.62d8fef4") : t("ui.refresh.device.data.150e4e86"));
     }
     function schedule() {
         clearTimeout(timer);
@@ -67,11 +68,11 @@ export function installCatalogRefresh({getData, reload, isLoading = () => false,
     async function send(action, automatic = false) {
         if (busy || isLoading()) { if (automatic) schedule(); return; }
         const data = getData(); if (!data?.catalogRefresh) return;
-        if (action === 'refresh' && document.querySelector('dialog[open]')) { message('Bitte die offene Bearbeitung zuerst übernehmen oder schließen. Ihre Eingaben bleiben erhalten.'); return; }
+        if (action === 'refresh' && document.querySelector('dialog[open]')) { message(() => (t("ui.apply.or.close.the.open.dd23d097"))); return; }
         if (action === 'refresh' && !data.catalogRefresh.canRefresh) return;
         localError = null; busy = true; clearTimeout(timer); paint();
         if (!automatic) windowEnd = Date.now() + 610000;
-        if (action === 'refresh') { status.textContent = 'Gerätedatenaktualisierung wird angefordert …'; message('Aktuelle Gerätedaten werden angefordert. Entwürfe und Automatikbetrieb bleiben erhalten.'); }
+        if (action === 'refresh') { bindText(status, () => t("ui.requesting.device.data.refresh.38dedb33")); message(() => (t("ui.requesting.current.device.data.drafts.a5e89e33"))); }
         try {
             const view = await catalogRequest(data, action, {token: location.hash.slice(1)});
             if (!current(data)) return;
@@ -79,14 +80,14 @@ export function installCatalogRefresh({getData, reload, isLoading = () => false,
             if (getData() !== data) { if (!document.querySelector('dialog[open]')) await reload(); return; }
             data.catalogRefresh = view;
             if (view.phase === 'loaded' && view.fingerprint !== data.workspaceContext.fingerprint) {
-                if (document.querySelector('dialog[open]')) message('Gerätedaten sind geladen. Ihre Eingaben bleiben erhalten. Bitte die Bearbeitung schließen und anschließend „Ansicht aktualisieren“ wählen.');
+                if (document.querySelector('dialog[open]')) message(() => (t("ui.device.data.has.loaded.your.f59288f4")));
                 else {
                     const loaded = await reload();
-                    message(loaded === false ? 'Gerätedaten sind geladen. Die Ansicht konnte noch nicht nachgeladen werden. Bitte „Ansicht aktualisieren“ wählen.' : view.message);
+                    message(() => (loaded === false ? t("ui.device.data.has.loaded.the.3d94e1f2") : view.message));
                 }
-            } else if (!automatic || !view.pending) message(view.message);
+            } else if (!automatic || !view.pending) message(() => (view.message));
         } catch (error) {
-            if (current(data)) { localError = {data, message: error.message}; message(error.message); }
+            if (current(data)) { localError = {data, message: error.message}; message(() => (error.message)); }
         } finally { busy = false; paint(); schedule(); }
     }
     refresh.addEventListener('click', () => send('refresh'));

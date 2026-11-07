@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
     <title>Z2MAutomations · Automationsdesigner · Vorschau</title>
     <link rel="stylesheet" href="designer.css">
-    <script defer src="designer.js"></script>
+    <script type="module" src="designer.js"></script>
 </head>
 <body>
     <svg class="symbol-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -30,8 +30,8 @@
     </svg>
 
     <header class="app-header">
-        <div class="brand"><span class="brand-mark" aria-hidden="true"><svg><use href="#icon-flow"/></svg></span><div><strong>Z2MAutomations</strong><span>Automationsdesigner</span></div><span class="preview-label">VORSCHAU</span></div>
-        <div class="toolbar" aria-label="Entwurf und Beispielbetrieb">
+        <div class="brand"><span class="brand-mark" aria-hidden="true"><svg><use href="#icon-flow"/></svg></span><div><strong>Z2MAutomations</strong><span><span data-i18n="ui.automation.designer.c22fc391">Automationsdesigner</span></span></div><span class="preview-label"><span data-i18n="ui.preview.57c6944a">VORSCHAU</span></span></div>
+        <div class="toolbar" aria-label="Entwurf und Beispielbetrieb" data-i18n-aria-label="ui.draft.and.example.operation.28240587">
             <button id="validate-button" data-action="validate"><svg><use href="#icon-check"/></svg>Prüfen</button>
             <button id="save-button" data-action="save"><svg><use href="#icon-save"/></svg>Speichern</button>
             <span class="toolbar-divider" aria-hidden="true"></span>
@@ -40,35 +40,35 @@
         </div>
     </header>
 
-    <div class="preview-notice"><span class="notice-dot" aria-hidden="true"></span><strong>Klickbarer Oberflächenentwurf</strong><span>Beispieldaten · keine Verbindung zu Symcon oder Z2M · Änderungen gelten nur in diesem Fenster.</span></div>
-    <div class="status-strip"><span id="draft-status" class="status-chip">Beispielstand geladen</span><span id="runtime-status" class="runtime-chip"><i></i>Beispielbetrieb gestoppt</span><span id="feedback" role="status" aria-live="polite">Wähle einen Baustein im Ablauf, um seine Einstellungen zu bearbeiten.</span></div>
-    <div id="issues" class="issues" hidden role="region" aria-label="Ergebnis der Vorschauprüfung"></div>
+    <div class="preview-notice"><span class="notice-dot" aria-hidden="true"></span><strong><span data-i18n="ui.interactive.interface.preview.e39236f1">Klickbarer Oberflächenentwurf</span></strong><span><span data-i18n="ui.example.data.no.connection.to.7431b46c">Beispieldaten · keine Verbindung zu Symcon oder Z2M · Änderungen gelten nur in diesem Fenster.</span></span></div>
+    <div class="status-strip"><span id="draft-status" class="status-chip"><span data-i18n="ui.examples.loaded.7f04889d">Beispielstand geladen</span></span><span id="runtime-status" class="runtime-chip"><i></i>Beispielbetrieb gestoppt</span><span id="feedback" role="status" aria-live="polite"><span data-i18n="ui.select.a.block.in.the.6c68591d">Wähle einen Baustein im Ablauf, um seine Einstellungen zu bearbeiten.</span></span></div>
+    <div id="issues" class="issues" hidden role="region" aria-label="Ergebnis der Vorschauprüfung" data-i18n-aria-label="ui.preview.validation.results.f0e555ea"></div>
 
     <div class="workspace">
-        <aside class="navigation panel" aria-label="Automationen und Aktionsfolgen">
-            <div class="panel-heading"><h1>Automationen</h1><span id="entry-count" class="count-pill"></span></div>
-            <label class="search"><svg aria-hidden="true"><use href="#icon-search"/></svg><input id="search" type="search" placeholder="Name oder Gerät suchen" aria-label="Automationen suchen"></label>
-            <nav id="categories" class="categories" aria-label="Automationsbereiche"></nav>
-            <div class="list-label"><span id="list-label">Geräteausgelöst</span><span id="list-count"></span></div>
-            <div id="entry-list" class="entry-list" aria-label="Vorhandene Einträge"></div>
-            <div class="navigation-footer"><button class="new-entry" data-action="new"><svg><use href="#icon-plus"/></svg>Neu anlegen</button><button class="text-button" data-action="reset">Beispielstand zurücksetzen</button></div>
+        <aside class="navigation panel" aria-label="Automationen und Aktionsfolgen" data-i18n-aria-label="ui.automations.and.action.sequences.59b9af99">
+            <div class="panel-heading"><h1><span data-i18n="ui.automations.1a221929">Automationen</span></h1><span id="entry-count" class="count-pill"></span></div>
+            <label class="search"><svg aria-hidden="true"><use href="#icon-search"/></svg><input id="search" type="search" placeholder="Name oder Gerät suchen" data-i18n-placeholder="ui.search.by.name.or.device.44e6fa37" aria-label="Automationen suchen" data-i18n-aria-label="ui.search.automations.4c675896"></label>
+            <nav id="categories" class="categories" aria-label="Automationsbereiche" data-i18n-aria-label="ui.automation.categories.ed648141"></nav>
+            <div class="list-label"><span id="list-label"><span data-i18n="ui.device.triggered.082d7271">Geräteausgelöst</span></span><span id="list-count"></span></div>
+            <div id="entry-list" class="entry-list" aria-label="Vorhandene Einträge" data-i18n-aria-label="ui.existing.entries.f29962ac"></div>
+            <div class="navigation-footer"><button class="new-entry" data-action="new"><svg><use href="#icon-plus"/></svg>Neu anlegen</button><button class="text-button" data-action="reset"><span data-i18n="ui.reset.examples.5e560bbf">Beispielstand zurücksetzen</span></button></div>
         </aside>
 
-        <main class="canvas panel" aria-label="Ablauf der ausgewählten Automation">
-            <div class="canvas-heading"><div><span id="entry-type" class="eyebrow">GERÄTEAUSGELÖST</span><h2 id="entry-title"></h2><p id="entry-subtitle"></p></div><div class="entry-tools"><button class="icon-button" data-action="select-rule" aria-label="Name und Regeleinstellungen bearbeiten" title="Regeleinstellungen">⋯</button><button class="icon-button" data-action="copy-entry" aria-label="Ausgewählten Eintrag kopieren" title="Kopieren"><svg><use href="#icon-copy"/></svg></button><button class="icon-button danger" data-action="delete-entry" aria-label="Ausgewählten Eintrag löschen" title="Löschen"><svg><use href="#icon-trash"/></svg></button></div></div>
+        <main class="canvas panel" aria-label="Ablauf der ausgewählten Automation" data-i18n-aria-label="ui.selected.automation.sequence.c77e2921">
+            <div class="canvas-heading"><div><span id="entry-type" class="eyebrow"><span data-i18n="ui.device.triggered.c50c464e">GERÄTEAUSGELÖST</span></span><h2 id="entry-title"></h2><p id="entry-subtitle"></p></div><div class="entry-tools"><button class="icon-button" data-action="select-rule" aria-label="Name und Regeleinstellungen bearbeiten" data-i18n-aria-label="ui.edit.name.and.rule.settings.62d83912" title="Regeleinstellungen" data-i18n-title="ui.rule.settings.36f138d5">⋯</button><button class="icon-button" data-action="copy-entry" aria-label="Ausgewählten Eintrag kopieren" data-i18n-aria-label="ui.copy.selected.entry.3752eac4" title="Kopieren" data-i18n-title="ui.copy.472050b7"><svg><use href="#icon-copy"/></svg></button><button class="icon-button danger" data-action="delete-entry" aria-label="Ausgewählten Eintrag löschen" data-i18n-aria-label="ui.delete.selected.entry.99da7284" title="Löschen" data-i18n-title="ui.delete.6c2d3521"><svg><use href="#icon-trash"/></svg></button></div></div>
             <div class="canvas-scroll" id="canvas-scroll"><div id="flow" class="flow"></div></div>
-            <div class="canvas-footer"><span><span class="small-dot"></span><span id="selection-hint">Baustein anklicken → rechts bearbeiten</span></span><span>Aktionen am Griff ziehen oder mit Pfeilen verschieben</span></div>
+            <div class="canvas-footer"><span><span class="small-dot"></span><span id="selection-hint"><span data-i18n="ui.click.a.block.edit.on.de2068d8">Baustein anklicken → rechts bearbeiten</span></span></span><span><span data-i18n="ui.drag.actions.by.their.handles.cb91a8d5">Aktionen am Griff ziehen oder mit Pfeilen verschieben</span></span></div>
         </main>
 
-        <aside class="inspector panel" aria-label="Eigenschaften des ausgewählten Bausteins">
-            <div class="inspector-heading"><span class="eyebrow">EIGENSCHAFTEN</span><h2 id="inspector-title">Automation</h2><p id="inspector-subtitle">Die Einstellungen gelten für den Entwurf.</p></div>
+        <aside class="inspector panel" aria-label="Eigenschaften des ausgewählten Bausteins" data-i18n-aria-label="ui.selected.block.properties.4b7fac6d">
+            <div class="inspector-heading"><span class="eyebrow"><span data-i18n="ui.properties.103e002b">EIGENSCHAFTEN</span></span><h2 id="inspector-title"><span data-i18n="ui.automation.d909750b">Automation</span></h2><p id="inspector-subtitle"><span data-i18n="ui.settings.apply.to.the.draft.8aaf7ddd">Die Einstellungen gelten für den Entwurf.</span></p></div>
             <div id="inspector-fields" class="inspector-fields"></div>
-            <details class="activity"><summary>Hinweise zur Vorschau <span id="activity-count">0</span></summary><ol id="activity-list"></ol></details>
+            <details class="activity"><summary><span data-i18n="ui.preview.notes.d0f0a052">Hinweise zur Vorschau </span><span id="activity-count">0</span></summary><ol id="activity-list"></ol></details>
         </aside>
     </div>
 
-    <dialog id="new-dialog" aria-labelledby="new-title"><form id="new-form"><span class="eyebrow">NEU ANLEGEN</span><h2 id="new-title">Was möchtest Du erstellen?</h2><label class="field">Art<select name="kind" id="new-kind"><option value="device">Geräteausgelöste Automation</option><option value="time">Automation mit Uhrzeiten</option><option value="sun">Automation mit Sonnenzeiten</option><option value="sequence">Wiederverwendbare Aktionsfolge</option></select></label><label class="field">Name<input name="name" id="new-name" required maxlength="120" autocomplete="off" placeholder="Zum Beispiel: Licht bei Bewegung"></label><p class="field-help">Neue Automationen beginnen ausgeschaltet. Du kannst sie erst fertig bearbeiten und prüfen.</p><div class="dialog-actions"><button type="button" data-action="close-new">Abbrechen</button><button type="submit" class="primary">Anlegen</button></div></form></dialog>
-    <dialog id="confirm-dialog" aria-labelledby="confirm-title"><span class="eyebrow">VORSCHAU</span><h2 id="confirm-title"></h2><p id="confirm-message"></p><div class="dialog-actions"><button data-action="cancel-confirm">Abbrechen</button><button id="confirm-accept" class="primary" data-action="accept-confirm">Bestätigen</button></div></dialog>
-    <noscript>Für den Automationsdesigner muss JavaScript eingeschaltet sein.</noscript>
+    <dialog id="new-dialog" aria-labelledby="new-title"><form id="new-form"><span class="eyebrow"><span data-i18n="ui.create.new.30acd993">NEU ANLEGEN</span></span><h2 id="new-title"><span data-i18n="ui.what.would.you.like.to.f3e51303">Was möchtest Du erstellen?</span></h2><label class="field"><span data-i18n="ui.type.75df3579">Art</span><select name="kind" id="new-kind"><option value="device" data-i18n="ui.device.triggered.automation.73521bad">Geräteausgelöste Automation</option><option value="time" data-i18n="ui.automation.at.fixed.times.ebb643d4">Automation mit Uhrzeiten</option><option value="sun" data-i18n="ui.automation.at.solar.events.911885c2">Automation mit Sonnenzeiten</option><option value="sequence" data-i18n="ui.reusable.action.sequence.fd1ba3b0">Wiederverwendbare Aktionsfolge</option></select></label><label class="field"><span data-i18n="ui.name.dcd1d522">Name</span><input name="name" id="new-name" required maxlength="120" autocomplete="off" placeholder="Zum Beispiel: Licht bei Bewegung" data-i18n-placeholder="ui.for.example.light.on.motion.f2477f1a"></label><p class="field-help"><span data-i18n="ui.new.automations.start.disabled.complete.9510b8d6">Neue Automationen beginnen ausgeschaltet. Du kannst sie erst fertig bearbeiten und prüfen.</span></p><div class="dialog-actions"><button type="button" data-action="close-new"><span data-i18n="ui.cancel.f7ff1178">Abbrechen</span></button><button type="submit" class="primary"><span data-i18n="ui.create.d34c0efb">Anlegen</span></button></div></form></dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title"><span class="eyebrow"><span data-i18n="ui.preview.57c6944a">VORSCHAU</span></span><h2 id="confirm-title"></h2><p id="confirm-message"></p><div class="dialog-actions"><button data-action="cancel-confirm"><span data-i18n="ui.cancel.f7ff1178">Abbrechen</span></button><button id="confirm-accept" class="primary" data-action="accept-confirm"><span data-i18n="ui.confirm.15b63b4d">Bestätigen</span></button></div></dialog>
+    <noscript data-i18n="ui.javascript.must.be.enabled.for.e03b5b2c">Für den Automationsdesigner muss JavaScript eingeschaltet sein.</noscript>
 </body>
 </html>

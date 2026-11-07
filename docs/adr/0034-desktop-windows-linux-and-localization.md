@@ -20,7 +20,8 @@ Namensentscheidung vom 07.11.2026: Die Symcon-Library wird im Repository
 
 Der Plan verwendet Electron, einen TypeScript-Unterbau, Electron Forge und
 MQTT.js. Der vorhandene Designer erhält eine Adaptergrenze und gemeinsame
-deutsche/englische Sprachkataloge mit lokal eingebundenem i18next. Tauri wurde
+deutsche/englische JSON-Sprachkataloge mit eigenem Resolver ohne zusätzliche
+Übersetzungsbibliothek (Benutzerentscheidung vom 07.11.2026). Tauri wurde
 wegen der zusätzlichen Rust-/WebView-Unterschiede für diesen ersten Weg nicht
 gewählt. Die technische Wahl benötigt den frühen Startnachweis auf beiden OS.
 

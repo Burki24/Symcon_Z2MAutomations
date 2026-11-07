@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
+import * as localization from '../Z2MAutomations/visualization/localization.js';
 import {webcrypto} from 'node:crypto';
 
 class Element {
@@ -14,7 +15,7 @@ class Element {
 }
 const origin = readFileSync(new URL('../libs/helper/visualization/http-origin.js', import.meta.url), 'utf8');
 const tile = readFileSync(new URL('../Z2MAutomations/visualization/tile.js', import.meta.url), 'utf8');
-const renewal = readFileSync(new URL('../Z2MAutomations/visualization/access.js', import.meta.url), 'utf8').replace('export function', 'function');
+const renewal = readFileSync(new URL('../Z2MAutomations/visualization/access.js', import.meta.url), 'utf8').replace(/^import .*localization.js';\r?\n/m, '').replace('export function', 'function');
 function tileHost() {
     const nodes = new Map(); const requests = []; const timers = new Map(); const events = {}; const posts = [];
     const document = {documentElement: {}, body: {}, head: {},
@@ -154,7 +155,7 @@ function renewalHost() {
     const window = {document, location: {href: 'http://synthetic.invalid/hook/designer/index.html#' + 'c'.repeat(64), hash: '#' + 'c'.repeat(64)},
         fetch: async (...args) => { requests.push(args); return result; }, setInterval: (fn, ms) => { assert.equal(ms, 240000); tick = fn; return 1; },
         clearInterval() {}, addEventListener: (name, fn) => { events[name] = fn; }};
-    const context = {window, URL, AbortSignal}; vm.runInNewContext(renewal + '\nwindow.api = installAccessRenewal();', context);
+    const context = {window, URL, AbortSignal, ...localization}; vm.runInNewContext(renewal + '\nwindow.api = installAccessRenewal();', context);
     return {window, document, requests, events, docEvents, tick: () => tick(), result: value => { result = value; }, panel: body.children[0]};
 }
 test('access renewal keeps editor DOM, fragment, system context and pending writes untouched', async () => {

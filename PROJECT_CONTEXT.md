@@ -2,6 +2,12 @@
 
 ## Aktuelle Ergänzung
 
+Mehrsprachigkeit D0 am 07.11.2026 lokal umgesetzt: eigene JSON-Kataloge,
+Sprachwahl ohne Eingabeverlust, fester nativer Debug-Endpunkt und geprüfte
+Darstellungskennungen. Keine zusätzliche Übersetzungsbibliothek. Nachweise
+und Grenzen: [LOCALIZATION.md](docs/LOCALIZATION.md). Keine Installation oder
+Änderung am Live-System; tatsächliche Modul-/Kachelprüfung nach Update separat.
+
 Repository-Umbenennung am 07.11.2026 lokal vorbereitet: Symcon-Repository
 `Burki24/Symcon_Z2MAutomations`, unabhängige Windows-/Linux-App und neues
 Repository `Z2M-Automations`. URLs, Badges, Storevorlage und Desktop-Plan

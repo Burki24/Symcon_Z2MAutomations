@@ -84,7 +84,7 @@ async function dialogTest(run) {
     const update = installPermissions({getData: () => data, reload: async () => { reloads++; return true; }, message: text => { feedback = text; }});
     const dialog = body.children[0]; const button = toolbar.children[0];
     const click = selector => dialog.querySelector(selector).events.click();
-    try { await run({dialog, button, click, update, setData: next => { data = next; update(); }, data, reloads: () => reloads, feedback: () => feedback}); }
+    try { await run({dialog, button, click, update, setData: next => { data = next; update(); }, data, reloads: () => reloads, feedback: () => typeof feedback === 'function' ? feedback() : feedback}); }
     finally { Object.assign(globalThis, previous); }
 }
 

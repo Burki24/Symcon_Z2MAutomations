@@ -1,10 +1,11 @@
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* UUID v4 for request and editor identities, including HTTP LAN origins. */
 export function createUUID() {
     const bytes = new Uint8Array(16);
     try {
         globalThis.crypto.getRandomValues(bytes);
     } catch {
-        throw new Error('Die Aktion konnte nicht vorbereitet werden. Bitte den Designer in einem aktuellen Browser erneut öffnen.');
+        throw new MessageError("ui.the.action.could.not.be.b6df9a40");
     }
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;

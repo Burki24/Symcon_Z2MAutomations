@@ -2,6 +2,12 @@
 
 ## Neu
 
+- Browserdesigner mit lokalen JSON-Sprachkatalogen für Deutsch und Englisch.
+  Sprachwahl auch im offenen Bearbeitungsdialog, ohne Verlust von Eingaben,
+  Auswahl oder Aktionsreihenfolge. Englischer Rückfall, Intl-Formatierung,
+  automatische Katalog-/Artefaktprüfung und deutsche Debugbestätigung ergänzt.
+  Keine zusätzliche Übersetzungsabhängigkeit und keine Änderung der Z2M-Laufzeit.
+
 - Automatische Library-Versionierung ab 0.161 ergänzt. Nach erfolgreichen
   Entwicklungsprüfungen werden Versionsnummer, Build und Datum automatisch
   aktualisiert; eine Veröffentlichung erfolgt dadurch nicht.

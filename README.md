@@ -14,6 +14,9 @@ verwaltet bis zu acht Z2M-Systeme. **Hauptarbeitsbereich ist das eigene Webfront
 der Automationsdesigner im Browser.** Dort werden Automationen ohne Programmier-
 oder YAML-Kenntnisse erstellt, bearbeitet und verwaltet.
 
+Der Designer ist auf Deutsch und Englisch verfügbar. Die Sprache lässt sich
+auch während einer Bearbeitung wechseln; offene Eingaben bleiben erhalten.
+
 Die Regeln werden an eine eigene Zigbee2MQTT-Erweiterung übertragen und dort
 nach dem Aktivieren selbstständig ausgeführt. Symcon muss dafür nicht weiterlaufen.
 Die native Symcon-Kachel bietet einen zusätzlichen Zugang zum Designer.

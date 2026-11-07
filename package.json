@@ -10,8 +10,10 @@
     "scripts": {
         "build:extension": "node tests/build-extension.mjs",
         "check:extension": "node tests/build-extension.mjs --check",
-        "pretest": "node tests/build-extension.mjs --check",
-        "test": "node --test tests/native-console-probe.test.mjs tests/extension.test.mjs tests/runtime.test.mjs tests/mesh.test.mjs tests/mesh-three.test.mjs tests/mesh-eight.test.mjs tests/debug.test.mjs tests/solar.test.mjs"
+        "pretest": "node tests/build-extension.mjs --check && node tests/build-locales.mjs --check",
+        "test": "node --test tests/native-console-probe.test.mjs tests/extension.test.mjs tests/runtime.test.mjs tests/mesh.test.mjs tests/mesh-three.test.mjs tests/mesh-eight.test.mjs tests/debug.test.mjs tests/solar.test.mjs",
+        "build:locales": "node tests/build-locales.mjs",
+        "check:locales": "node tests/build-locales.mjs --check"
     },
     "devDependencies": {
         "ajv": "8.20.0",
