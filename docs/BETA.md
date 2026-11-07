@@ -5,11 +5,11 @@ Den aktuellen Freigabestand nennt die [Beta-Abnahme](BETA_ABNAHME.md).
 
 ## Belegte Umgebung und Grenzen
 
-- Native Praxisnachweise liegen für Symcon 9.1 mit PHP 8.5 vor. Symcon 9.0 ist
-  das deklarierte Ziel, besitzt aber noch keine vollständige native Abnahme.
-- Als Z2M-Version ist bisher 2.14.2-dev praktisch dokumentiert. Eine eigene
-  Abnahme einer stabilen Z2M-Ausgabe fehlt. Die genaue Git-Revision des früheren
-  Entwicklungsstands ist nicht dokumentiert.
+- Native Praxisnachweise liegen für Symcon 9.1 mit PHP 8.5 vor. Der Benutzer
+  hat zusätzlich die erfolgreiche Live-Praxis unter Symcon 9.0 bestätigt.
+- Z2M 2.14.2-dev ist praktisch dokumentiert; der Benutzer bestätigt außerdem
+  die erfolgreiche Live-Praxis mit der stabilen Version 2.14.2. Die genauen
+  Git-Revisionen sind nicht zusätzlich dokumentiert.
 - Zwei reale Z2M-Systeme sind geprüft. Drei und acht Erweiterungsinstanzen
   wurden zusätzlich synthetisch geprüft. Acht reale Broker sind damit nicht
   allgemein freigegeben.

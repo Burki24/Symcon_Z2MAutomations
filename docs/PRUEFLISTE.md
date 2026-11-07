@@ -1,5 +1,14 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Live-Praxis bestätigt – 07.11.2026
+
+Symcon 9.0 und stabiles Z2M 2.14.2 sind vom Benutzer als erfolgreich live
+geprüft bestätigt. B1/B2 geschlossen; keine zusätzliche Agentenabnahme.
+R4/B3 und B4 sind ebenfalls abgeschlossen. Offen bleibt B5 mit dem tatsächlichen
+Lauf der neuen automatischen Versionierung, finaler CI und Store-/Releaseangaben.
+Breitere Geräte-/Versionsprüfungen bleiben zusätzliche R5-Kompatibilitätsarbeit.
+Historische offene Bewertungen weiter unten werden durch diesen Nachtrag ersetzt.
+
 ## Nachtrag zur Mausradkorrektur – 06.11.2026
 
 Die Ursache von B4 ist in der kanonischen Helperquelle korrigiert. Regressionen
@@ -150,7 +159,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 | --- | --- | --- |
 | B4 | Geschlossen: native Mausradfalle an innerer Scrollgrenze | Helper-Bundle 3.30.7 regulär eingebunden, nach Test-Modulupdate im echten Kachelclient ohne Ressourcenaustausch praktisch bestätigt; native Debugkennung und unveränderte Systemdaten geprüft. |
 | R4 | Geschlossen im beschriebenen Testumfang | [Praxisnachweis](R4_ACCEPTANCE_PLAN.md): direkte Einrichtung, Altübernahme, Rückwege, native Geräte-/Action-/Archivzuordnungen und P4–P6 bestanden. Native Verbindungsauswahl, Systemwechsel, Vorschau, Verwerfen, Übernahme, Dialoge, Formularneuaufbau und Rücknahmen durch Benutzerklicks bestätigt; Kernel-, MQTT- und Debugabgleich je Schritt erfolgreich. Aufgeräumt, Benutzerentwürfe unverändert. Windows-Dateirechte bleiben eine lokale Schutzempfehlung, kein Beta-Blocker oder Auftrag zur Codeänderung. |
-| R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
+| R5 | Breitere Kompatibilitätsabnahme | Symcon 9.0 und stabiles Z2M 2.14.2 durch Benutzer-Live-Praxis bestätigt. Weitere Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen bleiben getrennt zu belegen. Maßgeblich ist COMPATIBILITY.md; keine allgemeine Versionsfreigabe. |
 
 R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 und R3 praktisch
 bestätigt. R4 ist im beschriebenen Testumfang abgeschlossen. Weitere R5-Praxisaktionen benötigen

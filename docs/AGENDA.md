@@ -112,7 +112,8 @@ Praxisauftrag. Die Agenda ist keine Freigabe für Geräteaktionen.
    findet aber eine gekürzte Spaltenüberschrift. Breite lokal korrigiert;
    Nach Modulupdate ist der Titel mit 245 Pixel in Geräte- und Zeitübersicht
    nativ vollständig lesbar. Entwurf und Z2M-Betrieb unverändert.
-   Breitere Versions-/Geräteabnahme und native Symcon-9.0-Prüfung bleiben offen.
+   Nachtrag 07.11.2026: Symcon 9.0 und stabiles Z2M 2.14.2 vom Benutzer live
+   bestätigt. Breitere Versions-/Geräteabnahme bleibt zusätzliche Arbeit.
 
 Die Bestandsfunktionen und bisherige Praxisnachweise stehen in
 [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md). Ausführung und Datenmodell verbleiben

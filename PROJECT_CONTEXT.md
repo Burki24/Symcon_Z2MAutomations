@@ -2,11 +2,19 @@
 
 ## Aktuelle Ergänzung
 
+Am 07.11.2026 bestätigt der Benutzer die Live-Praxis für Symcon 9.0 und die
+stabile Z2M-Version 2.14.2. B1/B2 sind damit als Benutzer-Praxisnachweise
+geschlossen; keine zusätzliche Prüfung oder Änderung am Live-System durch
+den Agenten. Breitere Versions-/Converterprüfungen bleiben separat.
+Automatische Library-Versionierung ab `0.161` über die zentrale
+ModuleCI-Action auf `main` eingebunden; tatsächlicher GitHub-Lauf nach
+Benutzer-Push noch zu prüfen. Keine Veröffentlichung; B5 bleibt offen.
+
 R4/B3 ist im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen. Die native
 Klickprüfung wurde manuell mit dem Benutzer und begleitendem Kernel-/MQTT-/Debug-
 Abgleich durchgeführt; Auswahl, Vorschau, Verwerfen, Übernahme und Rückweg bestanden.
-Bestehende Entwürfe unverändert, Testaufbau entfernt. R5/B1/B2 und die
-Veröffentlichungsidentität B5 bleiben separat offen; keine Veröffentlichungsfreigabe.
+Bestehende Entwürfe unverändert, Testaufbau entfernt. Weitere R5-Kompatibilität
+und die Veröffentlichungsidentität B5 bleiben separat offen; keine Veröffentlichungsfreigabe.
 
 Windows-Dateirechte werden als lokale Schutzempfehlung geführt, nicht als
 Beta-Blocker oder Pflicht zur Codeänderung. Beobachteter Zugriff betrifft lokale

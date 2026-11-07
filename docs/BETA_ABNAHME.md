@@ -194,18 +194,23 @@ Z2M-Speicherung, Aktivierung oder Katalogabfrage. Betrieb blieb in der Anzeige
 unbestätigt; dieser reine Bediennachweis bestätigt keinen neuen Laufzeitstatus.
 Live-Symcon und Z2M-Erweiterungen unverändert. **B4 ist geschlossen.**
 
-Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 3** im untersuchten Umfang.
+Nachtrag 07.11.2026: Der Benutzer bestätigt erfolgreiche Live-Praxis unter
+Symcon 9.0 und mit stabilem Z2M 2.14.2. B1/B2 werden als Benutzer-Praxisnachweise
+geschlossen; keine zusätzliche Agentenabnahme behauptet. Die folgenden Tabellen
+ersetzen frühere offene Bewertungen dieser Punkte.
+
+Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 1** im untersuchten Umfang.
 
 | ID | Abschluss / Basis | Nachweis |
 | --- | --- | --- |
+| B1 | Geschlossen / Benutzer-Praxis | Symcon 9.0 am 07.11.2026 vom Benutzer als live geprüft bestätigt. Kein zusätzlicher Agentenlauf. |
+| B2 | Geschlossen / Benutzer-Praxis | Stabiles Z2M 2.14.2 am 07.11.2026 vom Benutzer als live geprüft bestätigt. Grenzen und Herkunft in COMPATIBILITY.md erfasst. |
 | B4 | Geschlossen / Project | Helper-Bundle 3.30.7 regulär eingebunden. Native Grenzprüfung nach Test-Modulupdate ohne Browser-Ressourcenaustausch bestanden, passende Debugkennung und unveränderte Systemdaten bestätigt. |
 | B3 | Geschlossen / Project | R4 im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen. Native Klickprüfung manuell durch Benutzer, begleitet durch Kernel-/MQTT-/Debugabgleich, einschließlich Auswahl, Vorschau, Verwerfen, Übernahme, Formularneuaufbau und Rückweg bestanden. Vorhandene Entwürfe erhalten, Testaufbau entfernt. [Praxisnachweis](R4_ACCEPTANCE_PLAN.md). Windows-Dateirechte bleiben eine lokale Schutzempfehlung. |
 
 | ID | Basis | Hindernis und kleinster nächster Schritt |
 | --- | --- | --- |
-| B1 | Project | Native Symcon-9.0-Abnahme fehlt trotz deklarierter Mindestversion. Getrennte 9.0-Umgebung bereitstellen und Formular/Kachel/Grundablauf prüfen oder vor Veröffentlichung die zugesagte Versionsspanne ausdrücklich neu entscheiden. Hier wurde sie nicht geändert. |
-| B2 | Risk | Stabile Z2M-Ausgabe nicht praktisch abgenommen; aktuelle Versionsfelder leer. Genaue Version/Revision in einer getrennten stabilen Testumgebung erfassen und Installation, Übertragung, Ausführung, Stopp und Wiederanlauf gezielt belegen. Keine produktive Umstellung als Ersatz. |
-| B5 | Symcon / Project | Veröffentlichungsidentität und Storevorlage noch nicht verbindlich festgelegt beziehungsweise im Account geprüft. Releaseversion/-datum, finalen Commit samt grüner CI und untenstehende Pflichtfelder festlegen. Keine Einreichung in diesem Auftrag. |
+| B5 | Symcon / Project | Startversion 0.161 und automatische Versionierung vorbereitet; erster GitHub-Lauf nach Benutzer-Push noch offen. Veröffentlichungsidentität und Storevorlage noch nicht im Account geprüft. Release-Datum, finalen Commit samt grüner CI und untenstehende Pflichtfelder festlegen. Keine Einreichung in diesem Auftrag. |
 
 **HINWEIS:** Reale Drei-/Acht-Broker-Abnahme, weitere Geräte-/Farbconverter und
 weitere Z2M-Versionen sind zusätzliche Kompatibilitätsarbeit. Sie dürfen nicht
@@ -235,9 +240,8 @@ deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
 
 ## Freigabeschritte
 
-1. Die abgeschlossenen B3-/B4-Nachweise erhalten. B1/B2 schließen oder
-   die zulässige Beta-Zielmatrix ausdrücklich entscheiden. Fehlende Pflichtnachweise
-   nicht allein durch einen Warntext als erledigt markieren.
+1. Die abgeschlossenen B1–B4-Nachweise mit ihrer jeweiligen Herkunft erhalten.
+   Benutzerbestätigung und unabhängige Agentenprüfung unterscheidbar lassen.
 2. Dokumentation, Library-Metadaten und Changelog für die bestätigte Version
    konsistent vorbereiten; bis dahin `Unveröffentlicht` beibehalten.
 3. Benutzer führt Commit/Push über GitHub Desktop aus. CI zum finalen Commit

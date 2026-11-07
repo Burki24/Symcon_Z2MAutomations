@@ -23,8 +23,9 @@ inneren Scrollgrenze gefunden. Die zentrale Korrektur ist regulär eingebunden
 und nach Modulupdate im echten Test-Kachelclient erfolgreich geprüft. Dieser
 Befund ist geschlossen; die übrigen Beta-Nachweise bleiben offen.
 
-Praktisch geprüft sind Symcon 9.1 und zwei reale Z2M-Systeme. Die native
-Symcon-9.0-Abnahme und die eigene Prüfung einer stabilen Z2M-Version fehlen noch.
+Praktisch geprüft sind Symcon 9.1 und zwei reale Z2M-Systeme. Der Benutzer
+hat außerdem den erfolgreichen Live-Betrieb mit Symcon 9.0 und der stabilen
+Z2M-Version 2.14.2 bestätigt.
 Die Grenze von acht Systemen ist zusätzlich synthetisch geprüft; eine allgemeine
 Praxisfreigabe für acht reale Broker folgt daraus nicht. Die
 [Versionsübersicht](docs/COMPATIBILITY.md) bleibt maßgeblich.

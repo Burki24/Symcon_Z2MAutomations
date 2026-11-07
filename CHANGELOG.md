@@ -2,6 +2,10 @@
 
 ## Neu
 
+- Automatische Library-Versionierung ab 0.161 ergänzt. Nach erfolgreichen
+  Entwicklungsprüfungen werden Versionsnummer, Build und Datum automatisch
+  aktualisiert; eine Veröffentlichung erfolgt dadurch nicht.
+
 - Vollständigen Designer direkt in die native Symcon-Kachel eingebettet, mit
   Systemauswahl, übernommener Symcon-Darstellung und Zugangserneuerung ohne
   Neuladen. Ab Symcon 9.1 bleibt der Designer auch in der nativen Großansicht

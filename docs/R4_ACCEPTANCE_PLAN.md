@@ -247,5 +247,6 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
 - R4/B3: im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen.
   Windows-Dateirechte werden separat als lokale Schutzempfehlung geführt,
   nicht als Beta-Blocker. R1–R3 und B4 bleiben abgeschlossen.
-- Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu
-  R5/B1/B2. Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.
+- Benutzerbestätigung vom 07.11.2026 ergänzt Symcon 9.0 und stabiles Z2M 2.14.2;
+  B1/B2 sind damit geschlossen. Weitere Versionen/Converter bleiben R5.
+  Store-/Releaseidentität bleibt B5. Keine Beta-Veröffentlichungsfreigabe.

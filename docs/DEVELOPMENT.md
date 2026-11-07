@@ -1,3 +1,29 @@
+## Automatische Library-Versionierung – 07.11.2026
+
+Startversion ist auf Benutzerauftrag `0.161`. Der Workflow
+`update-library-metadata.yml` läuft ausschließlich nach Pushes auf `dev` und
+verwendet `Burki24/Symcon_ModuleCI/library-metadata@main`. Keine lokale Kopie
+der Versionslogik; passende Laufzeit-Helper werden dafür nicht benötigt.
+
+Vor der Berechnung laufen die vollständigen Offline-Tests. Je Quellcommit im
+Push wird die zweite Versionszahl erhöht, beispielsweise `0.161` auf `0.162`.
+Eine ausdrücklich höher gesetzte Startversion bleibt erhalten. Build ist der
+Integerwert der ersten sieben Zeichen des Quellcommit-SHA, Datum dessen
+Unix-Zeitstempel. Die Startdatei behält bis zum ersten Workflow-Lauf Build/Datum
+`0`; die Automatik ergänzt beides. Das private npm-Testpaket und die inhaltsbasierte
+Erweiterungs-Buildkennung werden unabhängig davon verwaltet.
+
+Der Workflow verwendet wie SymconiCloud die bestehende GitHub App mit
+`HELPER_SYNC_APP_CLIENT_ID` und `HELPER_SYNC_APP_PRIVATE_KEY`. Diese müssen
+im Repository verfügbar sein; die App braucht Contents-Schreibzugriff auf `dev`.
+Sie schreibt ausschließlich `library.json`. Der Metadatencommit startet die
+normalen Tests und Stylechecks, erzeugt aber keine weitere Versionierung.
+Wiederholungen bleiben idempotent, überholte Quellstände werden übersprungen;
+kein Force-Push, Tag, Release oder Store-Upload. Nach dem Benutzer-Push den
+Metadatencommit über GitHub Desktop zurückholen. Der bestehende Releaseweg von
+`dev` nach `main` und zurück bleibt erhalten. `Unveröffentlicht` im Changelog
+bleibt bis zum gesonderten Veröffentlichungsauftrag bestehen.
+
 ## R4-Nachweisabgleich und Testplan – 06.11.2026
 
 An sauberer Planungsbasis e537ce5 vorhandene Entwicklungs-/Praxisbelege,
