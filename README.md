@@ -127,8 +127,11 @@ Als Zweig **main** verwenden.
    MQTT-Anbindung im Modul aktivieren und die Verbindung prüfen.
 2. Eine **Zigbee2MQTT Automationszentrale** anlegen. Im Bereich **Z2M-Systeme**
    die gewünschten Verbindungen anhaken und **Systemzuordnung übernehmen** wählen.
-3. Für jedes System die Erweiterung installieren und die Gerätedaten laden.
-   Vorhandene Z2M-Automationen lassen sich über die direkte Einrichtung einlesen.
+3. Für jedes System den Erweiterungsstand prüfen und die Erweiterung bei Bedarf
+   installieren. Unter **Direkt aus Z2M einrichten** auf **Z2M-Automationen sicher
+   einlesen** klicken, die Vorschau prüfen und **Verbindung übernehmen und Entwurf
+   einrichten** bestätigen. Dieser Schritt ist auch bei einem noch leeren Z2M-System
+   nötig; er legt dessen lokalen Entwurf an und verändert keine Automationen in Z2M.
 4. In der Zentrale auf **Automationsdesigner öffnen** klicken. Das eigene
    Webfrontend öffnet sich im Browser. Dort das gewünschte **Z2M-System** auswählen
    und über **+ Neue Automation** die Regel mit Auslösern, optionalen Bedingungen
