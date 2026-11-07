@@ -29,8 +29,6 @@ Die native Symcon-Kachel bietet einen zusätzlichen Zugang zum Designer.
 
 ## Screenshots
 
-Die Aufnahmen zeigen die tatsächlichen Oberflächen mit erfundenen Beispieldaten.
-
 ### Webfrontend: Automationsdesigner
 
 Der Browserdesigner ist der Hauptanlaufpunkt für die Einrichtung von Automationen.
@@ -38,6 +36,13 @@ Links werden Regeln und Geräte ausgewählt, in der Mitte ist der Ablauf mit
 **Wenn**, **Nur wenn** und **Dann** sichtbar. Rechts stehen die Eigenschaften.
 
 ![Webfrontend mit Systemauswahl, Automationsübersicht und einer Beispielautomation](docs/screenshots/webfrontend.png)
+
+### Alternative Kachelansicht
+
+Derselbe Automationsdesigner lässt sich zusätzlich direkt in der nativen
+Symcon-Kachel verwenden. Die Aufnahme zeigt die vergrößerte Ansicht ab Symcon 9.1.
+
+![Alternative Symcon-Kachelansicht mit vollständig eingebettetem Automationsdesigner](docs/screenshots/kachelansicht.png)
 
 ### Z2M-Verbindung
 
