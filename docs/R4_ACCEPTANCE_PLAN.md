@@ -1,7 +1,7 @@
 # R4: Nachweisabgleich und begrenzte Restabnahme
 
 Stand: **06.11.2026**. Planungsbasis: `e537ce579b673d6a5be631518834ebd0094e7692`
-auf `dev`; zu Beginn sauberer Arbeitsbaum. **R4/B3 bleibt offen.**
+auf `dev`; zu Beginn sauberer Arbeitsbaum. **R4/B3 ist im beschriebenen Testumfang abgeschlossen.**
 Der ursprüngliche Abgleich prüfte Belege und Offline-Tests und plante
 die Restabnahme. Dabei wurde keine Test-/Live-Instanz angesprochen, angelegt,
 umgestellt oder neu gestartet. Kein Besitzerwechsel und kein MQTT-Versand an
@@ -94,9 +94,23 @@ Restprüfung am 06.11.2026 in Test-Symcon 9.1:
   Der Befund belegt lokalen Dateizugriff, keinen Zugriff über MQTT oder Internet;
   eine allgemeine Storepflicht oder Beta-Sperre wurde daraus nicht nachgewiesen.
   Rechte und Implementierung bleiben unverändert.
-- Native Zeigerbedienung bleibt offen: Windows-Prüfsteuerung startet auch nach
+- Native Zeigerbedienung war zunächst offen: Windows-Prüfsteuerung startet auch nach
   Wiederholung und Reset mit „failed to write kernel assets“ nicht. Kein Nachweis
-  eines Modulfehlers und kein Ersatz des Klicknachweises durch MCP-Aufrufe.
+  eines Modulfehlers; der folgende manuelle Konsolenlauf schließt den Nachweis.
+
+Native Klickprüfung am 06.11.2026 abgeschlossen: Benutzer bedient die echte
+Testkonsole manuell und bestätigt die Anzeigen; Kernelzustände, MQTT und native
+Dateidebugs werden je Schritt unabhängig geprüft. Verbindungshäkchen und Zuordnung,
+Systemauswahl über „Entwurf dieses Systems bearbeiten“, Einlesen, Verwerfen,
+Bestätigungsdialoge, Übernahme beider Systeme und automatischer Formularneuaufbau
+ohne falsche Sperrmeldung bestanden. B bleibt beim erneuten Einrichten von A
+bytegleich erhalten. Zwei native Rücknahmen erfolgreich; eine zuvor per MCP
+eingebrachte lokale Namensänderung bleibt zusätzlich gesichert. Sechs Archive
+prüfsummengültig. TXT-Debugstarts: eine Zuordnung, vier Leseaufträge, drei
+Bestätigungen, einmal Verwerfen, zwei Rücknahmen; HEX-Zeilen nicht doppelt zählen.
+Sieben Status- und vier Editoranfragen, keine Speicher-/Aktivierungs-/Gerätebefehle.
+Eigene Testobjekte, Prozesse und Zugangsdaten entfernt; bestehende Benutzerstände
+unverändert, Live-System unberührt. Kein automatisierter Windows-Zeigerlauf behauptet.
 
 | Bereich | Vorhandener Beleg | Grenze / Konsequenz für R4 |
 | --- | --- | --- |
@@ -227,10 +241,10 @@ Stub-/Peer-Nachweises auf eine ungeprüfte reale Z2M-Installation.
   Struktur, zentrale Kodierung, Erweiterungsartefakt, lokale Dateilinks und
   UTF-8/LF ohne BOM ebenfalls geprüft. Keine neue Gesamtsuitenabnahme behauptet.
 - P0–P2: MQTT-Testanbindung und Modul-/Callbackpraxis für direkte Einrichtung
-  und Rückweg bestätigt, anschließend aufgeräumt. Nativer Zeiger-Bediennachweis
-  bleibt offen. P3 samt nativen Geräte-/Action-/Archivzuordnungen mit synthetischen
+  und Rückweg einschließlich manuell bestätigter nativer Klickprüfung bestanden,
+  anschließend aufgeräumt. P3 samt nativen Geräte-/Action-/Archivzuordnungen mit synthetischen
   Daten im echten Kernel bestätigt; P4–P6 im beschriebenen Umfang bestanden.
-- R4/B3: wegen fehlendem nativen Klicknachweis nicht abgeschlossen.
+- R4/B3: im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen.
   Windows-Dateirechte werden separat als lokale Schutzempfehlung geführt,
   nicht als Beta-Blocker. R1–R3 und B4 bleiben abgeschlossen.
 - Symcon 9.0, stabile Z2M-Versionen und weitere Converter gehören weiterhin zu

@@ -149,11 +149,11 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 | ID | Fehlender Nachweis | Nächster begrenzter Schritt |
 | --- | --- | --- |
 | B4 | Geschlossen: native Mausradfalle an innerer Scrollgrenze | Helper-Bundle 3.30.7 regulär eingebunden, nach Test-Modulupdate im echten Kachelclient ohne Ressourcenaustausch praktisch bestätigt; native Debugkennung und unveränderte Systemdaten geprüft. |
-| R4 | Restabnahme des Zentralenwegs | [Plan und Praxisnachweis](R4_ACCEPTANCE_PLAN.md): direkte Einrichtung, Altübernahme, Rückwege und P4–P6 bestanden. Native Geräte-/Gruppen-, Standard-/benutzerdefinierte Action- und Archivzuordnungen mit synthetischen Daten im echten Test-Kernel erhalten; frische Aktionsauswahl bestätigt. Aufgeräumt, Benutzerentwürfe unverändert. **Lokale Schutzempfehlung:** Auf der geprüften Windows-Installation sind Sicherungen für die lokale Gruppe Benutzer lesbar; bei nicht vertrauenswürdigen lokalen Konten Verzeichnisrechte einschränken. Kein Beta-Blocker und keine daraus abgeleitete Pflicht zur Codeänderung. Native Zeigerbedienung wegen ausgefallener Windows-Prüfsteuerung weiterhin offen. |
+| R4 | Geschlossen im beschriebenen Testumfang | [Praxisnachweis](R4_ACCEPTANCE_PLAN.md): direkte Einrichtung, Altübernahme, Rückwege, native Geräte-/Action-/Archivzuordnungen und P4–P6 bestanden. Native Verbindungsauswahl, Systemwechsel, Vorschau, Verwerfen, Übernahme, Dialoge, Formularneuaufbau und Rücknahmen durch Benutzerklicks bestätigt; Kernel-, MQTT- und Debugabgleich je Schritt erfolgreich. Aufgeräumt, Benutzerentwürfe unverändert. Windows-Dateirechte bleiben eine lokale Schutzempfehlung, kein Beta-Blocker oder Auftrag zur Codeänderung. |
 | R5 | Breitere Kompatibilitätsabnahme | Native Symcon-9.0-Abnahme, stabile/weitere Z2M-Versionen und zusätzliche Geräte-/Gruppen-/Farbconverter-Kombinationen getrennt belegen. Maßgeblich ist COMPATIBILITY.md; bisherige einzelne Schalterfolge ist keine allgemeine Versionsfreigabe. |
 
 R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 und R3 praktisch
-bestätigt. R4/R5 enthalten gegebenenfalls operative Praxisaktionen und benötigen
+bestätigt. R4 ist im beschriebenen Testumfang abgeschlossen. Weitere R5-Praxisaktionen benötigen
 jeweils einen konkreten Auftrag. Die neue
 [Brokeranleitung](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
 beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.

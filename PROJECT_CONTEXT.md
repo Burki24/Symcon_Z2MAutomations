@@ -2,6 +2,12 @@
 
 ## Aktuelle Ergänzung
 
+R4/B3 ist im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen. Die native
+Klickprüfung wurde manuell mit dem Benutzer und begleitendem Kernel-/MQTT-/Debug-
+Abgleich durchgeführt; Auswahl, Vorschau, Verwerfen, Übernahme und Rückweg bestanden.
+Bestehende Entwürfe unverändert, Testaufbau entfernt. R5/B1/B2 und die
+Veröffentlichungsidentität B5 bleiben separat offen; keine Veröffentlichungsfreigabe.
+
 Windows-Dateirechte werden als lokale Schutzempfehlung geführt, nicht als
 Beta-Blocker oder Pflicht zur Codeänderung. Beobachteter Zugriff betrifft lokale
 Windows-Konten der Testinstallation; maßgeblich ist der aktuelle

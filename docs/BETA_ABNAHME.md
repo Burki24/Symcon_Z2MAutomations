@@ -194,17 +194,17 @@ Z2M-Speicherung, Aktivierung oder Katalogabfrage. Betrieb blieb in der Anzeige
 unbestätigt; dieser reine Bediennachweis bestätigt keinen neuen Laufzeitstatus.
 Live-Symcon und Z2M-Erweiterungen unverändert. **B4 ist geschlossen.**
 
-Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 4** im untersuchten Umfang.
+Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 3** im untersuchten Umfang.
 
 | ID | Abschluss / Basis | Nachweis |
 | --- | --- | --- |
 | B4 | Geschlossen / Project | Helper-Bundle 3.30.7 regulär eingebunden. Native Grenzprüfung nach Test-Modulupdate ohne Browser-Ressourcenaustausch bestanden, passende Debugkennung und unveränderte Systemdaten bestätigt. |
+| B3 | Geschlossen / Project | R4 im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen. Native Klickprüfung manuell durch Benutzer, begleitet durch Kernel-/MQTT-/Debugabgleich, einschließlich Auswahl, Vorschau, Verwerfen, Übernahme, Formularneuaufbau und Rückweg bestanden. Vorhandene Entwürfe erhalten, Testaufbau entfernt. [Praxisnachweis](R4_ACCEPTANCE_PLAN.md). Windows-Dateirechte bleiben eine lokale Schutzempfehlung. |
 
 | ID | Basis | Hindernis und kleinster nächster Schritt |
 | --- | --- | --- |
 | B1 | Project | Native Symcon-9.0-Abnahme fehlt trotz deklarierter Mindestversion. Getrennte 9.0-Umgebung bereitstellen und Formular/Kachel/Grundablauf prüfen oder vor Veröffentlichung die zugesagte Versionsspanne ausdrücklich neu entscheiden. Hier wurde sie nicht geändert. |
 | B2 | Risk | Stabile Z2M-Ausgabe nicht praktisch abgenommen; aktuelle Versionsfelder leer. Genaue Version/Revision in einer getrennten stabilen Testumgebung erfassen und Installation, Übertragung, Ausführung, Stopp und Wiederanlauf gezielt belegen. Keine produktive Umstellung als Ersatz. |
-| B3 | Project | R4 bleibt für den nativen Klicknachweis offen. Einrichtung, Übernahme/Rückwege, Gerätezuordnungen sowie Ausfall-/Neustartfälle sind im abgegrenzten Umfang praktisch bestätigt; Einzelheiten im [Praxisnachweis](R4_ACCEPTANCE_PLAN.md). Windows-Dateirechte sind eine separate lokale Schutzempfehlung, kein Beta-Blocker oder verpflichtender Bibliotheksumbau. Bestehende Übernahmen nicht zu Testzwecken zurückrollen. |
 | B5 | Symcon / Project | Veröffentlichungsidentität und Storevorlage noch nicht verbindlich festgelegt beziehungsweise im Account geprüft. Releaseversion/-datum, finalen Commit samt grüner CI und untenstehende Pflichtfelder festlegen. Keine Einreichung in diesem Auftrag. |
 
 **HINWEIS:** Reale Drei-/Acht-Broker-Abnahme, weitere Geräte-/Farbconverter und
@@ -235,7 +235,7 @@ deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
 
 ## Freigabeschritte
 
-1. Den abgeschlossenen B4-Nachweis erhalten. B1–B3 schließen oder
+1. Die abgeschlossenen B3-/B4-Nachweise erhalten. B1/B2 schließen oder
    die zulässige Beta-Zielmatrix ausdrücklich entscheiden. Fehlende Pflichtnachweise
    nicht allein durch einen Warntext als erledigt markieren.
 2. Dokumentation, Library-Metadaten und Changelog für die bestätigte Version
