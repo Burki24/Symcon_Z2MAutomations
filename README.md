@@ -6,6 +6,8 @@
 [![Check Style](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml?query=branch%3Amain)
 [![Tests](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml?query=branch%3Amain)
 
+![Z2MAutomations – visueller Automationsdesigner für bis zu acht Z2M-Systeme](docs/z2mautomations-title.webp)
+
 Erstellt und verwaltet Automationen für Zigbee2MQTT: Geräteauslöser, Uhrzeiten,
 Sonnenzeiten, Bedingungen, Szenen und Aktionsfolgen. Eine Automationszentrale
 verwaltet bis zu acht Z2M-Systeme. **Hauptarbeitsbereich ist das eigene Webfrontend,
