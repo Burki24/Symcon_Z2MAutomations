@@ -89,7 +89,7 @@ export function installLayout({getData}) {
     function update() {
         const data = getData(); const nextSystem = data?.workspaceContext?.systemId ?? '';
         if (system !== nextSystem) { opened = ''; menu.open = false; system = nextSystem; }
-        controls.hidden = !data?.workspace;
+        controls.hidden = !data?.workspace || data?.capabilities?.operationControls === false;
         const states = layoutStatus(data);
         for (const [name, item] of Object.entries(panels)) {
             bindText(item.state, () => states[name]);

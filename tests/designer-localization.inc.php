@@ -19,7 +19,7 @@ $check($module->Hook('language', 'POST', $languageToken)[0] === 403, 'Foreign or
 $_SERVER['HTTP_ORIGIN'] = 'http://127.0.0.1:3777';
 $check($module->Fingerprint() === $languageBefore && count(IPS\InstanceManager::getInstanceInterface($parent)->sent) === $languagePackets, 'Language changes preserve every editor byte and send no MQTT');
 $check(str_contains(implode("\n", $module->debug), 'Designersprache lokal gewechselt') && !str_contains(implode("\n", $module->debug), 'PRIVATE_INPUT'), 'German debug explains language switching without retaining private input');
-$check($module->Hook('localization.js')[0] === 200 && $module->Hook('locales.js')[0] === 200
+$check($module->Hook('transport.js')[0] === 200 && $module->Hook('localization.js')[0] === 200 && $module->Hook('locales.js')[0] === 200
     && $module->Hook('locales/en.json')[0] === 404, 'Only fixed compiled language assets are exposed, never arbitrary catalog paths');
 
 $present = new ReflectionMethod($module, 'DesignerPresentationBody');

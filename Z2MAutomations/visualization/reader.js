@@ -1,3 +1,4 @@
+import {designerRequest as fetch, isDesktop} from './transport.js';
 import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* Own scoped module view. Creation is a separate, local-draft-only POST. */
 import {installEditing} from './editor.js';
@@ -14,7 +15,7 @@ import {installAccessRenewal} from './access.js';
 import {installNativeEmbedding} from './embedding.js';
 (() => {
     'use strict';
-    const access = installAccessRenewal();
+    const access = isDesktop() ? null : installAccessRenewal();
     const $ = selector => document.querySelector(selector);
     const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char]));
     const icon = name => `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
@@ -245,9 +246,19 @@ import {installNativeEmbedding} from './embedding.js';
 
     function paintStatus() {
         if (!data) return;
-    }
-    function paintStatus() {
-        if (!data) return;
+        if (isDesktop()) {
+            document.title = 'Z2M-Automations';
+            bindText($('.preview-label'), () => t('desktop.readOnly'));
+            bindText($('.preview-notice strong'), () => t('desktop.offline'));
+            bindText($('.preview-notice > span:last-child'), () => t('desktop.notice'));
+            bindText($('#draft-status'), () => t('desktop.examples'));
+            bindText($('#runtime-status'), () => t('desktop.noConnection'));
+            bindText($('.canvas-footer > span:last-child'), () => t('desktop.notice'));
+            bindText($('#entry-subtitle'), () => t('desktop.examples'));
+            $('#issues').hidden = true;
+            message(() => t('desktop.notice'));
+            return;
+        }
         if (data.workspace) bindText($('.preview-notice > span:last-child'), () => t("ui.edit.drafts.per.z2m.system.e393812e"));
         bindText($('.canvas-footer > span:last-child'), () => data.workspace ? t("ui.edit.local.drafts.transfer.only.004f4782") : t("ui.edit.automations.and.action.sequences.2b7902b6"));
         document.title = t("ui.automation.designer.draft.47bd558d", {p1: data.module.name});
@@ -278,7 +289,7 @@ import {installNativeEmbedding} from './embedding.js';
         busy = true; $('#validate-button').disabled = true;
         message(() => (t("ui.reading.existing.module.data.no.53b451b0")));
         try {
-            if (!/^[a-f0-9]{64}$/.test(token)) throw new Error('access');
+            if (!isDesktop() && !/^[a-f0-9]{64}$/.test(token)) throw new Error('access');
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 10000);
             let response; let text;

@@ -5078,5 +5078,81 @@
     "validation.details": [
         "{{detail}}",
         "{{detail}}"
+    ],
+    "desktop.readOnly": [
+        "NUR LESEN",
+        "READ ONLY"
+    ],
+    "desktop.offline": [
+        "Offline-Desktop-Grundgerüst",
+        "Offline desktop foundation"
+    ],
+    "desktop.notice": [
+        "Nur Beispieldaten. Es sind keine Broker verbunden. Bearbeiten, Speichern und Gerätebefehle sind in diesem Grundgerüst noch nicht verfügbar.",
+        "Example data only. No brokers are connected. Editing, saving and device commands are unavailable in this foundation."
+    ],
+    "desktop.examples": [
+        "Künstliche Beispieldaten",
+        "Synthetic example data"
+    ],
+    "desktop.noConnection": [
+        "Keine Z2M-Verbindung",
+        "No Z2M connection"
+    ],
+    "desktop.diagnostics": [
+        "Desktop-Diagnose",
+        "Desktop diagnostics"
+    ],
+    "desktop.record": [
+        "Eine Minute aufzeichnen",
+        "Record for one minute"
+    ],
+    "desktop.stop": [
+        "Aufzeichnung stoppen",
+        "Stop recording"
+    ],
+    "desktop.idle": [
+        "Aufzeichnung gestoppt",
+        "Recording stopped"
+    ],
+    "desktop.recording": [
+        "Aufzeichnung aktiv bis {{time}}",
+        "Recording active until {{time}}"
+    ],
+    "desktop.expired": [
+        "Aufzeichnung automatisch beendet",
+        "Recording ended automatically"
+    ],
+    "desktop.systemSelected": [
+        "Beispielsystem ausgewählt",
+        "Example system selected"
+    ],
+    "desktop.snapshotRead": [
+        "Beispielgeräte und Regeln eingelesen",
+        "Example devices and rules read"
+    ],
+    "desktop.languageChanged": [
+        "Sprache gewechselt; Auswahl und Eingaben bleiben erhalten",
+        "Language changed; selection and input preserved"
+    ],
+    "desktop.rejected": [
+        "Anfrage abgelehnt",
+        "Request rejected"
+    ],
+    "desktop.ready": [
+        "Desktop bereit",
+        "Desktop ready"
+    ],
+    "desktop.windows": [
+        "für Windows",
+        "for Windows"
+    ],
+    "desktop.linux": [
+        "für Linux",
+        "for Linux"
+    ],
+    "desktop.failed": [
+        "Die Desktopansicht konnte nicht geladen werden. Bitte die Anwendung schließen und erneut starten.",
+        "The desktop view could not be loaded. Close the application and try again."
     ]
 }

@@ -29,7 +29,7 @@ Zugang zu demselben Designer.
 
 ## 1. Voraussetzungen
 
-- IP-Symcon ab **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
+- Symcon ab **9.0** mit PHP **8.5** und installierter Library Z2MAutomations.
 - Für jedes Z2M-System eine eingerichtete **Zigbee2MQTT Verbindung**. Diese
   verwendet den passenden Symcon MQTT Client oder MQTT Server und das genaue
   Basistopic. Die Einrichtung beschreibt die [Anleitung des Verbindungsmoduls](../Z2MConnection/README.md).

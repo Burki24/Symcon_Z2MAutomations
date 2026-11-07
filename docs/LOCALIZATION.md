@@ -5,19 +5,27 @@ Die Sprachwahl ist oben und in offenen HTML-Dialogen erreichbar. Die erste
 Auswahl folgt der Browsersprache, eine gespeicherte manuelle Wahl hat Vorrang;
 für andere Browsersprachen gilt Englisch.
 
-Quellen: Z2MAutomations/visualization/locales/de.json und en.json.
-Keine Übersetzungsbibliothek, kein Onlinedienst und kein zusätzlicher
-Laufzeitabruf. Der Build erzeugt locales.js und locales/messages.json.
-Beide Artefakte werden mit den Quellen eingecheckt:
+Die kanonischen Quellen liegen in Z2M-Automations/packages/designer/src.
+Diese Library liefert die festgeschriebenen Dateien aus
+Z2MAutomations/visualization aus. Keine Übersetzungsbibliothek, kein Onlinedienst
+und kein zusätzlicher Laufzeitabruf. Der Paketstand ist vollständig enthalten;
+für Installation und Prüfung wird kein Desktop-Checkout benötigt.
+
+Die bestehenden Prüfaufrufe sind hier ausschließlich lesend:
 
 ~~~sh
 npm run build:locales
 npm run check:locales
 ~~~
 
-Die Prüfung kontrolliert gleiche Schlüssel/Platzhalter, Texte ohne HTML,
-referenzierte Schlüssel und aktuelle Artefakte. Sie ist in php tests/run.php
-integriert. Die Sprachwahl aktualisiert Textknoten und Darstellungsattribute,
+Die Prüfung kontrolliert Paketprüfsummen, gleiche Schlüssel/Platzhalter,
+Texte ohne HTML und die nativen Meldungsvorlagen. Referenzierte Schlüssel
+werden beim Erzeugen des gemeinsamen Pakets geprüft. Änderungen erfolgen an
+der kanonischen Quelle; das geprüfte Archiv wird ausdrücklich mit
+node tests/import-designer.mjs <Archiv.tgz> übernommen. Native Kachel und
+Interaktionshelper sind davon ausgeschlossen. Siehe [ADR 0035](adr/0035-pinned-shared-designer-package.md).
+
+Die Prüfungen sind in php tests/run.php integriert. Die Sprachwahl aktualisiert Textknoten und Darstellungsattribute,
 ohne Eingaben, Auswahl, Gerätefilter, Reihenfolge oder Scrollposition zu ersetzen.
 Intl formatiert Zahlen, Daten und Mehrzahl. Technische Werte, Zeitzonen,
 eigene Namen und von Geräten gelieferte Texte bleiben Daten.
@@ -47,6 +55,8 @@ Startfehler-Dialog einen sicheren englischen Rückfalltext.
   Breiten 360/1920/3840. Z2MA_PLAYWRIGHT_MODULE verweist auf eine vorhandene
   Prüfinstallation; keine neue Produktabhängigkeit.
 
-Keine Änderung oder Installation im Live-System. Eine Prüfung nach tatsächlichem
-Modulupdate in Symcon/Kachel bleibt separat. Windows-/Linux-App-Builds und deren
-Abnahme gehören zum folgenden Desktop-Arbeitspaket D1.
+Keine Änderung oder Installation im Live-System. Die neue Paketübernahme und
+die Mehrsprachigkeit sind offline geprüft; ein tatsächliches Modulupdate dieses
+Kandidaten wurde in diesem Auftrag nicht ausgeführt. Die bestehenden nativen
+Praxisnachweise bleiben bestehen. Desktop-Paketbau und Ubuntu-Grafikprüfungen
+sind keine Freigabevoraussetzung dieser Symcon-Library.

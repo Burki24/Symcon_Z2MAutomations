@@ -1,3 +1,4 @@
+import {designerRequest as fetch} from './transport.js';
 import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 import {createUUID} from './identity.js';
 /* Local-only rule management. Confirmation captures its system and exact draft. */

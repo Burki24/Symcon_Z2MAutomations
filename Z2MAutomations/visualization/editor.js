@@ -1,3 +1,4 @@
+import {designerRequest as fetch} from './transport.js';
 import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 /* Shared rule editor: complete creation and cloned, field-scoped editing stay local to the draft. */
 import {creationDevices, creationProperties, creationValue, requestIdentity} from './creator.js';

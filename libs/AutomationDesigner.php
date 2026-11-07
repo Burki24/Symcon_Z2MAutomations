@@ -22,7 +22,7 @@ trait AutomationDesigner
     use AutomationDesignerManagement;
     use AutomationDesignerImport;
     use DesignerPresentation;
-    private const DESIGNER_ASSETS = ['localization.js' => 'application/javascript', 'locales.js' => 'application/javascript', 'index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
+    private const DESIGNER_ASSETS = ['transport.js'    => 'application/javascript', 'localization.js' => 'application/javascript', 'locales.js' => 'application/javascript', 'index.html' => 'text/html', 'designer.css' => 'text/css', 'layout.js' => 'application/javascript', 'startup.js' => 'application/javascript',
         'reader.js'                                    => 'application/javascript', 'creator.js' => 'application/javascript', 'editor.js' => 'application/javascript', 'workspace.js' => 'application/javascript', 'transfer.js' => 'application/javascript', 'runtime.js' => 'application/javascript', 'management.js' => 'application/javascript', 'catalog.js' => 'application/javascript', 'imports.js' => 'application/javascript', 'action-order.js' => 'application/javascript', 'diagnostics.js' => 'application/javascript', 'installation.js' => 'application/javascript', 'identity.js' => 'application/javascript', 'permissions.js' => 'application/javascript', 'access.js' => 'application/javascript', 'embedding.js' => 'application/javascript', 'interaction.js' => 'application/javascript'];
 
     public function OpenAutomationDesigner(): string

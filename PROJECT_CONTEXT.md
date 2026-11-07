@@ -1,6 +1,21 @@
 # Projektkontext: Z2MAutomations
 
-## Aktuelle Ergänzung
+## Aktueller Beta-Kandidat – 07.11.2026
+
+Symcon-Beta hat Vorrang; keine weitere Desktop-Funktion in diesem Auftrag.
+Die gemeinsamen Designer-Anpassungen sind im lokalen Kandidaten festgeschrieben
+und geprüft. Kein Desktop-Checkout zur Laufzeit oder bei der Paketprüfung nötig.
+Native Kachel und zentraler Helper sind gegen Überschreiben durch den Import
+zusätzlich geschützt. Z2M-Erweiterung und Schema bleiben unverändert.
+
+B1–B4 sind abgeschlossen. Automatische Versionierung auf GitHub arbeitet bereits;
+B5 betrifft noch den finalen Benutzer-Commit/Push, die zugehörige CI und den
+Veröffentlichungscommit. Storekonto und Kategorie nur lesend geprüft, keine
+Vorlage angelegt. Konkrete Storetexte und Grenzen: [Beta-Abnahme](docs/BETA_ABNAHME.md).
+Metadaten und Veröffentlichungsdatum werden nicht vorweggenommen. Keine
+Test-/Live-Installation oder laufende Automation wurde geändert.
+
+## Historische Ergänzungen
 
 Mehrsprachigkeit D0 am 07.11.2026 lokal umgesetzt: eigene JSON-Kataloge,
 Sprachwahl ohne Eingabeverlust, fester nativer Debug-Endpunkt und geprüfte
@@ -1059,3 +1074,12 @@ Stopp blieb die erneute Geräteaktion unbeeinflusst. Die Engine übergibt Aktion
 direkt an Z2Ms native Befehlsverarbeitung (ADR 0007). Beim anschließenden
 Bearbeiten-/Löschen-Test wurde die Testregel entfernt; die bestätigte leere
 Konfiguration ist gestoppt. Siehe den aktuellen Nachweis in docs/DEVELOPMENT.md.
+
+## Desktop-D1: gemeinsame Designerquelle
+
+Die Oberfläche wird einmalig aus Z2M-Automations/packages/designer/src als
+versioniertes, manifestiertes Paket übernommen. Lokale Assets bleiben für
+Symcon verfügbar, werden aber nicht unabhängig weiterentwickelt. Der feste
+HTTP-Assetzugang kennt nun transport.js; bestehende Endpunkte, Kachel, Helper
+und Erweiterung bleiben erhalten. Prüfungen benötigen das Desktop-Repo nicht.
+Keine Installation und kein Live-System wurde verändert.

@@ -5344,3 +5344,18 @@ bestanden. Offizieller StylePHP-Check aller 18 eigenen JSON-Dateien in isolierte
 Kopie erfolgreich. PHP CS Fixer 3.95.27 im Prüfmodus ohne Befund für 128 Dateien.
 npm run check:extension bestätigt das unveränderte Artefakt. Fremdquellen
 unverändert, eigene Änderungen UTF-8 ohne BOM/LF; git diff --check ohne Befund.
+
+## Gemeinsamen Designer aktualisieren
+
+Im Desktop-Quellrepo npm run pack:designer ausführen. Das geprüfte Archiv hier
+mit node tests/import-designer.mjs <Archiv.tgz> übernehmen, Diff prüfen und die
+regulären Projektprüfungen ausführen. npm run build:locales und check:locales
+sind jetzt ausschließlich lesende Integritätsprüfungen des festgeschriebenen
+Pakets. Nicht direkt an den manifestierten Assets oder Katalogen arbeiten.
+Die vorhandenen Browser-/PHP-Tests prüfen weiter die ausgelieferten Dateien.
+
+D1-Nachweis: Gesamtsuite mit PHP-Integration und 228 JavaScript-Tests grün;
+zusätzliche echte Offline-Browserprüfung für DE/EN, offene Eingaben, Systemwahl
+und 360–3840 Pixel ebenfalls grün. 22 eigene JSON-Dateien im offiziellen
+StylePHP-Check geprüft; PHP CS Fixer im Prüfmodus nach Ausrichtung ohne Befund.
+Keine reale Installation, kein Broker und keine Z2M-Regel geändert.

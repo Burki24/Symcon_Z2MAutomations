@@ -1,3 +1,4 @@
+import {designerRequest as fetch} from './transport.js';
 import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
 import {createUUID} from './identity.js';
 /* Explicit, local-only event migration. Never execute a Symcon event or send a Z2M command. */

@@ -1,254 +1,162 @@
-# Beta-Abnahme – 06.11.2026
+# Beta-Abnahme – Veröffentlichungsstand vorbereiten
 
-## Ergebnis und geprüfter Stand
+Stand: 07.11.2026. Ziel: **erste Beta**, kein Stable-Antrag.
 
-**NICHT EINREICHUNGSREIF für eine erste Beta.** Der zunächst reproduzierte
-native Mausradfehler B4 ist nach regulärer Helper-Verteilung und Test-Modulupdate
-praktisch behoben. Die übrigen Nachweislücken B1–B3 und die noch nicht festgelegten
-Veröffentlichungsangaben B5 bleiben bestehen. Dieses Urteil
-gilt für den unten abgegrenzten Umfang, nicht als vollständige Geräte-, Versions-
-oder Sicherheitszertifizierung.
+**BEDINGT EINREICHUNGSREIF:** Der lokale Quellkandidat ist geprüft. Kein
+bestätigter technischer Blocker; offen bleibt B5: Benutzer-Commit/Push, finale
+CI und genauer Veröffentlichungscommit. Im Store wurde nichts angelegt oder
+veröffentlicht. Der noch uncommittete Arbeitsbaum ist kein unveränderlicher
+Veröffentlichungscommit.
 
-- Codebasis: `b1ae70b5c673feaea3857bda36ceecfb2c161ec8`, Branch `dev`, zu Beginn
-  sauberer Arbeitsbaum. Die hier ergänzten Unterlagen sind nachfolgende Änderungen.
-- Library-Metadaten: Version `0.1`, Build `0`, Datum `0`; noch Entwicklungsstand.
-  Keine Version, kein Datum und kein Storeeintrag wurden für eine Veröffentlichung
-  geändert oder eingereicht.
-- Erweiterung: `4d6cda17434819e331927b17515470f9d7f427a192f9b874b28e671228e00722`.
-  Das vorhandene Artefakt wurde geprüft, nicht neu installiert.
-- Ziel: erste Beta. Stable ist nicht Gegenstand dieser Freigabevorbereitung.
-- Lokale Werkzeuge: PHP 8.5.10, Node 24.20.0; der vorhandene CI-Testjob verwendet
-  PHP 8.5 und Node 22 unter Ubuntu.
-- Laufzeit: freigegebene Test-Symcon-Installation 9.1. Ihre MQTT-Verbindungen
-  verwenden produktive Z2M-Systeme. Deshalb nur Verbindungs-/Status-/Katalogabfragen,
-  lokale Ansichtswechsel und abgebrochene Bearbeitungsdialoge; keine Installation,
-  YAML-Speicherung, Aktivierung, Stopps, Neustarts oder Gerätebefehle.
+## Kandidat und Grenzen
 
-## Die vier Arbeitspunkte
+- Basis: cd5cfc33c921365c69814078238444c3ea7d5ac5 auf dev plus die geprüften
+  gemeinsamen Designer-Anpassungen und diese Beta-Vorbereitung.
+- Bisherige Metadaten: Library 0.182, Build 221627305. Die automatische
+  Versionierung bestimmt den nächsten Stand nach dem Benutzer-Push. Keine
+  Versionsnummer, kein Build und kein Datum wurden hier von Hand erhöht.
+- Gemeinsamer Designer: @z2ma/designer 0.2.0, Inhalt 7909e0e7638c49a1fd4f6c58d35a0347005a1568fddcaa9fa9725c11e0d39007.
+  Herkunft, Lizenz und SHA-256 sind festgeschrieben. [ADR 0035](adr/0035-pinned-shared-designer-package.md)
+  beschreibt Übernahme und Rückweg. Die Desktop-App wird nicht benötigt.
+- Native Kachel und Helper unverändert; kein lokales Helper-Testpaket.
+  Z2M-Erweiterung, Schema, Entwürfe und MQTT-Protokoll unverändert.
+- Keine Test-/Live-Installation aktualisiert, keine Geräte geschaltet und keine
+  Automationen gespeichert, aktiviert oder gestoppt. Der auf Benutzerwunsch
+  erhaltene Dokumentationsaufbau bleibt bestehen.
 
-| Punkt | Ergebnis | Nachweis und verbleibende Grenze |
+## Nachweise und verbleibende Punkte
+
+| ID | Basis | Stand |
 | --- | --- | --- |
-| 1. Zentrale und Rückweg | Teilweise abgeschlossen | R1–R3 und die ältere Zentralen-/Designerabnahme zugeordnet. Aktuelle Gesamtsuite prüft direkte Einrichtung, Sicherung, Übernahme, Konflikte, Wiederaufnahme und Rückweg mit 1/2/8 Systemen. Auf echtem Symcon 9.1 beide Modultypen ohne Parent neu angelegt, Konfiguration zweimal angewandt und Formular ohne Fehler gelesen; temporäre Instanzen anschließend entfernt. Eine neue vollständige native Einrichtungs-/Rückwegkette am Kandidaten und ein echter Kernelneustart werden damit nicht behauptet. |
-| 2. Kompatibilität | Teilweise abgeschlossen | Native Symcon-9.1-Praxis bestätigt. Beide Erweiterungen melden den erwarteten Build und beantworten die Verbindungsprüfung. Die Versionsfelder bleiben in diesem Lauf leer; daraus wird keine Z2M-Version ergänzt. Der ältere belegte Stand bleibt 2.14.2-dev ohne genaue Entwicklungsrevision. Symcon 9.0 und eine stabile Z2M-Version sind mangels getrennter Testumgebungen nicht praktisch nachprüfbar. |
-| 3. Aktuelle Oberfläche | Browser bestätigt; echte Kachelprüfung mit Fehler | Nach bestätigtem Testmodulupdate Systemwechsel, vorhandene Geräte-/Gruppennamen, Vorbelegung von Regelname, Auslöser, Kanal, Wert und Zielgerät, neue Geräteauswahl, Abbruch, Diagnose/Buildanzeige und Zugangserneuerung mit erhaltener offener Eingabe geprüft. Browsergrößen 360/760/1600/3840 Pixel in Hell/Dunkel, ohne horizontalen Seitenüberlauf; echtes Mausrad in beide Richtungen am jeweils betroffenen Scrollbereich. Eine Transportprüfung der Zugangserneuerung bei offenem Modal wurde über den bestehenden Button per DOM-Klick ausgelöst und ist kein Zeigerklicknachweis dieses verdeckten Buttons. Im echten Symcon-Kachelclient 9.1 funktionieren Systemwechsel und aktiver Status beider Systeme, Erneuerung per sichtbarem äußeren Button ohne Eingabeverlust sowie Abweisen der Großansicht bei offenem Dialog. Die anschließende Mausradprüfung findet B4; die native Gesamtprüfung gilt nicht als bestanden. |
-| 4. Beta-Unterlagen und Qualitätsprüfung | Lokal vorbereitet | Tests, Syntax, Struktur, Kodierung, StylePHP, Formatierung, Artefakt und GitHub-CI zum Codecommit geprüft. Einrichtungs-/Fehlermeldehilfe und Storevorlage vorbereitet. Der endgültige Veröffentlichungscommit einschließlich dieser Unterlagen, Versions-/Datumsangaben und Storefelder sind vor einer Einreichung nochmals festzulegen und zu prüfen. |
+| B1 | Benutzer-Praxis | Symcon 9.0 live bestätigt; abgeschlossen. |
+| B2 | Benutzer-Praxis | Stabiles Z2M 2.14.2 live bestätigt; abgeschlossen. |
+| B3 | Project | Native Klickprüfung, Einrichtung, Altübernahme, Sicherungen und Rückwege einschließlich P4–P6 abgeschlossen. [R4-Nachweis](R4_ACCEPTANCE_PLAN.md). |
+| B4 | Project | Native Mausradgrenzen mit regulärem Helper-Paket praktisch bestätigt; abgeschlossen. |
+| B5 | Project / Symcon | Finaler Commit samt automatischer Metadaten und grüner CI fehlt noch. Nach Benutzer-Push und Release-PR genau diesen Commit für den Store festlegen. |
 
-## Aktuelle Praxis und Bestandserhalt
+Die Herkunft und Grenzen der bisherigen Praxis bleiben in
+[COMPATIBILITY.md](COMPATIBILITY.md), [PRUEFLISTE.md](PRUEFLISTE.md) und im
+[historischen Abnahmebericht](BETA_ABNAHME_2026-11-06.md) erhalten. Deren frühere
+Offenbewertungen werden durch den obigen Stand ersetzt.
 
-Beide Systeme antworten auf die bewusst gestartete Gesundheitsprüfung und
-bestätigen denselben mitgelieferten Erweiterungsbuild. Nach anschließendem
-reinem Geräteabruf sind Kataloge vollständig verfügbar. Für beide Systeme wurden
-Dokument, Auswahl und offene Bearbeitungsdaten vor/nach diesem Abruf unabhängig
-verglichen und unverändert gefunden.
+Aktuelle lokale Prüfung: PHP-Gesamtsuite einschließlich **229 JavaScript-Tests**
+bestanden. Paketprüfung und Regression gegen Überschreiben nativer Kachel-/
+Helperdateien bestanden; der neue Grenzfall war vor der Korrektur rot. Echte
+isolierte Browserprüfung bestätigt DE/EN, offene Eingaben, Systemwahl und
+360–3840 Pixel. Die neue Paketübernahme wurde nicht auf einem installierten
+Symcon nachgetestet; die bisherigen nativen Praxisnachweise bleiben abgegrenzt
+bestehen. Das ist keine allgemeine Versions-/Geräte- oder Sicherheitszertifizierung.
 
-Der separate Edge-Testbrowser verwendet weder das persönliche Browserprofil noch
-die Benutzerfenster. Seine zugelassenen POSTs sind auf `select-system` und
-`access-renew` begrenzt. Geräteauswahl und Änderungen des Namens erfolgen in
-abgebrochenen Dialogkopien. Der ursprüngliche Systemkontext wird wiedergewählt;
-Dokumente, Auswahl, offene Arbeit und Bindung wurden nach dem Browserlauf und
-nach dem abschließenden nativen Fehlerlauf separat unverändert verglichen.
-Die ursprüngliche gemeinsame Systemauswahl ist wiederhergestellt. Beide Systeme
-bestätigen weiterhin den aktiven gespeicherten Stand. Die eigene native
-Debugweiterleitung und Dateiaufzeichnung sind beendet; die Testbrowser geschlossen.
-Die Debugauswertung bestätigt deutsche Ablauf-/Zugangsmeldungen ohne Ausgabe
-des verwendeten Designerzugangs. Keine Regel wurde für den Test gespeichert,
-gestartet, gestoppt oder geschaltet.
+Der statische Store-Scanner findet 0 Blocker und 18 Dateizugriffs-Prüfhinweise.
+Diese Stellen wurden kontextuell geprüft: begrenztes php://input, feste eigene
+Assets/Kataloge/Metadaten oder private, instanzgebundene Sicherungen mit festen
+Schlüsseln und Größen-/Prüfsummengrenzen. Keine frei wählbaren Dateipfade in
+Browseraufträgen. Die Store-Regel zu lokalen Dateien bleibt bei der Einreichung
+sichtbar; Windows-Dateirechte sind weiterhin eine lokale Schutzempfehlung.
 
-Vorläufige Browserläufe zeigten Fehler der Prüfinstrumentierung: exakte
-Labelauswahl für umschließende Select-Labels, noch laufende Katalogseiten,
-CSS `color-scheme: light dark` und verschachtelte statt ausschließlich globale
-Scrollpositionen. Diese Erwartungen wurden am vorhandenen Verhalten korrigiert.
-Es wurde keine Produktionslogik geändert, um einen Test grün zu machen. Die
-abschließende Browserprüfung verlangt beide Systemkontexte, vollständige
-Katalogseiten und tatsächliche Vorher-/Nachher-Scrollbewegungen bei Überlauf.
+Drei/acht Erweiterungen sind synthetisch geprüft, zwei Systeme praktisch.
+Weitere reale Broker, Converter und Z2M-Versionen sind zusätzliche R5-Arbeit.
+Ubuntu-Desktop-Prüfungen gehören zur unabhängigen Anwendung und blockieren
+nicht diese Symcon-Beta.
 
-Private Rohantworten, Screenshots und Entwürfe bleiben außerhalb des Repositorys.
-Eine leere Versionsanzeige wird als unbekannt behandelt. Erfolgreiche Status-
-und Katalogabfragen sind kein neuer Nachweis einer physischen Geräteausführung.
+## Abschließende mechanische Prüfung
 
-## Mechanische Prüfungen
-
-| Prüfung | Ergebnis am Codekandidaten |
+| Prüfung | Ergebnis |
 | --- | --- |
-| `php tests/run.php` | Erfolgreich, alle PHP-Prüfprogramme und 221 JavaScript-Tests, keine übersprungenen JS-Fälle. Enthält Struktur-/Kodierungs-/Artefaktprüfung und die synthetischen Mehrsystem-/Sicherungs-/Rückwegfälle. |
-| PHP-Syntax | 162 getrackte PHP-Dateien ohne Syntaxfehler; StylePHP und externe Stubs ausgenommen, eingebundene Helper eingeschlossen. |
-| Offizielles StylePHP `json-check.php` | Erfolgreich an einer unveränderten temporären Kopie der eigenen JSON-Dateien; Fremdquellen ausgeschlossen. |
-| PHP CS Fixer im Prüfmodus | Erfolgreich: 0 von 152 Dateien zu ändern; keine Formatierung durchgeführt. |
-| `npm run check:extension` über Gesamtsuite | Artefakt stimmt mit eigenen Quellen, Schema und Debugkatalog überein. |
-| Preflightscanner | 0 statische Blocker, 16 zu prüfende Dateizugriffe; anschließend kontextuell geprüft, siehe unten. |
-| Git-Diff | Ausgangsbaum sauber; Dokumentationsänderungen separat geführt. Private Rohdaten bleiben außerhalb des Repositorys; keine Helper-/Modul-/Artefaktänderung. |
-| GitHub Tests | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/42236882873). |
-| GitHub Check Style | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/42236882787). |
+| php tests/run.php | Bestanden: PHP-Prüfprogramme und 229 JavaScript-Tests; keine übersprungenen JS-Fälle. |
+| Ausgeliefertes PHP | 92 PHP-Dateien unter libs und beiden Modulen ohne Syntaxfehler. |
+| Offizieller JSON-Stylecheck | 22 eigene JSON-Dateien bestanden; Fremdquellen ausgeschlossen. |
+| PHP CS Fixer 3.95.27 | Prüfmodus: 0 von 154 Dateien zu ändern. PHP 8.5.10. |
+| Struktur, Kodierung, Erweiterungsartefakt | Bestanden; kein manuell geändertes Z2M-Artefakt. |
+| Gemeinsamer Designer | Paket-/Sprachprüfung auch aus isolierter Kopie ohne Desktop-Repo und ohne npm-Abhängigkeiten bestanden. |
+| Browser | Separater Edge-Testprozess, ausschließlich Loopback/Synthetik: DE/EN, Eingabeerhalt, Systemwahl, Scrollen und 360/1920/3840 Pixel in Hell/Dunkel bestanden. |
+| Zentraler Helper | Dateiprüfsummen stimmen mit dem eingebundenen Manifest überein; kein Helper geändert. |
+| Historische GitHub-CI | Tests und Check Style zu cd5cfc33 grün. Für den neuen Kandidaten erst nach Benutzer-Push gültig. |
 
-Die CI-Nachweise gelten für den genannten Commit. Sie sind kein Nachweis einer
-noch nicht committeten Dokumentationsänderung oder eines zukünftigen Releasecommits.
-Abhängigkeiten und gemeinsame Helper wurden nicht installiert oder verändert.
+## Zuordnung der aktuellen Store-Reviewpunkte
 
-Nach den Dokumentationsänderungen sind Struktur, zentrale Kodierungsprüfung,
-Artefaktprüfung und `git diff --check` erneut erfolgreich. Der neue
-Dokumentationsumfang besitzt noch keinen eigenen Commit oder CI-Lauf.
-
-## Kontextprüfung der Scanstellen
-
-| Stellen | Einordnung |
+| Punkt | Ergebnis im abgegrenzten Umfang / Nachweis |
 | --- | --- |
-| `AutomationDesignerCreation.php:13` | Begrenztes Lesen des HTTP-Requestbodys über `php://input`, kein frei wählbarer Dateipfad. |
-| `ExtensionContract.php:35`, `ExtensionTransport.php:33`, `MigrationSource.php:40`, `RuntimeDebugContract.php:17` | Feste mitgelieferte Moduldateien: Buildheader, Uploadartefakt, Librarymetadaten und Debugkatalog. Größen-/Formatprüfungen und feste Herkunft geprüft. |
-| `MigrationArchive.php:15,33,40,42,52` | Beabsichtigte private Sicherungen unter einem vom Modul festgelegten Instanzverzeichnis. Begrenzte Schlüssel, atomare Ersetzung, Rechte, Größenprüfung und Prüfsummen; kein Browserpfadparameter. Dies ist dokumentationspflichtiger lokaler Dateizugriff, kein allein durch den Scan bestätigter Verstoß. |
-| `ConfigurationFormHelper.php:47`, `HelperTranslationHelper.php:116`, `VisualizationAssetHelper.php:36,49,59` | Unveränderte manifestierte Helper laden Modulformular, Übersetzungen und erlaubte Visualisierungsressourcen. Die Designerroute verwendet eine feste Assetliste. |
-| `IPSViewHTMLPageHelper.php:528` | Bestandteil des unverändert gelieferten Helperpakets, aber nach Entfernung der IPSView-Integration von den Modulen nicht eingebunden. Kein aktiver IPSView-Endpunkt. |
-
-Zusätzlich betrachtet: eigene Objektzuständigkeit und MQTT-Datenfluss,
-System-/Generationsbindung, Wiederholungsquittungen, Größenbegrenzungen,
-Origin-/JSON-Prüfung, feste Hookrouten, zeitlich begrenzte Hash-Zugänge und
-Widerruf alter IPSView-Sitzungen. Die Gesamtsuite enthält die entsprechenden
-Positiv-/Negativfälle. Kein allgemeines Shell-/PHP-Ausführungsinterface und
-kein beliebiger Datei-/URL-Parameter in der Designerroute festgestellt.
-Dies ersetzt kein unabhängiges Penetrationstestgutachten.
-
-## Reproduzierter nativer Mausradfehler – Ausgangsbefund
-
-Im echten Symcon-Kachelclient 9.1 bei 1400 × 900 Pixeln den eingebetteten
-Designer laden, einen vorhandenen Geräteablauf anzeigen und über der mittleren
-Fläche nach unten scrollen. Die äußere Designer-Dokumentposition erreicht im
-Nachweis 424 Pixel. Der Zeiger liegt danach innerhalb von `canvas-scroll`,
-dessen eigene Position 0 und dessen mögliche Scrollstrecke 201 Pixel beträgt.
-Ein echtes Hochscrollen mit `deltaY: -300` ändert keine der beiden Positionen;
-auch der zuvor geprüfte große negative Delta änderte nichts.
-
-Der unveränderte zentrale Helper prüft, ob ein Element grundsätzlich überläuft,
-aber nicht, ob es sich in der angeforderten Richtung bewegen kann:
-`libs/helper/visualization/interaction.js:62` setzt `scrollTop` und verbraucht
-das Ereignis stets. Der Aufrufer bei Zeile 107 beendet die Suche beim ersten
-solchen Element. An dessen oberer Grenze erreicht das Ereignis den noch
-beweglichen äußeren Bereich daher nicht. Der Fehler wurde an echter
-Zeigereingabe mit Vorher-/Nachher-Positionen und Screenshot reproduziert;
-es ist kein ausschließlich synthetischer Eventtest.
-
-Systemauswahl, Status und offene Eingaben bleiben dabei erhalten. Die native
-Gesamtprüfung wurde nicht auf Grün gesetzt. Eine Korrektur gehört in die
-kanonische Helperquelle mit Regression für verschachtelte Scrollgrenzen,
-regulärer Paketverteilung und anschließender Prüfung desselben echten Clients.
-In diesem Abnahmeauftrag wurden weder Helper noch Modulquellen geändert.
-
-## Offene Befunde
-
-Nachtrag vom 06.11.2026 zum ausdrücklich beauftragten Korrekturpaket:
-Die kanonische Quelle in Symcon_ModuleHelper reicht das Mausrad an den nächsten
-tatsächlich beweglichen Vorfahren einschließlich Dokument-Viewport weiter.
-Ein teilweise bewegter Bereich verbraucht den gesamten Schritt, damit keine
-doppelte Bewegung entsteht. Offene Dialoge blockieren auch die native
-Scrollweitergabe in den Hintergrund. Regressionen waren vor den jeweiligen
-Korrekturen rot: Dokumentposition 424 statt 124 sowie Dialoghintergrund 304
-statt unverändert 424. Quelle und generiertes Asset bestehen nun diese Tests,
-einschließlich echter Browser-Mausradaktionen und expliziter Frameweitergabe.
-Der PHP-Test prüft die deutsche DebugFlow-Meldung und bereinigte Assetkennung.
-
-Im echten Test-Kachelclient 9.1 bei 1400 × 900 Pixeln die korrigierte Ressource
-ausschließlich per Route im separaten Testbrowser geliefert. Echtes Mausrad
-bewegt das Dokument abwärts und wieder aufwärts (506 nach 206 Pixeln).
-Dieser isolierte Nachweis ändert keine Serverdateien und ersetzt keine Abnahme
-des später installierten regulären Pakets. Beide Systemdokumente einschließlich
-Bindung, Auswahl und offener Arbeit sind danach identisch zum Ausgangsstand.
-Der derzeit nur zwischengespeicherte Betriebsstatus war nicht bestätigt; daraus
-wird keine neue Aussage über aktive Z2M-Regeln abgeleitet. Keine Katalogabfrage,
-YAML-Speicherung, Aktivierung oder Gerätebefehle für diesen Test ausgelöst.
-
-Das Consumer-Testpaket entsteht isoliert über die vorhandenen Metadaten- und
-Bundlefunktionen. Synthetische Herkunftsangaben bleiben außerhalb des normalen
-Arbeitsbaums. Die endgültige Gesamtsuite besteht unter PHP 8.5.10 einschließlich
-aller 221 JavaScript-Tests; Struktur, Kodierung, Build- und Formatierungsprüfung
-des Consumer-Pakets sind ebenfalls grün. Der verbindliche Weg bleibt:
-Benutzer commit/push auf Helper-dev,
-Freigabe nach main, automatische Metadaten/Consumer-Verteilung, Pull in
-Z2MAutomations/dev, Integritätsprüfung und Modulupdate der Testinstallation.
-Danach denselben nativen Grenzfall ohne Browser-Ressourcenaustausch prüfen.
-Bis dahin ist B4 trotz lokal bestätigter Korrektur nicht geschlossen.
-
-Reguläre Einbindung inzwischen bestätigt: Consumer-Commit e65fd7d liefert
-VisualizationAssetHelper 1.1.4 aus Helper-Bundle 3.30.7. Helper und alle drei
-Assets sind gegen die eigenen SHA-256-Angaben und das veröffentlichte zentrale
-Manifest bei cb8906845b8fe3acb25ae0f3e8233c0382a66816 geprüft. Keine manuelle
-Herkunfts- oder Hashänderung. Die Gesamtsuite ist auch am regulären Paket frisch
-bestanden, einschließlich aller 221 JavaScript-Tests unter PHP 8.5.10.
-Die Testinstallation enthielt beim ersten Abruf
-noch den alten Helper; das Test-Modulupdate wurde angefordert. Der abschließende
-native Nachweis steht deshalb weiterhin aus.
-
-Abschließender Nachtrag nach Test-Modulupdate: VisualizationAssetHelper 1.1.4
-liegt serverseitig vor. Die echte Symcon-Kachelvisualisierung 9.1 liefert das
-reguläre interaction.js bytegenau mit dem erwarteten SHA-256-Wert, ohne
-Ressourcenaustausch im Browser. Bei 1400 × 900 Pixeln den inneren Ablaufbereich
-mit echtem Mausrad prüfen: Zeiger innerhalb von canvas-scroll an dessen oberer
-Grenze 0 bei 177 Pixeln möglicher Scrollstrecke. Das Dokument steht auf 506
-Pixeln und wird durch Hochscrollen auf 206 Pixel bewegt. Der zuvor blockierte
-Übergang zum beweglichen Vorfahren funktioniert damit im installierten Paket.
-
-Systemwechsel bis zur vollständig passenden Regelanzeige abgewartet. Native
-deutsche AKTION-Meldung im Dateidebug mit Assetkennung 282d9c70995471a5 bestätigt;
-die anfängliche kurze Speicheraufzeichnung lieferte keinen passenden Eintrag.
-Die eigene Dateiaufzeichnung wurde beendet. Vollständige Systemdokumente samt
-Bindung, Auswahl und offener Arbeit danach identisch zum Ausgangsstand,
-ursprüngliche Systemauswahl wiederhergestellt. Keine Gerätebefehle,
-Z2M-Speicherung, Aktivierung oder Katalogabfrage. Betrieb blieb in der Anzeige
-unbestätigt; dieser reine Bediennachweis bestätigt keinen neuen Laufzeitstatus.
-Live-Symcon und Z2M-Erweiterungen unverändert. **B4 ist geschlossen.**
-
-Nachtrag 07.11.2026: Der Benutzer bestätigt erfolgreiche Live-Praxis unter
-Symcon 9.0 und mit stabilem Z2M 2.14.2. B1/B2 werden als Benutzer-Praxisnachweise
-geschlossen; keine zusätzliche Agentenabnahme behauptet. Die folgenden Tabellen
-ersetzen frühere offene Bewertungen dieser Punkte.
-
-Bestätigte offene **BLOCKER: 0**, **HINDERNIS: 1** im untersuchten Umfang.
-
-| ID | Abschluss / Basis | Nachweis |
-| --- | --- | --- |
-| B1 | Geschlossen / Benutzer-Praxis | Symcon 9.0 am 07.11.2026 vom Benutzer als live geprüft bestätigt. Kein zusätzlicher Agentenlauf. |
-| B2 | Geschlossen / Benutzer-Praxis | Stabiles Z2M 2.14.2 am 07.11.2026 vom Benutzer als live geprüft bestätigt. Grenzen und Herkunft in COMPATIBILITY.md erfasst. |
-| B4 | Geschlossen / Project | Helper-Bundle 3.30.7 regulär eingebunden. Native Grenzprüfung nach Test-Modulupdate ohne Browser-Ressourcenaustausch bestanden, passende Debugkennung und unveränderte Systemdaten bestätigt. |
-| B3 | Geschlossen / Project | R4 im beschriebenen Test-Symcon-9.1-Umfang abgeschlossen. Native Klickprüfung manuell durch Benutzer, begleitet durch Kernel-/MQTT-/Debugabgleich, einschließlich Auswahl, Vorschau, Verwerfen, Übernahme, Formularneuaufbau und Rückweg bestanden. Vorhandene Entwürfe erhalten, Testaufbau entfernt. [Praxisnachweis](R4_ACCEPTANCE_PLAN.md). Windows-Dateirechte bleiben eine lokale Schutzempfehlung. |
-
-| ID | Basis | Hindernis und kleinster nächster Schritt |
-| --- | --- | --- |
-| B5 | Symcon / Project | Startversion 0.161 und automatische Versionierung vorbereitet; erster GitHub-Lauf nach Benutzer-Push noch offen. Veröffentlichungsidentität und Storevorlage noch nicht im Account geprüft. Release-Datum, finalen Commit samt grüner CI und untenstehende Pflichtfelder festlegen. Keine Einreichung in diesem Auftrag. |
-
-**HINWEIS:** Reale Drei-/Acht-Broker-Abnahme, weitere Geräte-/Farbconverter und
-weitere Z2M-Versionen sind zusätzliche Kompatibilitätsarbeit. Sie dürfen nicht
-als bereits bestätigt beworben werden. Für die erste Beta den tatsächlich
-belegten Umfang ausdrücklich benennen. Windows bleibt ein separates Projekt.
+| SYM-01 Dateien | Begrenzte eigene Assets in libs/AutomationDesigner.php und libs/DesignerPresentation.php, private instanzgebundene Archive in libs/MigrationArchive.php; 18 Scannerstellen kontextuell eingegrenzt. Lokalen Dateizugriff bei Einreichung erläutern. |
+| SYM-02 Lokalisierung | Erste Storevorlage de; beide Module besitzen de-Kataloge. validate_structure.php und Paket-/Sprachprüfungen bestanden. Browser zusätzlich DE/EN getestet. |
+| SYM-03 Neuanlage | tests/module.php und tests/connection.php ohne vollständige Voraussetzungen bestanden; reale native Neuanlage bereits in B3 belegt. |
+| SYM-04 Datenfluss | MQTT-Anbindung über libs/MQTTTransport.php und unveränderte zentrale Datenflusshelper; Verbindungstests und vorhandene native Praxis belegt. |
+| SYM-05 Objektzuständigkeit | Eigene Statusvariablen und ausdrücklich zugeordnete Systeme; Scope-/Owner-Prüfungen in Workspace und Migration getestet. |
+| SYM-06 Objekterstellung | Interne RegisterTimer in beiden Modulen; keine eigene externe Ereigniserstellung im Laufzeitcode. R4-Prüfungen bleiben maßgeblich. |
+| SYM-07 Ausnahmen | Keine behauptete individuelle Symcon-Ausnahmegenehmigung. Der begrenzte Dateizugriff wird offengelegt; keine neue Abweichung eingeführt. |
+| SYM-08 Qualität | Eigene Prüfungen zusätzlich zum Storeverfahren ausgeführt; Review wird nicht als Fehlerfreiheitsnachweis ausgegeben. |
+| SYM-09 Namen | library.json, beide module.json und vorgeschlagener Storename ohne gesperrten Symcon-/IPS-Namensbestandteil. |
+| SYM-10 Version | Mindestversion 9.0. Optionale native Großansicht ab 9.1 ist getrennt abgefragt; Zielkanal Beta. |
+| SYM-11 Benutzereigenschaften | Keine neue Manipulation von Namen, Sichtbarkeit, Profilen oder Logging; nur Metadaten-URLs und Paketimportgrenze geändert. Bestehende Modul-/R4-Nachweise erhalten. |
+| SYM-12 PHP-Tags | Scanner und Syntaxprüfung bestanden; keine kurzen PHP-Tags neu eingeführt. |
+| SYM-13 Properties | Keine IPS_SetProperty-/IPS_ApplyChanges-Aufrufe im eigenen Laufzeitcode; Konfiguration bleibt benutzergeführt. |
+| SYM-14 Storetexte | Name, Beschreibung, Versionsinformation, Kategorie und Dokumentationsziel unten vorbereitet. Vollständiger SHA bleibt B5. |
+| SYM-15 Configurator | Nicht anwendbar: kein Configurator-Modultyp angeboten. System-/Gerätezuständigkeiten zusätzlich in Workspace-Tests geprüft. |
+| SYM-16 Discovery | Nicht anwendbar: kein Discovery-Modultyp angeboten; vorhandene Verbindungsauswahl bleibt Modulkonfiguration. |
+| SYM-17 Logging | Kein IPS_LogMessage im eigenen Laufzeitcode; bestehende native Debughelper unverändert und mitgeprüft. |
 
 ## Vorbereitete Storeangaben
 
-Die [aktuelle Symcon-Einreichungsdokumentation](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/)
-wurde am 06.11.2026 herangezogen. Beta und Testing werden direkt angeboten;
-der Symcon-Review betrifft Stable. Ein erfolgreicher Storeeintrag bestätigt
-deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
+Am 07.11.2026 das erreichbare Entwicklerkonto und die Kategorien nur lesend
+geprüft: kein bestehender Z2MAutomations-Eintrag im Konto. Keine Vorlage angelegt.
+Die vorgeschlagene Bundle-ID ist damit noch nicht reserviert.
 
-| Feld | Vorbereiteter Inhalt / noch erforderliche Entscheidung |
+| Feld | Vorbereiteter Wert |
 | --- | --- |
-| Kanal | Beta, erste Veröffentlichung; kein Stable-Antrag. |
-| Bundle-ID | Falls noch nicht angelegt: Vorschlag `de.burki24.z2mautomations`. Eine bereits vorhandene Store-ID unverändert verwenden; Accountbestand hier nicht geprüft. |
-| Git-URL | `https://github.com/Burki24/Symcon_Z2MAutomations` |
-| Commit | Erst den vollständig geprüften finalen Veröffentlichungscommit wählen. `b1ae70b` ist die hier geprüfte Codebasis, nicht automatisch die spätere Einreichung. |
-| Sprache | Für die erste Vorlage Deutsch; weitere Sprachen erst nach eigener vollständiger Sprachprüfung anbieten. |
+| Kanal | beta |
+| Bundle-ID | de.burki24.z2mautomations |
+| Git-URL | https://github.com/Burki24/Symcon_Z2MAutomations |
+| Git-Commit | Nach Commit/Push und geprüftem Release-PR den exakten vollständigen SHA wählen; keinen Branchnamen und keinen alten Abnahmecommit eintragen. |
+| Sprache | de für die erste Storevorlage. Der Browserdesigner bietet zusätzlich Englisch; keine vollständige englische Store-/Handbuchausgabe behauptet. |
 | Name | Z2MAutomations |
-| Beschreibung | Automationen für bis zu acht Zigbee2MQTT-Systeme zentral in Symcon erstellen und verwalten. Browserdesigner und native Kachel unterstützen Geräte-, Zeit- und Sonnenregeln, Bedingungen, Szenen und Aktionsfolgen. Eine eigene Z2M-Erweiterung führt übertragene und aktivierte Regeln unabhängig von Symcon aus. Systemübergreifende Aktionen erfordern eine passende MQTT-Verbindung und gerichtete Freigaben. |
-| Versionsinformation | Erste Beta der zentralen Automationsverwaltung mit Browserdesigner, nativer Symcon-Kachel und eigener Zigbee2MQTT-Erweiterung. Kompatibilitätsgrenzen und belegte Versionen in der Dokumentation beachten. Versionsnummer und Datum vor Einreichung mit Library und Changelog abgleichen. |
-| Dokumentation | Nach Veröffentlichung auf die Anleitung des exakt veröffentlichten Stands verlinken; Einstieg README und `docs/BETA.md`. Keine lokale oder vorläufige Vorschauadresse verwenden. |
-| Kategorie | Mindestens eine passende im Account angebotene Kategorie wählen; die konkrete Auswahl wurde nicht im Account geprüft. |
-| Lizenz | Vorhandene PolyForm Noncommercial 1.0.0 unverändert benennen. Dieser Bericht ist keine gesonderte Lizenzprüfung. |
+| Kategorie | Komfort, aktuelle Store-Kategorie 3. |
+| Dokumentation | https://github.com/Burki24/Symcon_Z2MAutomations/blob/VEROEFFENTLICHUNGS_SHA/README.md – vor Einreichung den Platzhalter durch den gewählten 40-stelligen Commit ersetzen. |
+| Lizenz | PolyForm Noncommercial 1.0.0 |
+| Flags | Normales Funktionsrelease; bestehende Kanäle nicht schließen. |
 
-## Freigabeschritte
+**Beschreibung:** Automationen für bis zu acht Zigbee2MQTT-Systeme zentral in
+Symcon erstellen und verwalten. Im Browserdesigner Geräte, Kanäle, Werte,
+Uhrzeiten und Sonnenzeiten ohne YAML-Kenntnisse auswählen. Bedingungen, Szenen
+und Aktionsfolgen ergänzen; Regeln ausdrücklich prüfen, speichern und aktivieren.
+Die eigene Zigbee2MQTT-Erweiterung führt aktivierte Regeln unabhängig von Symcon
+aus. Der Designer ist zusätzlich in der nativen Symcon-Kachel verfügbar.
+Aktionen zwischen getrennten Brokern benötigen eine MQTT-Bridge und gerichtete
+Partnerfreigaben. Belegte Versionen und Grenzen stehen in der Dokumentation.
 
-1. Die abgeschlossenen B1–B4-Nachweise mit ihrer jeweiligen Herkunft erhalten.
-   Benutzerbestätigung und unabhängige Agentenprüfung unterscheidbar lassen.
-2. Dokumentation, Library-Metadaten und Changelog für die bestätigte Version
-   konsistent vorbereiten; bis dahin `Unveröffentlicht` beibehalten.
-3. Benutzer führt Commit/Push über GitHub Desktop aus. CI zum finalen Commit
-   prüfen, anschließend den vereinbarten Release-/Branchablauf durchführen.
-4. Storepflichtfelder kontrollieren. Erst auf gesonderten Veröffentlichungsauftrag
-   einreichen. Dieser Bericht erteilt keine Freigabe zum Merge, Tag oder Release.
+**Versionsinformation:** Erste Beta mit zentraler Verwaltung von bis zu acht
+Z2M-Systemen, Browserdesigner auf Deutsch und Englisch, nativer Symcon-Kachel,
+Geräte-/Zeit-/Sonnenregeln, Bedingungen, Szenen und Aktionsfolgen. Mit sicherem
+Einlesen vorhandener Regeln, ausgewähltem Symcon-Ereignisimport, verständlichen
+Prüfungsfehlern, Erweiterungsverwaltung und zeitbegrenzten Debug-Aufzeichnungen.
+Neue Regeln beginnen ausgeschaltet. Vor Einrichtung und Änderungen Sicherungen
+anlegen; die Testinstallation am selben Broker verwendet denselben Z2M-Regelspeicher.
 
-Die aktuelle Empfehlung bleibt: Funktionsumfang eingefroren lassen und
-fehlende Laufzeitnachweise gezielt ergänzen. Keine pauschale
-Wiederholung der bereits bestandenen R1–R3- und Designerprüfungen.
+## Verbleibender Freigabeweg
+
+1. Benutzer committet und pusht diesen vorbereiteten Stand auf dev.
+2. Automatische Versionsanpassung abwarten und pullen. Tests und Check Style
+   müssen für den tatsächlich gewählten Stand grün sein; alte CI gilt nicht
+   für diese uncommitteten Änderungen.
+3. Vom geprüften Metadatenstand einen temporären Releasezweig für den PR nach
+   main verwenden. Dort das Changelog der bestätigten Version und dem tatsächlichen
+   Veröffentlichungsdatum zuordnen. Die Metadaten-Action läuft nur auf dev;
+   so erzeugt diese reine Release-Zuordnung keine weitere Versionsanhebung.
+   Tests und Check Style müssen auch für den Release-PR grün sein. Danach den
+   endgültigen main-Commit festhalten; dev erhalten und zurücksynchronisieren.
+   Keine manuelle vorgezogene Versionsanhebung in dieser Vorbereitung.
+4. Dokumentationslink auf denselben Commit setzen und erst auf ausdrücklichen
+   Veröffentlichungsauftrag den Beta-Kanal einreichen. Die Beta wird dabei
+   unmittelbar angeboten; es gibt keinen vorgeschalteten Stable-Review.
+
+Die zentrale Versionsregel zählt auch reine Dokumentationscommits als
+Quelländerung. Deshalb die bestätigte Versionsüberschrift nicht wiederholt auf
+dev nachführen; das würde die nächste automatische Anhebung auslösen. Der
+Releasezweig enthält dieselben Quell-/Metadaten und nur die endgültige
+Changelog-Zuordnung. Nach Rücksynchronisierung darf dev regulär weiterzählen;
+die bereits veröffentlichte main-Version bleibt dabei unverändert.
+
+Quelle: [aktuelle Symcon-Einreichungsregeln](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/),
+am 07.11.2026 erneut gelesen. Die Markdown-Seiten waren beim Abruf nicht
+verfügbar; die offizielle HTML-Seite wurde verwendet. Alle 17 Reviewpunkte
+wurden dem bestehenden Modulaufbau und den genannten Nachweisen zugeordnet;
+kein eigener Configurator oder Discovery-Modultyp wird angeboten.

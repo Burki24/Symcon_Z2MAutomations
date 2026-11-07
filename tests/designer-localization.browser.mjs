@@ -108,16 +108,19 @@ try {
     await page.waitForSelector('#edit-automation-button:not([disabled])');
     assert.equal(await page.locator('html').getAttribute('lang'), 'de', 'explicit preference survives reload');
     assert.match(await page.locator('#entry-title').innerText(), /Eigener Name – ON/);
-    for (const width of [360, 1920, 3840]) {
-        await page.setViewportSize({width, height: 1000});
-        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal page overflow at ' + width);
+    for (const colorScheme of ['light', 'dark']) {
+        await page.emulateMedia({colorScheme});
+        for (const width of [360, 1920, 3840]) {
+            await page.setViewportSize({width, height: 1000});
+            assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal page overflow at ' + width + '/' + colorScheme);
+        }
     }
     await page.waitForTimeout(100);
     assert.deepEqual(writes.map(write => write.route), ['edit'], 'no Z2M store, install, activation or device request');
     assert.ok(audits.length >= 3);
     assert.ok(audits.every(row => Object.keys(row).sort().join() === 'language,openEditor,previousLanguage'));
     assert.deepEqual(errors, []);
-    console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px.');
+    console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {
         const fresh = await browser.newContext({locale: browserLocale}); const view = await fresh.newPage();

@@ -28,7 +28,7 @@ Die native Symcon-Kachel bietet einen zusätzlichen Zugang zum Designer.
 - [2. Funktionsumfang](#2-funktionsumfang)
 - [3. Enthaltene Module](#3-enthaltene-module)
 - [4. Installation](#4-installation)
-- [5. Konfiguration in IP-Symcon](#5-konfiguration-in-ip-symcon)
+- [5. Konfiguration in Symcon](#5-konfiguration-in-symcon)
 - [6. Änderungen](#6-änderungen)
 - [7. Lizenz](#7-lizenz)
 
@@ -65,7 +65,7 @@ Mit **Automationsdesigner öffnen** geht es von hier in das eigene Webfrontend.
 
 ## 1. Voraussetzungen
 
-- IP-Symcon ab Version **9.0** mit PHP **8.5**.
+- Symcon ab Version **9.0** mit PHP **8.5**.
 - Ein erreichbares Zigbee2MQTT-System und eine passende Symcon-Instanz vom Typ
   **MQTT Client** oder **MQTT Server**.
 - Für die Installation der Erweiterung muss externes JavaScript in Z2M bereits
@@ -119,11 +119,15 @@ Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls
 
 ## 4. Installation
 
-Die Library über die Symcon-Modulverwaltung aus dem Repository
+Nach Veröffentlichung der ersten Beta im **Module Store** nach
+**Z2MAutomations** suchen und den **Beta-Kanal** wählen. Der aktuelle
+Vorbereitungsstand steht in der [Beta-Abnahme](docs/BETA_ABNAHME.md).
+
+Alternativ die Library über die Symcon-Modulverwaltung aus dem Repository
 [Burki24/Symcon_Z2MAutomations](https://github.com/Burki24/Symcon_Z2MAutomations) hinzufügen.
 Als Zweig **main** verwenden.
 
-## 5. Konfiguration in IP-Symcon
+## 5. Konfiguration in Symcon
 
 1. Je Z2M-System eine Instanz **Zigbee2MQTT Verbindung** anlegen und dem passenden
    MQTT Client oder MQTT Server zuordnen. Das Z2M-Basistopic eintragen, die
