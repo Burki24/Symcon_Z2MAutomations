@@ -6,96 +6,116 @@
 [![Check Style](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml?query=branch%3Amain)
 [![Tests](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml?query=branch%3Amain)
 
-Z2MAutomations erstellt und verwaltet Automationen für bis zu acht
-Zigbee2MQTT-Systeme in einer gemeinsamen Symcon-Zentrale. Geräte, Auslöser,
-Bedingungen und Aktionen lassen sich im Browserdesigner oder in der nativen
-Symcon-Kachel auswählen. Programmier- oder YAML-Kenntnisse sind dafür nicht nötig.
+Erstellt und verwaltet Automationen für Zigbee2MQTT: Geräteauslöser, Uhrzeiten,
+Sonnenzeiten, Bedingungen, Szenen und Aktionsfolgen. Eine Automationszentrale
+verwaltet bis zu acht Z2M-Systeme. Die Bedienung erfolgt im Browserdesigner oder
+in der nativen Symcon-Kachel, ohne Programmier- oder YAML-Kenntnisse.
 
-Die Regeln werden an eine eigene Zigbee2MQTT-Erweiterung übertragen.
-Nach dem Speichern und Aktivieren führt Zigbee2MQTT sie selbstständig aus;
-Symcon muss dafür nicht weiterlaufen.
+Die Regeln werden an eine eigene Zigbee2MQTT-Erweiterung übertragen und dort
+nach dem Aktivieren selbstständig ausgeführt. Symcon muss dafür nicht weiterlaufen.
 
-## Funktionen
+## Inhaltsverzeichnis
 
-- **Geräteauslöser:** auf Taster, Bewegungsmelder und andere Gerätezustände
-  reagieren. Mehrere Auslöser können dieselbe Automation unabhängig starten.
-- **Zeit- und Sonnensteuerung:** mehrere Uhrzeiten, Wochentage sowie
-  Sonnenauf- und Sonnenuntergang mit Zeitversatz verwenden.
-- **Bedingungen:** beispielsweise Helligkeit, Temperatur oder Zeitfenster
-  berücksichtigen.
-- **Aktionen:** Geräte und Gruppen schalten, Helligkeit und Farbe setzen,
-  vorhandene Z2M-Szenen aufrufen und Wartezeiten zwischen Schritten festlegen.
-- **Aktionsfolgen:** Abläufe einmal anlegen und in mehreren Automationen verwenden.
-- **Mehrere Z2M-Systeme:** getrennte Entwürfe zentral bearbeiten und Aktionen
-  zwischen freigegebenen Systemen ausführen.
-- **Vorhandene Regeln:** Z2M-Automationen einlesen und unterstützte
-  Symcon-Ereignisse nach Vorschau als ausgeschaltete Entwürfe importieren.
-- **Betrieb:** Regeln aktivieren und stoppen, einzelne Abläufe einmal starten
-  sowie den automatischen Wiederanlauf nach einem Z2M-Neustart einstellen.
+- [1. Voraussetzungen](#1-voraussetzungen)
+- [2. Funktionsumfang](#2-funktionsumfang)
+- [3. Enthaltene Module](#3-enthaltene-module)
+- [4. Installation](#4-installation)
+- [5. Konfiguration in IP-Symcon](#5-konfiguration-in-ip-symcon)
+- [6. Änderungen](#6-änderungen)
+- [7. Lizenz](#7-lizenz)
 
-## Welche Module werden benötigt?
-
-| Modul | Anzahl | Aufgabe |
-| --- | --- | --- |
-| [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md) | Eine Zentrale | Automationen erstellen, bearbeiten, prüfen, übertragen und steuern. Enthält den Browserdesigner und die native Symcon-Kachel. |
-| [Zigbee2MQTT Verbindung](Z2MConnection/README.md) | Eine Verbindung je Z2M-System, höchstens acht | Verbindet die Zentrale über eine vorhandene Symcon-MQTT-Anbindung mit genau einem Z2M-System. |
-
-Die Zentrale benötigt keine eigene MQTT-Schnittstelle. Jede Z2M-Verbindung
-verwendet den MQTT Client oder MQTT Server des zugehörigen Brokers.
-Die Z2M-Erweiterung wird je System aus der Zentrale installiert und aktualisiert.
-
-## Voraussetzungen
+## 1. Voraussetzungen
 
 - IP-Symcon ab Version **9.0** mit PHP **8.5**.
-- Ein erreichbares Zigbee2MQTT-System und eine passende Symcon-MQTT-Anbindung.
+- Ein erreichbares Zigbee2MQTT-System und eine passende Symcon-Instanz vom Typ
+  **MQTT Client** oder **MQTT Server**.
 - Für die Installation der Erweiterung muss externes JavaScript in Z2M bereits
   freigeschaltet sein. Die Library ändert diese Einstellung nicht.
+- Für Aktionen zwischen getrennten Brokern eine MQTT-Bridge und passende
+  Partnerfreigaben der beteiligten Z2M-Systeme.
+- Die native Großansicht der Kachel ist ab Symcon 9.1 verfügbar; unter 9.0
+  steht der Designer innerhalb der normalen Kachel zur Verfügung.
 
 Praxisnachweise liegen für Symcon 9.0 und 9.1 sowie Z2M 2.14.2 und 2.14.2-dev
 vor. Umfang und Grenzen stehen in der [Kompatibilitätsübersicht](docs/COMPATIBILITY.md).
 
-## Installation und erste Einrichtung
+## 2. Funktionsumfang
 
-1. Die Library über die Symcon-Modulverwaltung hinzufügen.
-2. Je Z2M-System eine Instanz **Zigbee2MQTT Verbindung** anlegen, mit der passenden
-   MQTT-Anbindung verbinden und das Basistopic eintragen. Anschließend die
+- Geräteautomationen für Taster, Bewegungsmelder und andere Gerätezustände;
+  mehrere Auslöser können dieselbe Regel unabhängig starten.
+- Zeitautomationen mit mehreren Uhrzeiten, Wochentagen sowie Sonnenauf- und
+  Sonnenuntergang mit Zeitversatz.
+- Bedingungen für beispielsweise Helligkeit, Temperatur und Zeitfenster.
+- Geräte und Gruppen schalten, Helligkeit und Farbe setzen und vorhandene
+  Z2M-Szenen aufrufen.
+- Mehrere Aktionen mit Wartezeiten ausführen und Aktionsfolgen in verschiedenen
+  Automationen wiederverwenden.
+- Bis zu acht Z2M-Systeme mit getrennten Entwürfen in einer Zentrale verwalten;
+  freigegebene Geräte und Gruppen anderer Systeme als Aktionsziele verwenden.
+- Vorhandene Z2M-Automationen einlesen und unterstützte Symcon-Ereignisse nach
+  Vorschau als ausgeschaltete Entwürfe importieren.
+- Automationen erstellen, bearbeiten, kopieren und löschen; gespeicherte Regeln
+  aktivieren und stoppen sowie einzelne Abläufe einmal starten oder beenden.
+- Bei erneuter Auslösung ignorieren, neu starten oder die Wartezeit zurücksetzen;
+  automatischen Wiederanlauf nach einem Z2M-Neustart einstellen.
+
+Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls.
+
+## 3. Enthaltene Module
+
+- [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md)
+  - Eine zentrale Instanz zum Erstellen, Bearbeiten, Prüfen und Übertragen der
+    Automationen für bis zu acht Z2M-Systeme.
+  - Enthält den Browserdesigner und die native Symcon-Kachel. Die Zentrale
+    benötigt keine eigene MQTT-Schnittstelle.
+- [Zigbee2MQTT Verbindung](Z2MConnection/README.md)
+  - Eine Verbindungsinstanz je Z2M-System, verbunden mit dessen vorhandenem
+    MQTT Client oder MQTT Server.
+  - Stellt die Verbindung zum jeweiligen Z2M-System sowie dessen Erweiterungsstand
+    und Gerätedaten für die Zentrale bereit.
+  - Die Modulanleitung enthält auch die
+    [Einrichtung mehrerer Mosquitto-Broker](Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+
+## 4. Installation
+
+Die Library über die Symcon-Modulverwaltung aus dem Repository
+[Burki24/Z2MAutomations](https://github.com/Burki24/Z2MAutomations) hinzufügen.
+Als Zweig **main** verwenden.
+
+## 5. Konfiguration in IP-Symcon
+
+1. Je Z2M-System eine Instanz **Zigbee2MQTT Verbindung** anlegen und dem passenden
+   MQTT Client oder MQTT Server zuordnen. Das Z2M-Basistopic eintragen, die
    MQTT-Anbindung im Modul aktivieren und die Verbindung prüfen.
-   [Einrichtung der Verbindung](Z2MConnection/README.md#voraussetzungen-und-einrichtung).
-3. Eine **Zigbee2MQTT Automationszentrale** anlegen und dort die gewünschten
-   Z2M-Verbindungen auswählen.
-   [Zentrale einrichten](Z2MAutomations/README.md#automationszentrale-anlegen).
-4. Für jedes System die Erweiterung installieren und die Gerätedaten laden.
-   Vorhandene Z2M-Automationen lassen sich über die
-   [direkte Einrichtung](Z2MAutomations/README.md#direkt-aus-z2m-einrichten) einlesen.
-5. Den Designer öffnen, das gewünschte System wählen und eine Automation erstellen.
-   Änderungen zunächst in den lokalen Entwurf übernehmen.
-6. Den Entwurf in Z2M prüfen, anschließend speichern und die gewünschten Regeln
-   aktivieren. Neue Automationen beginnen ausgeschaltet.
+2. Eine **Zigbee2MQTT Automationszentrale** anlegen. Im Bereich **Z2M-Systeme**
+   die gewünschten Verbindungen anhaken und **Systemzuordnung übernehmen** wählen.
+3. Für jedes System die Erweiterung installieren und die Gerätedaten laden.
+   Vorhandene Z2M-Automationen lassen sich über die direkte Einrichtung einlesen.
+4. Den Designer öffnen, das gewünschte System auswählen und die Automation
+   mit Auslösern, optionalen Bedingungen und Aktionen zusammenstellen.
+5. Die Änderungen in den lokalen Entwurf übernehmen. Neue Regeln beginnen
+   ausgeschaltet; vor der gewünschten Nutzung den Regelschalter einschalten.
+6. Den Entwurf in Z2M prüfen, speichern und die gespeicherten Automationen
+   aktivieren. Erst dann führt Z2M die eingeschalteten Regeln aus.
 
-Die [Modulanleitung der Zentrale](Z2MAutomations/README.md) beschreibt die
-Bedienelemente und den Ablauf vom Entwurf bis zur aktiven Automation.
-
-## Mehrere Z2M-Systeme verbinden
-
-Mehrere Systeme können denselben MQTT-Broker verwenden, wenn sie unterschiedliche
-Basistopics besitzen. Bei getrennten Brokern wird eine MQTT-Bridge für die
-systemübergreifenden Aktionen benötigt. Die vollständige
-[Schritt-für-Schritt-Anleitung für bis zu acht Mosquitto-Broker](Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
-steht in der Anleitung des Verbindungsmoduls.
-
-Zusätzlich wird im empfangenden Z2M-System eine
+Eine Zentrale genügt für bis zu acht Z2M-Systeme. Mehrere Systeme können denselben
+MQTT-Broker verwenden, wenn sie unterschiedliche Basistopics besitzen. Für getrennte
+Broker beschreibt die [Modulanleitung der Verbindung](Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+die Einrichtung. Empfangende Systeme benötigen zusätzlich eine gespeicherte
 [Partnerfreigabe](Z2MAutomations/README.md#partnerfreigaben-im-browserdesigner)
-für das sendende System eingerichtet. Die Freigabe der Gegenrichtung erfolgt separat.
+für das sendende System; die Gegenrichtung wird separat erlaubt.
 
-## Library und Erweiterungen aktualisieren
-
-Nach einem Library-Update den Erweiterungsstand je System prüfen. Bei einem
+Nach einem Library-Update den Erweiterungsstand je System prüfen und bei einem
 Updatehinweis die mitgelieferte Erweiterung über die Zentrale installieren.
-Nach erfolgreicher Installation werden die Gerätedaten automatisch nachgeladen;
-vorhandene Entwürfe bleiben erhalten. Ein Erweiterungsupdate kann laufende
-Abläufe kurz unterbrechen.
+Die Gerätedaten werden anschließend automatisch nachgeladen; Entwürfe bleiben
+erhalten. Ein Erweiterungsupdate kann laufende Abläufe kurz unterbrechen.
 
-## Lizenz und Änderungen
+Die weitere Konfiguration und Bedienung stehen in der README des jeweiligen Moduls.
 
-PolyForm Noncommercial License 1.0.0, siehe [LICENSE](LICENSE).
-Änderungen stehen im [Changelog](CHANGELOG.md).
+## 6. Änderungen
+
+Neue Funktionen und Fehlerkorrekturen stehen im [Changelog](CHANGELOG.md).
+
+## 7. Lizenz
+
+[PolyForm Noncommercial License 1.0.0](LICENSE).
