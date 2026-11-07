@@ -1,39 +1,453 @@
 # Architektur
 
+## Gemeinsamer Designerzugang und native HTML-Kachel
+
+DesignerEmbedding verwendet die vorhandenen VisualizationAssetHelper-,
+HTTP-Origin- und DebugFlowHelper-Verträge. Die bestehende Zentrale aktiviert
+in Create/ApplyChanges Typ 1 für Symcon 9.0 und Typ 2 für Symcon ab 9.1; GetVisualizationTile liefert nur eine
+statischen äußeren Loader mit fester Hookadresse, ohne Browser-Capability. RequestAction
+akzeptiert ausschließlich die korrelierten Kachelaktionen status/access.
+Die Statusansicht verwendet WorkspaceOverview und vorhandene Verbindungsdaten;
+Der Loader öffnet automatisch den vorhandenen Designer in einem benannten
+same-origin iframe. Dessen bestehende Systemauswahl und Aufträge bleiben erhalten.
+Es gibt keine zweite Editorimplementierung und keinen neuen MQTT-Pfad.
+
+embedding.js akzeptiert nur Nachrichten des eigenen direkten Parents derselben
+Origin. Native Farben und Grundschriftgröße werden in die vorhandenen eigenen
+Designer-Tokens übernommen. Der äußere Loader verwendet unverändert
+VisualizationInteractionScript; der Child lädt dieselbe zentrale Ressource über
+den festen interaction.js-Assetpfad, bevor die erste Datenabfrage startet.
+Dadurch konkurriert diese nicht mit ihrem eigenen Assetabruf um die Instanzsperre.
+Die CSP bleibt bei frame-ancestors self. Keine neue fremde Einbettungsfreigabe.
+Eine Zugangserneuerung nutzt dieselbe Capability ohne Navigation des iframe.
+Die native Großansicht wird erst nach Rückmeldung freigegeben, dass kein
+Bearbeitungsdialog offen ist.
+
+Native SDK-Antworten werden als JSON-Text über UpdateVisualizationValue gesendet
+und in handleMessage vor der Prüfung dekodiert; PHP-Arrays sind kein SDK-Transport.
+Sie enthalten Client- und Anfragekennung. Ein ausdrücklich
+angeforderter Designerzugang wird nur von der passenden Kachel angenommen.
+IssueDesignerAccess erzeugt denselben begrenzten Zugang auch für den nativen
+Öffnungsbutton. initialSystem im flüchtigen Zugangsdatensatz wählt den ersten
+Browserlesekontext, ohne die globale Auswahl umzuschreiben. Danach bleiben die
+bestehenden expliziten Systemheader und Bindungsprüfungen maßgeblich.
+
+access-renew verlängert ausschließlich eine bereits gültige Capability nach
+derselben Origin-/JSON-Prüfung wie Editor-POSTs. Hash, Rechte, Quittungen und
+Bindung bleiben identisch; maximal acht Stunden ab Ausstellung. access.js führt
+keine Editoraktion erneut aus und lädt keine Seite neu. Neue Modul-/Bindungsstände
+und abgelaufene Zugänge bleiben gesperrt. Details: ADR 0032.
+
+## Gerichtete Partnerfreigaben im Designer
+
+WorkspacePermissions ergänzt den vorhandenen Workspace-Vertrag für mesh_peers
+um einen eigenen, ausdrücklich bestätigten lokalen Bearbeitungsweg. Nur der
+Empfangsentwurf wird geändert; es entsteht weder eine automatische Gegenfreigabe
+noch ein zweiter Transfer- oder MQTT-Pfad. SequencePlan ermittelt die abhängigen
+lokalen Regeln. Berechtigung, Bindung, Bestätigungskontext und Wiederholungsquittung
+schützen den Commit. Einzelheiten in ADR 0031 und WORKSPACE.md.
+
+## Systemdiagnose im Browserdesigner
+
+WorkspaceDiagnostics delegiert die ausdrücklich gestarteten Beobachtungen an
+die bestehenden Z2MConnection-Einstiege CheckHealth, RequestExtensionStatus,
+StartRuntimeDebug und StopRuntimeDebug. GetConnectionDiagnostics verwendet
+ExtensionBuildInfo und eine bereinigte Ansicht der vorhandenen RuntimeDebug-
+Lease. Es entsteht weder ein zweiter MQTT-Client noch eine neue Aufzeichnung
+oder Laufzeitsteuerung. Der Browser erhält Status und Instanzzuordnung; die
+Ablaufmeldungen verbleiben im kanonischen nativen Debugkanal der Verbindung.
+GET startet keine MQTT-Abfrage. Einzelheiten in ADR 0029 und WORKSPACE.md.
+
+## Gemeinsamer Ereignisimport
+
+Der bestehende SymconEventImport-Konverter arbeitet auch in der Zentrale über
+den projizierten Editorzustand. WorkspaceEventImport löst native Quellen und
+erlaubte lokale/entfernte Ziele anhand der ausgewählten Systembindung auf.
+Native Oberfläche und die fest begrenzte Browserroute verwenden denselben
+Vorschau- und Übernahmeweg. Es entsteht kein zweiter Konverter, eigener MQTT-
+Client oder Ausführungspfad. Bericht und Freigabe sind flüchtig und systemgebunden;
+nur die ausgeschaltete neue Regel wird im lokalen Dokument gespeichert.
+Siehe ADR 0008 und WORKSPACE.md.
+
+## Gemeinsamer Browsereditor
+
+Der aktive editor.js ist für neue und vorhandene Regeln sowie Definitionen
+wiederverwendbarer Aktionsfolgen zuständig. Er erstellt ausschließlich lokale
+Dialogkopien. Erstellen und Bearbeiten verwenden dieselbe serverseitige
+Feldvalidierung und den bestehenden atomaren Entwurfscommit. Neue Regelkennung
+und ausgeschalteter Anfangszustand bleiben serverseitig. Aktionssortierung ist
+eine lokale Reihenfolgeänderung ganzer Schritte; Griff und Pfeilbuttons verwenden
+dieselbe Funktion. Es entsteht kein zusätzlicher MQTT- oder Laufzeitweg.
+Details zu Systembindung, Kontext und Quittungen stehen in WORKSPACE.md.
+
+## Zentrale Verwaltung mehrerer Systeme
+
+Die zentrale Instanz wird als „Zigbee2MQTT Automationszentrale“ angeboten.
+GetCompatibleParents liefert ausdrücklich {}: Der native Assistent darf aus
+den bisherigen Datenflussmetadaten keine eigene MQTT-Schnittstelle ableiten.
+Die Metadaten bleiben für vorhandene Quellverbindungen erhalten. Dieser Getter
+konfiguriert und trennt keine Verbindung; Z2MConnection ist weiterhin der
+MQTT-Verbindungsbaustein. Es entsteht kein drittes Modul.
+
+Schritt 5 verbindet WorkspaceForm, WorkspaceDesigner und WorkspaceEditorContext
+mit den getrennten Dokumenten: gemeinsame Auswahl, explizite System-/Generations-
+und Änderungsbindung, native Editorcallbacks und Browser-CRUD. Editorzugriffe
+werden auf den jeweiligen Systemeintrag projiziert; die Instanzattribute dienen
+nicht als Umschaltpuffer. Geräte-/Kanalmetadaten kommen aus bestätigten Katalogen,
+Schaltrechte aus aktuellen nativen Variablenbindungen. Weitere Details in
+[WORKSPACE.md](WORKSPACE.md). Die zentrale Betriebssteuerung delegiert ihre
+systemgebundenen Aufträge an die vorhandenen Verbindungen; es entsteht kein
+eigener MQTT-Client in der Zentrale.
+
+Schritt 4 ergänzt die ausdrückliche [lokale Migration](MIGRATION.md): private
+Quellsicherungen, prüfsummengebundenes Manifest, persistentes Journal und
+Besitzerfences vor Freigabe des zentralen Arbeitsbereichs. Ein unterbrochener
+Vorgang bleibt gesperrt und kann gezielt fortgesetzt oder zurückgenommen werden.
+Ein Modulupdate allein ändert keine Rolle, Verbindung oder Z2M-Laufzeit.
+
+Schritt 3 ergänzt die lokale Datenhaltung und die Modulfunktionen aus
+[WORKSPACE.md](WORKSPACE.md): ein versioniertes Attribut je Verwaltung, einzelne
+Dokumente und Bearbeitungskontexte je System, lokale Quittungen und gerichtete
+Zielauswahl. Registry und Dokumente sind von Legacy-Attributen und dessen
+MQTT-Parent getrennt. Die gemeinsame Oberfläche ist inzwischen lokal ergänzt.
+Native Identität und Schaltrechte verwenden
+gemeinsame librarylokale Adapter mit dem Bestandseditor; Z2M-Katalog und
+Symcon-Bindungen bleiben getrennte Bereiche.
+
+ADR 0026 beschreibt die beschlossene Zielarchitektur: eine zentrale Verwaltung
+mit bis zu acht Z2MConnection-Modulen. Jedes System behält Dokument, Revision
+und Laufzeit; die Übernahme vorhandener Entwürfe und Bindungen erfolgt ausdrücklich
+mit Sicherung, Vorschau, Besitzerwechsel und lokalem Rückweg. Der
+[konkrete Umbauplan](MULTISYSTEM_PLAN.md) enthält Modulgrenzen, Identitäten,
+Arbeitsfolge und Prüfmatrix. Schritte 1–6 sind implementiert; die abgegrenzte
+Restabnahme steht in der [aktuellen Prüfliste](PRUEFLISTE.md).
+Die lokale Grundlage besteht aus SystemContract v1, SystemMigrationInspection
+und SystemMigrationPreview: explizite System-/Besitzer-/Generationsbindung und
+rein lesende Bestandsberichte für ausgewählte Quellen. Registrierung und
+persistenter Besitzerwechsel erfolgen nur über die eigenen ausdrücklich
+beauftragten Modulfunktionen. Ohne Übernahme bleiben Bestandsinstanzen erhalten.
+
+Schritt 2 stellt Z2MConnection (Z2MC) als eigenständiges IPSModuleStrict bereit.
+MQTTTransport, ExtensionTransport und DeviceCatalog sind aus der bisherigen
+Implementierung extrahiert und werden von beiden Modulen verwendet. Sie kapseln
+nativen MQTT-Datenfluss, Korrelation, Fristen, Statusvertrag, Artefaktinstallation,
+Buildanzeige und die identische Katalogvalidierung. ConnectionWorkflow begrenzt
+die neue Modulpolitik auf Status, Katalog und Installation; die bisherige
+ExtensionIntegration behält Entwurfs- und Ausführungsabläufe. RuntimeDebug wird
+unverändert wiederverwendet. Es entsteht kein zweiter MQTT-Client in PHP.
+
+Der neue Scope enthält Parent, Topic, Aktivierung, Wartezeit, SystemID und
+Generation. Ein eigenes ConnectionCatalog-Attribut hält ausschließlich geprüfte
+Geräte-/Kanal-/Gruppen-/Szenendaten samt Scope, Sitzung und Ladezeit. Es enthält
+keine YAML. Ein ungültiger Abruf erhält die vorigen Bytes, bestätigt sie aber
+nicht erneut. Die lesende API liefert ausschließlich aktuell zugeordnete und
+bestätigte Kataloge; Sitzungen werden nicht exportiert. Zugriffsbits stammen aus
+Z2M und sind noch keine Freigabe einer Symcon-Aktion. Die Bestandsprüfung der
+Symcon-Schaltrechte bleibt beim Editor. Der vorhandene eigene Katalogvertrag
+enthält die notwendige Scope-/Sitzungsprüfung; ein generischer Cachehelper würde
+diese fachliche Prüfung nicht ersetzen.
+
+Create, ApplyChanges, Formularöffnen und lokale Abfragen senden im neuen Modul
+keine MQTT-Anfragen. Operative Aufträge werden ausdrücklich gestartet und nur
+außerhalb der instanzeigenen Sperre versendet. Ein Auftrag blockiert kein anderes
+System. Nach Abbruch, Generation-, Gateway- oder Topicwechsel gelten vorherige
+Antworten nicht mehr. Besitzergebundene Speicher- und Betriebsaufträge werden
+inzwischen von der zuständigen Zentrale an die Verbindung delegiert. Der
+Verbindungsbaustein übernimmt nicht eigenmächtig einen Besitzer. Die Grenze von
+acht Systemen liegt im zentralen Verwaltungsregister; einzelne Verbindungen
+zählen keine fremden Instanzen oder Installationen.
+
+## Automationsdesigner: Anzeige und lokale Regelerstellung
+
+ADR 0025 ergänzt AutomationDesignerSequences und die feste POST-sequence-Route.
+Neue Sitzungen erhalten dafür eine eigene sequences-Berechtigung. Definitionen
+werden mit dem vorhandenen Aktionseditor erstellt und bearbeitet; verschachtelte
+Folgenaufrufe sind ausgeschlossen. Änderungen enthalten nur name und actions.
+Identitäten erzeugt bzw. erhält der Server. Aktuelle Schaltrechte und der gesamte
+SequencePlan werden vor der Übernahme geprüft, einschließlich Schrittgrenzen
+verwendender Automationen. Bestehende nicht bearbeitbare Schritte bleiben bei
+reiner Namensänderung erhalten. Ursprung, Zugang, Kontext, 64-KiB-Grenze,
+native Eingaben und Wiederholungsquittungen schützen denselben lokalen Commitpfad.
+Automationsregeln und Partnerfreigaben bleiben erhalten. Kein MQTT-Schreibpfad.
+
+ADR 0024 erweitert die vorhandene POST-create-Route um feste Uhrzeiten und
+Sonnenzeiten. Zeitquellen enthalten eine begrenzte Zeitenliste und eine Zeitzone;
+Sonnenquellen verwenden die vorhandenen Schemafelder. ClockEditorRows und
+SolarEditorFields prüfen und normalisieren wie im nativen Editor. NewEditorRule
+bildet den gemeinsamen Regelrahmen für native einfache Erstellung und Browser;
+BuildEditorAction sowie CommitEditorChange bleiben unverändert für Ziele und
+lokale Übernahme zuständig. Neue Regeln sind stets ausgeschaltet. Der lesende
+Export ergänzt nur die vom PHP-Zielsystem akzeptierten Zeitzonen. Kein neuer
+Erweiterungsbefehl, keine Sonnenberechnung im Browser und kein Standortdienst.
+
+ADR 0023 ergänzt die feste POST-edit-Route und AutomationDesignerEditing.
+Neue Zugänge besitzen eine eigene edit-Berechtigung; alte Lese-/Erstellzugänge
+werden nicht aufgewertet. Eine vorhandene Regel wird verlustfrei kopiert und
+nur um ausdrücklich geänderte Felder ergänzt. Identität, Partnerfreigaben und
+Aktionsfolgendefinitionen sind nicht Teil dieses Regel-Schreibvertrags. Gerätedaten und
+aktuelle native Schaltrechte werden bei jeder geänderten Sektion erneut geprüft.
+Nicht vollständig unterstützte Bestandsbereiche bleiben serverseitig geschützt.
+CommitEditorChange bleibt der einzige lokale Übernahmepfad. Keine MQTT-Ausgabe.
+
+Der vollständige Editorabruf übernimmt den gespeicherten YAML-Text samt Revision
+und Partnerfreigaben unverändert. SaveEditorDraft synchronisiert beim reinen
+Laden keine lokale Partnerauswahl. Bei tatsächlicher Entwurfsbearbeitung wird
+nur eine verfügbare ausdrückliche Partnerauswahl synchronisiert. Ohne diese
+Auswahl bleiben vorhandene Freigaben unverändert, einschließlich fehlendem oder
+ausdrücklich leerem mesh_peers. Zielauswahl und Schaltrechte bleiben an das
+ausgewählte Partnermodul gebunden. Ein zuvor
+fremd gebundener Entwurf wird vor einem beauftragten Abgleich extern gesichert
+und regelweise mit dem gespeicherten Stand verglichen.
+
+Zusätzlich zum lesenden GET-Vertrag gibt es eine feste POST-create-Route
+(ADR 0022). Neue Sitzungen erlauben diese begrenzte Entwurfsergänzung; alte
+Lesezugänge werden nicht aufgewertet. AutomationDesignerCreation prüft
+Herkunft, JSON-Grenze, Zugang, Kontext, native Eingaben und aktuelle Katalogrechte.
+SimpleEditorRule und CommitEditorChange bleiben der gemeinsame Regel-/Entwurfspfad.
+Der Browser erhält nur eine Bestätigung und lädt danach den aktuellen Entwurf
+neu. Kein zweiter YAML-Speicher und kein allgemeiner Browser-Aktionsendpunkt.
+
+Ein getrennter nativer RefreshDeviceCatalog-Aufruf nutzt die korrelierte
+status/catalog-Workflowkette. catalog liefert denselben begrenzten Geräte-,
+Gruppen- und Szenenkatalog wie editor, aber keine YAML und keine Konfiguration.
+Der gemeinsam geprüfte Parser schreibt erst nach vollständiger Validierung
+EditorSnapshot samt loadedAt. Kein SaveEditorDraft, kein Zurücksetzen von
+EditorWork, Auswahl oder Prüfungsdetails. catalog_version im Status verhindert
+Anfragen an ältere Erweiterungen. Der GET-Browservertrag bleibt lesend;
+catalogLoadedAt bezeichnet den letzten erfolgreichen Katalogabruf dieses Moduls.
+Native Regel- und Folgenübersichten zeigen nach einem reinen Geräteabruf keinen
+erhaltenen Entwurf einer anderen Verbindung als aktuell an; dessen Bytes und
+ursprüngliche Eingabepuffer bleiben erhalten.
+
+AutomationDesigner ergänzt OpenAutomationDesigner/GetDesignerData und einen
+flüchtigen, instanzbezogenen GET-WebHook. Der Designer zeigt nur bereits
+vorhandene, zum aktuellen TransportScope passende Editor-/Katalogdaten.
+GET führt keine MQTT-Abfrage, Attributänderung oder Laufzeitsteuerung aus.
+Anzeigen/Schaltrechte verwenden die vorhandenen Katalogpfade. Der Browserzugang
+ist gehasht, zeitlich begrenzt und ohne Query-Token; Routen sind fest begrenzt.
+Assets und HTTP-Antworten verwenden unveränderte zentrale Helper.
+Details und Grenzen: [ADR 0021](adr/0021-read-only-browser-designer.md).
+
+## Offline-Entwurf des Automationsdesigners
+
+Die Anleitung unter docs/prototypes/automation-designer verweist auf die
+kanonischen Assets unter Z2MAutomations/visualization. index.html/designer.js
+bleiben als separat gehosteter Offline-Modus mit synthetischem Ansichtsmodell
+verfügbar. Die echte WebHook-Seite lädt ausschließlich reader.js und keine
+Beispieldaten. Nur die statische HTML-/CSS-Grundlage wird gemeinsam genutzt.
+Prüfen, Speichern und Betrieb im Offline-Modus bleiben ausdrücklich Simulationen.
+Siehe [Umfang und Grenzen](prototypes/automation-designer/README.md).
+
+## Startbedingungen
+
+Die optionale Gerätebedingungsangabe `start_only` wird als StartOnly in der
+vorhandenen nativen Bedingungszeile geführt. Speicherung, Vorbelegung und
+EditorWorkInput verwenden den bestehenden Pfad. Die Runtime unterscheidet
+Neuanfang von laufenden Schritten und Verlängerung; Zeit-/Kalenderbedingungen
+bleiben unverändert. Keine neue MQTT-Operation, Laufzeit oder zentrale Helper-
+Abstraktion. Details: [ADR 0020](adr/0020-start-only-device-conditions.md).
+
+## Gemeinsame Gerätebefehle und native Farbauswahl
+
+EditorCommands ergänzt die bestehende Aktionszeile um eine begrenzte,
+kanonische Zusammenstellung von bis zu acht Eigenschaften. Das native Formular
+verwendet weiterhin Choice/Delay und speichert einen einzigen set-Schritt mit
+mehreren values. Geräteeigenschaften bleiben an die tatsächlichen Symcon-
+Variablen-IDs und deren aktuelle Schaltrechte gebunden, auch beim Partnerexport.
+Erweiterte oder nicht vollständig erlaubte Befehle werden nie teilweise in eine
+vereinfachte Zeile umgewandelt. Alte Einzelwertaufrufe dürfen solche Schritte
+nicht verkürzen. Wiederverwendbare Folgen nutzen denselben Pfad.
+
+Der Z2M-Katalog erkennt gezielt schreibbare color_xy/color_hs-Composites und
+exportiert deren Elterneigenschaft als Farbmetadatum. Kinder von Composites
+werden nicht als eigenständige MQTT-Eigenschaften angeboten. Native SelectColor-
+Ganzzahlen werden als verschachteltes hex-Objekt übertragen; keine eigene
+Farbraumumrechnung. Schema, Runtime und Mesh transportieren bereits solche
+Objekte und bleiben unverändert. Details und Grenzen in
+[ADR 0019](adr/0019-combined-device-commands-and-colors.md).
+
+## Erneute Auslösung
+
+Die optionale Regelangabe retrigger wird im bestehenden Schedule-Optionsvertrag
+erzeugt und durch EditorWorkInput geschützt. Die vorhandene Runtime entscheidet
+bei einer belegten Regel zwischen Ignorieren, einem serialisierten Neustart
+und Erneuern der aktuellen Wartezeit. Mesh-Übergaben bleiben bis zu ihrem
+Ergebnis unangetastet; Fehler, Stopp und Generationswechsel löschen vorgemerkte
+Neustarts. Keine eigene Queue, Timerengine oder MQTT-Steuerschnittstelle.
+Siehe [ADR 0018](adr/0018-retrigger-running-automations.md).
+
+## Kalendertage und mehrere Uhrzeiten
+
+AutomationEditorCalendar ergänzt die vorhandene Schedule-Bearbeitung um eine
+begrenzte native Uhrzeitenliste und unabhängige Wochentagsfelder. Mehrfachzeiten
+verwenden die vorhandenen time-Auslöser mit gemeinsamem Editor-Zeitzonenfeld.
+EditorWorkInput schützt auch diese Listen und Felder. Die neue Schema-1-Klausel
+weekday prüft in Z2M den aktuellen Kalendertag ihrer Zeitzone; Zeitfenster behalten
+ihren bisherigen Starttag. Beide gelten als eigenständige UND-Bedingungen.
+Keine zusätzliche Symcon-Laufzeit und kein zweiter Zeitplaner. Details und
+Updategrenzen stehen in [ADR 0017](adr/0017-independent-weekdays-and-clock-list.md).
+
+## Inhaltlicher Erweiterungsstand
+
+Der Generator bindet eine deterministische Inhaltskennung in das eigene Artefakt
+ein. Die laufende Erweiterung meldet sie additiv im Status. ExtensionContract
+liest den lokalen Upload-Header und prüft empfangene Kennungen; der bestehende
+Statusworkflow aktualisiert drei native Labels und bereinigte Debugentscheidungen.
+Keine zusätzliche Datei, Versionsänderung oder Laufzeitsteuerung. Details und
+Grenzen stehen in [ADR 0016](adr/0016-content-based-extension-build.md).
+
+## Wiederverwendbare Aktionsfolgen
+
+Der gemeinsame native Editor verwaltet benannte Definitionen und stabile
+Verweise in Regelaktionen. ReusableSequences verwendet die bestehenden
+Aktionsdialoge, Schaltrechte und die gebundene Entwurfsbearbeitung. SequencePlan
+prüft die Schrittgrenzen aller verwendenden Regeln vor einer lokalen Änderung.
+Die Z2M-Erweiterung prüft das vollständige Dokument und bildet mit sequences.mjs
+einen begrenzten Ausführungsplan im vorhandenen Regellauf. Speicherung,
+Wiederanlauf, Bedingungen und Stopp behalten denselben Besitzer. Über Mesh werden
+nur konkrete Aktionen übergeben. Siehe [ADR 0015](adr/0015-reusable-action-sequences.md).
+
+## Vorhandene Szenen als Aktionen
+
+Die eigene Z2M-Erweiterung liest Szenen ausschließlich aus den vorhandenen
+Endpoint-Metadaten. Der begrenzte Editor-Katalog enthält Geräte-/Gruppenidentität,
+Szenen-ID, optionalen numerischen Geräteendpoint, Anzeigename und den zugehörigen
+Schaltkanal. EditorScenes ergänzt daraus auswählbare Aktionswerte. Die Berechtigung
+bleibt an die native Symcon-Aktion dieses Kanals gebunden, auch beim Partnerexport.
+Das YAML speichert eine eigene `scene`-Aktion ohne Namen oder Symcon-IDs.
+Schema, Prüfung, Aktivierung, Laufzeit und Mesh-Empfänger prüfen die passenden
+Grenzen; die tatsächliche Szenenverfügbarkeit wird am ausführenden System geprüft.
+Siehe [ADR 0011](adr/0011-recall-existing-z2m-scenes.md).
+
+## Zwei eigenständige Z2M-Systeme
+
+`RemoteAutomationTargets` erweitert nur Aktionsziele um den ausdrücklich
+gewählten Partner mit anderem Basistopic. Beide Module dürfen dasselbe
+MQTT-Gateway verwenden. Die Zuordnung prüft immer Gateway und Basistopic
+zusammen; die Gateway-Gleichheit allein macht ein Ziel nicht lokal oder fremd.
+`GetActionCatalog` exportiert dessen
+lokale, nach Symcon-Schaltrechten gefilterten Geräte und Gruppen. Ein Export
+enthält nie erneut fremde Ziele. Der Katalog wird je öffentlichem Aufruf gelesen;
+die Variablenrechte werden vor jeder Verwendung erneut geprüft. Eigene Quellen
+und Ereignissuche bleiben an das eigene Gateway gebunden. YAML verwendet keine
+Symcon-IDs. Der Import unterstützt lokale Quellen mit gezielt gewählten
+entfernten Aktionszielen. [ADR 0009](adr/0009-cross-system-actions-over-mqtt-bridge.md)
+definiert Einmalfreigaben, Fehlergrenzen und den separaten Mesh-Bereich.
+
+## Symcon-Ereignisimport
+
+Ein lesender Import übersetzt ausdrücklich unterstützte Kernel-Ereignisse über
+Variablen-IDs in lokale Regeln. `Z2MInstanceDiscovery` bindet die Zuordnung an
+die eigene MQTT-ConnectionID und das ausgewählte Basistopic; pro Z2M-System wird
+eine eigene Automationsinstanz verwendet. Fremde Elternobjekte werden vor
+Instanzzugriffen ausgeschlossen. Die Ereignissuche ist vom geladenen Katalog
+unabhängig, die Importfreigabe erfordert weiterhin dessen passenden Kontext. Ein direkter
+bestätigter Ladevorgang verwendet denselben Editor-Workflow und prüft nach dessen
+Abschluss die vorgemerkte Ereignisauswahl erneut. Er führt keinen Quellcode aus und verändert weder
+Originalereignisse noch Z2M. Quelle und Ziel müssen zur geladenen Geräte-/Gruppen-
+Identität passen; unbekannte Semantik wird vollständig abgewiesen. Vorschau,
+Konfliktprüfung und deterministische Import-ID sichern die Übernahme ab.
+Der bestehende Klick-Editor verwaltet importierte Regeln einschließlich Gruppen.
+Umschalten besitzt eine eigene Schema-1-Aktionsvariante und liest den aktuellen
+Z2M-Zielzustand unmittelbar vor der nativen Set-Übergabe. Siehe ADR 0008.
+
+
+## Einmalige automatische Statusprüfung
+
+`ApplyChanges`, Formularabruf und Wiederverbindung planen einen einmaligen
+`StatusRefresh`-Timer mit 1000 ms ein. Der Formularaufbau sendet selbst kein MQTT
+und lädt das Formular nicht neu; bestehende Editoreingaben bleiben erhalten.
+Der bereite Kernel und eine aktive MQTT-Anbindung sind Voraussetzung.
+Nahezu gleichzeitige Anlässe werden zusammengefasst (zehn Sekunden Abstand).
+Eine frische passende positive Health-Antwort startet genau eine lesende
+Erweiterungsabfrage. Laufende manuelle Aufträge haben Vorrang; Kontextwechsel,
+Abschaltung, Transportfehler und Zeitüberschreitung beenden den Versuch.
+Es gibt keine automatische Installation, Aktivierung oder Wiederholungsschleife.
+
 ## Zuständigkeiten
+
+Der Geräteeditor bildet ODER-Auslöser mit individuellen Vergleichen und
+Mindestdauern ab. Geräte- und Zeiteditor teilen die AND-Bedingungsliste für
+lesbare skalare Eigenschaften plus optionales Zeitfenster. Die Liste bleibt
+librarylokal in AutomationEditorConditions; die Z2M-Engine führt die vorhandenen
+Schema-1-Klauseln ohne Symcon-Abhängigkeit aus. Der native Dialog verwendet
+Gerät, Eigenschaft, Vergleich und typisierten Wert. Aktionsrechte und deren
+Gerätegrenzen bleiben davon getrennt.
+
+Die nativen Geräte- und Zeitbereiche besitzen eigene statische Formularfelder
+und darin eingebettete Bearbeitungen. `AutomationEditorAreas` ordnet gemeinsame
+Befüllung und Live-Updates den jeweiligen lokalen Feldern zu und schützt
+bereichsgebundene Formularaufrufe. Eine Regelauswahl bleibt aktiv; Validierung,
+Speicherung und Laufzeitsteuerung bleiben gemeinsame Backend-Funktionen.
+Mehrfachauslöser verwenden weiterhin die begrenzte Metadatenbearbeitung im
+Bereich weiterer Automationen. Bestehende öffentliche Aufrufe bleiben durch
+optionale letzte Bereichsparameter kompatibel. Keine Änderung am YAML-Schema.
 
 Symcon ist der Editor und Verwalter. Zigbee2MQTT ist die Laufzeit.
 Beide Teile erhalten eigenen Implementierungscode in diesem Repository:
 
 - Z2MAutomations/: Symcon-Modul mit Formularen und künftig MQTT-Übertragung.
-- libs/z2m/: eigener JavaScript-Erweiterungscode, sobald implementiert.
+- libs/z2m/: eigene Erweiterungsquellen, kanonisches YAML-Schema und hochladbare
+  Einzeldatei mit eingebettetem Schema.
+- libs/Z2MProtocol.php: librarylokaler MQTT-/Z2M-Vertrag.
+- libs/ExtensionContract.php und ExtensionIntegration.php: normalisierte
+  Erweiterungsantworten und korrelierte Installations-/YAML-Workflows.
+- libs/helper/: unverändertes, manifestiertes Bundle aus Symcon_ModuleHelper.
 - libs/: librarylokale Logik, sobald benötigt.
 - tests/: Offline-Tests mit synthetischen Daten.
 
 Ein einzelnes Verwaltungsmodul ist der Einstieg. Weitere Module, Verbindungen
 und öffentliche Datenfluss-GUIDs werden erst bei konkretem Bedarf eingeführt.
-Das Grundgerüst legt keine künstliche MQTT-Verbindung und keine unfertigen
-Konfigurationsfelder an.
+Das Modul verbindet sich direkt mit einem vorhandenen nativen Symcon MQTT Client
+oder MQTT Server. Es gibt keinen eigenen Broker-Client und keinen Zwischenweg
+über die separate Zigbee2MQTT-Gerätelibrary. Siehe
+[ADR 0002](adr/0002-use-native-symcon-mqtt.md) und [MQTT-Vertrag](MQTT.md).
 
 ## Geplanter Übertragungsweg
 
 1. Z2M-Version und externe JavaScript-Freischaltung prüfen.
-2. Eigene .mjs über <base>/bridge/request/libs/z2m/save übertragen.
+2. Eigene .mjs über <base>/bridge/request/extension/save übertragen.
 3. Offizielle Antwort und eigene Bereitschaftsmeldung der Erweiterung auswerten.
 4. YAML als String in JSON über ein eigenes MQTT-Topic übertragen.
 5. Erweiterung validiert, speichert und aktiviert die Regeln.
 6. Symcon zeigt erst nach Bestätigung die aktive Revision an.
 
-Diese Schritte sind noch nicht implementiert. Der MQTT-Basistopic ist später
-konfigurierbar. Eigene Topics und YAML-Schema sind noch nicht veröffentlicht.
+Die MQTT-Grundlage mit konfigurierbarem Basistopic, Bridge-Status und manuellem
+health_check ist implementiert. Die Z2M-Seite empfängt und speichert inzwischen
+versionierte YAML über eigene Topics; siehe [Erweiterungsprotokoll](EXTENSION_PROTOCOL.md)
+und [YAML-Vertrag](YAML_SCHEMA.md). Die Symcon-Seite installiert das feste Artefakt
+auf ausdrückliche Bedienung, prüft den Empfänger und überträgt nach Vorschau und
+Bestätigung validierte YAML. Die eigene Engine verarbeitet eine ausdrücklich
+aktivierte Speicherrevision; siehe [ADR 0005](adr/0005-explicit-execution.md).
+Aktivierungs-/Stoppbuttons im Modul verwenden eine frische Abfrage, den
+korrelierten Steuerauftrag und eine zusätzliche Statusverifikation.
+Der erste Klick-Editor liest begrenzte diskrete Exposes und die gespeicherte
+Konfiguration aus der Erweiterung. Neue Regeln werden lokal ergänzt; Prüfung,
+Speicherung und Aktivierung bleiben ausdrücklich getrennte Bedienaktionen.
+Regeln werden über stabile IDs ausgewählt. Bearbeiten und Löschen erzeugen nur
+einen lokalen Entwurf. Eine Auswahlkennung bindet die Bedienung an den aktuellen
+Entwurf und verhindert Änderungen aus veralteten Formularen. Einfache Regeln
+werden vollständig bearbeitet; bei erweiterten Regeln bleiben die Strukturen
+für sichere Namens-/Aktivierungsänderungen erhalten.
+Die native Aktionsliste verwaltet bis zu 16 geordnete Geräteaktionen mit Wartezeit
+vor jedem Schritt. Alle List-Zeilen werden atomar mit den Auslöser-/Bedingungsfeldern
+in den Entwurf übernommen. Nur vollständig im Katalog darstellbare Folgen werden
+bearbeitet; nicht unterstützte Strukturen werden nicht teilweise vereinfacht.
+Geräteaktionen werden innerhalb Z2Ms an `eventBus.emitMQTTMessage` übergeben;
+sie benötigen keine Rückzustellung eigener Set-Veröffentlichungen vom Broker.
+Siehe [ADR 0007](adr/0007-native-command-dispatch.md).
 
 ## Persistenz und Fehlerfälle
 
-Die Erweiterung soll die letzte gültige YAML im persistenten Z2M-Datenverzeichnis
-halten und beim Neustart laden. Fehler dürfen die gültige Konfiguration nicht
-ersetzen. Geplant sind Revisionskontrolle, Inhaltsprüfsumme, begrenzte Nachrichten,
-wiederholbar sichere Aufträge und eine gesicherte vorherige Fassung. Persistenz,
-Aktivierung und Rücknahme benötigen eigene Tests.
+Die Erweiterung hält die letzte gültige YAML im eigenen persistenten Unterordner
+und lädt sie beim Neustart. Revisionskontrolle, Prüfsumme, Größenlimits,
+idempotente Wiederholung und Sicherung der Vorversion sind implementiert.
+Offline-Tests decken echte Dateischreibvorgänge, Schreibfehler und Wiederanlauf ab.
+Die Engine verwirft bei Stopp Verzögerungen und wird vor dem Speichern einer
+geänderten Revision deaktiviert. Eine getrennte persistente Betriebsfreigabe
+erlaubt nach Z2M- oder Erweiterungsneustart ausschließlich denselben ausdrücklich
+aktivierten Regelstand. Ohne Freigabe oder nach bestätigtem Stoppen bleibt sie aus.
+Siehe [ADR 0010](adr/0010-persist-explicit-execution-intent.md).
 
 Code-Updates und Regeländerungen sind getrennte Vorgänge. Der offizielle Upload
 schreibt JavaScript vor dem Laden und garantiert keinen automatischen Rollback.
@@ -47,10 +461,82 @@ Code-Upload und Konfigurationsänderungen auf berechtigte Clients begrenzen.
 - [Externe Erweiterungen](https://www.zigbee2mqtt.io/advanced/more/external_extensions.html)
 - [MQTT-API](https://www.zigbee2mqtt.io/guide/usage/mqtt_topics_and_messages.html)
 - [JavaScript-Freischaltung](https://www.zigbee2mqtt.io/guide/configuration/all-settings.html#enable_external_js)
-- [Upload-Implementierung](https://github.com/Koenkk/zigbee2mqtt/blob/master/lib/libs/z2m/externalJS.ts)
+- [Upload-Implementierung](https://github.com/Koenkk/zigbee2mqtt/blob/master/lib/extension/externalJS.ts)
 
 Quellenprüfung: 27.10.2026. Bei neuen Installationen ab Z2M 2.11.0 sind externe
 Erweiterungen zunächst deaktiviert; die Freischaltung benötigt einen Neustart.
 Die unterstützte Z2M-Mindestversion wird erst nach Verifikation festgelegt.
 YAML-Upload ist eine eigene Erweiterungsfunktion; der offizielle Erweiterungsupload
 akzeptiert nur JavaScript-Dateien.
+
+## Unabhängige Laufzeitdiagnose
+
+`RuntimeDiagnostics` veröffentlicht auf ausdrücklichen zeitlich begrenzten
+Auftrag nur bekannte Ereigniscodes und sicheren Ablaufkontext. `RuntimeDebug`
+empfängt sie im eigenen Basistopic und nutzt den zentralen DebugFlowHelper.
+Der eigene Meldungskatalog wird beim Build eingebettet und von PHP gelesen.
+Aufzeichnungssteuerung liegt außerhalb von Speicher-/Aktivierungsworkflows;
+begrenzte Warteschlange und Publish-Timeout entkoppeln sie von der Runtime.
+Mesh erhält lediglich geprüften zusätzlichen Ablaufkontext, keine neuen Rechte.
+Siehe [ADR 0012](adr/0012-timed-runtime-diagnostics.md).
+
+## Standortbezogene Sonnenzeiten
+
+AutomationEditorSolar ergänzt die Zeitfelder um Ereignis, Standort und Versatz.
+Schema 1 erhält einen separaten sun-Auslöser; keine Umdeutung fester Uhrzeiten.
+Die reine eigene solar.mjs-Berechnung wird in das Einzeldatei-Artefakt eingebettet.
+Bei Fälligkeit verwendet der begrenzte Tagesplan den bestehenden Start-,
+Bedingungs- und Aktionspfad. Kein zusätzlicher Standortdienst und keine
+Koordinaten im Debug. Siehe [ADR 0013](adr/0013-local-solar-triggers.md).
+
+## Einzelne gespeicherte Automationen ausführen
+
+RuleExecution und ExecutionContract ergänzen die bestehenden korrelierten
+Workflows um einmaligen Start, gezielten Stopp und begrenzte Laufzustände.
+Die bestehende Z2M-Engine besitzt manuelle und automatische Läufe gemeinsam;
+Bedingungen, Aktionspfade und Limits bleiben an dieser Stelle. Keine
+YAML-Änderung und kein zweiter Runtime-Besitzer. Einzellaufsteuerung ändert
+weder Automatikbetrieb noch Wiederanlaufwunsch. Siehe ADR 0014.
+
+## Zentrale systemgebundene Übertragung
+
+WorkspaceTransfer hält explizite Aufträge und Anzeigen je Workspace-System.
+ConnectionDraftTransfer besitzt deren MQTT-Workflow und begrenzte persistente
+Ergebnisse. Das Dokument bleibt ausschließlich im zentralen Arbeitsbereich;
+keine zweite Editor- oder MQTT-Vertragsschicht wird eingeführt. Der reine
+DraftTransferProtocol bündelt vorhandene Session-/Revisions-/Prüfsummenprüfungen
+für Einzelbetrieb und Zentrale. Native Formulare und Designer benutzen dieselbe
+Auftragsfunktion. Prüfung und Speicherung sowie die getrennte Betriebssteuerung
+sind umgesetzt. Details: docs/WORKSPACE.md und ADR 0028.
+Das Z2M-Artefakt und der Erweiterungsvertrag bleiben unverändert.
+
+## Direkte Ersteinrichtung
+
+Die Erweiterung kann über WorkspaceInstallation und ConnectionInstallation auch
+vor der Übernahme einer besitzerlosen Verbindung eingerichtet werden. Verwaltete
+Verbindungen verlangen die zuständige Zentrale. Der ausdrücklich bestätigte
+Auftrag bindet Build und Dateibytes; ein Timer prüft Health und nutzt danach den
+vorhandenen extension/save-Installer mit neuer Sitzungs-/Buildbestätigung.
+Dauerhafte Quittungen und die bestehende Rückwegsperre sichern unklare Antworten.
+Es entsteht kein zweiter MQTT- oder Erweiterungsvertrag; siehe ADR 0030.
+
+WorkspaceSetup und ConnectionWorkspaceSetup ergänzen ADR 0027: gespeicherten
+Z2M-Stand direkt lesen, Vorschau und private Sicherung, ausdrückliche frische
+Bestätigung und lokaler Claim ohne alte Quellinstanz. WorkspaceSetupSnapshot
+prüft den vorhandenen editor/status-Vertrag. Die bisherige Claimlogik ist für
+Migration und direkte Einrichtung gemeinsam; beide verlangen ihre jeweilige
+journalgebundene Freigabe. Vorhandene Entwürfe werden nicht ersetzt. Persistenter
+lokaler Commit und Rückweg sichern Abbruchfälle. Runtime und Erweiterungsartefakt
+bleiben unverändert.
+
+## Zentrale Betriebssteuerung
+
+WorkspaceRuntime, WorkspaceRuntimeForm und ConnectionRuntimeControl ergänzen
+die ausdrückliche Laufzeitsteuerung je System (ADR 0028). Native Oberfläche und
+Designer verwenden dieselben journalgebundenen Aufträge. RuntimeControlProtocol
+bündelt vorhandene Status-/Laufverträge, ohne neue Engine oder MQTT-Verbindung.
+Vorbefehlsstatus, einmalige Freigabe und Abschlussstatus bleiben beim zugeordneten
+Verbindungsmodul. Reine Autoritätsrückfragen sind lokal und rufen die gesperrte
+Verbindung nicht erneut auf. Einzellauf und Automatikbetrieb sind getrennt;
+Entwürfe werden durch Betriebsaufträge nicht geschrieben. Fehlende Antworten
+werden sichtbar, niemals durch automatisches Wiederholen ersetzt.

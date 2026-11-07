@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 $root = dirname(__DIR__);
+require_once $root . '/libs/SystemContract.php';
 $readJson = static fn (string $path): array => json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
 $check = static function (bool $condition, string $message): void
 {
@@ -16,26 +17,67 @@ foreach (['AGENTS.md', 'PROJECT_CONTEXT.md', 'README.md', 'CHANGELOG.md', 'LICEN
 }
 
 $library = $readJson($root . '/library.json');
+$schema = $readJson($root . '/libs/z2m/automations.schema.json');
+$check($schema['properties']['schema_version']['const'] === 1, 'Versioned automation schema');
+foreach (['libs/z2m/src/extension.mjs', 'libs/z2m/src/runtime.mjs', 'libs/z2m/z2m-automations.mjs', 'libs/z2m/examples/automations.yaml', 'tests/extension.test.mjs', 'tests/runtime.test.mjs', 'tests/build-extension.mjs', 'package.json', 'package-lock.json'] as $file) {
+    $check(is_file($root . '/' . $file), 'Missing extension file: ' . $file);
+}
+$check(is_file($root . '/libs/z2m/src/mesh.mjs') && is_file($root . '/tests/mesh.test.mjs'), 'Cross-system source and tests');
+foreach (['libs/SystemWorkspace.php', 'libs/WorkspaceState.php', 'libs/Z2MInstanceIdentity.php', 'libs/NativeVariableBindings.php', 'tests/workspace.php'] as $file) {
+    $check(is_file($root . '/' . $file), 'Missing workspace component: ' . $file);
+}
+$check(is_file($root . '/libs/z2m/src/scenes.mjs') && is_file($root . '/libs/EditorScenes.php') && is_file($root . '/tests/editor-scenes.inc.php'), 'Scene discovery, editor integration and tests');
 $check($library['name'] === 'Z2MAutomations' && $library['compatibility']['version'] === '9.0', 'Library identity and platform');
 $check(str_contains(file_get_contents($root . '/LICENSE'), 'PolyForm Noncommercial License 1.0.0'), 'Project license');
 $ids = [$library['id']];
 $modules = glob($root . '/*/module.json');
-$check(count($modules) === 1, 'One scaffold module expected');
+$check(count($modules) === 2, 'Automation and connection modules expected');
+$identities = ['Z2MAutomations' => [Z2MAutomations\SystemContract::SOURCE_MODULE, 'Z2MA'],
+    'Z2MConnection'             => [Z2MAutomations\SystemContract::CONNECTION_MODULE, Z2MAutomations\SystemContract::CONNECTION_PREFIX]];
+$prefixes = [];
 foreach ($modules as $path) {
     $module = $readJson($path);
     $check(!in_array($module['id'], $ids, true), 'Duplicate GUID');
     $ids[] = $module['id'];
-    $check($module['prefix'] === 'Z2MA' && $module['type'] === 3, 'Module identity and type');
-    $check($module['parentRequirements'] === [] && $module['childRequirements'] === [] && $module['implemented'] === [], 'Scaffold has no data flow');
+    $identity = $identities[$module['name']] ?? null;
+    $check($identity !== null && $module['id'] === $identity[0] && $module['prefix'] === $identity[1] && $module['type'] === 3, 'Module identity and type');
+    $check(!in_array($module['prefix'], $prefixes, true), 'Unique public prefix');
+    $prefixes[] = $module['prefix'];
+    $check($module['parentRequirements'] === ['{043EA491-0325-4ADD-8FC2-A30C8EEB4D3F}'] && $module['childRequirements'] === []
+        && $module['implemented'] === ['{7F7632D9-FA40-4F38-8DEA-C83CD4325A32}'], 'Official MQTT data flow');
     $folder = dirname($path);
     foreach (['module.php', 'form.json', 'locale.json', 'README.md'] as $file) {
         $check(is_file($folder . '/' . $file), 'Missing module file: ' . $file);
     }
-    $check(str_contains(file_get_contents($folder . '/module.php'), 'class Z2MAutomations extends IPSModuleStrict'), 'Strict base class');
+    $check(str_contains(file_get_contents($folder . '/module.php'), 'class ' . $module['name'] . ' extends IPSModuleStrict'), 'Strict base class');
     $form = $readJson($folder . '/form.json');
     $translations = $readJson($folder . '/locale.json')['translations']['de'];
-    $check($form['actions'] === [] && count($form['elements']) === 1, 'Informational scaffold form');
-    $check(isset($translations[$form['elements'][0]['caption']]), 'German form translation');
+    $pending = array_merge($form['elements'], $form['actions'], $form['status']);
+    $fieldNames = [];
+    while ($pending !== []) {
+        $field = array_shift($pending);
+        array_push($pending, ...($field['items'] ?? []), ...($field['popup']['items'] ?? []));
+        if (isset($field['name'])) {
+            $check(!isset($fieldNames[$field['name']]), 'Unique nested form name: ' . $field['name']);
+            $fieldNames[$field['name']] = true;
+        }
+        if (($field['type'] ?? '') === 'ExpansionPanel') {
+            $check(!isset($field['width']), 'Panels must use the available console width');
+        }
+        $caption = $field['caption'] ?? $field['popup']['caption'] ?? '';
+        $check(isset($translations[$caption]), 'German form translation: ' . $caption);
+        if (isset($field['confirm'])) {
+            $check(isset($translations[$field['confirm']]), 'German confirmation translation');
+        }
+    }
+}
+
+$subscription = $readJson($root . '/.helper-sync.json');
+$manifest = $readJson($root . '/libs/helper/manifest.json');
+foreach ($subscription['helpers'] as $name => $helper) {
+    $entry = $manifest['helpers'][$name];
+    $check($entry['path'] === $helper['target'], 'Helper target');
+    $check(hash_file('sha256', $root . '/' . $entry['path']) === $entry['sha256'], 'Helper integrity: ' . $name);
 }
 foreach ($ids as $id) {
     $check(preg_match('/\A\{[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\}\z/D', $id) === 1, 'Invalid GUID');

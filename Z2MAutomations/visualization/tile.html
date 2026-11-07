@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <title>Z2MAutomations</title>
+    <style>/* TILE_STYLE */</style>
+</head>
+<body>
+    <main class="tile-loader">
+        <div class="tile-tools" aria-label="Designerzugang">
+            <span id="feedback" role="status" aria-live="polite">Designer wird verbunden …</span>
+            <button id="maximize" type="button" hidden>Kachel vergrößern</button>
+            <button id="refresh" type="button">Status aktualisieren</button>
+            <button id="renew" type="button" disabled>Zugang erneuern</button>
+            <button id="retry" type="button" hidden>Verbindung erneut versuchen</button>
+        </div>
+        <iframe id="designer-frame" name="burki24.wheel.v1" title="Z2MAutomations – vollständiger Designer" referrerpolicy="no-referrer" hidden></iframe>
+    </main>
+    <script>window.Z2MATile = /* TILE_BOOTSTRAP */;</script>
+    <script>/* TILE_ORIGIN */</script>
+    <script>/* TILE_INTERACTION */</script>
+    <script>/* TILE_SCRIPT */</script>
+</body>
+</html>

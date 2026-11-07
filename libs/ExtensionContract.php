@@ -1,0 +1,188 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Z2MAutomations;
+
+use stdClass;
+
+final class ExtensionContract
+{
+    public const NAME = 'z2m-automations.mjs';
+    public const VERSION = '0.1.0';
+    public const PREFIX = 'symcon/automations/';
+    public const MAX_YAML_BYTES = 131072;
+    public const ERROR_CODES = ['rule_missing', 'rule_busy', 'run_conflict', 'invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'scene_unavailable', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed'];
+    public const RUNTIME_ERRORS = ['', 'unknown_entity', 'scene_unavailable', 'action_failed', 'action_timeout', 'rate_limited', 'state_unavailable', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_timeout', 'mesh_rejected', 'mesh_stopped', 'mesh_busy'];
+
+    public static function ValidYamlText(string $yaml): bool
+    {
+        return $yaml !== '' && strlen($yaml) <= self::MAX_YAML_BYTES && preg_match('//u', $yaml) === 1;
+    }
+
+    public static function Revision(mixed $value): bool
+    {
+        return is_int($value) && $value >= 0 && $value <= 9007199254740991;
+    }
+
+    public static function Checksum(mixed $value): bool
+    {
+        return is_string($value) && preg_match('/\A[a-f0-9]{64}\z/D', $value) === 1;
+    }
+
+    public static function BundledBuild(): ?string
+    {
+        $header = @file_get_contents(__DIR__ . '/z2m/' . self::NAME, false, null, 0, 1024);
+        return is_string($header) ? self::BuildFromHeader($header) : null;
+    }
+
+    public static function BuildFromHeader(string $header): ?string
+    {
+        return preg_match('/^export const EXTENSION_BUILD = \'([a-f0-9]{64})\';$/m', substr($header, 0, 1024), $match) === 1 ? $match[1] : null;
+    }
+
+    public static function Storage(mixed $data): ?array
+    {
+        if (!$data instanceof stdClass || !self::Revision($data->stored_revision ?? null)
+            || !is_int($data->automation_count ?? null) || $data->automation_count < 0 || $data->automation_count > 100
+            || !in_array($data->storage ?? null, ['empty', 'ok', 'recovered_read_only', 'error'], true)
+            || !is_bool($data->executing ?? null) || !property_exists($data, 'checksum')) {
+            return null;
+        }
+        if ($data->stored_revision === 0 ? ($data->checksum !== null || $data->automation_count !== 0) : !self::Checksum($data->checksum)) {
+            return null;
+        }
+        if (($data->storage === 'empty' && $data->stored_revision !== 0)
+            || (in_array($data->storage, ['ok', 'recovered_read_only'], true) && $data->stored_revision === 0)) {
+            return null;
+        }
+        return ['storedRevision' => $data->stored_revision, 'checksum' => $data->checksum,
+            'automationCount'    => $data->automation_count, 'storage' => $data->storage, 'executing' => $data->executing];
+    }
+
+    public static function Status(mixed $data): ?array
+    {
+        $storage = self::Storage($data);
+        if ($storage === null || ($data->protocol_version ?? null) !== 1 || ($data->schema_version ?? null) !== 1
+            || ($data->extension_version ?? null) !== self::VERSION || !is_string($data->session ?? null)
+            || preg_match('/\A[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}\z/D', $data->session) !== 1
+            || !in_array($data->state ?? null, ['ready', 'stopped'], true)
+            || (property_exists($data, 'extension_build') && !self::Checksum($data->extension_build))) {
+            return null;
+        }
+        $runtime = ['runtimeVersion' => 0, 'activeRevision' => null, 'activeChecksum' => null, 'enabledCount' => 0, 'runtimeError' => ''];
+        if (property_exists($data, 'runtime_version')) {
+            if ($data->runtime_version !== 1 || !property_exists($data, 'active_revision') || !property_exists($data, 'active_checksum')
+                || !is_int($data->enabled_count ?? null) || $data->enabled_count < 0 || $data->enabled_count > $data->automation_count
+                || !in_array($data->runtime_error ?? null, self::RUNTIME_ERRORS, true)
+                || ($data->executing ? ($data->active_revision !== $data->stored_revision || $data->active_checksum !== $data->checksum || $data->stored_revision === 0)
+                    : ($data->active_revision !== null || $data->active_checksum !== null || $data->enabled_count !== 0))) {
+                return null;
+            }
+            $runtime = ['runtimeVersion' => 1, 'activeRevision' => $data->active_revision, 'activeChecksum' => $data->active_checksum,
+                'enabledCount'           => $data->enabled_count, 'runtimeError' => $data->runtime_error];
+        } elseif ($data->executing) {
+            return null;
+        }
+        $mesh = [];
+        if (property_exists($data, 'mesh_version')) {
+            if ($data->mesh_version !== 1 || !is_bool($data->mesh_ready ?? null) || !is_int($data->mesh_peer_count ?? null)
+                || $data->mesh_peer_count < 0 || $data->mesh_peer_count > 8 || ($data->mesh_ready && (!$data->executing || $data->mesh_peer_count === 0))) {
+                return null;
+            }
+            $mesh = ['meshReady' => $data->mesh_ready, 'meshPeerCount' => $data->mesh_peer_count];
+        }
+        $resume = [];
+        if (property_exists($data, 'resume_version')) {
+            if ($data->resume_version !== 1 || !is_bool($data->resume_enabled ?? null)
+                || !in_array($data->resume_status ?? null, ['unconfigured', 'stopped', 'disabled', 'armed', 'resumed', 'blocked'], true)
+                || !in_array($data->resume_error ?? null, array_merge([''], self::ERROR_CODES, self::RUNTIME_ERRORS), true)
+                || (($data->resume_status === 'blocked') !== ($data->resume_error !== ''))) {
+                return null;
+            }
+            $resume = ['resumeEnabled' => $data->resume_enabled, 'resumeStatus' => $data->resume_status, 'resumeError' => $data->resume_error];
+        }
+        return $storage + $runtime + $mesh + $resume + ['build'            => $data->extension_build ?? null, 'catalogVersion' => ($data->catalog_version ?? null) === 1 ? 1 : 0, 'sequenceVersion'  => ($data->sequence_version ?? null) === 1 ? 1 : 0, 'executionVersion' => ($data->execution_version ?? null) === 1 ? 1 : 0, 'debugVersion' => ($data->debug_version ?? null) === 1 ? 1 : 0,
+            'session'                                                      => $data->session, 'ready' => $data->state === 'ready', 'version' => $data->extension_version];
+    }
+
+    public static function ErrorText(string $code): string
+    {
+        return match ($code) {
+            'catalog_unavailable'   => 'Update the bundled extension before refreshing device data separately. Your draft remains unchanged.',
+            'sequence_invalid'      => 'Check the action sequence name and its 1 to 16 steps. At most 32 sequences are allowed.',
+            'sequence_missing'      => 'The selected action sequence is missing or contains actions without switching permission.',
+            'sequence_nested'       => 'An action sequence can contain device actions and scenes, but no other action sequence.',
+            'sequence_limit'        => 'This automation would execute more than 16 steps. Shorten the sequence or remove steps from the automation.',
+            'sequence_delay'        => 'The wait before the sequence plus its first step must not exceed 86400 seconds.',
+            'sequence_in_use'       => 'This action sequence is still used by automations. Remove those references before deleting it.',
+            ''                      => '',
+            'not_connected'         => 'No active MQTT connection.',
+            'bridge_offline'        => 'Zigbee2MQTT must report online first.',
+            'external_js_disabled'  => 'External JavaScript is disabled according to bridge/info.',
+            'artifact_unavailable'  => 'The bundled extension could not be read.',
+            'installation_failed'   => 'Zigbee2MQTT rejected the extension installation.',
+            'send_failed'           => 'The MQTT request could not be sent.',
+            'timeout'               => 'No matching response arrived before the deadline. Check the remote state before retrying.',
+            'cancelled'             => 'The operation was cancelled because its connection or extension session changed.',
+            'busy'                  => 'Another extension operation is still pending.',
+            'invalid_response'      => 'The response does not match the expected protocol or content.',
+            'protocol_mismatch'     => 'The receiver protocol or extension version is not supported.',
+            'not_validated'         => 'Validate this exact YAML successfully before storing it.',
+            'invalid_request'       => 'Invalid request envelope.',
+            'invalid_yaml'          => 'Invalid or oversized YAML text.',
+            'invalid_schema'        => 'The YAML does not conform to automation schema version 1.',
+            'invalid_semantics'     => 'Check duplicate rule IDs, timezones, time windows and permissions for actions in the second system.',
+            'session_mismatch'      => 'The extension restarted. Validate the YAML again.',
+            'revision_conflict'     => 'The stored revision changed. Refresh the state and validate the YAML again.',
+            'revision_reused'       => 'Use the next revision or an unchanged copy of the stored YAML.',
+            'storage_unavailable'   => 'The receiver storage is unavailable or read-only.',
+            'storage_error'         => 'The receiver could not persist the YAML.',
+            'not_ready'             => 'The extension is not ready to accept requests.',
+            'activation_expired'    => 'The activation approval expired. Refresh the state and activate again.',
+            'checksum_mismatch'     => 'The stored configuration changed before activation.',
+            'state_unavailable'     => 'The current Z2M target state is unknown. Toggle was not executed.',
+            'unknown_entity'        => 'A configured device or group is unavailable in Z2M.',
+            'scene_unavailable'     => 'The selected scene is no longer available. Reload the device data and select an existing scene.',
+            'runtime_unavailable'   => 'Update the bundled extension to use execution controls.',
+            'execution_unavailable' => 'Individual execution controls are unavailable. Update the extension and request its status.',
+            'execution_draft'       => 'Load the saved automations or validate and store your changes before a single run.',
+            'rule_missing'          => 'The selected automation is not stored. Reload the saved automations.',
+            'rule_busy'             => 'This automation is already running. Wait or stop this run first.',
+            'run_conflict'          => 'This run has ended or changed. Refresh the status before trying again.',
+            'conditions_not_met'    => 'No further action: a condition is not met or its value is unknown.',
+            'mesh_unavailable'      => 'The connection to the second Z2M system is unavailable. Check the bridge and Z2M permissions.',
+            'mesh_not_allowed'      => 'The second Z2M system is not allowed. Select the partner module, store and activate both systems.',
+            'mesh_timeout'          => 'The second Z2M system did not respond in time. The action will not be repeated automatically.',
+            'mesh_rejected'         => 'The second Z2M system rejected the action. Check its activation, target device and debug output.',
+            'mesh_stopped'          => 'The pending action was cancelled because execution was stopped.',
+            'mesh_busy'             => 'Too many actions are pending for the second Z2M system. This action was not repeated.',
+            'runtime_mismatch'      => 'Z2M did not confirm the requested execution state. Refresh the status.',
+            'action_failed'         => 'Z2M could not hand over an action. The remaining sequence was cancelled.',
+            'action_timeout'        => 'An action handover timed out. No automatic retry was started.',
+            'rate_limited'          => 'The action rate limit was reached. Excess actions were cancelled.',
+            'editor_unavailable'    => 'Load the devices and stored configuration into the editor first.',
+            'editor_schedule'       => 'Check the trigger, time, timezone, weekdays, condition and action selections.',
+            'editor_solar'          => 'Choose sunrise or sunset, enter valid latitude and longitude and an offset from -720 to 720 minutes.',
+            'editor_time'           => 'Enter a valid time in HH:MM or HH:MM:SS format.',
+            'editor_times'          => 'Enter 1 to 8 different times in HH:MM or HH:MM:SS format. Empty or repeated entries are not allowed.',
+            'editor_calendar_days'  => 'Choose at least one allowed weekday or turn off the weekday restriction.',
+            'editor_timezone'       => 'Choose a valid time zone.',
+            'editor_window'         => 'Enter valid and different start and end times for the time window.',
+            'editor_weekdays'       => 'Choose at least one weekday for the time window.',
+            'editor_conditions'     => 'Check every condition and comparison. At most 16 conditions including weekdays and the time window are allowed.',
+            'editor_condition'      => 'Choose an available condition property, comparison and correctly typed value.',
+            'editor_duration'       => 'Event duration and action delay must be whole seconds from 0 to 86400.',
+            'editor_triggers'       => 'Use 1 to 8 device events and durations from 0 to 86400 seconds.',
+            'editor_actions'        => 'Use 1 to 16 actions from the device catalog and waits from 0 to 86400 seconds.',
+            'editor_retrigger'      => 'Choose Ignore, Restart or Extend waiting time for repeated triggers.',
+            'editor_unapplied'      => 'Apply pending form changes to the draft before copying an automation.',
+            'editor_limit'          => 'The draft already contains 100 automations. Remove an automation before creating a copy.',
+            'editor_missing'        => 'The selected automation is no longer in the draft. Select it again.',
+            'editor_advanced'       => 'This advanced rule supports name and enabled state changes only in the click editor.',
+            'editor_invalid'        => 'Choose a name, source, trigger, target and action from the available options.',
+            'editor_changed'        => 'The configuration or draft changed. Reload the editor before adding a rule.',
+            default                 => 'The extension reported an unspecified error.'
+        };
+    }
+}

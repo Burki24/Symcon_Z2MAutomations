@@ -1,0 +1,203 @@
+{
+    "elements": [
+        {
+            "type": "ExpansionPanel",
+            "caption": "MQTT settings",
+            "expanded": true,
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "Active",
+                    "caption": "Enable MQTT connection"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "BaseTopic",
+                    "caption": "Zigbee2MQTT base topic"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "RequestTimeout",
+                    "caption": "Waiting time for a response (seconds)",
+                    "minimum": 1,
+                    "maximum": 120
+                },
+                {
+                    "type": "Label",
+                    "caption": "One connection belongs to one Z2M system. Select an existing MQTT gateway. Several systems may share one gateway when their base topics differ.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Subscribe the MQTT client to BaseTopic/bridge/# and BaseTopic/symcon/automations/#. Broker credentials remain in the MQTT client.",
+                    "width": "100%"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "Label",
+            "caption": "Preparation for central management: This connection can check status and load device data. Existing automation instances and drafts are not migrated.",
+            "width": "100%"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Setup and diagnostics",
+            "expanded": true,
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Check Zigbee2MQTT connection",
+                    "onClick": "Z2MC_CheckConnection($id);"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Request extension status",
+                    "onClick": "Z2MC_RequestExtensionStatus($id);"
+                },
+                {
+                    "type": "Label",
+                    "name": "InstalledExtensionInfo",
+                    "caption": "Installed extension: Not yet confirmed.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "BundledExtensionInfo",
+                    "caption": "Bundled extension: Build identifier unavailable. Check the module files.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "ExtensionUpdateInfo",
+                    "caption": "Not yet checked. Request the extension status to compare builds.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Install or update bundled extension",
+                    "confirm": "Install the bundled z2m-automations.mjs in Z2M and replace an existing file of the same name?",
+                    "onClick": "Z2MC_InstallExtension($id, true);"
+                },
+                {
+                    "type": "Label",
+                    "caption": "Installation requires external JavaScript to be enabled in Z2M. An update may briefly interrupt running automations.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Refresh device data",
+                    "onClick": "Z2MC_RequestDeviceCatalog($id);"
+                },
+                {
+                    "type": "Label",
+                    "name": "ConnectionCatalogInfo",
+                    "caption": "Device data are not yet confirmed for this connection. Choose Refresh device data.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "ConnectionOperationInfo",
+                    "caption": "No request pending.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Label",
+                    "name": "ConnectionErrorInfo",
+                    "caption": "",
+                    "width": "100%"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Record automation activity",
+            "expanded": false,
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Open this instance's debug window. Record both connections to follow an automation between systems. Recording does not start or stop automations.",
+                    "width": "100%"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Start recording for 10 minutes",
+                    "onClick": "Z2MC_StartRuntimeDebug($id, 600);"
+                },
+                {
+                    "type": "Button",
+                    "name": "RuntimeDebugStop",
+                    "caption": "Stop own recording",
+                    "enabled": false,
+                    "onClick": "Z2MC_StopRuntimeDebug($id);"
+                },
+                {
+                    "type": "Label",
+                    "name": "RuntimeDebugInfo",
+                    "caption": "No recording active. Open the debug window and start recording.",
+                    "width": "100%"
+                }
+            ]
+        },
+        {
+            "type": "PopupAlert",
+            "name": "HealthResultPopup",
+            "visible": false,
+            "popup": {
+                "caption": "Zigbee2MQTT connection",
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "HealthResultMessage",
+                        "caption": "",
+                        "width": "100%"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "PopupAlert",
+            "name": "InstallResultPopup",
+            "visible": false,
+            "popup": {
+                "caption": "Extension installation",
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "InstallResultMessage",
+                        "caption": "",
+                        "width": "100%"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": [
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Zigbee2MQTT online"
+        },
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "MQTT connection disabled"
+        },
+        {
+            "code": 200,
+            "icon": "error",
+            "caption": "Invalid connection settings. Check base topic, system identity, generation and waiting time."
+        },
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "MQTT gateway unavailable or disconnected"
+        },
+        {
+            "code": 202,
+            "icon": "error",
+            "caption": "Zigbee2MQTT has not yet confirmed that it is reachable. Please check the connection."
+        }
+    ]
+}

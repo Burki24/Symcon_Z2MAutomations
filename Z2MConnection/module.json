@@ -1,0 +1,18 @@
+{
+    "id": "{BF8E1981-7C41-4F2B-BCBB-1744A5D7D5FC}",
+    "name": "Z2MConnection",
+    "type": 3,
+    "vendor": "",
+    "aliases": [
+        "Zigbee2MQTT Verbindung"
+    ],
+    "parentRequirements": [
+        "{043EA491-0325-4ADD-8FC2-A30C8EEB4D3F}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{7F7632D9-FA40-4F38-8DEA-C83CD4325A32}"
+    ],
+    "prefix": "Z2MC",
+    "url": "https://github.com/Burki24/Z2MAutomations/blob/dev/Z2MConnection/README.md"
+}

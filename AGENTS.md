@@ -8,6 +8,8 @@ die zentralen principles/ und die relevanten standards/. Sie gelten für dieses 
   eigene externe Erweiterung direkt in Zigbee2MQTT ausführen lassen.
 - Einstieg: PROJECT_CONTEXT.md, docs/ARCHITECTURE.md und docs/DEVELOPMENT.md.
 - Modul: Z2MAutomations; öffentliches vierstelliges Präfix Z2MA.
+- Verbindungsmodul: Z2MConnection; öffentliches vierstelliges Präfix Z2MC.
+  Bestehende Instanzen werden nicht durch ein Update migriert.
 - Eigene Implementierung von PHP, JavaScript, YAML-Schema und Tests. Kein Code,
   übersetzter Code oder interne Implementierungsstruktur aus
   Luligu/zigbee2mqtt-automations übernehmen. Externe Dokumentation beschreibt
@@ -29,3 +31,15 @@ die zentralen principles/ und die relevanten standards/. Sie gelten für dieses 
 - Nach Änderungen englischen Commit-Betreff und englische Erklärung liefern.
 - Prüfung: php tests/run.php, php tests/validate_structure.php, offizielle
   StylePHP-Prüfung und php-cs-fixer im Prüfmodus.
+- Erweiterung: libs/z2m/src/extension.mjs und automations.schema.json sind die
+  Quellen. Das hochladbare libs/z2m/z2m-automations.mjs wird ausschließlich mit
+  npm run build:extension erzeugt; npm run check:extension prüft seine Aktualität.
+- npm ci installiert nur lokale Entwicklungs-/Testabhängigkeiten. Der Z2M-Host
+  stellt js-yaml und Ajv bereit; keine fremden Implementierungen in das
+  Erweiterungsartefakt kopieren. tests/run.php benötigt Node und npm ci.
+
+- Debug ist für alle Module verpflichtend: ../SymconDevelopment/standards/DEBUG_OUTPUT.md
+  und docs/DEBUG.md beachten. Öffentliche Einstiege, Entscheidungen und Datenfluss
+  müssen mit deutschen, bereinigten nativen Debug-Ausgaben nachvollziehbar sein.
+  Abläufe verwenden den kanonisch eingebundenen DebugFlowHelper; eigene Zähler
+  oder parallele Maskierungslogik werden nicht eingeführt.

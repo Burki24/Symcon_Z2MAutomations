@@ -1,0 +1,1093 @@
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/stubs/autoload.php';
+require __DIR__ . '/import-kernel-guards.php';
+$GLOBALS['invalidImportKernelReads'] = 0;
+
+set_error_handler(static function (int $severity, string $message, string $file, int $line): bool
+{
+    if (!(error_reporting() & $severity)) {
+        return false;
+    }
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+$check = static function (bool $condition, string $message): void
+{
+    if (!$condition) {
+        throw new RuntimeException($message);
+    }
+};
+function formFields(array $items): array
+{
+    $fields = [];
+    foreach ($items as $item) {
+        if (isset($item['name'])) {
+            $fields[$item['name']] = $item;
+        }
+        $fields += formFields($item['items'] ?? []);
+        $fields += formFields($item['popup']['items'] ?? []);
+        if (is_array($item['form'] ?? null)) {
+            $fields += formFields($item['form']);
+        }
+    }
+    return $fields;
+}
+
+IPS\Kernel::reset();
+$root = dirname(__DIR__);
+$library = json_decode(file_get_contents($root . '/library.json'), true, 512, JSON_THROW_ON_ERROR);
+IPS\ModuleLoader::loadSingleModule($root . '/Z2MAutomations', $library['id']);
+IPS\ModuleLoader::loadSingleModule(__DIR__ . '/fixtures/MQTTClient', $library['id']);
+IPS\ModuleLoader::loadSingleModule(__DIR__ . '/fixtures/Z2MDevice', $library['id']);
+$metadata = json_decode(file_get_contents($root . '/Z2MAutomations/module.json'), true, 512, JSON_THROW_ON_ERROR);
+class ObservedAutomationModule extends Z2MAutomations
+{
+    public array $importEvents = [];
+    public array $debugMessages = [];
+    public bool $debugFails = false;
+    public array $formUpdates = [];
+    public ?int $debugNow = null;
+    public function DebugLease(): array
+    {
+        return json_decode($this->GetBuffer('RuntimeDebug') ?: '[]', true, 16, JSON_THROW_ON_ERROR);
+    }
+
+    public function CatalogProtectedState(): array
+    {
+        $values = [];
+        foreach (['YamlDraft', 'EditorDraft', 'EditorSource', 'EditorTarget', 'EditorSelection', 'ExecutionRule', 'SequenceSelection', 'EditorCondition', 'EditorConditionProperty', 'EditorModes'] as $name) {
+            $values[$name] = $this->ReadAttributeString($name);
+        }
+        foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation', 'RuntimeDebug'] as $name) {
+            $values[$name] = $this->GetBuffer($name);
+        }
+        return $values;
+    }
+
+    public function CatalogSnapshot(): string
+    {
+        return $this->ReadAttributeString('EditorSnapshot');
+    }
+
+    public function ReplaceCatalogDraft(string $text): void
+    {
+        $this->WriteAttributeString('EditorDraft', $text);
+    }
+
+    public function RestoreCatalogWork(array $values): void
+    {
+        foreach (['EditorWork.rule', 'EditorWork.sequence', 'EditorNavigation', 'RuntimeDebug'] as $name) {
+            $this->SetBuffer($name, $values[$name]);
+        }
+    }
+    public function ClearSyntheticImportCatalog(): void
+    {
+        $this->WriteAttributeString('EditorSnapshot', '');
+    }
+
+    public function CopySyntheticImportCatalog(self $source): void
+    {
+        $snapshot = json_decode($source->ReadAttributeString('EditorSnapshot'), true, 32, JSON_THROW_ON_ERROR);
+        $state = json_decode($this->GetBuffer('TransportState'), true, 32, JSON_THROW_ON_ERROR);
+        $snapshot['scope'] = $state['scope'];
+        $this->WriteAttributeString('EditorSnapshot', json_encode($snapshot, JSON_THROW_ON_ERROR));
+    }
+
+    public function ReplaceTransportBuffer(string $value): string
+    {
+        $previous = $this->GetBuffer('TransportState');
+        $this->SetBuffer('TransportState', $value);
+        return $previous;
+    }
+    protected function Now(): int
+    {
+        return $this->debugNow ?? time();
+    }
+    protected function ImportEventIDs(): array
+    {
+        return array_keys($this->importEvents);
+    }
+    protected function ReadImportEvent(int $id): ?array
+    {
+        return $this->importEvents[$id] ?? null;
+    }
+
+    protected function UpdateFormField(string $Field, string $Parameter, mixed $Value): bool
+    {
+        static $knownFields = null;
+        $sourceForm = json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
+        $knownFields ??= formFields(array_merge($sourceForm['elements'], $sourceForm['actions']));
+        if (!isset($knownFields[$Field])) {
+            throw new RuntimeException('Live update targets an unknown form field: ' . $Field);
+        }
+        if (in_array($Parameter, ['options', 'values', 'columns'], true)) {
+            if (!is_string($Value) || !is_array(json_decode($Value, true, 512, JSON_THROW_ON_ERROR))) {
+                throw new RuntimeException('Complex live form updates must be JSON encoded.');
+            }
+        }
+        $this->formUpdates[$Field][$Parameter] = $Value;
+        return true;
+    }
+
+    // The test subclass lives outside the module directory; keep the real form as its fixture.
+    protected function LoadConfigurationForm(): array
+    {
+        return json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    protected function SendDebug(string $Message, string $Data, int $Format): bool
+    {
+        if ($this->debugFails) {
+            throw new RuntimeException('Synthetic debug sink failure');
+        }
+        $this->debugMessages[] = [$Message, $Data];
+        return true;
+    }
+}
+$initialRegistry = new ReflectionProperty(IPS\ModuleLoader::class, 'modules');
+$initialModules = $initialRegistry->getValue();
+$initialModules[$metadata['id']]['Class'] = ObservedAutomationModule::class;
+$initialRegistry->setValue(null, $initialModules);
+$id = IPS_CreateInstance($metadata['id']);
+$parentID = IPS_CreateInstance('{F7A0DD2E-7684-95C0-64C2-D2A9DC47577B}');
+IPS_ApplyChanges($parentID);
+IPS_ConnectInstance($id, $parentID);
+IPS_SetProperty($id, 'Active', true);
+IPS_SetProperty($id, 'BaseTopic', 'synthetic/z2m');
+IPS_ApplyChanges($id);
+$module = IPS\InstanceManager::getInstanceInterface($id);
+$parent = IPS\InstanceManager::getInstanceInterface($parentID);
+$syntheticDevices = [];
+foreach ([1, 2, 3, 4] as $n) {
+    $deviceID = IPS_CreateInstance('{E5BB36C6-A70B-EB23-3716-9151A09AC8A2}');
+    IPS_ConnectInstance($deviceID, $parentID);
+    IPS_SetProperty($deviceID, 'IEEE', '0x' . str_pad((string) $n, 16, '0', STR_PAD_LEFT));
+    IPS_ApplyChanges($deviceID);
+    $syntheticDevices[$n] = $deviceID;
+}
+$parent->publish('synthetic/z2m/bridge/state', ['state' => 'online']);
+$state = static fn (): array => json_decode($module->GetTransportState(), true, 512, JSON_THROW_ON_ERROR);
+$parent->publish('synthetic/z2m/bridge/info', ['version' => '2.14.2', 'config' => ['advanced' => ['enable_external_js' => false]]]);
+$check($module->InstallExtension(true) === '' && $state()['lastError'] === 'external_js_disabled', 'Never enable external JavaScript automatically');
+$parent->publish('synthetic/z2m/bridge/info', ['version' => '2.14.2', 'config' => ['advanced' => ['enable_external_js' => true]]]);
+$peer = proc_open(['node', __DIR__ . '/extension-peer.mjs'], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $root);
+if (!is_resource($peer)) {
+    throw new RuntimeException('Cannot start synthetic extension peer.');
+}
+stream_set_timeout($pipes[1], 10);
+$exchange = static function (array $command) use ($pipes): array
+{
+    fwrite($pipes[0], json_encode($command, JSON_THROW_ON_ERROR) . "\n");
+    fflush($pipes[0]);
+    $line = fgets($pipes[1]);
+    if ($line === false) {
+        throw new RuntimeException('Synthetic extension peer did not respond.');
+    }
+    return json_decode($line, false, 512, JSON_THROW_ON_ERROR);
+};
+$deliver = static function (array $messages) use ($parent): void
+{
+    foreach ($messages as $message) {
+        // Preserve JSON objects in native save responses, including the empty data object.
+        $parent->publish($message->topic, $message->payload, $message->retain);
+    }
+};
+$parent->onPublish = static function (array $packet) use ($exchange, $deliver): void
+{
+    $deliver($exchange(['topic' => $packet['Topic'], 'payload' => $packet['Payload']]));
+};
+try {
+    $cachedTransport = json_decode($module->ReplaceTransportBuffer(''), true, 32, JSON_THROW_ON_ERROR);
+    $cachedTransport['externalJS'] = null;
+    $cachedTransport['version'] = '';
+    $module->ReplaceTransportBuffer(json_encode($cachedTransport, JSON_THROW_ON_ERROR));
+    $install = $module->InstallExtension(true);
+    $check($install !== '' && $state()['operation']['status'] === 'installed' && $state()['extensionConfirmed'], 'Installation with unknown bridge info completes only after a correlated receiver probe');
+    $check($state()['extension']['build'] === Z2MAutomations\ExtensionContract::BundledBuild()
+        && str_contains($module->formUpdates['ExtensionUpdateInfo']['caption'], 'Up to date'), 'Installing the real generated artifact confirms the exact bundled build in the open form');
+    $check($module->formUpdates['InstallResultPopup']['visible'] === true && str_contains($module->formUpdates['InstallResultMessage']['caption'], 'confirmed readiness'), 'Installation popup follows the correlated receiver confirmation');
+    $sent = $parent->sent;
+    $packet = $sent[0];
+    $check($packet['Topic'] === 'synthetic/z2m/bridge/request/extension/save'
+        && $packet['Payload']['name'] === 'z2m-automations.mjs'
+        && $packet['Payload']['code'] === file_get_contents($root . '/libs/z2m/z2m-automations.mjs'), 'Exact bundled artifact on official topic');
+    $check(GetValue(IPS_GetObjectIDByIdent('ExtensionReady', $id)) === true, 'Confirmed readiness is visible');
+    $yaml = "schema_version: 1\nrevision: 1\nautomations: []\n";
+    $check($module->StoreYaml($yaml) === '' && $state()['lastError'] === 'not_validated', 'Never store an unvalidated draft');
+    $check($module->ValidateYaml($yaml) !== '' && $state()['operation']['status'] === 'validated', 'Real JS receiver validates the module draft');
+    $check($state()['validation']['checksum'] === hash('sha256', $yaml), 'Validation receipt is tied to exact draft bytes');
+    $beforeForm = count($parent->sent);
+    $form = $module->GetConfigurationForm();
+    $check(count($parent->sent) === $beforeForm, 'Opening the configuration form never sends MQTT requests');
+    $check(str_contains($form, hash('sha256', $yaml)) && !str_contains($module->GetTransportState(), 'automations: []'), 'Preview exposes checksum without leaking YAML through state API');
+    $check($module->StoreYaml($yaml) !== '' && $state()['operation']['status'] === 'stored', 'Real receiver persists the module draft');
+    $check($state()['extension']['storedRevision'] === 1 && GetValue(IPS_GetObjectIDByIdent('StoredRevision', $id)) === 1, 'Store acknowledgement updates revision');
+    $check($module->ValidateYaml('schema_version: [') !== '' && $state()['lastError'] === 'invalid_yaml', 'Real parser errors reach fixed module messages');
+    $check($state()['extension']['storedRevision'] === 1, 'Failed validation does not change stored revision');
+    require __DIR__ . '/validation-feedback.inc.php';
+    $second = str_replace('revision: 1', 'revision: 2', $yaml);
+    $module->ValidateYaml($second);
+    $check($module->StoreYaml($second . '# edited') === '' && $state()['lastError'] === 'not_validated', 'Editing a validated draft revokes approval');
+    $module->ValidateYaml($second);
+    $deliver($exchange(['control' => 'restart']));
+    $check(!$state()['extensionConfirmed'] && $state()['validation'] === null, 'Receiver restart revokes confirmation and validation');
+    $module->ValidateYaml($second);
+    $check($module->StoreYaml($second) !== '' && $state()['extension']['storedRevision'] === 2, 'Revalidate and store after session restart');
+    $module->ValidateYaml($second);
+    $check($module->StoreYaml($second) !== '' && $state()['operation']['status'] === 'stored'
+        && $state()['extension']['storedRevision'] === 2, 'Module supports an explicitly revalidated idempotent store');
+    $draft = json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR);
+    $check(count(array_filter($draft['actions'], static fn (array $item): bool => ($item['type'] ?? '') === 'ExpansionPanel')) >= 5, 'Automation sections contain native nested form fields');
+    $fields = formFields($draft['actions']);
+    $check($fields['YamlInput']['value'] === $second && isset($fields['ValidationInfo']), 'Last submitted draft survives form reopen');
+    $check(!empty($fields['InstallButton']['confirm']) && !empty($fields['StoreButton']['confirm']), 'Mutating form actions require explicit confirmation');
+    $check($module->RequestExtensionStatus() !== '' && $state()['operation']['status'] === 'status_received', 'Explicit receiver refresh works');
+    $check($module->LoadAutomationEditor() !== '' && $state()['operation']['status'] === 'editor_loaded', 'Editor loads real receiver catalog and stored configuration');
+    require __DIR__ . '/catalog-refresh.inc.php';
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $topNames = array_column(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'], 'name');
+    $check(!in_array('EditorDetails', $topNames, true) && isset($fields['DeviceEditorName'], $fields['TimeEditorName']), 'Each trigger section owns its editing fields without a shared top-level editor');
+    $sections = array_column(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'], null, 'name');
+    $check(isset(formFields($sections['EditorDeviceSection']['items'])['DeviceEditorName'])
+        && isset(formFields($sections['EditorTimeSection']['items'])['TimeEditorName']), 'Both editing forms are physically nested in their trigger sections');
+    $check(!isset($fields['NewDeviceRuleButton']) && !isset($fields['NewTimeRuleButton']), 'Redundant new buttons are removed from the form');
+    $stateVariable = IPS_GetObjectIDByIdent('state', $syntheticDevices[2]);
+    IPS_SetVariableCustomAction($stateVariable, 1);
+    $restricted = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(
+        count(array_filter($restricted['EditorActions']['columns'][0]['edit']['options'], static fn (array $choice): bool => str_starts_with($choice['value'], '0x0000000000000002:'))) === 0,
+        'An explicitly disabled Symcon action is excluded from the action catalog'
+    );
+    IPS_SetVariableCustomAction($stateVariable, 0);
+    $split = formFields(json_decode($module->GetEditorItemForm('DeviceEditorActions', '', 0), true, 512, JSON_THROW_ON_ERROR));
+    $check(isset($split['RowDevice'], $split['RowProperty'], $split['RowValue'], $split['RowNumber']), 'List dialogs offer separate device, property and typed value controls');
+    $module->ConfigureEditorItem('device', 'DeviceEditorActions', '0x0000000000000004', '', '""');
+    $propertyOptions = json_decode($module->formUpdates['RowProperty']['options'], true, 512, JSON_THROW_ON_ERROR);
+    $levelVariable = IPS_GetObjectIDByIdent('level', $syntheticDevices[4]);
+    $displayVariable = IPS_GetObjectIDByIdent('display_flag', $syntheticDevices[4]);
+    $writeOnlyVariable = IPS_GetObjectIDByIdent('write_only', $syntheticDevices[4]);
+    $check(in_array((string) $levelVariable, array_column($propertyOptions, 'value'), true)
+        && in_array((string) $writeOnlyVariable, array_column($propertyOptions, 'value'), true)
+        && !in_array((string) $displayVariable, array_column($propertyOptions, 'value'), true), 'Action property selection uses IDs of actual switchable variables and excludes display variables');
+    $module->ConfigureEditorItem('property', 'DeviceEditorActions', '0x0000000000000004', (string) $levelVariable, '""');
+    $check($module->formUpdates['RowNumber']['visible'] && !$module->formUpdates['RowValue']['visible']
+        && $module->formUpdates['RowNumber']['minimum'] === 0 && $module->formUpdates['RowNumber']['maximum'] === 100, 'Numeric values receive their declared bounds');
+    $module->ConfigureEditorItem('value', 'DeviceEditorActions', '0x0000000000000004', (string) $levelVariable, '13');
+    $check($module->formUpdates['Choice']['value'] === '', 'Values outside the declared numeric step are rejected');
+    $module->ConfigureEditorItem('value', 'DeviceEditorActions', '0x0000000000000004', (string) $levelVariable, '15');
+    $numericChoice = $module->formUpdates['Choice']['value'];
+    $check(str_starts_with($numericChoice, '0x0000000000000004:value.'), 'Valid numeric values produce a bounded typed choice');
+    $numericDialog = formFields(json_decode($module->GetEditorItemForm('DeviceEditorActions', $numericChoice, 4), true, 512, JSON_THROW_ON_ERROR));
+    $check($numericDialog['RowDevice']['value'] === '0x0000000000000004' && $numericDialog['RowProperty']['value'] === (string) $levelVariable
+        && $numericDialog['RowNumber']['value'] === 15 && $numericDialog['Delay']['value'] === 4, 'Reopening restores device, variable ID, numeric value and delay');
+    $module->ConfigureEditorItem('device', 'DeviceEditorTriggers', '0x0000000000000004', '', '""');
+    $sourceProperties = json_decode($module->formUpdates['RowProperty']['options'], true, 512, JSON_THROW_ON_ERROR);
+    $check(in_array('display_flag', array_column($sourceProperties, 'value'), true)
+        && !in_array('write_only', array_column($sourceProperties, 'value'), true), 'Read-only sources remain available while write-only values cannot trigger');
+    IPS_SetVariableCustomAction($levelVariable, 1);
+    $deniedDialog = formFields(json_decode($module->GetEditorItemForm('DeviceEditorActions', $numericChoice, 0), true, 512, JSON_THROW_ON_ERROR));
+    $check($deniedDialog['Choice']['value'] === '', 'Previously valid choices cannot bypass a newly disabled native action');
+    IPS_SetVariableCustomAction($levelVariable, 0);
+    $sentBeforeSections = count($parent->sent);
+    $runSectionScript = static function (string $script, array $fields, array $overrides = []) use ($id): void
+    {
+        $values = ['id' => $id];
+        foreach ($fields as $name => $field) {
+            if (array_key_exists('value', $field)) {
+                $values[$name] = $field['value'];
+            } elseif (($field['type'] ?? '') === 'List') {
+                $values[$name] = new ArrayIterator($field['values'] ?? []);
+            }
+        }
+        extract(array_replace($values, $overrides), EXTR_SKIP);
+        eval($script);
+    };
+    foreach (['Time' => 'time', 'Device' => 'device'] as $stem => $type) {
+        $runSectionScript($fields[$stem . 'EditorDetails']['onClick'], $fields);
+        $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+        $check($fields['EditorTriggerType']['value'] === $type && $fields['EditorTimeTrigger']['visible'] === ($type === 'time')
+            && $fields['EditorDeviceTrigger']['visible'] === ($type === 'device') && $fields['EditorRule']['value'] === ''
+            && $fields['EditorEditToken']['value'] === '' && $fields['EditorActions']['values'] === [], 'New buttons initialize the right trigger, empty selection and action list');
+        $check($module->formUpdates['EditorDetails']['expanded'] === true, 'New buttons open the editing area inside their trigger section');
+        $otherStem = $stem === 'Time' ? 'Device' : 'Time';
+        $check($fields[$stem . 'EditorDetails']['visible'] && $fields[$otherStem . 'EditorDetails']['visible']
+            && !$fields[$stem . 'EditorTriggerType']['visible'] && $fields[$stem . 'EditorTriggerType']['value'] === $type, 'Both editor headings stay visible and each trigger type is fixed');
+    }
+    $beforePanelToggle = $module->formUpdates;
+    $runSectionScript($fields['DeviceEditorDetails']['onClick'], $fields);
+    $check($module->formUpdates === $beforePanelToggle, 'Toggling an already active editor does not reset any unsaved form inputs');
+    $check(count($parent->sent) === $sentBeforeSections && $fields['YamlInput']['value'] === $second, 'Changing editing sections does not transmit or change the draft');
+    $check(!$module->SelectAutomation('', '', false, 'invalid'), 'Unknown automation sections are rejected');
+    $sectionDebug = array_map(static fn (array $entry): array => json_decode($entry[1], true, 512, JSON_THROW_ON_ERROR), $module->debugMessages);
+    $check(
+        count(array_filter($sectionDebug, static fn (array $entry): bool => ($entry['Bezug']['Bereich'] ?? '') === 'Zeitgesteuert')) > 0
+        && count(array_filter($sectionDebug, static fn (array $entry): bool => ($entry['Bezug']['Bereich'] ?? '') === 'Geräteausgelöst')) > 0,
+        'German debug explains both editing sections without rule content'
+    );
+    $check(count($fields['EditorSource']['options']) >= 2 && count($fields['EditorTarget']['options']) >= 2, 'Real Exposes populate device selectors');
+    $module->SelectEditorDevice('Source', '0x0000000000000001');
+    $module->SelectEditorDevice('Target', '0x0000000000000002');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $trigger = $fields['EditorSourceChoice']['options'][1]['value'];
+    $action = $fields['EditorTargetChoice']['options'][1]['value'];
+    $check(!$module->CreateSimpleAutomation('Invalid selection', '0x0000000000000001', 'forged-choice', '0x0000000000000002', $action)
+        && $state()['lastError'] === 'editor_invalid', 'The builder rejects arbitrary properties or values outside the offered catalog');
+    $check($module->CreateSimpleAutomation('Synthetic click automation', '0x0000000000000001', $trigger, '0x0000000000000002', $action), 'Automation created only from offered choices, without handwritten YAML');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $createdYaml = $fields['YamlInput']['value'];
+    $created = json_decode($createdYaml, true, 512, JSON_THROW_ON_ERROR);
+    $check($created['revision'] === 3 && count($created['automations']) === 1 && $fields['YamlInput']['visible'] === true && !isset($fields['ShowYamlControl']) && !$fields['EditorExpert']['expanded'], 'YAML is directly available inside its collapsed panel without a second toggle');
+    $check($module->ValidateAutomationDraft() !== '' && $state()['operation']['status'] === 'validated', 'Generated JSON/YAML validates without exposing or reading a hidden form field');
+    $check($module->StoreAutomationDraft() !== '' && $state()['operation']['status'] === 'stored', 'Generated rule persists without handwritten YAML');
+    $check($module->ActivateAutomations() !== '' && $state()['operation']['status'] === 'activated', 'Activation waits for native command acknowledgement and an additional fresh status');
+    $check(($state()['extension']['resumeEnabled'] ?? null) === true && ($state()['extension']['resumeStatus'] ?? '') === 'armed', 'Default activation confirms durable automatic restart from the real extension');
+    IPS_SetProperty($id, 'ResumeAfterRestart', false);
+    IPS_ApplyChanges($id);
+    $check($module->ActivateAutomations() !== '' && ($state()['extension']['resumeEnabled'] ?? null) === false
+        && ($state()['extension']['resumeStatus'] ?? '') === 'disabled', 'The disabled native form option reaches and is confirmed by the real extension');
+    IPS_SetProperty($id, 'ResumeAfterRestart', true);
+    IPS_ApplyChanges($id);
+    $check($module->ActivateAutomations() !== '' && ($state()['extension']['resumeEnabled'] ?? null) === true, 'Explicit reactivation transfers the enabled restart option again');
+    $check(GetValue(IPS_GetObjectIDByIdent('ExecutionActive', $id)) && GetValue(IPS_GetObjectIDByIdent('ActiveRevision', $id)) === 3
+        && GetValue(IPS_GetObjectIDByIdent('EnabledAutomations', $id)) === 1, 'Confirmed execution has visible status variables');
+    IPS_DisconnectInstance($id);
+    $messages = $exchange(['control' => 'event', 'device' => '0x0000000000000001', 'payload' => ['action' => 'single']]);
+    $commands = array_values(array_filter($messages, static fn (object $message): bool => $message->topic === 'synthetic/z2m/synthetic/light/set'));
+    $check(count($commands) === 1 && $commands[0]->payload->state === 'ON', 'Z2M executes the stored rule after Symcon data flow is disconnected');
+    IPS_ConnectInstance($id, $parentID);
+    $parent->publish('synthetic/z2m/bridge/state', ['state' => 'online']);
+    $check($module->StopAutomations() !== '' && $state()['operation']['status'] === 'stopped'
+        && !GetValue(IPS_GetObjectIDByIdent('ExecutionActive', $id)), 'Stop is confirmed through the real receiver');
+    require __DIR__ . '/runtime-debug.inc.php';
+    $module->LoadAutomationEditor();
+    $module->SelectEditorDevice('Source', '0x0000000000000001');
+    $module->SelectEditorDevice('Target', '0x0000000000000002');
+    $check($module->CreateSimpleAutomation('Synthetic click automation', '0x0000000000000001', $trigger, '0x0000000000000002', $action, '', false, false), 'A second rule may share a name and be created disabled');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $extended = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $check(count($extended['automations']) === 2 && $extended['automations'][0] === $created['automations'][0]
+        && !$extended['automations'][1]['enabled'], 'Adding a disabled rule preserves the complete existing automation');
+    $ruleID = $extended['automations'][0]['id'];
+    $sentBeforeEditing = count($parent->sent);
+    $check($module->SelectAutomation($ruleID), 'Existing rule can be selected by stable ID');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $token = $fields['EditorEditToken']['value'];
+    $check($fields['EditorRule']['options'][1]['value'] !== $fields['EditorRule']['options'][2]['value']
+        && $fields['EditorRule']['options'][1]['caption'] !== $fields['EditorRule']['options'][2]['caption'], 'Duplicate names remain distinguishable and use different stable IDs');
+    $changedTrigger = $fields['EditorSourceChoice']['options'][2]['value'];
+    $changedAction = $fields['EditorTargetChoice']['options'][2]['value'];
+    $check($fields['EditorName']['value'] === $created['automations'][0]['name']
+        && $fields['EditorSourceChoice']['value'] === $trigger && $fields['EditorTargetChoice']['value'] === $action, 'Selecting an existing rule restores all simple fields');
+    $check($module->UpdateAutomation($ruleID, $token, 'Renamed synthetic rule', false, '0x0000000000000001', $changedTrigger, '0x0000000000000002', $changedAction), 'Existing rule can be edited and disabled locally');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $edited = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $check($edited['automations'][0]['id'] === $ruleID && $edited['automations'][0]['name'] === 'Renamed synthetic rule'
+        && !$edited['automations'][0]['enabled'] && $edited['automations'][1] === $extended['automations'][1]
+        && $edited['automations'][0]['triggers'][0]['value'] === 'double' && $edited['automations'][0]['actions'][0]['values'] === ['state' => 'OFF']
+        && $edited['revision'] === 4 && count($parent->sent) === $sentBeforeEditing, 'Editing preserves identity, unrelated rules and remote state');
+    $check(!$module->DeleteAutomation($ruleID, $token) && $state()['lastError'] === 'editor_changed', 'Old selection tokens cannot delete a changed draft');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Edited rule validates and stores through the real receiver');
+    $module->LoadAutomationEditor();
+    foreach ([$ruleID, $extended['automations'][1]['id']] as $deleteID) {
+        $check($module->SelectAutomation($deleteID), 'Select the precise rule to delete');
+        $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+        $check($module->DeleteAutomation($deleteID, $fields['EditorEditToken']['value']), 'Delete selected rule from local draft');
+        if ($deleteID === $ruleID) {
+            $remainingForm = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+            $check(json_decode($remainingForm['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR)['automations'] === [$extended['automations'][1]], 'Deleting one rule preserves the exact other rule');
+        }
+    }
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR)['automations'] === []
+        && $state()['extension']['storedRevision'] === 4, 'Deleting the last rule creates an empty local draft without touching Z2M');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Deleting all rules persists as a valid empty configuration');
+    $module->LoadAutomationEditor();
+    $advanced = $created['automations'][0];
+    $advanced['triggers'][0]['for_seconds'] = 5;
+    $advanced['actions'][0]['delay_seconds'] = 2;
+    $advanced['actions'][] = $advanced['actions'][0];
+    $advanced['triggers'][] = ['type' => 'time', 'at' => '10:00:00', 'timezone' => 'Europe/Berlin'];
+    $advanced['conditions'] = [['type' => 'device_value', 'device' => '0x0000000000000002', 'property' => 'state', 'operator' => 'eq', 'value' => 'OFF']];
+    $advancedYaml = json_encode(['schema_version' => 1, 'revision' => 6, 'automations' => [$advanced]], JSON_THROW_ON_ERROR);
+    $module->ValidateYaml($advancedYaml);
+    $check($module->StoreYaml($advancedYaml) !== '', 'Prepare a real stored advanced rule');
+    $module->LoadAutomationEditor();
+    $check($module->SelectAutomation($ruleID), 'Advanced rules remain selectable');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $token = $fields['EditorEditToken']['value'];
+    $check($fields['EditorAdvancedSection']['visible'] && count($fields['EditorAdvancedRules']['values']) === 1
+        && $fields['EditorDeviceRules']['values'] === [] && $fields['EditorTimeRules']['values'] === []
+        && $fields['EditorAdvancedRule']['value'] === $ruleID, 'Multi-trigger rules remain accessible in their own advanced section');
+    $check(!$fields['EditorSource']['enabled'] && !$fields['EditorActions']['enabled'] && $fields['EditorActions']['values'] === []
+        && $fields['EditorName']['value'] === $advanced['name'], 'Advanced rules expose metadata editing without flattening their clauses');
+    $check(!$module->DeleteAutomation($ruleID, $token, '', true) && $state()['lastError'] === 'editor_changed', 'An empty unsaved expert draft cannot be overwritten');
+    $check(!$module->SelectAutomation('unknown-rule') && $state()['lastError'] === 'editor_missing', 'Unknown IDs never fall back to a name or row');
+    $check(!$module->UpdateAutomation($ruleID, $token, 'Unsafe simplification', true, '0x0000000000000001', $trigger, '0x0000000000000002', $action)
+        && $state()['lastError'] === 'editor_advanced', 'Advanced clauses cannot be silently replaced with simple fields');
+    $check($module->UpdateAutomation($ruleID, $token, 'Advanced renamed', false, '', '', '', ''), 'Advanced rules allow safe name and enabled state changes');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $advancedEdited = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR)['automations'][0];
+    $expectedAdvanced = $advanced;
+    $expectedAdvanced['name'] = 'Advanced renamed';
+    $expectedAdvanced['enabled'] = false;
+    $check($advancedEdited === $expectedAdvanced, 'Metadata edits preserve every advanced condition, trigger and action');
+    $token = $fields['EditorEditToken']['value'];
+    $module->SelectAutomation('');
+    $check(!$module->DeleteAutomation($ruleID, $token), 'Switching to a new rule invalidates the previous selection');
+    $module->SelectAutomation($ruleID);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $firstWindowToken = $fields['EditorEditToken']['value'];
+    $module->SelectAutomation($ruleID);
+    $check(!$module->DeleteAutomation($ruleID, $firstWindowToken), 'A second form selection invalidates the first form token even for the same ID');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Advanced metadata edits persist through the authoritative receiver');
+    $check(!$module->DeleteAutomation($ruleID, $firstWindowToken), 'Remote revision changes invalidate editor selections');
+    $module->LoadAutomationEditor();
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $schedule = ['EditorTriggerType' => 'time', 'EditorAt' => '07:15', 'EditorTimezone' => 'Europe/Berlin',
+        'EditorWindow'               => true, 'EditorAfter' => '22:00', 'EditorBefore' => '08:00', 'EditorWindowTimezone' => 'Europe/Berlin',
+        'EditorMonday'               => true, 'EditorTuesday' => false, 'EditorWednesday' => false, 'EditorThursday' => false, 'EditorFriday' => false, 'EditorSaturday' => false, 'EditorSunday' => false,
+        'EditorConditionType'        => 'numeric', 'EditorCondition' => '0x0000000000000002', 'EditorNumericProperty' => 'temperature', 'EditorCompare' => 'lt', 'EditorNumber' => 18.5];
+    $module->ConfigureEditorSchedule('time', true, 'numeric');
+    $module->SelectEditorDevice('Condition', '0x0000000000000002');
+    $modeFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($modeFields['EditorTimes']['visible'] && !$modeFields['EditorNumber']['visible'] && isset($modeFields['EditorConditionList']) && $modeFields['EditorNumericProperty']['options'][1]['value'] === 'temperature', 'Mode changes expose the correct time and numeric condition fields');
+    $module->ConfigureEditorSchedule('invalid', true, 'numeric');
+    $check($module->SaveScheduledAutomation('', '', 'Synthetic timed rule', true, '', '', '0x0000000000000002', $action, json_encode($schedule)), 'A time rule with overnight weekdays and a numeric condition can be created without YAML');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $scheduledDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $scheduled = $scheduledDocument['automations'][array_key_last($scheduledDocument['automations'])];
+    $check($scheduled['triggers'] === [['type' => 'time', 'at' => '07:15:00', 'timezone' => 'Europe/Berlin']]
+        && $scheduled['conditions'][0]['weekdays'] === [1] && $scheduled['conditions'][0]['after'] === '22:00:00'
+        && $scheduled['conditions'][1]['value'] === 18.5 && $scheduled['conditions'][1]['operator'] === 'lt', 'The editor generates typed native time/condition clauses');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Time and numeric condition draft validates and persists in the real receiver');
+    $module->LoadAutomationEditor();
+    $check($module->SelectAutomation($scheduled['id']), 'Stored time/condition rule can be reopened');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['EditorAt']['value'] === '07:15:00' && $fields['EditorTimes']['visible'] && !$fields['EditorSource']['visible']
+        && $fields['EditorConditionType']['value'] === 'numeric' && $fields['EditorNumber']['value'] === 18.5
+        && $fields['EditorMonday']['value'] && !$fields['EditorTuesday']['value'], 'Reopen restores time zone, weekdays and typed condition values');
+    $check(
+        count($fields['EditorTimeRules']['values']) === 1 && $fields['EditorTimeRule']['value'] === $scheduled['id']
+        && $fields['EditorDeviceRule']['value'] === '' && $fields['EditorDetails']['expanded'] && $fields['EditorConditions']['expanded'],
+        'Time rules appear in their own section and reopen their existing conditions'
+    );
+    $check(
+        count(array_filter($fields['EditorDeviceRule']['options'], static fn (array $option): bool => $option['value'] === $scheduled['id'])) === 0,
+        'Time rules are excluded from the device selection'
+    );
+    $runSectionScript($fields['EditorTimeRule']['onChange'], $fields, ['EditorTimeRule' => $scheduled['id']]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(!$module->OpenAutomationEditor('device', $scheduled['id'], $fields['YamlInput']['value']), 'Panel entry rejects an automation from the wrong category');
+    $transportBeforeReload = $module->ReplaceTransportBuffer('');
+    $check($module->SelectAutomation($scheduled['id'], $fields['YamlInput']['value'], true, 'time'), 'A cached rule can be selected after volatile receiver confirmation is lost');
+    $check(
+        $module->formUpdates['TimeEditorName']['value'] === $scheduled['name'] && $module->formUpdates['TimeEditorAt']['value'] === '07:15:00'
+        && $module->formUpdates['TimeEditorNumber']['value'] === 18.5 && $module->formUpdates['TimeEditorDetails']['visible'] === true,
+        'Live selection fills name, time and condition in the visible time editor'
+    );
+    $check(!$module->DeleteAutomation($scheduled['id'], $module->formUpdates['TimeEditorEditToken']['value']), 'Losing receiver confirmation still blocks modifying the draft');
+    $module->ReplaceTransportBuffer($transportBeforeReload);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $timeToken = $fields['EditorEditToken']['value'];
+    $unchangedScheduledYaml = $fields['YamlInput']['value'];
+    foreach ([['EditorAt' => '25:00'], ['EditorTimezone'        => 'invalid-zone'], ['EditorBefore' => '22:00'], ['EditorMonday' => false],
+        ['EditorNumericProperty' => 'forged'], ['EditorCompare' => 'unknown'], ['EditorHold' => -1], ['EditorConditionType' => 'numeric', 'EditorNumber' => '18.5']] as $invalid) {
+        $check(!$module->SaveScheduledAutomation($scheduled['id'], $timeToken, 'Invalid time rule', true, '', '', '0x0000000000000002', $action, json_encode(array_replace($schedule, $invalid))), 'Invalid schedule inputs must be rejected');
+        $formAfterRejection = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+        $check($formAfterRejection['YamlInput']['value'] === $unchangedScheduledYaml, 'Rejected schedule never changes the draft');
+    }
+    $module->SelectEditorConditionProperty('state');
+    $check(count(json_decode($module->formUpdates['EditorConditionChoice']['options'], true)) === 3, 'Condition values are narrowed to the selected property');
+    $conditionOff = json_decode($module->formUpdates['EditorConditionChoice']['options'], true)[2]['value'];
+    $changedSchedule = array_replace($schedule, ['EditorTriggerType' => 'device', 'EditorWindow' => false, 'EditorHold' => 4, 'EditorDelay' => 3,
+        'EditorConditionType'                                        => 'state', 'EditorConditionChoice' => $conditionOff, 'EditorCompare' => 'eq']);
+    $check($module->SaveScheduledAutomation($scheduled['id'], $timeToken, 'Synthetic event rule', false, '0x0000000000000001', $changedTrigger, '0x0000000000000002', $action, json_encode($changedSchedule)), 'Time trigger can change to device event with a state condition');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['EditorTimeRules']['values'] === [] && $fields['EditorDeviceRule']['value'] === $scheduled['id']
+        && !$fields['EditorTimeTrigger']['visible'] && $fields['EditorDeviceTrigger']['visible'], 'Changing the trigger moves the existing rule to its new section');
+    $check(json_decode($module->formUpdates['EditorTimeRules']['values'], true, 512, JSON_THROW_ON_ERROR) === [], 'Live category lists update immediately after changing a rule');
+    $changedDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $changedRule = $changedDocument['automations'][array_key_last($changedDocument['automations'])];
+    $check($changedRule['id'] === $scheduled['id'] && $changedRule['triggers'][0]['for_seconds'] === 4 && $changedRule['actions'][0]['delay_seconds'] === 3
+        && count($changedRule['conditions']) === 1 && $changedRule['conditions'][0]['type'] === 'device_value'
+        && $changedRule['conditions'][0]['value'] === 'OFF', 'Replacing clauses keeps identity and removes obsolete time/numeric conditions');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Edited event/condition rule validates and stores in Z2M');
+    $module->LoadAutomationEditor();
+    $steps = [['Choice' => '0x0000000000000002:' . $action, 'Delay' => 0],
+        ['Choice' => '0x0000000000000003:' . $changedAction, 'Delay' => 1]];
+    $check($module->InspectEditorActions(json_encode($steps), 'add') && !$module->InspectEditorActions('[]', 'delete'), 'List callbacks explain valid and incomplete edits without changing the draft');
+    foreach ([$steps, [$steps[0]]] as $beforeDelete) {
+        $debugBeforeDelete = count($module->debugMessages);
+        $check($module->InspectEditorActions(json_encode($beforeDelete), 'delete'), 'Native delete callbacks receive the list before removing one row, including the last row');
+        $deleteEntries = array_map(static fn (array $entry): array => json_decode($entry[1], true, 512, JSON_THROW_ON_ERROR), array_slice($module->debugMessages, $debugBeforeDelete));
+        $deleteDetails = array_column($deleteEntries, 'Bezug');
+        $check(
+            count(array_filter($deleteDetails, static fn (array $details): bool => ($details['AktionenVorLöschen'] ?? null) === count($beforeDelete))) === 1
+            && count(array_filter($deleteDetails, static fn (array $details): bool => isset($details['Schritt']) || isset($details['Aktionen']))) === 0,
+            'Deletion diagnostics label the supplied pre-delete count and never present removed rows as remaining prepared steps'
+        );
+    }
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $runEditorScript = static function (string $script, array $fields, array $overrides) use ($id): void
+    {
+        $values = ['id' => $id];
+        foreach ($fields as $name => $field) {
+            if (array_key_exists('value', $field)) {
+                $values[$name] = $field['value'];
+            } elseif (($field['type'] ?? '') === 'List') {
+                $values[$name] = new ArrayIterator($field['values'] ?? []);
+            }
+        }
+        extract(array_replace($values, $overrides), EXTR_SKIP);
+        eval($script);
+    };
+    $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, ['DeviceEditorRule' => '', 'DeviceEditorEditToken' => '', 'DeviceEditorName' => 'Synthetic sequence',
+        'DeviceEditorEnabled'                                                                   => true, 'DeviceEditorWindow' => false, 'DeviceEditorConditionType' => 'none',
+        'DeviceEditorSource'                                                                    => '0x0000000000000001', 'DeviceEditorSourceChoice' => $trigger, 'DeviceEditorTriggers' => new ArrayIterator([['Choice' => '0x0000000000000001:' . $trigger, 'Compare' => 'eq', 'Hold' => 0]]), 'DeviceEditorActions' => new ArrayIterator($steps)]);
+    $check($state()['operation']['status'] === 'draft_created', 'The actual form button serializes all list rows and creates the sequence');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $sequenceDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $sequence = $sequenceDocument['automations'][array_key_last($sequenceDocument['automations'])];
+    $check(count($sequence['actions']) === 2 && $sequence['actions'][0]['values'] === ['state' => 'ON']
+        && $sequence['actions'][1]['values'] === ['state' => 'OFF'] && $sequence['actions'][1]['target']['id'] === '0x0000000000000003'
+        && $sequence['actions'][1]['delay_seconds'] === 1, 'Generated sequence preserves typed choices, order and relative delay');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Multi-action draft validates and persists in the real receiver');
+    $check($module->ActivateAutomations() !== '', 'Generated sequence activates through the module');
+    $startedAt = microtime(true);
+    $messages = $exchange(['control' => 'event', 'device' => '0x0000000000000001', 'payload' => ['action' => 'single']]);
+    $commands = array_values(array_filter($messages, static fn (object $message): bool => str_ends_with($message->topic, '/set')));
+    $check(count($commands) === 2 && $commands[0]->topic === 'synthetic/z2m/synthetic/light/set' && $commands[0]->payload->state === 'ON'
+        && $commands[1]->topic === 'synthetic/z2m/synthetic/second-light/set' && $commands[1]->payload->state === 'OFF'
+        && microtime(true) - $startedAt >= 0.9, 'The real receiver executes both generated steps in order with the requested wait');
+    $check($module->StopAutomations() !== '', 'Stop generated sequence after execution');
+    $module->LoadAutomationEditor();
+    $check($module->SelectAutomation($sequence['id']), 'Reopen stored sequence');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['EditorActions']['values'] === $steps && $fields['EditorActions']['enabled'], 'All stored actions are editable and restored in order');
+    $sequenceToken = $fields['EditorEditToken']['value'];
+    $baseline = $fields['YamlInput']['value'];
+    $check($module->InspectEditorActions(json_encode(array_fill(0, 16, $steps[0])), 'add'), 'Sixteen actions are accepted at the schema boundary');
+    $check(!$module->SaveScheduledAutomation(
+        $sequence['id'],
+        $sequenceToken,
+        'Legacy overwrite',
+        true,
+        '0x0000000000000001',
+        $trigger,
+        '0x0000000000000002',
+        $action,
+        '{}'
+    ), 'Legacy single-action calls cannot flatten a multi-action rule');
+    $sequenceSent = count($parent->sent);
+    foreach (['add', 'edit', 'order', 'delete'] as $change) {
+        $check($module->InspectEditorActions(json_encode($steps), $change), 'Each list operation has a safe diagnostic entry');
+    }
+    foreach (['onAdd', 'onEdit', 'onDelete', 'onChangeOrder'] as $event) {
+        $runEditorScript($fields['DeviceEditorActions'][$event], $fields, ['DeviceEditorActions' => new ArrayIterator($steps)]);
+    }
+    $check(count($parent->sent) === $sequenceSent, 'List edits do not send commands to Z2M');
+    foreach (['[]', '{}', '{', json_encode(array_fill(0, 17, $steps[0])), json_encode([['Choice'  => 'forged', 'Delay' => 0]]),
+        json_encode([['Choice' => $steps[0]['Choice'], 'Delay' => -1]]), json_encode([['Choice'   => $steps[0]['Choice'], 'Delay' => 86401]]),
+        json_encode([['Choice' => $steps[0]['Choice'], 'Delay' => '12']]), json_encode([['Choice' => $steps[0]['Choice'], 'Delay' => 0, 'extra' => true]])] as $invalidSteps) {
+        $check(!$module->SaveScheduledAutomation($sequence['id'], $sequenceToken, 'Invalid sequence', true, '0x0000000000000001', $trigger, '', '', '{}', '', false, $invalidSteps), 'Invalid sequences are rejected');
+        $invalidFields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+        $check($invalidFields['YamlInput']['value'] === $baseline, 'Rejected action edits leave the exact draft unchanged');
+    }
+    $steps = array_reverse($steps);
+    $steps[0]['Delay'] = 2;
+    $steps[] = ['Choice' => '0x0000000000000002:' . $action, 'Delay' => 86400];
+    $runEditorScript($fields['UpdateRuleButton']['onClick'], $fields, ['EditorName' => 'Reordered sequence', 'EditorEnabled' => false,
+        'EditorTriggerType'                                                         => 'time', 'EditorTimes' => new ArrayIterator([['At' => '12:34']]), 'EditorActions' => new ArrayIterator($steps)]);
+    $check($state()['operation']['status'] === 'draft_updated', 'The actual update button applies the complete reordered sequence');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $editedSequenceDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $editedSequence = $editedSequenceDocument['automations'][array_key_last($editedSequenceDocument['automations'])];
+    $check($editedSequence['id'] === $sequence['id'] && count($editedSequence['actions']) === 3
+        && $editedSequence['actions'][0]['values'] === ['state' => 'OFF'] && $editedSequence['actions'][0]['delay_seconds'] === 2
+        && $editedSequence['actions'][2]['delay_seconds'] === 86400 && $editedSequence['triggers'][0]['at'] === '12:34:00'
+        && array_slice($editedSequenceDocument['automations'], 0, -1) === array_slice($sequenceDocument['automations'], 0, -1), 'Sequence edits preserve identity and unrelated rules');
+    $check(!$module->SaveScheduledAutomation($sequence['id'], $sequenceToken, 'Stale', true, '', '', '', '', '{}', '', false, json_encode($steps)), 'Stale tokens cannot replace a sequence');
+    $module->debugFails = true;
+    $check($module->SaveScheduledAutomation($sequence['id'], $fields['EditorEditToken']['value'], 'One remaining action', false, '', '', '', '', json_encode(['EditorTriggerType' => 'time']), '', false, json_encode([$steps[1]])), 'Deleting steps down to one remains supported');
+    $module->debugFails = false;
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Edited sequence validates and stores');
+    $module->LoadAutomationEditor();
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $runEditorScript($fields['EditorTimeRule']['onChange'], $fields, ['EditorTimeRule' => '']);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $timeBaseline = $fields['YamlInput']['value'];
+    $sentBeforeLocalEditing = count($parent->sent);
+    $module->SelectEditorDevice('Source', '0x0000000000000001', 'device');
+    $check(!$module->InspectEditorActions(json_encode($steps), 'edit', 'device'), 'Delayed action callbacks from another area are rejected');
+    $check(!$module->SaveScheduledAutomation('', '', 'Wrong area', true, '', '', '', '', '{}', $timeBaseline, true, json_encode([$steps[0]]), 'device'), 'Saving from an inactive area is rejected');
+    $check(
+        formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'])['YamlInput']['value'] === $timeBaseline,
+        'Rejected cross-area edits leave the full draft unchanged'
+    );
+    $runEditorScript($fields['TimeEditorWindow']['onChange'], $fields, ['TimeEditorWindow' => true]);
+    $check($module->formUpdates['TimeEditorAfter']['visible'] === true, 'Time editor condition callbacks update their own field names');
+    $runEditorScript($fields['TimeEditorCondition']['onChange'], $fields, ['TimeEditorCondition' => '0x0000000000000002']);
+    $check(
+        count(json_decode($module->formUpdates['TimeEditorNumericProperty']['options'], true, 512, JSON_THROW_ON_ERROR)) > 1,
+        'Condition device callbacks populate measured values in the time editor'
+    );
+    $runEditorScript($fields['TimeCreateRuleButton']['onClick'], $fields, ['TimeEditorName'    => 'Local timed editor', 'TimeEditorEnabled' => false,
+        'TimeEditorTimes'                                                                      => new ArrayIterator([['At' => '13:45']]), 'TimeEditorWindow' => false, 'TimeEditorActions' => new ArrayIterator([$steps[0]])]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $localDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $localTimed = $localDocument['automations'][array_key_last($localDocument['automations'])];
+    $check(
+        $localTimed['name'] === 'Local timed editor' && $localTimed['triggers'][0]['type'] === 'time' && $localTimed['triggers'][0]['at'] === '13:45:00',
+        'The time area create button serializes only its own fields'
+    );
+    $runEditorScript($fields['EditorTimeRule']['onChange'], $fields, ['EditorTimeRule' => $localTimed['id']]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['TimeEditorName']['value'] === 'Local timed editor' && $fields['TimeEditorActions']['values'] === [$steps[0]]
+        && $fields['TimeUpdateRuleButton']['visible'] && $fields['DeviceEditorDetails']['visible'] && !$fields['DeviceEditorDetails']['expanded'], 'Selecting a time rule restores its local fields, token and action list');
+    $runEditorScript($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorName' => 'Updated local time', 'TimeEditorTimes' => new ArrayIterator([['At' => '14:00']]),
+        'TimeEditorActions'                                                                 => new ArrayIterator([$steps[0]])]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $updatedLocal = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $check($updatedLocal['automations'][array_key_last($updatedLocal['automations'])]['triggers'][0]['at'] === '14:00:00', 'The time area update button preserves identity while applying local changes');
+    $runEditorScript($fields['TimeDeleteRuleButton']['onClick'], $fields, []);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR)['automations'] === json_decode($timeBaseline, true, 512, JSON_THROW_ON_ERROR)['automations']
+        && count($parent->sent) === $sentBeforeLocalEditing, 'Local create/edit/delete preserves unrelated rules without sending to Z2M');
+    $runEditorScript($fields['EditorDeviceRule']['onChange'], $fields, ['EditorDeviceRule' => '']);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $runEditorScript($fields['DeviceEditorSource']['onChange'], $fields, ['DeviceEditorSource' => '0x0000000000000001']);
+    $check(
+        count(json_decode($module->formUpdates['DeviceEditorSourceChoice']['options'], true, 512, JSON_THROW_ON_ERROR)) > 1,
+        'Device source callbacks update the event choices inside their own section'
+    );
+    $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, ['DeviceEditorName' => 'Local device editor', 'DeviceEditorEnabled' => false,
+        'DeviceEditorSource'                                                                    => '0x0000000000000001', 'DeviceEditorSourceChoice' => $trigger, 'DeviceEditorTriggers' => new ArrayIterator([['Choice' => '0x0000000000000001:' . $trigger, 'Compare' => 'eq', 'Hold' => 0]]), 'DeviceEditorActions' => new ArrayIterator([$steps[0]])]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $deviceDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $localDevice = $deviceDocument['automations'][array_key_last($deviceDocument['automations'])];
+    $runEditorScript($fields['EditorDeviceRule']['onChange'], $fields, ['EditorDeviceRule' => $localDevice['id']]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorName']['value'] === 'Local device editor' && $fields['DeviceEditorActions']['values'] === [$steps[0]]
+        && $fields['TimeEditorDetails']['visible'] && !$fields['TimeEditorDetails']['expanded'], 'Selecting a device rule restores its own fields and collapses the other editor');
+    $runEditorScript($fields['DeviceUpdateRuleButton']['onClick'], $fields, ['DeviceEditorName' => 'Updated local device',
+        'DeviceEditorActions'                                                                   => new ArrayIterator([$steps[0]])]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorName']['value'] === 'Updated local device', 'Device update button applies its local metadata and selection token');
+    $runEditorScript($fields['DeviceDeleteRuleButton']['onClick'], $fields, []);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(
+        json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR)['automations'] === json_decode($timeBaseline, true, 512, JSON_THROW_ON_ERROR)['automations'],
+        'Device deletion preserves all unrelated time and device rules'
+    );
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Common validation and storage accept the local editor result');
+    $module->LoadAutomationEditor();
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $module->SelectAutomation('', $fields['YamlInput']['value'], true, 'device');
+    $module->SelectEditorDevice('Source', '0x0000000000000002', 'device');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $secondSourceChoice = $fields['EditorSourceChoice']['options'][1]['value'];
+    $triggerRows = [['Choice' => '0x0000000000000001:' . $trigger, 'Compare' => 'eq', 'Hold' => 0],
+        ['Choice' => '0x0000000000000002:' . $secondSourceChoice, 'Compare' => 'eq', 'Hold' => 0]];
+    $triggerActions = [['Choice' => '0x0000000000000003:' . $changedAction, 'Delay' => 0]];
+    foreach (['onAdd', 'onEdit', 'onDelete'] as $event) {
+        $runEditorScript($fields['DeviceEditorTriggers'][$event], $fields, ['DeviceEditorTriggers' => new ArrayIterator($triggerRows)]);
+    }
+    $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, ['DeviceEditorName' => 'Two alternative device triggers',
+        'DeviceEditorEnabled'                                                                   => true, 'DeviceEditorTriggers' => new ArrayIterator($triggerRows), 'DeviceEditorActions' => new ArrayIterator($triggerActions)]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $twoDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $twoRule = $twoDocument['automations'][array_key_last($twoDocument['automations'])];
+    $check(count($twoRule['triggers']) === 2 && $twoRule['triggers'][0]['device'] !== $twoRule['triggers'][1]['device'], 'The native list creates two distinct device triggers without handwritten YAML: ' . $state()['lastError']);
+    $check(
+        $module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '' && $module->ActivateAutomations() !== '',
+        'The existing schema validates, stores and activates the generated OR rule'
+    );
+    foreach ([['device' => '0x0000000000000001', 'payload' => ['action' => 'single']], ['device' => '0x0000000000000002', 'payload' => ['state' => 'ON']]] as $event) {
+        $messages = $exchange(['control' => 'event'] + $event);
+        $commands = array_values(array_filter($messages, static fn (object $message): bool => str_ends_with($message->topic, '/set')));
+        $check(count($commands) === 1 && $commands[0]->payload->state === 'OFF', 'Either generated trigger independently starts the same action (OR)');
+        $module->StopAutomations();
+        $module->ActivateAutomations(); // Fresh arming isolates alternatives from the one-second rule cooldown.
+    }
+    $module->StopAutomations();
+    $module->LoadAutomationEditor();
+    $module->SelectAutomation($twoRule['id']);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorTriggers']['values'] === $triggerRows && $fields['DeviceEditorActions']['values'] === $triggerActions
+        && $fields['EditorAdvancedSection']['visible'], 'Stored trigger rows reopen fully in the device section alongside existing advanced rules');
+    $twoToken = $fields['DeviceEditorEditToken']['value'];
+    $unchangedTwo = $fields['YamlInput']['value'];
+    $check(
+        !$module->SaveScheduledAutomation($twoRule['id'], $twoToken, 'Legacy flatten', true, '0x0000000000000001', $trigger, '', '', '{}', '', false, json_encode($triggerActions)),
+        'Legacy calls cannot silently reduce a multi-trigger rule to one'
+    );
+    foreach (['[]', '{}', '{', json_encode(array_fill(0, 9, $triggerRows[0])), json_encode([['Choice'                    => 'forged', 'Compare' => 'eq', 'Hold' => 0]]),
+        json_encode([['Choice' => $triggerRows[0]['Choice'], 'Compare' => 'eq', 'Hold' => -1]]), json_encode([['Choice'  => $triggerRows[0]['Choice'], 'Compare' => 'eq', 'Hold' => 86401]]),
+        json_encode([['Choice' => $triggerRows[0]['Choice'], 'Compare' => 'eq', 'Hold' => '2']]), json_encode([['Choice' => $triggerRows[0]['Choice'], 'Compare' => 'eq', 'Hold' => 0, 'extra' => true]])] as $invalidTriggers) {
+        $check(!$module->SaveScheduledAutomation($twoRule['id'], $twoToken, 'Invalid trigger rows', true, '', '', '', '', '{}', '', false, json_encode($triggerActions), 'device', $invalidTriggers), 'Malformed or out-of-bound trigger lists are rejected');
+        $check(
+            formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions'])['YamlInput']['value'] === $unchangedTwo,
+            'Rejected trigger lists preserve the entire draft'
+        );
+    }
+    $check($module->InspectEditorTriggers(json_encode(array_fill(0, 8, $triggerRows[0])), 'edit', 'device'), 'Eight device triggers are accepted at the supported boundary');
+    $triggerRows[1]['Hold'] = 4;
+    $runEditorScript($fields['DeviceUpdateRuleButton']['onClick'], $fields, ['DeviceEditorTriggers' => new ArrayIterator($triggerRows), 'DeviceEditorActions' => new ArrayIterator($triggerActions)]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorTriggers']['values'] === $triggerRows, 'Editing restores each trigger duration without changing the other trigger');
+    $runEditorScript($fields['DeviceUpdateRuleButton']['onClick'], $fields, ['DeviceEditorTriggers' => new ArrayIterator([$triggerRows[1]]), 'DeviceEditorActions' => new ArrayIterator($triggerActions)]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorTriggers']['values'] === [$triggerRows[1]], 'Deleting a trigger preserves the remaining trigger and duration');
+    $module->DeleteAutomation($twoRule['id'], $fields['DeviceEditorEditToken']['value']);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $module->SelectAutomation('', $fields['YamlInput']['value'], true, 'device');
+    $module->SelectEditorDevice('Source', '0x0000000000000004', 'device');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $channelTriggers = [];
+    foreach ([1, 2, 3] as $channel) {
+        $choice = array_values(array_filter($fields['EditorSourceChoice']['options'], static fn (array $option): bool => str_contains($option['caption'], 'L' . $channel) && preg_match('/(?:Off|Aus)$/', $option['caption']) === 1));
+        $check(count($choice) === 1, 'Each channel has an explicit localized off-event choice');
+        $channelTriggers[] = ['Choice' => '0x0000000000000004:' . $choice[0]['value'], 'Compare' => 'eq', 'Hold' => $channel];
+    }
+    $module->SelectEditorDevice('Target', '0x0000000000000004', 'device');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $channelAction = array_values(array_filter($fields['DeviceEditorTargetChoice']['options'], static fn (array $option): bool => str_contains($option['caption'], 'L2') && preg_match('/(?:On|Ein)$/', $option['caption']) === 1));
+    $check(count($channelAction) === 1, 'Channel-specific actions use the same clear channel label');
+    $channelActions = [['Choice' => '0x0000000000000004:' . $channelAction[0]['value'], 'Delay' => 3]];
+    $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, ['DeviceEditorName' => 'Channel selection regression', 'DeviceEditorEnabled' => false,
+        'DeviceEditorTriggers'                                                                  => new ArrayIterator($channelTriggers), 'DeviceEditorActions' => new ArrayIterator($channelActions)]);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $channelDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $channelRule = $channelDocument['automations'][array_key_last($channelDocument['automations'])];
+    $check(
+        array_column($channelRule['triggers'], 'property') === ['state_l1', 'state_l2', 'state_l3'] && $channelRule['actions'][0]['values'] === ['state_l2' => 'ON'],
+        'The real form serializes explicit channel properties without falling back to general state'
+    );
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Channel rules validate and persist through the actual receiver');
+    $module->LoadAutomationEditor();
+    $module->SelectAutomation($channelRule['id']);
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check(
+        $fields['DeviceEditorTriggers']['values'] === $channelTriggers && $fields['DeviceEditorActions']['values'] === $channelActions,
+        'All selected channels, individual durations and target channel reopen without loss'
+    );
+    $module->SelectAutomation('', '', false, 'device');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $DeviceEditorActions = ['Choice' => $numericChoice, 'Delay' => 4];
+    $dialogFromScript = formFields(eval($fields['DeviceEditorActions']['form']));
+    $check($dialogFromScript['RowNumber']['value'] === 15, 'The native list form script restores the selected numeric row');
+    $numericRows = [['Choice' => $numericChoice, 'Delay' => 4, 'RowDevice' => '0x0000000000000004', 'RowProperty' => (string) $levelVariable, 'RowNumber' => 15]];
+    $runEditorScript($fields['DeviceCreateRuleButton']['onClick'], $fields, [
+        'DeviceEditorRule'     => '', 'DeviceEditorEditToken' => '', 'DeviceEditorName' => 'Synthetic numeric rule',
+        'DeviceEditorEnabled'  => false, 'DeviceEditorWindow' => false, 'DeviceEditorConditionType' => 'none',
+        'DeviceEditorTriggers' => new ArrayIterator([['Choice' => '0x0000000000000001:' . $trigger, 'Compare' => 'eq', 'Hold' => 0]]),
+        'DeviceEditorActions'  => new ArrayIterator($numericRows)]);
+    $check($state()['operation']['status'] === 'draft_created', 'Actual save button strips dialog fields and accepts the numeric action');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $numericDocument = json_decode($fields['YamlInput']['value'], true, 512, JSON_THROW_ON_ERROR);
+    $numericRule = $numericDocument['automations'][array_key_last($numericDocument['automations'])];
+    $check($numericRule['actions'][0]['values'] === ['level' => 15] && $numericRule['actions'][0]['delay_seconds'] === 4, 'YAML contains native Z2M property and value without Symcon variable IDs');
+    $check($module->ValidateAutomationDraft() !== '' && $module->StoreAutomationDraft() !== '', 'Numeric rule validates and persists in the real JavaScript receiver');
+    $module->LoadAutomationEditor();
+    $check($module->SelectAutomation($numericRule['id']), 'Stored numeric rule remains editable');
+    $fields = formFields(json_decode($module->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($fields['DeviceEditorActions']['values'] === [['Choice' => $numericChoice, 'Delay' => 4]], 'Stored numeric action reopens with its typed value and delay');
+    require __DIR__ . '/editor-comparisons.inc.php';
+    $catalogDebug = array_map(static fn (array $entry): array => json_decode($entry[1], true, 512, JSON_THROW_ON_ERROR), $module->debugMessages);
+    $check(
+        count(array_filter($catalogDebug, static fn (array $entry): bool => ($entry['Bezug']['SchaltbareEigenschaften'] ?? 0) >= 3)) > 0,
+        'Safe catalog debug counts explicit channel states without device identities'
+    );
+    // Those historical form snapshots and decoded debug copies are no longer asserted.
+    // Release them before the next integration scenarios; keep the original debug capture.
+    unset($catalogDebug, $beforeForm, $feedbackFields, $invalidFields, $knownFields, $modeFields, $remainingForm, $sourceForm);
+    $module->ValidateYaml($fields['YamlInput']['value'] . '# edited');
+    $check(!$module->CreateSimpleAutomation('Refuse stale editor draft', '0x0000000000000001', $trigger, '0x0000000000000002', $action)
+        && $state()['lastError'] === 'editor_changed', 'Manual edits are not silently overwritten by the builder');
+    $module->debugFails = true;
+    $check($module->ActivateAutomations() !== '' && $state()['operation']['status'] === 'activated', 'A failing diagnostic channel cannot suppress activation');
+    $check($module->StopAutomations() !== '' && $state()['operation']['status'] === 'stopped', 'A failing diagnostic channel cannot suppress stop');
+    $module->debugFails = false;
+    require __DIR__ . '/event-import.inc.php';
+    require __DIR__ . '/event-import-scope.inc.php';
+    require __DIR__ . '/remote-targets.inc.php';
+    require __DIR__ . '/shared-gateway.inc.php';
+    require __DIR__ . '/editor-scenes.inc.php';
+    require __DIR__ . '/editor-solar.inc.php';
+    require __DIR__ . '/runtime-debug-storage.inc.php';
+    require __DIR__ . '/rule-execution.inc.php';
+    require __DIR__ . '/reusable-sequences.inc.php';
+    require __DIR__ . '/editor-calendar-integration.inc.php';
+    require __DIR__ . '/editor-commands-integration.inc.php';
+    $stack = [];
+    $observed = array_fill_keys(['ActivateAutomations', 'StopAutomations', 'CreateSimpleAutomation', 'FEHLER'], false);
+    foreach ($module->debugMessages as [$category, $body]) {
+        // Check each encoded record without copying the complete long-running debug capture.
+        $encoded = json_encode([$category, $body], JSON_THROW_ON_ERROR);
+        $check(!str_contains($encoded, 'Synthetic click automation') && !str_contains($encoded, 'Synthetic timed rule') && !str_contains($encoded, 'Synthetic sequence')
+            && !str_contains($encoded, $steps[0]['Choice']) && !str_contains($encoded, 'EditorAt') && !str_contains($encoded, 'activation_token')
+            && !str_contains($encoded, $firstWindowToken) && !str_contains($encoded, 'automations: []'), 'Debug must not include draft bodies, names or selection/activation tokens');
+        foreach ($observed as $name => $found) {
+            $observed[$name] = $found || str_contains($encoded, $name);
+        }
+        $entry = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        $check(strlen($body) <= 4096 && isset($entry['Instanz'], $entry['Vorgang'], $entry['Aufruf'], $entry['Meldung'], $entry['Bezug']), 'New actions use the central structured debug contract');
+        if (str_contains($category, ' | START | ')) {
+            $stack[] = [$entry['Vorgang'], $entry['Aufruf']];
+        } elseif (str_contains($category, ' | ENDE | ')) {
+            $check(array_pop($stack) === [$entry['Vorgang'], $entry['Aufruf']], 'Nested action/debug scopes are balanced');
+        }
+    }
+    $check($stack === [] && !in_array(false, $observed, true), 'Activation, stop, editor and rejection all remain human-observable');
+} finally {
+    fclose($pipes[0]);
+    fclose($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[2]);
+    $exit = proc_close($peer);
+    $check($exit === 0, 'Synthetic peer must shut down cleanly: ' . $stderr);
+}
+
+// The first phase has asserted all captured debug records. Release its instrumentation
+// before the separate negative protocol phase.
+$module->debugMessages = [];
+unset($observed, $encoded);
+
+// Deterministic negative protocol scenarios use the native stub boundary only.
+$parent->onPublish = null;
+class ClockedExtensionModule extends ObservedAutomationModule
+{
+    public int $clock = 1000;
+
+    protected function Now(): int
+    {
+        return $this->clock;
+    }
+}
+$registry = new ReflectionProperty(IPS\ModuleLoader::class, 'modules');
+$modules = $registry->getValue();
+$modules[$metadata['id']]['Class'] = ClockedExtensionModule::class;
+$registry->setValue(null, $modules);
+$controlledID = IPS_CreateInstance($metadata['id']);
+IPS_ConnectInstance($controlledID, $parentID);
+IPS_SetProperty($controlledID, 'Active', true);
+IPS_SetProperty($controlledID, 'BaseTopic', 'synthetic/z2m');
+IPS_ApplyChanges($controlledID);
+$controlled = IPS\InstanceManager::getInstanceInterface($controlledID);
+$controlledState = static fn (): array => json_decode($controlled->GetTransportState(), true, 512, JSON_THROW_ON_ERROR);
+$parent->publish('synthetic/z2m/bridge/state', ['state' => 'online']);
+$parent->publish('synthetic/z2m/bridge/info', ['version' => '2.14.2', 'config' => ['advanced' => ['enable_external_js' => true]]]);
+$last = static function () use ($parent): array
+{
+    $sent = $parent->sent;
+    return end($sent);
+};
+$answer = static function (array $body, bool $retained = false, ?string $transaction = null) use ($parent, $last): void
+{
+    $request = $last();
+    $parent->publish(
+        str_replace('/request/', '/response/', $request['Topic']),
+        ['transaction' => $transaction ?? $request['Payload']['transaction']] + $body,
+        $retained
+    );
+};
+$source = "schema_version: 1\nrevision: 3\nautomations: []\n";
+$remote = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => '0.1.0',
+    'session'                 => '11111111-1111-4111-8111-111111111111', 'state' => 'ready', 'stored_revision' => 2,
+    'checksum'                => hash('sha256', str_replace('revision: 3', 'revision: 2', $source)),
+    'automation_count'        => 0, 'storage' => 'ok', 'executing' => false];
+$runningRemote = (object) ($remote + ['runtime_version' => 1, 'active_revision' => 2, 'active_checksum' => $remote['checksum'], 'enabled_count' => 0, 'runtime_error' => '']);
+$runningRemote->executing = true;
+$check(Z2MAutomations\ExtensionContract::Status($runningRemote)['executing'] === true, 'Running receiver status remains compatible with Symcon normalization');
+$runningRemote->executing = 'true';
+$check(Z2MAutomations\ExtensionContract::Status($runningRemote) === null, 'Execution state must be a real boolean');
+$replyStatus = static function (array $status) use ($answer): void
+{
+    $answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $status]);
+};
+$validate = static function () use ($controlled, $source, $replyStatus, $remote, $answer, $check, $controlledState): void
+{
+    $check($controlled->ValidateYaml($source) !== '', 'Start validation workflow');
+    $replyStatus($remote);
+    $answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) ['valid' => true, 'revision' => 3,
+        'checksum'                                                                  => hash('sha256', $source), 'automation_count' => 0, 'executing' => false]]);
+    $check($controlledState()['operation']['status'] === 'validated', 'Obtain current validation receipt');
+};
+
+$unknownTransport = json_decode($controlled->ReplaceTransportBuffer(''), true, 32, JSON_THROW_ON_ERROR);
+$unknownTransport['externalJS'] = null;
+$controlled->ReplaceTransportBuffer(json_encode($unknownTransport, JSON_THROW_ON_ERROR));
+$install = $controlled->InstallExtension(true);
+$check(!isset($controlled->formUpdates['InstallResultPopup']), 'Sending an installation does not show an early success popup');
+$count = count($parent->sent);
+$check($controlled->InstallExtension() === $install && count($parent->sent) === $count, 'Duplicate install click does not upload twice');
+$answer(['status' => 'ok', 'data' => (object) []], false, 'foreign-transaction');
+$check($controlledState()['operation']['status'] === 'pending', 'Wrong installation transaction is ignored');
+$answer(['status' => 'ok', 'data' => (object) []], true);
+$check($controlledState()['operation']['status'] === 'pending', 'Retained installation response cannot authorize a probe');
+$answer(['status' => 'error', 'error' => 'synthetic-sensitive-install-error', 'data' => (object) []]);
+$check($controlled->formUpdates['InstallResultPopup']['visible'] === true && !str_contains($controlled->formUpdates['InstallResultMessage']['caption'], 'synthetic-sensitive'), 'Installation error popup uses fixed safe messages');
+$check($controlledState()['lastError'] === 'installation_failed' && !str_contains($controlled->GetTransportState(), 'synthetic-sensitive'), 'Native installation errors are sanitized');
+
+$controlled->InstallExtension(true);
+$controlled->formUpdates = [];
+$answer(['status' => 'ok', 'data' => (object) []]);
+$check(str_ends_with($last()['Topic'], '/request/status') && !$controlledState()['extensionConfirmed'], 'Upload acknowledgement alone is not receiver confirmation');
+$check(!isset($controlled->formUpdates['InstallResultPopup']), 'Upload acknowledgement alone does not display success');
+$controlled->clock += 11;
+$controlled->ExpireRequest();
+$check($controlledState()['operation']['status'] === 'timeout' && !$controlledState()['extensionConfirmed'], 'Missing receiver confirmation expires');
+$check($controlled->formUpdates['InstallResultPopup']['visible'] === true && str_contains($controlled->formUpdates['InstallResultMessage']['caption'], 'failed'), 'Missing receiver confirmation produces a timeout popup');
+$replyStatus($remote);
+$check($controlledState()['operation']['status'] === 'timeout', 'Late status response cannot complete a timed out installation');
+
+$parent->publish('synthetic/z2m/symcon/automations/status', (object) $remote, true);
+$check(!$controlledState()['extensionConfirmed'], 'Retained status is observational only');
+$controlled->RequestExtensionStatus();
+$replyStatus($remote);
+$check($controlledState()['extensionConfirmed'], 'Only a fresh correlated status confirms receiver readiness');
+$validate();
+$controlled->StoreYaml($source);
+$before = count($parent->sent);
+$replyStatus(array_replace($remote, ['stored_revision' => 3, 'checksum' => hash('sha256', $source)]));
+$check($controlledState()['lastError'] === 'revision_conflict' && count($parent->sent) === $before, 'Revision conflict prevents the store publish');
+
+$validate();
+$controlled->StoreYaml($source);
+$replyStatus(array_replace($remote, ['session' => '22222222-2222-4222-8222-222222222222']));
+$check($controlledState()['lastError'] === 'session_mismatch', 'New session invalidates prior YAML approval');
+
+$controlled->ValidateYaml($source);
+$replyStatus($remote);
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) ['valid' => true, 'revision' => 3,
+    'checksum'                                                                  => str_repeat('0', 64), 'automation_count' => 0, 'executing' => false]]);
+$check($controlledState()['lastError'] === 'invalid_response' && $controlledState()['validation'] === null, 'Wrong validation checksum is never accepted');
+
+$controlled->ValidateYaml($source);
+$replyStatus($remote);
+$answer(['protocol_version' => 1, 'status' => 'error', 'error' => (object) ['code' => 'untrusted-secret-code', 'message' => 'synthetic-private-detail']]);
+$check($controlledState()['lastError'] === 'extension_error' && !str_contains($controlled->GetTransportState(), 'synthetic-private'), 'Unknown extension error messages are not copied');
+
+foreach ([null, (object) ['issues' => [(object) ['path' => '/synthetic-private', 'reason' => 'required']], 'truncated' => false]] as $details) {
+    $controlled->ValidateYaml($source);
+    $replyStatus($remote);
+    $answer(['protocol_version' => 1, 'status' => 'error', 'error' => (object) ['code' => 'invalid_schema', 'details' => $details, 'message' => 'synthetic-private']]);
+    $feedbackFields = formFields(json_decode($controlled->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR)['actions']);
+    $check($feedbackFields['ErrorInfo']['caption'] === \Z2MAutomations\ExtensionContract::ErrorText('invalid_schema')
+        && ($controlledState()['validationDetails'] ?? null) === null, 'Old receivers and malformed diagnostic payloads fall back to the safe fixed message');
+}
+
+$validate();
+$controlled->StoreYaml($source);
+$replyStatus($remote);
+$check(str_ends_with($last()['Topic'], '/request/store') && $last()['Payload']['session'] === $remote['session']
+    && $last()['Payload']['expected_revision'] === 2, 'Store uses exactly the freshly probed session and revision');
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) ['stored_revision' => 3,
+    'checksum'                                                                            => str_repeat('0', 64), 'automation_count' => 0, 'storage' => 'ok', 'executing' => false, 'unchanged' => false]]);
+$check($controlledState()['lastError'] === 'invalid_response' && $controlledState()['operation']['status'] === 'error', 'Invalid store acknowledgement never reports stored');
+
+$validate();
+$controlled->StoreYaml($source);
+$before = count($parent->sent);
+$replyStatus(array_replace($remote, ['storage' => 'recovered_read_only']));
+$check($controlledState()['lastError'] === 'storage_unavailable' && count($parent->sent) === $before, 'Read-only recovery blocks store before publishing YAML');
+
+require __DIR__ . '/store-confirmation.inc.php';
+
+$pending = $controlled->RequestExtensionStatus();
+$before = count($parent->sent);
+$check($controlled->StoreYaml($source) === '' && $controlledState()['lastError'] === 'busy'
+    && $controlledState()['operation']['transaction'] === $pending && count($parent->sent) === $before, 'A busy operation cannot be overwritten by another action');
+$controlled->CheckHealth();
+$controlled->clock += 11;
+$controlled->ExpireRequest();
+$check($controlledState()['operation']['status'] === 'timeout' && $controlledState()['health'] === 'timeout', 'One timer expires both independent request channels');
+
+$before = count($parent->sent);
+$check($controlled->ValidateYaml(str_repeat('x', 131073)) === '' && count($parent->sent) === $before, 'Oversized YAML is rejected before network access');
+$check($controlled->ValidateYaml("\xff") === '' && $controlledState()['lastError'] === 'invalid_yaml', 'Malformed UTF-8 is rejected locally');
+$parent->fail = true;
+$check($controlled->RequestExtensionStatus() === '' && $controlledState()['lastError'] === 'send_failed', 'Parent publish failure closes the operation');
+$parent->fail = false;
+$controlled->RequestExtensionStatus();
+$replyStatus($remote);
+$check($controlledState()['extensionConfirmed'], 'Start protocol failure check with a confirmed receiver');
+$controlled->RequestExtensionStatus();
+$answer(['protocol_version' => 2, 'status' => 'ok', 'data' => (object) $remote]);
+$check($controlledState()['lastError'] === 'protocol_mismatch' && !$controlledState()['extensionConfirmed'], 'Wrong response protocol revokes earlier readiness');
+
+$validate();
+$controlled->StoreYaml($source);
+$parent->publish('synthetic/z2m/bridge/state', ['state' => 'offline']);
+$check($controlledState()['operation']['status'] === 'cancelled' && !$controlledState()['extensionConfirmed'], 'Bridge offline cancels mutation workflow');
+$parent->publish('synthetic/z2m/bridge/state', ['state' => 'online']);
+$validate();
+IPS_SetProperty($controlledID, 'BaseTopic', 'synthetic/other');
+IPS_ApplyChanges($controlledID);
+$check($controlledState()['validation'] === null && !$controlledState()['extensionConfirmed'], 'Changing target revokes approval');
+
+// Activation acknowledgements and the final verification must both match the probed revision/session.
+$parent->publish('synthetic/other/bridge/state', ['state' => 'online']);
+$inactive = $remote + ['runtime_version' => 1, 'active_revision' => null, 'active_checksum' => null, 'enabled_count' => 0, 'runtime_error' => ''];
+$active = $inactive;
+$active['executing'] = true;
+$active['active_revision'] = $active['stored_revision'];
+$active['active_checksum'] = $active['checksum'];
+$token = '33333333-3333-4333-8333-333333333333';
+$probeActivation = static function () use ($controlled, $replyStatus, $inactive, $token, $last, $controlledState, $check): void
+{
+    $check($controlled->ActivateAutomations() !== '', 'Start activation with a fresh status request');
+    $replyStatus($inactive + ['activation_token' => $token]);
+    $packet = $last();
+    $check(str_ends_with($packet['Topic'], '/request/activate') && $packet['Payload']['activation_token'] === $token
+        && $packet['Payload']['expected_revision'] === $inactive['stored_revision'] && $packet['Payload']['checksum'] === $inactive['checksum'], 'Activation sends only the exact fresh snapshot');
+    $check(!$controlledState()['runtimeConfirmed'] && !str_contains(json_encode($controlledState()), $token), 'Sending is not activation confirmation and tokens never enter exported state');
+};
+$controlled->ActivateAutomations();
+$replyStatus($remote);
+$check($controlledState()['lastError'] === 'runtime_unavailable', 'Legacy receivers cannot silently authorize activation');
+$probeActivation();
+$wrongRevision = $active;
+$wrongRevision['stored_revision']++;
+$wrongRevision['active_revision']++;
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $wrongRevision]);
+$check($controlledState()['lastError'] === 'runtime_mismatch' && !$controlledState()['runtimeConfirmed'], 'Wrong active revision is never shown as success');
+$probeActivation();
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $active], true);
+$check($controlledState()['operation']['status'] === 'pending', 'Retained activation acknowledgement cannot complete the operation');
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $active]);
+$check(str_ends_with($last()['Topic'], '/request/status') && !$controlledState()['runtimeConfirmed'], 'Acknowledgement is followed by an independent status verification');
+$replyStatus($inactive);
+$check($controlledState()['lastError'] === 'runtime_mismatch', 'Final stopped state cannot confirm an activation');
+$probeActivation();
+$controlled->clock += 11;
+$controlled->ExpireRequest();
+$check($controlledState()['operation']['status'] === 'timeout' && !$controlledState()['runtimeConfirmed'], 'Activation timeout leaves the state unknown');
+$probeActivation();
+$controlled->StopAutomations();
+$replyStatus($active);
+$check(str_ends_with($last()['Topic'], '/request/deactivate'), 'Stop supersedes pending activation and uses a fresh session');
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $inactive]);
+$replyStatus($inactive);
+$check($controlledState()['operation']['status'] === 'stopped' && $controlledState()['runtimeConfirmed'], 'Only the confirmed inactive state completes stop');
+$parent->publish('synthetic/other/bridge/state', ['state' => 'offline']);
+$check($controlled->StopAutomations() !== '', 'A stop attempt is permitted on active MQTT even with unknown/offline bridge state');
+$replyStatus($active);
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $inactive]);
+$replyStatus($inactive);
+$check($controlledState()['operation']['status'] === 'stopped', 'Stop can establish reachability through the receiver');
+$probeActivation();
+$controlled->StopAutomations();
+$restartedInactive = $inactive;
+$restartedInactive['session'] = '44444444-4444-4444-8444-444444444444';
+$parent->publish('synthetic/other/symcon/automations/status', (object) $restartedInactive, true);
+$check(!array_key_exists('workflow', $controlledState()), 'Export never exposes a pending workflow');
+$replyStatus($restartedInactive);
+$check(str_ends_with($last()['Topic'], '/request/deactivate'), 'A stop probe may learn a new receiver session after a concurrent restart');
+$answer(['protocol_version' => 1, 'status' => 'ok', 'data' => (object) $restartedInactive]);
+$replyStatus($restartedInactive);
+$check($controlledState()['operation']['status'] === 'stopped', 'Stop is confirmed against the new session');
+
+echo "PHP-to-JavaScript installation, validation and persistence integration passed.\n";
