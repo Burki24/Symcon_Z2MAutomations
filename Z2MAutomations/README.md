@@ -433,8 +433,16 @@ anschließende Betriebsbestätigung, nicht deshalb noch einmal speichern.
 
 ### Automatikbetrieb eines Systems
 
-Im Designer **Betrieb** öffnen. Der Bereich nennt das ausgewählte System und
-den zuletzt bestätigten Zustand.
+Im Designer zuerst oben das gewünschte **Z2M-System** auswählen. Direkt darunter
+stehen die drei Bereiche **Prüfen & übertragen**, **Betrieb** und **Gerätedaten**.
+Auf **Betrieb** klicken, um die Betriebssteuerung aufzuklappen:
+
+![Geöffneter Bereich Betrieb mit Wiederanlaufoption, Aktivierung, Stopp und Einzelstart](../docs/screenshots/zentrale-betrieb.png)
+
+Oben im aufgeklappten Bereich stehen der Systemname und der bestätigte Zustand.
+Darunter finden Sie die Wiederanlaufoption und die Buttons zum Aktivieren,
+Stoppen und Aktualisieren. Im unteren Teil wird eine einzelne gespeicherte
+Automation für einen einmaligen Start oder gezielten Stopp ausgewählt.
 
 1. Bei unbekanntem Stand **Betriebsstatus in Z2M aktualisieren** wählen.
 2. **Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen** nach Wunsch einstellen.
@@ -456,6 +464,10 @@ Ein ausgeschaltetes Symcon oder eine unterbrochene Verbindung zu Symcon stoppt
 die Z2M-Regeln nicht. Sie laufen nach erfolgreicher Aktivierung selbstständig weiter.
 
 ### Automatischer Wiederanlauf
+
+Das Häkchen **Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen** finden
+Sie im geöffneten Bereich **Betrieb**, direkt über den Aktivierungs- und Stoppbuttons
+(siehe Abbildung oben).
 
 Die Wiederanlaufoption wird erst mit der nächsten Aktivierung in Z2M gespeichert.
 Danach stellt Z2M nach einem Neustart denselben freigegebenen Regelstand selbst
@@ -501,6 +513,11 @@ Die vollständige Anleitung steht unter
 Eine Freigabe gilt nur in eine Richtung. Soll ein Taster auf **System A** ein Licht
 auf **System B** schalten, geben Sie **auf System B das System A frei**.
 
+Den Zugang finden Sie **oben rechts unter Verwaltung → Partnerfreigaben**.
+Im selben Menü liegt auch der Ereignisimport aus Punkt 10:
+
+![Geöffnetes Menü Verwaltung mit Partnerfreigaben und Symcon-Ereignisimport](../docs/screenshots/zentrale-verwaltung.png)
+
 1. Oben das empfangende **System B** wählen.
 2. Unter **Verwaltung → Partnerfreigaben** das sendende **System A** anhaken.
 3. **Änderungen prüfen** wählen. Beim Entziehen einer Freigabe erscheinen die
@@ -509,6 +526,12 @@ auf **System B** schalten, geben Sie **auf System B das System A frei**.
 5. Den Entwurf des Empfängers in Z2M prüfen, speichern und aktivieren.
 6. Auf dem sendenden System die Geräte der Gegenseite laden, die gewünschte
    Aktion auswählen und auch dessen fertigen Entwurf prüfen, speichern und aktivieren.
+
+Im folgenden Beispiel ist **Wohnhaus** der Empfänger. Das Häkchen erlaubt
+Befehle vom System **Garten** an **Wohnhaus**; die Gegenrichtung wird damit
+nicht freigegeben. Über **Änderungen prüfen** gelangen Sie zur Bestätigung:
+
+![Partnerfreigaben mit empfangendem System, Senderauswahl und Button Änderungen prüfen](../docs/screenshots/zentrale-partnerfreigaben.png)
 
 Aktionsziele anderer Systeme tragen deren Basistopic vor dem Namen. Gerät,
 Kanal und Wert werden wie bei einem lokalen Ziel ausgewählt. Der Empfänger muss
@@ -525,6 +548,17 @@ automatisch nachgeholt. Eine Bestätigung des Zielsystems bedeutet, dass es den
 Befehl übernommen hat; sie ersetzt keine Prüfung der tatsächlichen Gerätewirkung.
 
 ## 10. Symcon-Ereignisse importieren
+
+Den Import öffnen Sie **oben rechts unter Verwaltung → Symcon-Ereignisse
+importieren**. Der Dialog zeigt oben das ausgewählte Z2M-System. Mit
+**Vorhandene Ereignisse prüfen** beginnt die Suche; darunter erscheinen
+anschließend Treffer und die Vorschau zum ausgewählten Ereignis.
+
+![Ereignisimport vor der Suche mit Prüfbutton, Suchfeld, Filter und Vorschau](../docs/screenshots/zentrale-ereignisimport.png)
+
+Die leere Liste in der Abbildung zeigt den Zustand vor der ersten Suche.
+**Ausgeschaltet zum Entwurf hinzufügen** wird erst bei einem ausgewählten,
+importierbaren Ereignis freigegeben.
 
 1. Das Z2M-System auswählen, zu dem der Auslöser gehört.
 2. Bei fehlenden Gerätedaten zuerst **Gerätedaten aktualisieren** wählen.
