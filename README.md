@@ -40,7 +40,7 @@ Links werden Regeln und Geräte ausgewählt, in der Mitte ist der Ablauf mit
 ### Alternative Kachelansicht
 
 Derselbe Automationsdesigner lässt sich zusätzlich direkt in der nativen
-Symcon-Kachel verwenden. Die Aufnahme zeigt die vergrößerte Ansicht ab Symcon 9.1.
+Symcon-Kachel verwenden. Die Aufnahme zeigt die Ansicht als Kachel.
 
 ![Alternative Symcon-Kachelansicht mit vollständig eingebettetem Automationsdesigner](docs/screenshots/kachelansicht.png)
 
