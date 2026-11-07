@@ -2,8 +2,16 @@
 
 ## Aktuelle Ergänzung
 
+Repository-Umbenennung am 07.11.2026 lokal vorbereitet: Symcon-Repository
+`Burki24/Symcon_Z2MAutomations`, unabhängige Windows-/Linux-App und neues
+Repository `Z2M-Automations`. URLs, Badges, Storevorlage und Desktop-Plan
+angepasst; Consumer-Ziel und Einrichtungsanleitung in Symcon_ModuleHelper
+ebenfalls vorbereitet. Reihenfolge, Rückweg und noch offene Online-Nachweise:
+[REPOSITORY_RENAME.md](docs/REPOSITORY_RENAME.md). GitHub-Name, origin,
+lokaler Ordner und installierte Systeme wurden nicht geändert.
+
 Desktop-Planung am 07.11.2026: Der Benutzer beauftragt eine gemeinsame
-Z2MAutomations-Desktop-Anwendung für Windows und Linux parallel; Ubuntu LTS
+Z2M-Automations-Anwendung für Windows und Linux parallel; Ubuntu LTS
 auf x64 ist als Linux-Ziel bestätigt. [DESKTOP_PLAN.md](docs/DESKTOP_PLAN.md)
 und [ADR 0034](docs/adr/0034-desktop-windows-linux-and-localization.md) legen
 gemeinsamen Designer, Deutsch/Englisch, Electron-/MQTT-Unterbau, Übernahme und
@@ -1008,7 +1016,9 @@ die aktuelle Restliste steht oben und in PRUEFLISTE.md.
   ConfigurationFormHelper. Öffnen plant eine verzögerte einmalige Statusprüfung;
   der Formularaufbau selbst sendet kein MQTT. Nach ApplyChanges und Wiederverbindung
   gilt dieselbe Prüfung mit Vorrang laufender Aufträge und zehn Sekunden Abstand.
-- GitHub-Identität in Metadaten und Badges: Burki24/Z2MAutomations.
+- Vorbereitete GitHub-Identität in Metadaten und Badges:
+  Burki24/Symcon_Z2MAutomations; tatsächliche Umbenennung noch ausstehend.
+  Siehe [Umbenennungsvorbereitung](docs/REPOSITORY_RENAME.md).
 - Lizenz gemäß Projektkonvention: PolyForm Noncommercial License 1.0.0.
 - Initiale Metadaten 0.1 / Build 0 / Datum 0 bezeichnen keinen Release.
 

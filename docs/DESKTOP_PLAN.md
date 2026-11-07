@@ -1,4 +1,4 @@
-# Z2MAutomations Desktop – Umsetzungsplan
+# Z2M-Automations – Umsetzungsplan
 
 Stand: 07.11.2026. Planungsauftrag des Benutzers: eine gemeinsame Anwendung für
 Windows und Linux parallel entwickeln. Als erste Linux-Plattform ist
@@ -11,15 +11,21 @@ Architekturentscheidung: [ADR 0034](adr/0034-desktop-windows-linux-and-localizat
 
 | Bestandteil | Festlegung |
 | --- | --- |
-| Produkt | Z2MAutomations Desktop |
-| Plattformangaben | Z2MAutomations Desktop für Windows beziehungsweise für Linux |
-| Neues Repository | Z2MAutomations-Desktop; vorgeschlagener lokaler Pfad `E:\git\Z2MAutomations-Desktop` |
+| Produkt | Z2M-Automations |
+| Plattformangaben | Z2M-Automations für Windows beziehungsweise für Linux |
+| Neues Repository | Z2M-Automations; vorgeschlagener lokaler Pfad `E:\git\Z2M-Automations` |
 | Entwicklung | Gemeinsamer dauerhafter `dev`; `main` für geprüfte Veröffentlichungsstände |
 | Windows-Ziel | Windows 11, x64 als erste geplante Referenz |
 | Linux-Ziel | Ubuntu Desktop LTS, x64; zunächst 24.04 LTS als Build-/Testbasis, 26.04 LTS als zusätzlicher geplanter Abnahmelauf |
 | Erste Sprachen | Deutsch und Englisch; zusätzliche Sprachen durch Kataloge ergänzbar |
 | Systeme | Bis zu acht Z2M-Systeme, an einem oder mehreren Brokern |
 | Ausführung | In der bestehenden eigenen Z2M-Erweiterung; die App darf nach der Einrichtung geschlossen werden |
+
+Die Symcon-Library erhält den Repositorynamen `Symcon_Z2MAutomations`; die
+eigenständige Anwendung und ihr gemeinsames Windows-/Linux-Repository heißen
+`Z2M-Automations`. Die Namensentscheidung ist bestätigt. Die Umbenennung des
+bestehenden Repositorys ist [lokal vorbereitet](REPOSITORY_RENAME.md), noch
+nicht auf GitHub durchgeführt. Modulnamen und technische Kennungen bleiben erhalten.
 
 Die konkreten OS-Ausgaben sind Prüfziele, noch keine nachgewiesene Unterstützung.
 Vor der ersten Beta werden installierte Testumgebungen und die tatsächlich

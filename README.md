@@ -3,8 +3,8 @@
 [![Symcon PHPModul](https://img.shields.io/badge/Symcon-PHPModul-blue.svg)](https://www.symcon.de/)
 [![Symcon Version](https://img.shields.io/badge/Symcon-9.0%2B-blue.svg)](library.json)
 [![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE)
-[![Check Style](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/style.yml?query=branch%3Amain)
-[![Tests](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Burki24/Z2MAutomations/actions/workflows/tests.yml?query=branch%3Amain)
+[![Check Style](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=main)](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/style.yml?query=branch%3Amain)
+[![Tests](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/tests.yml?query=branch%3Amain)
 
 ![Z2MAutomations – visueller Automationsdesigner für bis zu acht Z2M-Systeme](docs/z2mautomations-title.webp)
 
@@ -117,7 +117,7 @@ Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls
 ## 4. Installation
 
 Die Library über die Symcon-Modulverwaltung aus dem Repository
-[Burki24/Z2MAutomations](https://github.com/Burki24/Z2MAutomations) hinzufügen.
+[Burki24/Symcon_Z2MAutomations](https://github.com/Burki24/Symcon_Z2MAutomations) hinzufügen.
 Als Zweig **main** verwenden.
 
 ## 5. Konfiguration in IP-Symcon

@@ -7,11 +7,16 @@
 
 ## Entscheidung
 
-Eine eigenständige Anwendung **Z2MAutomations Desktop** wird in einem eigenen
-Repository **Z2MAutomations-Desktop** geplant. Windows x64 und Ubuntu LTS x64
+Eine eigenständige Anwendung **Z2M-Automations** wird in einem eigenen
+Repository **Z2M-Automations** geplant. Windows x64 und Ubuntu LTS x64
 werden aus einer gemeinsamen Codebasis parallel umgesetzt und geprüft.
 Die Ausgabe nennt ihr Betriebssystem ausdrücklich. macOS und ARM64 sind
 keine zugesagte erste Plattform.
+
+Namensentscheidung vom 07.11.2026: Die Symcon-Library wird im Repository
+`Symcon_Z2MAutomations` geführt; die unabhängige App und ihr Repository heißen
+`Z2M-Automations`. Die [Umbenennungsvorbereitung](../REPOSITORY_RENAME.md)
+ändert keine Modulkennungen und benennt das GitHub-Repository noch nicht um.
 
 Der Plan verwendet Electron, einen TypeScript-Unterbau, Electron Forge und
 MQTT.js. Der vorhandene Designer erhält eine Adaptergrenze und gemeinsame
