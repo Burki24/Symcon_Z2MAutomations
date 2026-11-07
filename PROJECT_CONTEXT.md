@@ -2,6 +2,33 @@
 
 ## Aktuelle Ergänzung
 
+Repository-Umbenennung am 07.11.2026 lokal vorbereitet: Symcon-Repository
+`Burki24/Symcon_Z2MAutomations`, unabhängige Windows-/Linux-App und neues
+Repository `Z2M-Automations`. URLs, Badges, Storevorlage und Desktop-Plan
+angepasst; Consumer-Ziel und Einrichtungsanleitung in Symcon_ModuleHelper
+ebenfalls vorbereitet. Reihenfolge, Rückweg und noch offene Online-Nachweise:
+[REPOSITORY_RENAME.md](docs/REPOSITORY_RENAME.md). GitHub-Name, origin,
+lokaler Ordner und installierte Systeme wurden nicht geändert.
+
+Desktop-Planung am 07.11.2026: Der Benutzer beauftragt eine gemeinsame
+Z2M-Automations-Anwendung für Windows und Linux parallel; Ubuntu LTS
+auf x64 ist als Linux-Ziel bestätigt. [DESKTOP_PLAN.md](docs/DESKTOP_PLAN.md)
+und [ADR 0034](docs/adr/0034-desktop-windows-linux-and-localization.md) legen
+gemeinsamen Designer, Deutsch/Englisch, Electron-/MQTT-Unterbau, Übernahme und
+getrennte Plattformprüfungen fest. Zuerst Mehrsprachigkeit im bestehenden
+Designer, danach beide App-Ziele gemeinsam. Planungsstand, keine Umsetzung,
+kein Remote-Repository und keine Installation oder Veröffentlichung.
+Die Symcon-Beta und bestehende Live-Automationen bleiben davon unberührt.
+
+Dokumentationsaufbau am 07.11.2026 auf Benutzerwunsch erhalten: eigene
+Test-Symcon-Kategorie „Z2MAutomations – Dokumentationsbeispiele“ mit einer
+Zentrale, zwei Verbindungen und isolierten synthetischen MQTT-Gegenstellen.
+Alle Beispielregeln ausgeschaltet, keine realen Geräte oder Broker angebunden.
+Private Startdateien und Zugangsdaten liegen außerhalb des Repositorys im
+lokalen Codex-Verzeichnis `z2ma-documentation-fixture`. Kein Windows-Dienst
+oder automatischer Start. Vor weiterer Nutzung den eigenen Peerprozess prüfen;
+den Aufbau nicht ungefragt entfernen. Geprüfte Screenshots: `docs/screenshots/`.
+
 Am 07.11.2026 bestätigt der Benutzer die Live-Praxis für Symcon 9.0 und die
 stabile Z2M-Version 2.14.2. B1/B2 sind damit als Benutzer-Praxisnachweise
 geschlossen; keine zusätzliche Prüfung oder Änderung am Live-System durch
@@ -989,7 +1016,9 @@ die aktuelle Restliste steht oben und in PRUEFLISTE.md.
   ConfigurationFormHelper. Öffnen plant eine verzögerte einmalige Statusprüfung;
   der Formularaufbau selbst sendet kein MQTT. Nach ApplyChanges und Wiederverbindung
   gilt dieselbe Prüfung mit Vorrang laufender Aufträge und zehn Sekunden Abstand.
-- GitHub-Identität in Metadaten und Badges: Burki24/Z2MAutomations.
+- Vorbereitete GitHub-Identität in Metadaten und Badges:
+  Burki24/Symcon_Z2MAutomations; tatsächliche Umbenennung noch ausstehend.
+  Siehe [Umbenennungsvorbereitung](docs/REPOSITORY_RENAME.md).
 - Lizenz gemäß Projektkonvention: PolyForm Noncommercial License 1.0.0.
 - Initiale Metadaten 0.1 / Build 0 / Datum 0 bezeichnen keinen Release.
 

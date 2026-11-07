@@ -1,9 +1,12 @@
 # MQTT-Vertrag und Nachweise
 
+Die internen Schnittstellen zwischen Verbindung und Zentrale sind in
+[CONNECTION_INTERNALS.md](CONNECTION_INTERNALS.md) beschrieben.
+
 ## Verbindung zwischen Brokern
 
 Die Benutzer-Schrittfolge für zwei bis acht vorhandene Mosquitto-Broker steht
-in der [README](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
+in der [Z2MConnection-Modulanleitung](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden).
 Zweibroker-Praxis und offener Drei-/Acht-System-Nachweis bleiben getrennt;
 siehe [PRUEFLISTE.md](PRUEFLISTE.md).
 

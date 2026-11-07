@@ -403,7 +403,7 @@ sind praktisch bestätigt. Die folgenden Arbeitspakete bleiben offen:
 2. R5: Verbleibende Kompatibilitätsfälle nach gesondertem Auftrag abschließen.
    Bereits bestätigte Abläufe erhalten.
 
-Die [Broker-Schrittfolge](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+Die [Broker-Schrittfolge](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
 überträgt den Zweibroker-Aufbau auf eine schleifenfreie Sternstruktur. Das
 Dokumentieren der Anleitung ist keine praktische Acht-System-Freigabe.
 

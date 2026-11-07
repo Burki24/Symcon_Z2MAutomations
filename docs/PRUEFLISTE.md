@@ -164,7 +164,7 @@ bestätigter bisheriger Betrieb. Details in NATIVE_INSTALLATION_TEST.md.
 R1 ist im vereinbarten synthetischen Umfang abgeschlossen, R2 und R3 praktisch
 bestätigt. R4 ist im beschriebenen Testumfang abgeschlossen. Weitere R5-Praxisaktionen benötigen
 jeweils einen konkreten Auftrag. Die neue
-[Brokeranleitung](../README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
+[Brokeranleitung](../Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)
 beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 
 ## Prüfliste für die nächste Stufe

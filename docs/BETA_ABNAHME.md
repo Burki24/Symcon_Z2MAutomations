@@ -77,8 +77,8 @@ und Katalogabfragen sind kein neuer Nachweis einer physischen Geräteausführung
 | `npm run check:extension` über Gesamtsuite | Artefakt stimmt mit eigenen Quellen, Schema und Debugkatalog überein. |
 | Preflightscanner | 0 statische Blocker, 16 zu prüfende Dateizugriffe; anschließend kontextuell geprüft, siehe unten. |
 | Git-Diff | Ausgangsbaum sauber; Dokumentationsänderungen separat geführt. Private Rohdaten bleiben außerhalb des Repositorys; keine Helper-/Modul-/Artefaktänderung. |
-| GitHub Tests | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Z2MAutomations/actions/runs/42236882873). |
-| GitHub Check Style | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Z2MAutomations/actions/runs/42236882787). |
+| GitHub Tests | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/42236882873). |
+| GitHub Check Style | [Erfolgreicher Lauf zum Codecommit](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/42236882787). |
 
 Die CI-Nachweise gelten für den genannten Commit. Sie sind kein Nachweis einer
 noch nicht committeten Dokumentationsänderung oder eines zukünftigen Releasecommits.
@@ -228,7 +228,7 @@ deshalb nicht unsere Codequalität oder die fehlenden Laufzeitnachweise.
 | --- | --- |
 | Kanal | Beta, erste Veröffentlichung; kein Stable-Antrag. |
 | Bundle-ID | Falls noch nicht angelegt: Vorschlag `de.burki24.z2mautomations`. Eine bereits vorhandene Store-ID unverändert verwenden; Accountbestand hier nicht geprüft. |
-| Git-URL | `https://github.com/Burki24/Z2MAutomations` |
+| Git-URL | `https://github.com/Burki24/Symcon_Z2MAutomations` |
 | Commit | Erst den vollständig geprüften finalen Veröffentlichungscommit wählen. `b1ae70b` ist die hier geprüfte Codebasis, nicht automatisch die spätere Einreichung. |
 | Sprache | Für die erste Vorlage Deutsch; weitere Sprachen erst nach eigener vollständiger Sprachprüfung anbieten. |
 | Name | Z2MAutomations |
