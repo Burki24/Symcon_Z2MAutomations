@@ -2,6 +2,15 @@
 
 ## Aktuelle Ergänzung
 
+Dokumentationsaufbau am 07.11.2026 auf Benutzerwunsch erhalten: eigene
+Test-Symcon-Kategorie „Z2MAutomations – Dokumentationsbeispiele“ mit einer
+Zentrale, zwei Verbindungen und isolierten synthetischen MQTT-Gegenstellen.
+Alle Beispielregeln ausgeschaltet, keine realen Geräte oder Broker angebunden.
+Private Startdateien und Zugangsdaten liegen außerhalb des Repositorys im
+lokalen Codex-Verzeichnis `z2ma-documentation-fixture`. Kein Windows-Dienst
+oder automatischer Start. Vor weiterer Nutzung den eigenen Peerprozess prüfen;
+den Aufbau nicht ungefragt entfernen. Geprüfte Screenshots: `docs/screenshots/`.
+
 Am 07.11.2026 bestätigt der Benutzer die Live-Praxis für Symcon 9.0 und die
 stabile Z2M-Version 2.14.2. B1/B2 sind damit als Benutzer-Praxisnachweise
 geschlossen; keine zusätzliche Prüfung oder Änderung am Live-System durch

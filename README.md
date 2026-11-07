@@ -8,14 +8,17 @@
 
 Erstellt und verwaltet Automationen für Zigbee2MQTT: Geräteauslöser, Uhrzeiten,
 Sonnenzeiten, Bedingungen, Szenen und Aktionsfolgen. Eine Automationszentrale
-verwaltet bis zu acht Z2M-Systeme. Die Bedienung erfolgt im Browserdesigner oder
-in der nativen Symcon-Kachel, ohne Programmier- oder YAML-Kenntnisse.
+verwaltet bis zu acht Z2M-Systeme. **Hauptarbeitsbereich ist das eigene Webfrontend,
+der Automationsdesigner im Browser.** Dort werden Automationen ohne Programmier-
+oder YAML-Kenntnisse erstellt, bearbeitet und verwaltet.
 
 Die Regeln werden an eine eigene Zigbee2MQTT-Erweiterung übertragen und dort
 nach dem Aktivieren selbstständig ausgeführt. Symcon muss dafür nicht weiterlaufen.
+Die native Symcon-Kachel bietet einen zusätzlichen Zugang zum Designer.
 
 ## Inhaltsverzeichnis
 
+- [Screenshots](#screenshots)
 - [1. Voraussetzungen](#1-voraussetzungen)
 - [2. Funktionsumfang](#2-funktionsumfang)
 - [3. Enthaltene Module](#3-enthaltene-module)
@@ -23,6 +26,32 @@ nach dem Aktivieren selbstständig ausgeführt. Symcon muss dafür nicht weiterl
 - [5. Konfiguration in IP-Symcon](#5-konfiguration-in-ip-symcon)
 - [6. Änderungen](#6-änderungen)
 - [7. Lizenz](#7-lizenz)
+
+## Screenshots
+
+Die Aufnahmen zeigen die tatsächlichen Oberflächen mit erfundenen Beispieldaten.
+
+### Webfrontend: Automationsdesigner
+
+Der Browserdesigner ist der Hauptanlaufpunkt für die Einrichtung von Automationen.
+Links werden Regeln und Geräte ausgewählt, in der Mitte ist der Ablauf mit
+**Wenn**, **Nur wenn** und **Dann** sichtbar. Rechts stehen die Eigenschaften.
+
+![Webfrontend mit Systemauswahl, Automationsübersicht und einer Beispielautomation](docs/screenshots/webfrontend.png)
+
+### Z2M-Verbindung
+
+Hier werden die MQTT-Anbindung und das Basistopic des jeweiligen Z2M-Systems
+eingerichtet sowie Verbindung und Erweiterungsstand angezeigt.
+
+![Z2M-Verbindungsmodul mit MQTT-Einstellungen und Erweiterungsstand](docs/screenshots/z2m-verbindung.png)
+
+### Konfigurationsformular der Automationszentrale
+
+Die Zentrale ordnet die Verbindungen zu und bietet die Systemauswahl.
+Mit **Automationsdesigner öffnen** geht es von hier in das eigene Webfrontend.
+
+![Konfigurationsformular der Automationszentrale mit Systemauswahl und Button zum Öffnen des Browserdesigners](docs/screenshots/automationszentrale.png)
 
 ## 1. Voraussetzungen
 
@@ -66,8 +95,10 @@ Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls
 - [Zigbee2MQTT Automationszentrale](Z2MAutomations/README.md)
   - Eine zentrale Instanz zum Erstellen, Bearbeiten, Prüfen und Übertragen der
     Automationen für bis zu acht Z2M-Systeme.
-  - Enthält den Browserdesigner und die native Symcon-Kachel. Die Zentrale
-    benötigt keine eigene MQTT-Schnittstelle.
+  - Stellt das eigene Webfrontend als Hauptoberfläche zur Einrichtung der
+    Automationen bereit. Der vollständige Designer ist zusätzlich in der
+    nativen Symcon-Kachel nutzbar.
+  - Die Zentrale benötigt keine eigene MQTT-Schnittstelle.
 - [Zigbee2MQTT Verbindung](Z2MConnection/README.md)
   - Eine Verbindungsinstanz je Z2M-System, verbunden mit dessen vorhandenem
     MQTT Client oder MQTT Server.
@@ -91,8 +122,10 @@ Als Zweig **main** verwenden.
    die gewünschten Verbindungen anhaken und **Systemzuordnung übernehmen** wählen.
 3. Für jedes System die Erweiterung installieren und die Gerätedaten laden.
    Vorhandene Z2M-Automationen lassen sich über die direkte Einrichtung einlesen.
-4. Den Designer öffnen, das gewünschte System auswählen und die Automation
-   mit Auslösern, optionalen Bedingungen und Aktionen zusammenstellen.
+4. In der Zentrale auf **Automationsdesigner öffnen** klicken. Das eigene
+   Webfrontend öffnet sich im Browser. Dort das gewünschte **Z2M-System** auswählen
+   und über **+ Neue Automation** die Regel mit Auslösern, optionalen Bedingungen
+   und Aktionen zusammenstellen.
 5. Die Änderungen in den lokalen Entwurf übernehmen. Neue Regeln beginnen
    ausgeschaltet; vor der gewünschten Nutzung den Regelschalter einschalten.
 6. Den Entwurf in Z2M prüfen, speichern und die gespeicherten Automationen
@@ -110,7 +143,9 @@ Updatehinweis die mitgelieferte Erweiterung über die Zentrale installieren.
 Die Gerätedaten werden anschließend automatisch nachgeladen; Entwürfe bleiben
 erhalten. Ein Erweiterungsupdate kann laufende Abläufe kurz unterbrechen.
 
-Die weitere Konfiguration und Bedienung stehen in der README des jeweiligen Moduls.
+Die weitere Konfiguration und Bedienung des Webfrontends stehen in der
+[Anleitung zum Browserdesigner](Z2MAutomations/README.md#automationsdesigner-im-browser).
+Die MQTT-Einrichtung ist in der README des Verbindungsmoduls beschrieben.
 
 ## 6. Änderungen
 
