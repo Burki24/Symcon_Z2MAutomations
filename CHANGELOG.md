@@ -30,6 +30,10 @@ Versionierung der Library bleibt maßgeblich.
   Bei erneuter Auslösung ignorieren, neu starten oder die Wartezeit verlängern.
 - Automatischer Wiederanlauf nach Z2M-Neustart ist einstellbar. Aktivierte Regeln
   laufen in der eigenen Z2M-Erweiterung und benötigen kein laufendes Symcon.
+- Nach einem Z2M-Neustart wird der Erweiterungs- und Betriebsstatus automatisch
+  bestätigt. Falls die Erweiterung noch startet, wird nur die lesende Statusabfrage
+  höchstens dreimal versucht. Manuelle Aufträge haben Vorrang; Schalt- und
+  Speicheraufträge werden nicht wiederholt.
 - Erweiterungsinstallation je System mit Bestätigung, Buildvergleich und
   anschließendem Geräteabruf. Zeitbegrenzte Debug-Aufzeichnungen erklären
   Abläufe und systemübergreifende Aktionen.

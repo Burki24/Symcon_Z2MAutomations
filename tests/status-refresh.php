@@ -171,7 +171,7 @@ $module->MessageSink(time(), $parentID, IM_CHANGESTATUS, [102]);
 $check($module->RefreshTimerInterval() === 1000, 'Gateway recovery queues one new attempt');
 $module->RefreshStatus();
 $check($state()['bridgeOnline'] && $state()['extensionConfirmed'], 'Gateway recovery refreshes real status without a manual button');
-// A missing extension response is bounded by the existing workflow timeout.
+// The health/status chain tolerates a receiver that is not listening yet.
 $module->clock += 11;
 $parent->onPublish = static function (array $packet) use ($reply): void
 {
@@ -185,7 +185,18 @@ $before = count($parent->sent);
 $module->clock += 11;
 $module->ExpireRequest();
 $module->RefreshStatus();
-$check($state()['operation']['status'] === 'timeout' && count($parent->sent) === $before && $module->RefreshTimerInterval() === 0, 'An unanswered extension query expires without automatic retries');
+$check(
+    $state()['operation']['status'] === 'pending' && $state()['lastError'] === '' && count($parent->sent) === $before && $module->RefreshTimerInterval() === 0,
+    'An early missing extension reply schedules a delayed status retry without repeating health checks'
+);
+for ($attempt = 2; $attempt <= 3; $attempt++) {
+    $module->clock += 2;
+    $module->ExpireRequest();
+    $check(count($parent->sent) === $before + $attempt - 1 && str_ends_with($parent->sent[array_key_last($parent->sent)]['Topic'], '/request/status'), 'Only read-only extension status requests are retried');
+    $module->clock += 11;
+    $module->ExpireRequest();
+}
+$check($state()['operation']['status'] === 'timeout' && count($parent->sent) === $before + 2, 'Three unanswered status attempts end with a visible timeout');
 $debug = json_encode($module->debugMessages, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
 $check(!str_contains($debug, 'synthetic-private-draft') && str_contains($debug, 'Automatische Health-Prüfung bestätigt'), 'Automatic diagnostics explain the flow without exposing draft content');
 echo "Automatic status refresh checks passed.\n";

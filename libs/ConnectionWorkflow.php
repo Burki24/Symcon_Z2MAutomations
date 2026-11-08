@@ -16,13 +16,14 @@ trait ConnectionWorkflow
 
     private function StartExtensionWorkflow(string $kind, string $yaml = '', string $code = '', bool $notify = false, bool $automatic = false): string
     {
-        $frame = $this->WithTransportLock(function () use ($kind, $code, $notify): array
+        $frame = $this->WithTransportLock(function () use ($kind, $code, $notify, $automatic): array
         {
             $state = $this->RefreshState();
             if (!in_array($kind, ['status', 'catalog', 'install'], true)) {
                 $this->DebugEvent('FEHLER', 'Dieser Einstieg unterstützt nur Verbindungsaufträge. Entwürfe werden ausschließlich durch die zuständige Zentrale geprüft und übertragen.');
                 return [];
             }
+            if ($automatic && ($state['pending'] !== null || $state['workflow'] !== null)) return [];
             if ($state['workflow'] !== null) {
                 $this->DebugEvent('AKTION', 'Auftrag nicht erneut gesendet: Für dieses Z2M-System steht noch eine Antwort aus. Andere Systeme bleiben unabhängig.');
                 if ($notify) $this->NotifyExtensionInstallation('busy');
@@ -48,6 +49,8 @@ trait ConnectionWorkflow
                 'previousSession'      => $state['extension']['session'] ?? null, 'target' => null];
             $state['operation'] = ['kind' => $kind, 'status' => 'pending', 'transaction' => $id];
             $state['lastError'] = '';
+            if ($automatic && $kind === 'status') $this->BeginExtensionConfirmation($state);
+            else $state['automaticStatus'] = null;
             if ($kind === 'install') {
                 $state['extensionConfirmed'] = false;
                 $state['runtimeConfirmed'] = false;
@@ -82,6 +85,7 @@ trait ConnectionWorkflow
             $code = $workflow['wire'] === 'install' ? 'installation_failed' : ($payload->error->code ?? 'invalid_response');
             if (!is_string($code) || !in_array($code, array_merge(ExtensionContract::ERROR_CODES, ['installation_failed', 'invalid_response']), true)) $code = 'invalid_response';
             $state['extensionConfirmed'] = false;
+            if ($this->RetryExtensionConfirmation($state, $code)) return null;
             $this->FinishExtensionWorkflow($state, 'error', $code);
             return null;
         }
@@ -92,6 +96,7 @@ trait ConnectionWorkflow
         $metadata = ExtensionContract::Status($payload->data);
         if ($metadata === null || !$metadata['ready']) {
             $state['extensionConfirmed'] = false;
+            if ($metadata !== null && $this->RetryExtensionConfirmation($state, 'not_ready')) return null;
             $this->FinishExtensionWorkflow($state, 'error', $metadata === null ? 'invalid_response' : 'not_ready');
             return null;
         }
@@ -141,6 +146,7 @@ trait ConnectionWorkflow
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        $this->FinishExtensionConfirmation($state, $status);
         $this->FinishOwnedInstallation($state, $status, $error);
         $this->FinishRuntimeControl($state, $status, $error);
         if ($error !== '' && isset($state['workflow']['runtimeRequest']) && in_array($state['workflow']['kind'], ['activate', 'deactivate'], true)) $state['runtimeConfirmed'] = false;

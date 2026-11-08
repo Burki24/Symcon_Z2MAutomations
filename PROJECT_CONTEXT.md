@@ -2,6 +2,12 @@
 
 ## Entwicklung auf dev – 08.11.2026
 
+Automatische Statusbestätigung nach Z2M-Neustart korrigiert: Z2M kann bereits
+antworten, bevor die Erweiterung Anfragen annimmt. Beide Modultypen bestätigen
+nach offline/online verzögert und mit höchstens drei lesenden Versuchen.
+Manuelle Aufträge, Sitzungs-/Topicgrenzen und bestehende Entwürfe bleiben geschützt.
+Regression: tests/restart-status.php; keine Installation oder Änderung am Live-System.
+
 Wählbare Fortsetzung wartender Automatikläufe nach Z2M-Neustart ergänzt:
 restart_policy mit abort, resume und resume_expired. Globaler bestätigter
 Wiederanlauf bleibt erforderlich; Einzelstarts und unbestätigte Übergaben
@@ -13,7 +19,12 @@ Automatische Versionierung unverändert; nur dev bearbeiten, keine neuen Branche
 Lokal bestanden: PHP-Gesamtsuite, 239 JavaScript-Tests, native Vorbelegung/
 Validierung, Browser-Sprachwechsel mit neuer Auswahl, Stil/Kodierung/Struktur
 und Paketprüfung. Gemeinsame Designerquelle: npm run verify mit sechs Tests.
-Noch kein Praxisneustart auf einem installierten Z2M für diese neue Funktion.
+Fortsetzung inzwischen über Test-Symcon am ausdrücklich freigegebenen Z2M-2
+praktisch geprüft: Restfrist mit derselben Laufkennung, Abbruch bei abgelaufener
+Frist und Nachholen mit erneuter Bedingungsprüfung. Testbedingungen verhinderten
+Schaltbefehle; Originalregeln und Betrieb anschließend wiederhergestellt.
+Die hier folgende Korrektur der automatischen Statusabfrage ist zunächst lokal
+geprüft und benötigt nach dem Modulupdate eine eigene Praxisbestätigung.
 
 ## Aktueller Beta-Kandidat – 07.11.2026
 

@@ -126,6 +126,8 @@ trait ExtensionIntegration
             $state['lastError'] = '';
             $state['workflow'] = ['id' => $id, 'kind' => $kind, 'checksum' => $checksum, 'yaml' => $yaml,
                 'notify'               => $notify, 'previousSession'      => $state['extension']['session'] ?? null, 'target' => null, 'verifyRuntime' => false];
+            if ($automatic && $kind === 'status') $this->BeginExtensionConfirmation($state);
+            else $state['automaticStatus'] = null;
             if (in_array($kind, ['run_once', 'stop_rule'], true)) {
                 $state['workflow']['executionRule'] = $executionRule;
                 $state['workflow']['executionRun'] = $state['execution']['runs'][$executionRule]['run'] ?? '';
@@ -161,6 +163,7 @@ trait ExtensionIntegration
 
     private function FinishExtensionWorkflow(array &$state, string $status, string $error = ''): void
     {
+        $this->FinishExtensionConfirmation($state, $status);
         if (($state['workflow']['verifyStorage'] ?? false) && $status !== 'stored') {
             $status = 'stored_unconfirmed';
             $state['extensionConfirmed'] = false;
@@ -212,6 +215,7 @@ trait ExtensionIntegration
                 $state['validation'] = null;
                 $state['extensionConfirmed'] = false;
             }
+            if ($this->RetryExtensionConfirmation($state, $code)) return null;
             $this->FinishExtensionWorkflow($state, 'error', $code);
             if (in_array($workflow['wire'], ['validate', 'store'], true) && in_array($code, ['invalid_yaml', 'invalid_schema', 'invalid_semantics'], true)) {
                 $details = ValidationFeedback::Normalize($payload->error->details ?? null);
@@ -239,6 +243,7 @@ trait ExtensionIntegration
             if ($metadata === null || !$metadata['ready']) {
                 $state['extensionConfirmed'] = false;
                 $state['validation'] = null;
+                if ($metadata !== null && $this->RetryExtensionConfirmation($state, 'not_ready')) return null;
                 $this->FinishExtensionWorkflow($state, 'error', $metadata === null ? 'protocol_mismatch' : 'not_ready');
                 return null;
             }
