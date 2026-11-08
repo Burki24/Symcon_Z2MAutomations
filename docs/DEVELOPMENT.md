@@ -1,3 +1,15 @@
+## Automatische Erweiterungsversion – 08.11.2026
+
+`npm run build:extension` führt eine eigene Versionsfolge ab `0.2.0` in
+`libs/z2m/version.json`. Geänderter zusammengefügter Erweiterungsinhalt erhöht
+automatisch die Patchnummer; unveränderter Inhalt behält seine Version.
+Library-Version, Git-Datum und Rechner beeinflussen diesen Zähler nicht.
+Versiondatei und erzeugte `z2m-automations.mjs` gemeinsam übernehmen.
+`npm run check:extension` prüft beides nur lesend; veraltete Artefakte lassen die
+CI fehlschlagen. Fehlende oder ungültige Metadaten aus Git wiederherstellen,
+nicht den Zähler zurücksetzen. Keine automatische Installation in Z2M.
+Entscheidung: [ADR 0037](adr/0037-automatic-extension-release-version.md).
+
 ## Designer-Sprachkataloge – 07.11.2026
 
 Deutsch/Englisch mit eigenem Resolver und lokalen JSON-Quellen.

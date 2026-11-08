@@ -185,7 +185,8 @@ test('fresh status reports the build identity of the actually loaded extension',
         const response = await h.request('status');
         assert.equal(response.status, 'ok');
         assert.equal(response.data.extension_build, build);
-        assert.equal(response.data.extension_version, '0.1.0', 'Build comparison needs no manual version bump');
+        const metadata = JSON.parse(await readFile(new URL('../libs/z2m/version.json', import.meta.url), 'utf8'));
+        assert.equal(response.data.extension_version, metadata.version, 'Status reports the generated release version of the loaded extension');
         assert.equal(h.extension.status().extension_build, build);
     } finally { await h.close(); }
 });

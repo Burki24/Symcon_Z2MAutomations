@@ -70,7 +70,7 @@ $decode = static fn (string $raw): array => json_decode($raw, true, 512, JSON_TH
 $op = static fn (): string => bin2hex(random_bytes(16));
 $detail = static fn (string $sys): array => $decode($manager->GetWorkspaceSystem($sys));
 $overview = static fn (): array => $decode($manager->GetWorkspaceOverview());
-$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::VERSION, 'session' => '11111111-1111-4111-8111-111111111111',
+$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(), 'session' => '11111111-1111-4111-8111-111111111111',
     'state'                  => 'ready', 'stored_revision' => 3, 'checksum' => str_repeat('a', 64), 'automation_count' => 1, 'storage' => 'ok', 'executing' => true,
     'runtime_version'        => 1, 'active_revision' => 3, 'active_checksum' => str_repeat('a', 64), 'enabled_count' => 1, 'runtime_error' => '', 'catalog_version' => 1, 'debug_version' => 1];
 $catalogData = $ready + ['devices' => [['id' => '0x0000000000000001', 'name' => 'PRIVATE_DEVICE',

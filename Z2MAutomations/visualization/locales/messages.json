@@ -2904,8 +2904,8 @@
         "Build not confirmed yet"
     ],
     "ui.bundled.build.74eb47b1": [
-        "Mitgelieferter Build",
-        "Bundled build"
+        "Mitgelieferte Erweiterung",
+        "Bundled extension"
     ],
     "ui.call.action.sequence.f1795acb": [
         "Aktionsfolge aufrufen",
@@ -3676,8 +3676,8 @@
         "Installation status is not available yet. Reload diagnostics."
     ],
     "ui.installed.build.8f543ac4": [
-        "Installierter Build",
-        "Installed build"
+        "Installierte Erweiterung",
+        "Installed extension"
     ],
     "ui.installed.extension.build.not.confirmed.53b7deb0": [
         "Installierter Erweiterungsstand noch nicht bestätigt.",

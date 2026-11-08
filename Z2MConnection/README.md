@@ -162,9 +162,11 @@ Auf **Erweiterungsstatus abfragen** klicken. Danach nennt das Formular:
 - **Mitgelieferter Erweiterungsstand:** die zur installierten Library gehörende Datei.
 - **Aktuell** oder einen Hinweis, dass eine Aktualisierung erforderlich ist.
 
-Die Buildkennung unterscheidet den tatsächlichen Inhalt zweier Erweiterungsdateien,
-auch wenn ihre Versionsbezeichnung gleich ist. Die Version der Erweiterung muss
-nicht mit der Versionsnummer der Symcon-Library übereinstimmen.
+Ab Erweiterungsversion **0.2.0** erhalten geänderte Erweiterungsstände automatisch
+eine höhere Versionsnummer, zum Beispiel **0.2.1**. Zusätzlich bleibt die
+Buildkennung zur genauen Inhaltsprüfung sichtbar. Ältere Stände können noch
+dieselbe Version **0.1.0** mit unterschiedlichen Buildkennungen melden.
+Die Erweiterungsversion ist unabhängig von der Versionsnummer der Symcon-Library.
 
 Ein noch nicht bestätigter Stand bedeutet, dass das Modul noch keine passende
 Antwort erhalten hat. Die Erweiterung wird dann nicht als aktuell ausgegeben.

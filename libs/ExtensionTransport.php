@@ -41,7 +41,7 @@ trait ExtensionTransport
     {
         $code = $this->BundledExtensionCode();
         $build = ExtensionContract::BuildFromHeader($code);
-        return $code === '' || $build === null ? null : ['build' => $build, 'artifact' => hash('sha256', $code)];
+        return $code === '' || $build === null || ExtensionContract::VersionFromHeader($code) === null ? null : ['build' => $build, 'artifact' => hash('sha256', $code)];
     }
     private function NewExtensionState(): array
     {
@@ -175,14 +175,15 @@ trait ExtensionTransport
     private function ExtensionBuildInfo(array $state): array
     {
         $bundled = ExtensionContract::BundledBuild();
+        $bundledVersion = ExtensionContract::BundledVersion();
         $confirmed = $state['mqttConnected'] && $state['extensionConfirmed'] && ($state['extension']['ready'] ?? false);
         $installed = $confirmed ? ($state['extension']['build'] ?? null) : null;
-        $comparison = $bundled === null ? 'missing' : (!$confirmed ? 'unconfirmed' : ($installed === null ? 'legacy' : ($installed === $bundled ? 'current' : 'different')));
+        $comparison = $bundled === null || $bundledVersion === null ? 'missing' : (!$confirmed ? 'unconfirmed' : ($installed === null ? 'legacy' : ($installed === $bundled && $state['extension']['version'] === $bundledVersion ? 'current' : 'different')));
         $installedText = $confirmed
             ? sprintf($this->Translate('Installed extension: %s'), $state['extension']['version'] . ' (' . ($installed === null ? $this->Translate('without build identifier') : 'Build ' . substr($installed, 0, 12)) . ')')
             : $this->Translate('Installed extension: Not yet confirmed.');
-        $bundledText = $bundled === null ? $this->Translate('Bundled extension: Build identifier unavailable. Check the module files.')
-            : sprintf($this->Translate('Bundled extension: %s'), ExtensionContract::VERSION . ' (Build ' . substr($bundled, 0, 12) . ')');
+        $bundledText = $bundled === null || $bundledVersion === null ? $this->Translate('Bundled extension: Build identifier unavailable. Check the module files.')
+            : sprintf($this->Translate('Bundled extension: %s'), $bundledVersion . ' (Build ' . substr($bundled, 0, 12) . ')');
         $hint = match ($comparison) {
             'current'   => 'Up to date. The installed and bundled extensions have the same build.',
             'different' => 'Update available: The installed build differs from the bundled build. Choose Install or update bundled extension to use the bundled version.',
@@ -190,8 +191,9 @@ trait ExtensionTransport
             'missing'   => 'Build comparison unavailable. Update the module files and reopen this form.',
             default     => 'Not yet checked. Request the extension status to compare builds.'
         };
-        return ['comparison' => $comparison, 'installed' => $installed, 'bundled' => $bundled, 'confirmed' => $confirmed,
-            'fields'         => ['InstalledExtensionInfo' => $installedText, 'BundledExtensionInfo' => $bundledText, 'ExtensionUpdateInfo' => $this->Translate($hint)]];
+        return ['comparison'   => $comparison, 'installed' => $installed, 'bundled' => $bundled, 'confirmed' => $confirmed,
+            'installedVersion' => $confirmed ? $state['extension']['version'] : null, 'bundledVersion' => $bundledVersion,
+            'fields'           => ['InstalledExtensionInfo' => $installedText, 'BundledExtensionInfo' => $bundledText, 'ExtensionUpdateInfo' => $this->Translate($hint)]];
     }
 
     private function UpdateExtensionBuildInfo(array $state): void
@@ -215,8 +217,9 @@ trait ExtensionTransport
         $this->DebugEvent(
             $info['comparison'] === 'missing' ? 'FEHLER' : 'AKTION',
             $message,
-            ['Vergleich'             => $info['comparison'], 'Bestätigt' => $info['confirmed'],
-                'InstallierterBuild' => substr($info['installed'] ?? '', 0, 12), 'MitgelieferterBuild' => substr($info['bundled'] ?? '', 0, 12)]
+            ['Vergleich'              => $info['comparison'], 'Bestätigt' => $info['confirmed'],
+                'InstallierteVersion' => $info['installedVersion'], 'MitgelieferteVersion' => $info['bundledVersion'],
+                'InstallierterBuild'  => substr($info['installed'] ?? '', 0, 12), 'MitgelieferterBuild' => substr($info['bundled'] ?? '', 0, 12)]
         );
     }
 

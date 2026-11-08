@@ -48,6 +48,9 @@ freigegeben. Umfang und Grenzen stehen in der
 
 Die **Buildkennung** vergleicht den Inhalt der installierten und mitgelieferten
 Datei. Die Versionsnummer der Erweiterung ist unabhängig von der Library-Version.
+Ab **0.2.0** steigt bei geändertem Erweiterungsinhalt automatisch die letzte
+Versionszahl, beispielsweise auf **0.2.1**. Ein erneuter Build ohne Änderungen
+behält dieselbe Version. Die genaue Buildkennung bleibt zusätzlich sichtbar.
 **Aktuell** bedeutet, dass beide bestätigten Stände übereinstimmen; ein unbekannter
 Stand ist noch keine Updatebestätigung.
 

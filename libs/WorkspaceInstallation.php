@@ -256,13 +256,14 @@ trait WorkspaceInstallation
         if ($status === 'idle' && $blocked !== '') $message = $this->InstallationErrorText($blocked);
         $confirmed = ($state['extensionConfirmed'] ?? false) && ($state['extension']['ready'] ?? false);
         $executing = $confirmed ? ($state['extension']['executing'] ?? false) : null;
-        return ['systemId' => $record['binding']['systemId'], 'generation' => $record['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($record),
-            'context'      => hash('sha256', json_encode([$record['binding'], $record['ownershipEpoch'] ?? '', WorkspaceState::Fingerprint($record), $artifact, InstallationProtocol::Before($state)], JSON_THROW_ON_ERROR)),
-            'status'       => $status, 'pending' => $pending, 'canInstall' => $blocked === '', 'blocked' => $blocked, 'error' => $error, 'message' => $message,
-            'operation'    => $job['request']['operation'] ?? '', 'mayHaveUploaded' => $job['mayHaveUploaded'] ?? false, 'devices' => $devices,
-            'bundledBuild' => $artifact['build'] ?? null, 'installedBuild' => $confirmed ? ($state['extension']['build'] ?? null) : null,
-            'executing'    => $executing, 'runtimeMessage' => $executing === null ? 'Automatikbetrieb noch nicht bestätigt.' : ($executing ? 'Automatikbetrieb von Z2M als aktiv bestätigt.' : 'Automatikbetrieb von Z2M als gestoppt bestätigt.'),
-            'notice'       => 'Die Datei „' . ExtensionContract::NAME . '“ wird ersetzt. Laufende Abläufe und Aufzeichnungen können enden. Bei eingeschaltetem Wiederanlauf können freigegebene Automationen danach wieder bereit sein. Nach der Installation werden die Gerätedaten automatisch aktualisiert. Automationsdateien und lokale Entwürfe werden nicht übertragen.'];
+        return ['systemId'   => $record['binding']['systemId'], 'generation' => $record['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($record),
+            'context'        => hash('sha256', json_encode([$record['binding'], $record['ownershipEpoch'] ?? '', WorkspaceState::Fingerprint($record), $artifact, InstallationProtocol::Before($state)], JSON_THROW_ON_ERROR)),
+            'status'         => $status, 'pending' => $pending, 'canInstall' => $blocked === '', 'blocked' => $blocked, 'error' => $error, 'message' => $message,
+            'operation'      => $job['request']['operation'] ?? '', 'mayHaveUploaded' => $job['mayHaveUploaded'] ?? false, 'devices' => $devices,
+            'bundledBuild'   => $artifact['build'] ?? null, 'installedBuild' => $confirmed ? ($state['extension']['build'] ?? null) : null,
+            'bundledVersion' => ExtensionContract::BundledVersion(), 'installedVersion' => $confirmed ? ($state['extension']['version'] ?? null) : null,
+            'executing'      => $executing, 'runtimeMessage' => $executing === null ? 'Automatikbetrieb noch nicht bestätigt.' : ($executing ? 'Automatikbetrieb von Z2M als aktiv bestätigt.' : 'Automatikbetrieb von Z2M als gestoppt bestätigt.'),
+            'notice'         => 'Die Datei „' . ExtensionContract::NAME . '“ wird ersetzt. Laufende Abläufe und Aufzeichnungen können enden. Bei eingeschaltetem Wiederanlauf können freigegebene Automationen danach wieder bereit sein. Nach der Installation werden die Gerätedaten automatisch aktualisiert. Automationsdateien und lokale Entwürfe werden nicht übertragen.'];
     }
 
     private function InstallationErrorCode(Throwable $e): string

@@ -9,7 +9,6 @@ use stdClass;
 final class ExtensionContract
 {
     public const NAME = 'z2m-automations.mjs';
-    public const VERSION = '0.1.0';
     public const PREFIX = 'symcon/automations/';
     public const MAX_YAML_BYTES = 131072;
     public const ERROR_CODES = ['rule_missing', 'rule_busy', 'run_conflict', 'invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'scene_unavailable', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed'];
@@ -41,6 +40,22 @@ final class ExtensionContract
         return preg_match('/^export const EXTENSION_BUILD = \'([a-f0-9]{64})\';$/m', substr($header, 0, 1024), $match) === 1 ? $match[1] : null;
     }
 
+    public static function BundledVersion(): ?string
+    {
+        $header = @file_get_contents(__DIR__ . '/z2m/' . self::NAME, false, null, 0, 1024);
+        return is_string($header) ? self::VersionFromHeader($header) : null;
+    }
+
+    public static function ValidVersion(mixed $version): bool
+    {
+        return is_string($version) && preg_match('/\A(?:0|[1-9][0-9]{0,8})\.(?:0|[1-9][0-9]{0,8})\.(?:0|[1-9][0-9]{0,8})\z/D', $version) === 1;
+    }
+
+    public static function VersionFromHeader(string $header): ?string
+    {
+        return preg_match('/^export const EXTENSION_VERSION = \'([^\']+)\';$/m', substr($header, 0, 1024), $match) === 1 && self::ValidVersion($match[1]) ? $match[1] : null;
+    }
+
     public static function Storage(mixed $data): ?array
     {
         if (!$data instanceof stdClass || !self::Revision($data->stored_revision ?? null)
@@ -62,9 +77,10 @@ final class ExtensionContract
 
     public static function Status(mixed $data): ?array
     {
+        // Release numbers identify code; compatibility is checked through protocol, schema and capability versions.
         $storage = self::Storage($data);
         if ($storage === null || ($data->protocol_version ?? null) !== 1 || ($data->schema_version ?? null) !== 1
-            || ($data->extension_version ?? null) !== self::VERSION || !is_string($data->session ?? null)
+            || !self::ValidVersion($data->extension_version ?? null) || !is_string($data->session ?? null)
             || preg_match('/\A[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}\z/D', $data->session) !== 1
             || !in_array($data->state ?? null, ['ready', 'stopped'], true)
             || (property_exists($data, 'extension_build') && !self::Checksum($data->extension_build))) {

@@ -69,7 +69,11 @@ $check(isset($initial['InstalledExtensionInfo'], $initial['BundledExtensionInfo'
 $check(str_contains($initial['ExtensionUpdateInfo']['caption'], 'Not yet checked'), 'Missing confirmation never claims the extension is current');
 $build = Z2MAutomations\ExtensionContract::BundledBuild();
 $check(is_string($build) && preg_match('/\A[a-f0-9]{64}\z/', $build) === 1, 'PHP reads the generated artifact identity');
-$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => '0.1.0', 'extension_build' => $build,
+$version = Z2MAutomations\ExtensionContract::BundledVersion();
+$versionMetadata = json_decode(file_get_contents($root . '/libs/z2m/version.json'), true, 16, JSON_THROW_ON_ERROR);
+$check($version === $versionMetadata['version'] && str_contains($initial['BundledExtensionInfo']['caption'], $version), 'Bundled display reads the generated extension version, independently of the library');
+$check(Z2MAutomations\ExtensionContract::VersionFromHeader("export const EXTENSION_VERSION = '01.2.3';") === null, 'Invalid header versions are rejected');
+$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => $version, 'extension_build' => $build,
     'session'                => '11111111-1111-4111-8111-111111111111', 'state' => 'ready', 'stored_revision' => 0,
     'checksum'               => null, 'automation_count' => 0, 'storage' => 'empty', 'executing' => false];
 $parent->onPublish = static function (array $packet) use ($parent, &$ready): void
@@ -83,6 +87,15 @@ $parent->onPublish = static function (array $packet) use ($parent, &$ready): voi
 };
 $module->RefreshStatus();
 $current = $form();
+$check(str_contains($current['InstalledExtensionInfo']['caption'], $version), 'Fresh receiver confirmation displays its actual version');
+foreach ([null, 123, '', '01.2.3', '1.2', '1.2.3-extra', '<untrusted>'] as $invalid) {
+    $invalidStatus = json_decode(json_encode(array_replace($ready, ['extension_version' => $invalid]), JSON_THROW_ON_ERROR));
+    $check(Z2MAutomations\ExtensionContract::Status($invalidStatus) === null, 'Malformed extension versions cannot confirm the receiver');
+}
+$oldStatus = json_decode(json_encode(array_replace($ready, ['extension_version' => '0.1.0']), JSON_THROW_ON_ERROR));
+$check(Z2MAutomations\ExtensionContract::Status($oldStatus)['version'] === '0.1.0', 'An older compatible extension remains readable for an explicit update');
+$oldStatus->protocol_version = 2;
+$check(Z2MAutomations\ExtensionContract::Status($oldStatus) === null, 'Release version changes never relax the MQTT protocol contract');
 $check(str_contains($current['ExtensionUpdateInfo']['caption'], 'Up to date')
     && str_contains($current['InstalledExtensionInfo']['caption'], substr($build, 0, 12))
     && str_contains($current['BundledExtensionInfo']['caption'], substr($build, 0, 12)), 'Automatic confirmation displays matching builds without installation');

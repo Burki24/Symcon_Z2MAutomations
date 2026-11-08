@@ -6,6 +6,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Eigene, automatisch steigende Erweiterungsversion ab 0.2.0. Geänderte
+  Erweiterungsquellen erhöhen beim Bauen die letzte Versionszahl; unveränderte
+  Builds behalten ihre Version. Verbindung, Zentrale und Webdesigner zeigen
+  Versionsnummer und Buildkennung gemeinsam an.
+
 - Je Automation wählen, ob ein wartender Lauf nach einem Z2M-Neustart fortgesetzt
   wird. Bei bereits abgelaufener Wartezeit lässt sich die ausstehende Aktion
   nachholen oder der Lauf beenden. Bereits erledigte Aktionen werden nicht

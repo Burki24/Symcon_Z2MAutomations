@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {checkedInstallation, installationRequest} from '../Z2MAutomations/visualization/installation.js';
+import {checkedInstallation, installationRequest, extensionReleaseText} from '../Z2MAutomations/visualization/installation.js';
 import {diagnosticsRequest} from '../Z2MAutomations/visualization/diagnostics.js';
 
 const data = {workspaceContext: {systemId: '11111111-1111-4111-8111-111111111111', generation: 1, fingerprint: 'a'.repeat(64)}};
@@ -8,6 +8,7 @@ const base = 'http://localhost/hook/designer/#PRIVATE_TOKEN';
 const view = () => ({...data.workspaceContext, context: 'b'.repeat(64), status: 'checking', pending: true, canInstall: false,
     blocked: 'installation_pending', message: 'Verbindung wird geprüft.', runtimeMessage: 'Automatikbetrieb aktiv.', notice: 'Abläufe können enden.',
     mayHaveUploaded: false, installedBuild: 'c'.repeat(64), bundledBuild: 'd'.repeat(64), executing: true,
+    installedVersion: '0.1.0', bundledVersion: '0.2.0',
     devices: {phase: 'none', pending: false, message: 'Nach Installation werden Gerätedaten geladen.', counts: {devices: 0, groups: 0, scenes: 0}}});
 const response = v => ({ok: true, text: async () => JSON.stringify({ok: true, installation: v})});
 
@@ -28,7 +29,7 @@ test('installation uses only fixed scoped routes and explicit consent without co
 });
 
 test('foreign, malformed, oversized or failed installation replies never cause automatic replay', async () => {
-    for (const v of [{...view(), generation: 2}, {...view(), systemId: 'other'}, {...view(), bundledBuild: 'invalid'}, {...view(), pending: 'yes'}, {...view(), executing: 1}]) {
+    for (const v of [{...view(), generation: 2}, {...view(), systemId: 'other'}, {...view(), bundledBuild: 'invalid'}, {...view(), bundledVersion: '01.2.3'}, {...view(), installedVersion: '<untrusted>'}, {...view(), pending: 'yes'}, {...view(), executing: 1}]) {
         assert.equal(checkedInstallation(v, data.workspaceContext), false);
         await assert.rejects(installationRequest(data, null, {base, request: async () => response(v)}), /passt nicht/);
     }
@@ -37,6 +38,14 @@ test('foreign, malformed, oversized or failed installation replies never cause a
     assert.equal(calls, 1);
     await assert.rejects(installationRequest(data, null, {base, request: async () => ({ok: true, text: async () => 'x'.repeat(16385)})}), /nicht erneut gesendet/);
     await assert.rejects(installationRequest(data, null, {base, request: async () => ({ok: false, text: async () => JSON.stringify({ok: false, message: 'Freigabe fehlt.'})})}), /Freigabe fehlt/);
+});
+
+test('installation confirmation displays readable releases alongside exact build identities', () => {
+    assert.equal(extensionReleaseText('0.2.0', 'a'.repeat(64)), `0.2.0 (Build ${'a'.repeat(64)})`);
+    assert.equal(extensionReleaseText('0.1.0', null), '0.1.0');
+    assert.equal(extensionReleaseText(null, 'b'.repeat(64)), `Build ${'b'.repeat(64)}`);
+    assert.equal(checkedInstallation({...view(), installedVersion: null, installedBuild: null}, data.workspaceContext), true);
+    assert.equal(checkedInstallation({...view(), installedVersion: '0.2.0\n'}, data.workspaceContext), false);
 });
 
 test('pending, installed and interrupted states remain distinct and install status cannot replace another system diagnostics', async () => {

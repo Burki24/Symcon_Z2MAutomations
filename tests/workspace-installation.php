@@ -419,6 +419,8 @@ $find = static function (array $node, string $name) use (&$find): ?array
     return null;
 };
 $button = $find($form, 'WorkspaceInstallationStart');
+$check(str_contains($find($form, 'WorkspaceInstallationBundled')['caption'], ExtensionContract::BundledVersion())
+    && str_contains($button['confirm'], ExtensionContract::BundledVersion()), 'Native installation shows and confirms the actual bundled release version');
 $connection = IPS\InstanceManager::getInstanceInterface($connections[0]);
 $ownerName = IPS_GetName($managerID);
 IPS_SetName($managerID, 'Synthetic Automation Center');

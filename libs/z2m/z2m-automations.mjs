@@ -1,5 +1,6 @@
 // Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.
-export const EXTENSION_BUILD = '829a9cbf479b726f8a1150b20cd4547023851c3e0f0f9c76a9687262d9b05aea';
+export const EXTENSION_BUILD = '2ccd7ead0a389379bb33b1b2aeef5fce683ab3c48b306a5f52fda6ccdafde9f6';
+export const EXTENSION_VERSION = '0.2.0';
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -1499,7 +1500,7 @@ export default class Z2MAutomationsExtension {
     }
 
     status() {
-        return {protocol_version: 1, schema_version: 1, extension_version: '0.1.0', extension_build: EXTENSION_BUILD, debug_version: 1, catalog_version: 1,
+        return {protocol_version: 1, schema_version: 1, extension_version: EXTENSION_VERSION, extension_build: EXTENSION_BUILD, debug_version: 1, catalog_version: 1,
             resume_version: 1, resume_enabled: this.executionIntent?.enabled ?? false,
             resume_status: this.resumeStatus, resume_error: this.resumeError,
             mesh_version: 1, mesh_ready: Boolean(this.mesh?.subscribed && this.runtime.active?.document.mesh_peers?.length),

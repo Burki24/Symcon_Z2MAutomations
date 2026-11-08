@@ -93,7 +93,7 @@ IPS_ApplyChanges($managerID);
 $manager = IPS\InstanceManager::getInstanceInterface($managerID);
 $overview = static fn (): array => $decode($manager->GetWorkspaceOverview());
 $detail = static fn (string $id): array => $decode($manager->GetWorkspaceSystem($id));
-$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => '0.1.0', 'extension_build' => ExtensionContract::BundledBuild(),
+$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(), 'extension_build' => ExtensionContract::BundledBuild(),
     'session'                => '11111111-1111-4111-8111-111111111111', 'state' => 'ready', 'stored_revision' => 0, 'checksum' => null,
     'automation_count'       => 0, 'storage' => 'empty', 'executing' => false, 'debug_version' => 1];
 $mode = 'auto';

@@ -161,7 +161,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
             'mesh_peers' => ['synthetic/source']];
         $yaml = $empty ? null : json_encode($configuration, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n\n";
         $documents[$topic] = ['yaml' => $yaml, 'configuration' => $configuration];
-        $receivers[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::VERSION,
+        $receivers[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(),
             'session'                            => sprintf('11111111-1111-4111-8111-%012d', $i + 1), 'state' => 'ready', 'stored_revision' => $empty ? 0 : 7,
             'checksum'                           => $empty ? null : hash('sha256', $yaml), 'automation_count' => $empty ? 0 : 1, 'storage' => $empty ? 'empty' : 'ok',
             'executing'                          => !$empty, 'runtime_version' => 1, 'active_revision' => $empty ? null : 7, 'active_checksum' => $empty ? null : hash('sha256', $yaml),

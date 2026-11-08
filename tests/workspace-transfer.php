@@ -153,7 +153,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
         $native[$topic] = $device;
         $mapping[] = ['sourceInstance' => $source, 'connectionInstance' => $connection, 'fingerprint' => $decode($sourceModule->GetSystemMigrationSource())['fingerprint']];
         $connections[$topic] = IPS\InstanceManager::getInstanceInterface($connection);
-        $receivers[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::VERSION,
+        $receivers[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(),
             'extension_build'                    => ExtensionContract::BundledBuild(), 'session' => sprintf('11111111-1111-4111-8111-%012d', $i + 1), 'state' => 'ready',
             'stored_revision'                    => 0, 'checksum' => null, 'automation_count' => 0, 'storage' => 'empty', 'executing' => false,
             'runtime_version'                    => 1, 'active_revision' => null, 'active_checksum' => null, 'enabled_count' => 0, 'runtime_error' => '', 'catalog_version' => 1];

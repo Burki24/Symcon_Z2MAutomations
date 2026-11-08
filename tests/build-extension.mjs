@@ -7,7 +7,9 @@ const target = new URL('../libs/z2m/z2m-automations.mjs', import.meta.url);
 const marker = "import AUTOMATIONS_SCHEMA from '../automations.schema.json' with {type: 'json'};";
 const code = await readFile(source, 'utf8');
 const buildMarker = "export const EXTENSION_BUILD = 'development';";
+const versionMarker = "export const EXTENSION_VERSION = 'development';";
 if (code.split(buildMarker).length !== 2) throw new Error('Expected exactly one build marker.');
+if (code.split(versionMarker).length !== 2) throw new Error('Expected exactly one version marker.');
 if (code.split(marker).length !== 2) throw new Error('Expected exactly one schema import.');
 const sequenceMarker = "import {expandActionPlan, SequenceError} from './sequences.mjs';";
 if (code.split(sequenceMarker).length !== 2) throw new Error('Expected exactly one sequence import.');
@@ -43,12 +45,30 @@ const solar = await readFile(new URL('../libs/z2m/src/solar.mjs', import.meta.ur
 const template = '// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.\n'
     + code.replace(marker, 'const AUTOMATIONS_SCHEMA = ' + JSON.stringify(JSON.parse(await readFile(schema, 'utf8'))) + ';')
         .replace(journalMarker, journal).replace(sequenceMarker, sequences).replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
-const build = createHash('sha256').update(template, 'utf8').digest('hex');
-const generated = template.replace(buildMarker, `export const EXTENSION_BUILD = '${build}';`);
+const metadataFile = new URL('../libs/z2m/version.json', import.meta.url);
+const metadata = JSON.parse(await readFile(metadataFile, 'utf8'));
+const validVersion = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})(?![\s\S])/;
+if (Object.keys(metadata).sort().join(',') !== 'source,version' || typeof metadata.version !== 'string' || !validVersion.test(metadata.version)
+    || !(metadata.source === null && metadata.version === '0.2.0' || typeof metadata.source === 'string' && /^[a-f0-9]{64}$/.test(metadata.source))) {
+    throw new Error('Invalid extension version metadata. Restore the tracked version.json; never reset the counter.');
+}
+const sourceHash = createHash('sha256').update(template, 'utf8').digest('hex');
+let version = metadata.version;
+if (metadata.source !== null && metadata.source !== sourceHash) {
+    const parts = version.split('.').map(Number);
+    if (parts[2] >= 999999999) throw new Error('Extension patch version exhausted. A reviewed minor or major release is required.');
+    version = `${parts[0]}.${parts[1]}.${parts[2] + 1}`;
+}
+const nextMetadata = JSON.stringify({version, source: sourceHash}, null, 4) + '\n';
+const versioned = template.replace(versionMarker, `export const EXTENSION_VERSION = '${version}';`);
+const build = createHash('sha256').update(versioned, 'utf8').digest('hex');
+const generated = versioned.replace(buildMarker, `export const EXTENSION_BUILD = '${build}';`);
 if (process.argv.includes('--check')) {
+    if (await readFile(metadataFile, 'utf8') !== nextMetadata) throw new Error('Extension version is stale. Run npm run build:extension.');
     if (await readFile(target, 'utf8') !== generated) throw new Error('Extension artifact is stale. Run npm run build:extension.');
-    console.log('Extension artifact matches source and schema.');
+    console.log(`Extension ${version} matches source, schema and version metadata (Build ${build.slice(0, 12)}).`);
 } else {
     await writeFile(target, generated, 'utf8');
-    console.log('Built single-file Z2M extension with embedded schema.');
+    await writeFile(metadataFile, nextMetadata, 'utf8');
+    console.log(`Built Z2M extension ${version} (Build ${build.slice(0, 12)}). Unchanged sources retain their version.`);
 }

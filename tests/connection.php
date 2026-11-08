@@ -94,7 +94,7 @@ $check($state(1)['health'] === 'pending', 'Foreign and retained replies cannot c
 foreach ($transactions as $i => $tx) $parent->publish('synthetic/system' . $i . '/bridge/response/health_check', $health($tx));
 foreach ($connections as $i => $connection) $check($state($i)['health'] === 'healthy' && $state($i)['bridgeOnline'], 'Exact response confirms its own system');
 $check($one->updates['HealthResultPopup']['visible'] === true, 'Health result popup confirmed');
-$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::VERSION,
+$ready = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(),
     'extension_build'        => ExtensionContract::BundledBuild(), 'session' => '11111111-1111-4111-8111-111111111111', 'state' => 'ready',
     'stored_revision'        => 0, 'checksum' => null, 'automation_count' => 0, 'storage' => 'empty', 'executing' => false,
     'runtime_version'        => 1, 'active_revision' => null, 'active_checksum' => null, 'enabled_count' => 0, 'runtime_error' => '', 'catalog_version' => 1, 'debug_version' => 1];

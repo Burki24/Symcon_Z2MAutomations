@@ -124,7 +124,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
         $yaml = json_encode($cfg) . "\n";
         $documents[$topic] = ['configuration' => $cfg, 'yaml' => $yaml];
         $session = sprintf('11111111-1111-4111-8111-%012d', $i + 1);
-        $metadata[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::VERSION,
+        $metadata[$topic] = ['protocol_version' => 1, 'schema_version' => 1, 'extension_version' => ExtensionContract::BundledVersion(),
             'session'                           => $session, 'state' => 'ready', 'stored_revision' => 3, 'checksum' => hash('sha256', $yaml), 'automation_count' => 1, 'storage' => 'ok',
             'executing'                         => false, 'runtime_version' => 1, 'active_revision' => null, 'active_checksum' => null, 'enabled_count' => 0, 'runtime_error' => '',
             'catalog_version'                   => 1, 'execution_version' => 1, 'resume_version' => 1, 'resume_enabled' => false, 'resume_status' => 'stopped', 'resume_error' => ''];
