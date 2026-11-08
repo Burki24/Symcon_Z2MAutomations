@@ -1,5 +1,20 @@
 # Projektkontext: Z2MAutomations
 
+## Entwicklung auf dev – 08.11.2026
+
+Wählbare Fortsetzung wartender Automatikläufe nach Z2M-Neustart ergänzt:
+restart_policy mit abort, resume und resume_expired. Globaler bestätigter
+Wiederanlauf bleibt erforderlich; Einzelstarts und unbestätigte Übergaben
+werden nicht fortgesetzt. Native Auswahl und gemeinsamer DE/EN-Designer,
+gebundener atomarer Wartepunktspeicher und Debug-Ereignisse gehören zusammen.
+Siehe [ADR 0036](docs/adr/0036-resume-waiting-runs-after-restart.md).
+Keine Änderung am Live-System oder an der vorbereiteten Store-Beta 0.185.
+Automatische Versionierung unverändert; nur dev bearbeiten, keine neuen Branches.
+Lokal bestanden: PHP-Gesamtsuite, 239 JavaScript-Tests, native Vorbelegung/
+Validierung, Browser-Sprachwechsel mit neuer Auswahl, Stil/Kodierung/Struktur
+und Paketprüfung. Gemeinsame Designerquelle: npm run verify mit sechs Tests.
+Noch kein Praxisneustart auf einem installierten Z2M für diese neue Funktion.
+
 ## Aktueller Beta-Kandidat – 07.11.2026
 
 Symcon-Beta hat Vorrang; keine weitere Desktop-Funktion in diesem Auftrag.

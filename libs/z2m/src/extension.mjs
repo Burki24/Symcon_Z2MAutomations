@@ -68,7 +68,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'restart_policy', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -600,6 +600,7 @@ export default class Z2MAutomationsExtension {
                 for (const saved of records) if (!scheduled.has(saved.run)) await this.runJournal.remove(saved.run);
             } catch {
                 this.runJournal.failed = true;
+                this.runtime.lastError = 'storage_error';
                 this.runtime.log('FEHLER', 'Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt.');
             }
         } catch (error) {
@@ -704,7 +705,7 @@ export default class Z2MAutomationsExtension {
                         this.runtime.stopRule(request.rule_id, request.run);
                         try { await this.runJournal.flush(); }
                         catch {
-                            await this.persistExecution(true, false);
+                            await this.persistExecution(Boolean(this.runtime.active), false);
                             fail('storage_error');
                         }
                     }
@@ -755,7 +756,7 @@ export default class Z2MAutomationsExtension {
                         await this.prepareMesh();
                         // Disarm the previous durable intent before attempting a new activation.
                         await this.persistExecution(false, request.resume_after_restart ?? true);
-                        if (this.runtime.active?.checksum !== this.store.current.checksum) await this.runJournal.reset(true);
+                        if (this.runtime.active?.checksum !== this.store.current.checksum || this.runJournal.failed) await this.runJournal.reset(true);
                         if (!this.accepting) fail('not_ready');
                         this.runtime.activate(this.store.current);
                         try { await this.persistExecution(true, request.resume_after_restart ?? true); }

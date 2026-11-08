@@ -46,7 +46,7 @@ foreach (['device', 'time'] as $area) {
 $module->Seed();
 $module->SelectAutomation('first', '', false, 'time');
 $fields = $form();
-$run($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorRetrigger' => 'extend']);
+$run($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorRetrigger' => 'extend', 'TimeEditorRestartPolicy' => 'resume']);
 $fields = $form();
 $options = ['EditorTriggerType' => 'time', 'EditorAt' => '09:00:00', 'EditorTimezone' => 'UTC'];
 $check($module->SaveScheduledAutomation(
@@ -66,7 +66,9 @@ $check($module->SaveScheduledAutomation(
 ), 'An older API caller can edit other fields without supplying a new policy');
 $fields = $form();
 $check($fields['TimeEditorRetrigger']['value'] === 'extend', 'Omitted API option preserves an existing nondefault policy');
+$check($fields['TimeEditorRestartPolicy']['value'] === 'resume', 'An omitted API recovery option preserves the existing continuation policy');
 $run($fields['TimeCopyRuleButton']['onClick'], $fields);
 $fields = $form();
 $check($fields['TimeEditorRetrigger']['value'] === 'extend' && !$fields['TimeEditorEnabled']['value'], 'Disabled copies retain their retrigger policy');
+$check($fields['TimeEditorRestartPolicy']['value'] === 'resume', 'Disabled copies retain their continuation policy');
 echo "Retrigger native callback and prefill checks passed.\n";

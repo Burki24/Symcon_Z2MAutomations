@@ -58,7 +58,7 @@ final class RuntimeDebugContract
     public static function Reason(string $reason): string
     {
         return match ($reason) {
-            'storage_error'                             => 'Der Fortsetzungspunkt konnte nicht sicher gespeichert werden. Der Lauf wurde beendet.',
+            'storage_error'                              => 'Der Fortsetzungspunkt konnte nicht sicher gespeichert werden. Der Lauf wurde beendet.',
             'inactive', 'mesh_stopped'                   => 'Ausführung gestoppt.',
             'already_running'                            => 'Diese Automation läuft bereits.',
             'concurrency_limit'                          => 'Zu viele Automationen laufen gleichzeitig.',

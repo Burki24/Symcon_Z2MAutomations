@@ -512,7 +512,11 @@
                     ]
                 },
                 "restart_policy": {
-                    "enum": ["abort", "resume", "resume_expired"]
+                    "enum": [
+                        "abort",
+                        "resume",
+                        "resume_expired"
+                    ]
                 },
                 "triggers": {
                     "type": "array",

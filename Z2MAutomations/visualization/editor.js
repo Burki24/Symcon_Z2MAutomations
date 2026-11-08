@@ -43,6 +43,7 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
     function field(parent, label, value, set, options = {}) {
         const wrap = node('label', undefined, 'field'); wrap.append(node('span', label));
         const input = document.createElement(options.choices ? 'select' : 'input'); input.id = 'edit-field-' + (++serial);
+        bindAttribute(input, 'aria-label', label);
         if (options.choices) {
             const choices = () => options.choices();
             choices().forEach(([key], index) => input.add(localizedOption(() => choices()[index][1], key)));

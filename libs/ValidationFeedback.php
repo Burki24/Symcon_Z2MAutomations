@@ -8,7 +8,7 @@ use stdClass;
 
 final class ValidationFeedback
 {
-    private const FIELDS = ['sequences'      => 'Reusable action sequences', 'sequence_id' => 'Action sequence', 'schema_version' => 'File version', 'revision' => 'Revision', 'automations' => 'Automations', 'mesh_peers' => 'Permitted partner systems',
+    private const FIELDS = ['restart_policy' => 'After a Zigbee2MQTT restart', 'sequences'      => 'Reusable action sequences', 'sequence_id' => 'Action sequence', 'schema_version' => 'File version', 'revision' => 'Revision', 'automations' => 'Automations', 'mesh_peers' => 'Permitted partner systems',
         'id'                                 => 'Identifier', 'name' => 'Automation name', 'enabled' => 'Rule enabled', 'triggers' => 'Trigger', 'conditions' => 'Condition', 'actions' => 'Action',
         'type'                               => 'Type', 'device' => 'Device', 'property' => 'Property or channel', 'operator' => 'Comparison', 'value' => 'Value', 'for_seconds' => 'Minimum duration (s)',
         'on_change'                          => 'Only on value change', 'start_only' => 'Only at start', 'at' => 'Time', 'timezone' => 'Timezone', 'after' => 'Start of time window', 'before' => 'End of time window',

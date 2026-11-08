@@ -1,5 +1,5 @@
 // Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.
-export const EXTENSION_BUILD = '7df54ee19d98462647355778dee6cb2324b8e2a554987eddf3a0a659864b9381';
+export const EXTENSION_BUILD = '829a9cbf479b726f8a1150b20cd4547023851c3e0f0f9c76a9687262d9b05aea';
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -583,7 +583,7 @@ export class AutomationRuntime {
             if (remaining > 0) await this.checkpoint(rule, step, deadline, step.delay * 1000);
             if (!this.canContinue(generation, context)) return;
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
-            if (!await this.wait(remaining, generation, step, step.delay * 1000)) {
+            if (!await this.wait(Math.max(0, deadline - this.clock.wallNow()), generation, step, step.delay * 1000)) {
                 this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
                 return;
             }
@@ -1144,7 +1144,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'restart_policy', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -1676,6 +1676,7 @@ export default class Z2MAutomationsExtension {
                 for (const saved of records) if (!scheduled.has(saved.run)) await this.runJournal.remove(saved.run);
             } catch {
                 this.runJournal.failed = true;
+                this.runtime.lastError = 'storage_error';
                 this.runtime.log('FEHLER', 'Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt.');
             }
         } catch (error) {
@@ -1780,7 +1781,7 @@ export default class Z2MAutomationsExtension {
                         this.runtime.stopRule(request.rule_id, request.run);
                         try { await this.runJournal.flush(); }
                         catch {
-                            await this.persistExecution(true, false);
+                            await this.persistExecution(Boolean(this.runtime.active), false);
                             fail('storage_error');
                         }
                     }
@@ -1831,7 +1832,7 @@ export default class Z2MAutomationsExtension {
                         await this.prepareMesh();
                         // Disarm the previous durable intent before attempting a new activation.
                         await this.persistExecution(false, request.resume_after_restart ?? true);
-                        if (this.runtime.active?.checksum !== this.store.current.checksum) await this.runJournal.reset(true);
+                        if (this.runtime.active?.checksum !== this.store.current.checksum || this.runJournal.failed) await this.runJournal.reset(true);
                         if (!this.accepting) fail('not_ready');
                         this.runtime.activate(this.store.current);
                         try { await this.persistExecution(true, request.resume_after_restart ?? true); }

@@ -124,11 +124,11 @@ trait AutomationDesignerEditing
     {
         foreach ($fields as $key => &$value) {
             $error = match ($key) {
-                'name'      => !is_string($value) || !$this->ValidEditorName(trim($value)) ? 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.' : '',
-                'enabled'   => !is_bool($value) ? 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.' : '',
-                'retrigger' => !in_array($value, ['ignore', 'restart', 'extend'], true) ? 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.' : '',
+                'name'           => !is_string($value) || !$this->ValidEditorName(trim($value)) ? 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.' : '',
+                'enabled'        => !is_bool($value) ? 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.' : '',
+                'retrigger'      => !in_array($value, ['ignore', 'restart', 'extend'], true) ? 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.' : '',
                 'restart_policy' => !in_array($value, ['abort', 'resume', 'resume_expired'], true) ? 'Bitte ein angebotenes Verhalten nach einem Z2M-Neustart wählen.' : '',
-                default     => ''
+                default          => ''
             };
             if ($error !== '') return null;
             if ($key === 'name') $value = trim($value);

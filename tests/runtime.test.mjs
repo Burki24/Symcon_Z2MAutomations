@@ -4,7 +4,7 @@ import {mkdtemp, rm, writeFile, readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import Extension, {validateYaml, entityScenes, buildEditorScenes, DEBUG_EVENTS} from '../libs/z2m/z2m-automations.mjs';
+import Extension, {validateYaml, entityScenes, buildEditorScenes, DEBUG_EVENTS, RunJournal} from '../libs/z2m/z2m-automations.mjs';
 
 const sourceID = '0x0000000000000001';
 const targetID = '0x0000000000000002';
@@ -95,6 +95,39 @@ test('restart continuation is opt-in and accepts only the three declared policie
     for (const restart_policy of [null, true, 'retry', {}, 1]) {
         assert.throws(() => validateYaml(yaml([{...rule(), restart_policy}])));
     }
+    assert.throws(() => validateYaml(yaml([{...rule(), restart_policy: 'retry'}])), error =>
+        error.details?.issues.some(issue => issue.path === '/automations/0/restart_policy'));
+});
+
+test('an uncertain device handoff has no recoverable checkpoint and is not repeated after restart', async () => {
+    const first = await harness(); let second; let release;
+    try {
+        const r = {...rule(), restart_policy: 'resume_expired'};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await first.store(yaml([r])); await first.activate(); await first.event({occupancy: true}); await settleJournal(first);
+        let handoffs = 0;
+        first.extension.runtime.dispatch = () => { handoffs++; return new Promise(resolve => { release = resolve; }); };
+        await first.clock.advance(5000); await settleJournal(first);
+        assert.equal(handoffs, 1);
+        const envelope = JSON.parse(await readFile(join(first.directory, 'running-automations.json'), 'utf8'));
+        assert.deepEqual(JSON.parse(envelope.payload).runs, [], 'Durable consume happens before the unconfirmed handoff');
+        second = await harness(first.directory); await settleJournal(second); await second.clock.advance(10000);
+        assert.equal(second.commands.length, 0, 'Cold extension startup cannot repeat the uncertain action');
+    } finally {
+        release?.(); await first.close(false); if (second) await second.close(); else await rm(first.directory, {recursive: true, force: true});
+    }
+});
+
+test('journal backpressure is bounded and failures cannot create an unlimited persistence queue', async () => {
+    let release; const gate = new Promise(resolve => { release = resolve; });
+    const journal = new RunJournal({atomicWrite: () => gate}, () => ({system: 'synthetic/system', revision: 1, checksum: 'a'.repeat(64)}), () => true);
+    const pending = [];
+    for (let i = 0; i < 65; i++) pending.push(journal.put({rule_id: 'synthetic_rule', run: '11111111-1111-4111-8111-111111111111',
+        step: 1, saved_at: 1000, deadline: 2000 + i, delay: 5000}).then(() => true, () => false));
+    assert.equal(journal.pending, 64);
+    release(); const results = await Promise.all(pending);
+    assert.equal(results.filter(ok => !ok).length, 1);
+    assert.equal(journal.pending, 0); assert.equal(journal.failed, true);
 });
 
 test('renewed waits retain their full duration across multiple restarts and preserve reusable sequence position', async () => {
@@ -134,6 +167,13 @@ test('invalid journals, wrong system bindings and changed checksums never author
             assert.equal(h.commands.length, 0, mode);
             assert.ok(h.logs.some(line => line.includes('Fortsetzungsspeicher unlesbar oder unpassend')));
             assert.equal(h.extension.status().executing, true, 'Fresh automatic triggers remain available');
+            assert.equal(h.extension.status().runtime_error, 'storage_error', 'The recovery failure is also visible in status');
+                if (mode === 'corrupt') {
+                    assert.equal((await h.activate()).status, 'ok', 'Explicit activation repairs the failed journal before allowing recovery again');
+                    const envelope = JSON.parse(await readFile(join(directory, 'running-automations.json'), 'utf8'));
+                    assert.deepEqual(JSON.parse(envelope.payload).runs, [], 'Repair cannot re-arm an old rejected run');
+                    assert.equal(h.extension.runJournal.failed, false);
+                }
         } finally { await h.close(); }
     }
 });

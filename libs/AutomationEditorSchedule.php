@@ -155,18 +155,18 @@ trait AutomationEditorSchedule
     private function ScheduleDefaults(): array
     {
         return ['EditorRestartPolicy' => 'abort', 'EditorRetrigger'   => 'ignore', 'EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
-            'EditorWindow'          => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
-            'EditorMonday'          => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
-            'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
+            'EditorWindow'            => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
+            'EditorMonday'            => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
+            'EditorConditionType'     => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
     }
 
     private function DebugRestartPolicy(array $rule): void
     {
         $this->DebugEvent('AKTION', 'Fortsetzung nach Z2M-Neustart für den lokalen Entwurf geprüft; kein Lauf gestartet.', [
             'Verhalten' => match ($rule['restart_policy'] ?? 'abort') {
-                'resume' => 'Wartezeit fortsetzen; bei Ablauf den Lauf beenden',
+                'resume'         => 'Wartezeit fortsetzen; bei Ablauf den Lauf beenden',
                 'resume_expired' => 'Wartezeit fortsetzen; bei Ablauf die ausstehende Aktion nachholen',
-                default => 'Unterbrochenen Lauf beenden'
+                default          => 'Unterbrochenen Lauf beenden'
             }]);
     }
 
