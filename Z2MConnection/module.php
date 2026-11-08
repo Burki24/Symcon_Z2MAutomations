@@ -136,6 +136,18 @@ class Z2MConnection extends IPSModuleStrict
                 return $state;
             });
             $values = $this->ConnectionFormValues($state);
+            $ownership = $this->OwnershipMarker();
+            $managed = ($ownership['role'] ?? '') === 'connection';
+            $values['ConnectionInstallButton'] = ['visible' => !$managed];
+            $values['ConnectionInstallationOwner'] = ['visible' => $managed];
+            if ($managed) {
+                $owner = $ownership['owner'];
+                $name = IPS_InstanceExists($owner) ? IPS_GetName($owner) : $this->Translate('Automation center');
+                $values['ConnectionInstallationOwner']['caption'] = sprintf($this->Translate('This connection is managed by %s (instance %d). Install or update the Z2M extension in that automation center, using its configuration form or browser designer.'), $name, $owner);
+                $this->DebugEvent('AKTION', 'Installationsbutton durch Hinweis auf die zuständige Zentrale ersetzt. Erweiterungsupdates erfolgen über die zentrale Verwaltung.', ['Zentrale' => $owner]);
+            } else {
+                $this->DebugEvent('AKTION', 'Eigenständige Verbindung: Installationsbutton verfügbar. Die Installation erfordert weiterhin eine ausdrückliche Bestätigung.');
+            }
             $fill = static function (array &$items) use (&$fill, $values): void
             {
                 foreach ($items as &$field) {

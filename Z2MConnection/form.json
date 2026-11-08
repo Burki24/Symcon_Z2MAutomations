@@ -76,9 +76,17 @@
                 },
                 {
                     "type": "Button",
+                    "name": "ConnectionInstallButton",
                     "caption": "Install or update bundled extension",
                     "confirm": "Install the bundled z2m-automations.mjs in Z2M and replace an existing file of the same name?",
                     "onClick": "Z2MC_InstallExtension($id, true);"
+                },
+                {
+                    "type": "Label",
+                    "name": "ConnectionInstallationOwner",
+                    "caption": "",
+                    "visible": false,
+                    "width": "100%"
                 },
                 {
                     "type": "Label",

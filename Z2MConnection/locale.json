@@ -41,6 +41,8 @@
             "The receiver storage is unavailable or read-only.": "Z2M kann die Automationen zurzeit nicht speichern. Bitte prüfen, ob Zigbee2MQTT auf seinen Datenordner schreiben darf und genügend Speicherplatz vorhanden ist.",
             "Stored YAML revision": "In Z2M gespeicherter Stand",
             "Install or update bundled extension": "Mitgelieferte Erweiterung installieren oder aktualisieren",
+            "Automation center": "Automationszentrale",
+            "This connection is managed by %s (instance %d). Install or update the Z2M extension in that automation center, using its configuration form or browser designer.": "Diese Verbindung wird von %s (Instanz %d) verwaltet. Die Z2M-Erweiterung bitte in dieser Automationszentrale installieren oder aktualisieren: im Konfigurationsformular der Zentrale oder im Webdesigner.",
             "Zigbee2MQTT must report online first.": "Vorgang noch nicht möglich: Zigbee2MQTT hat seine Erreichbarkeit noch nicht bestätigt. Bitte „Zigbee2MQTT-Verbindung prüfen“ wählen.",
             "Another extension operation is still pending.": "Ein anderer Vorgang läuft noch. Bitte dessen Abschluss oder eine Fehlermeldung abwarten.",
             "The extension is not ready to accept requests.": "Die Erweiterung antwortet noch nicht als bereit. Bitte den Erweiterungsstatus abfragen und bei Bedarf die mitgelieferte Erweiterung installieren oder aktualisieren.",

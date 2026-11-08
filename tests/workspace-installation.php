@@ -128,6 +128,10 @@ class InstallationConnectionProbe extends Z2MConnection
     {
         $this->SetBuffer('TransportState', '');
     }
+    protected function LoadConfigurationForm(): array
+    {
+        return json_decode(file_get_contents(dirname(__DIR__) . '/Z2MConnection/form.json'), true, 512, JSON_THROW_ON_ERROR);
+    }
     protected function BundledExtensionCode(): string
     {
         return $this->artifact ?? parent::BundledExtensionCode();
@@ -415,6 +419,21 @@ $find = static function (array $node, string $name) use (&$find): ?array
     return null;
 };
 $button = $find($form, 'WorkspaceInstallationStart');
+$connection = IPS\InstanceManager::getInstanceInterface($connections[0]);
+$ownerName = IPS_GetName($managerID);
+IPS_SetName($managerID, 'Synthetic Automation Center');
+$debugOffset = count($connection->debug);
+$connectionForm = $decode($connection->GetConfigurationForm());
+$installationButton = $find($connectionForm, 'ConnectionInstallButton');
+$installationOwner = $find($connectionForm, 'ConnectionInstallationOwner');
+$check($installationButton !== null && !$installationButton['visible'], 'A centrally managed connection must not offer direct installation');
+$check($installationOwner !== null && $installationOwner['visible']
+    && str_contains($installationOwner['caption'], 'Synthetic Automation Center')
+    && str_contains($installationOwner['caption'], (string) $managerID), 'The connection identifies the responsible center by name and instance ID');
+$installationDebug = implode("\n", array_slice($connection->debug, $debugOffset));
+$check(str_contains($installationDebug, 'Zentrale') && str_contains($installationDebug, 'Erweiterungsupdates'), 'Debug explains why installation belongs to the center');
+IPS_SetName($managerID, $ownerName);
+$check($packets() === $countPackets, 'Rendering the owner notice sends no MQTT');
 $check($button !== null && str_contains($button['confirm'], 'Build') && str_contains($button['confirm'], 'Aufzeichnungen'), 'Native consent explains artifact and interruption');
 $reloadButton = $find($form, 'WorkspaceInstallationReload');
 $check(str_contains($reloadButton['onClick'], 'Z2MA_ChooseWorkspaceSystem') && str_contains($reloadButton['onClick'], 'get_defined_vars()'), 'Native reload uses the existing guarded path to capture open inputs before rebuilding');

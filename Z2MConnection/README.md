@@ -182,7 +182,9 @@ Solange die Verbindung noch keiner Zentrale zugeordnet ist:
    wenn die neu geladene Erweiterung ihre Bereitschaft bestätigt hat.
 
 Ist die Verbindung bereits einer Automationszentrale zugeordnet, die Installation
-oder Aktualisierung dort ausführen: im Webfrontend unter **Verwaltung → Systeme
+oder Aktualisierung dort ausführen. Anstelle des Installationsbuttons nennt das
+Verbindungsformular die zuständige Zentrale mit Name und Instanz-ID.
+Im Webfrontend unter **Verwaltung → Systeme
 und Diagnose** das gewünschte System auswählen und den Installationsbutton verwenden.
 Alternativ steht der Installationsbereich im nativen Zentralenformular bereit.
 

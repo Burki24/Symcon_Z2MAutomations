@@ -139,7 +139,17 @@ $bad = false;
 $one->RequestDeviceCatalog();
 $check($catalog(1)['available'], 'Fresh catalog restores availability');
 $sent = count($parent->sent);
-$one->GetConfigurationForm();
+$form = json_decode($one->GetConfigurationForm(), true, 512, JSON_THROW_ON_ERROR);
+$find = static function (array $node, string $name) use (&$find): ?array
+{
+    if (($node['name'] ?? '') === $name) return $node;
+    foreach ($node as $value) if (is_array($value) && ($field = $find($value, $name)) !== null) return $field;
+    return null;
+};
+$installButton = $find($form, 'ConnectionInstallButton');
+$ownerNotice = $find($form, 'ConnectionInstallationOwner');
+$check($installButton !== null && $installButton['visible'] && isset($installButton['confirm']), 'Standalone connections keep explicit installation with confirmation');
+$check($ownerNotice !== null && !$ownerNotice['visible'], 'Standalone connections do not show a misleading owner notice');
 $one->GetDeviceCatalog();
 $one->GetConnectionInfo();
 $check(count($parent->sent) === $sent, 'Read methods and form opening send no MQTT');

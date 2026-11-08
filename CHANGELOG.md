@@ -46,6 +46,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
+- Zentral verwaltete Z2M-Verbindungen zeigen anstelle des gesperrten
+  Installationsbuttons die zuständige Automationszentrale mit Name und Instanz-ID.
+  Dadurch erscheint keine wirkungslose Sicherheitsabfrage mehr. Eigenständige
+  Verbindungen behalten die Installation mit ausdrücklicher Bestätigung.
+
 - Entwürfe, Auswahl und offene Eingaben bleiben bei Systemwechseln, Geräteabruf
   und Zugangserneuerung erhalten. Veraltete oder parallele Aufrufe werden
   verständlich abgewiesen, ohne unbestätigte Schreibbefehle erneut zu senden.
