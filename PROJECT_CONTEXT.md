@@ -1,6 +1,36 @@
 # Projektkontext: Z2MAutomations
 
-## Aktueller Beta-Kandidat – 07.11.2026
+## Entwicklung auf dev – 08.11.2026
+
+Automatische Statusbestätigung nach Z2M-Neustart korrigiert: Z2M kann bereits
+antworten, bevor die Erweiterung Anfragen annimmt. Beide Modultypen bestätigen
+nach offline/online verzögert und mit höchstens drei lesenden Versuchen.
+Manuelle Aufträge, Sitzungs-/Topicgrenzen und bestehende Entwürfe bleiben geschützt.
+Regression: tests/restart-status.php; keine Installation oder Änderung am Live-System.
+
+Wählbare Fortsetzung wartender Automatikläufe nach Z2M-Neustart ergänzt:
+restart_policy mit abort, resume und resume_expired. Globaler bestätigter
+Wiederanlauf bleibt erforderlich; Einzelstarts und unbestätigte Übergaben
+werden nicht fortgesetzt. Native Auswahl und gemeinsamer DE/EN-Designer,
+gebundener atomarer Wartepunktspeicher und Debug-Ereignisse gehören zusammen.
+Siehe [ADR 0036](docs/adr/0036-resume-waiting-runs-after-restart.md).
+Keine Änderung am Live-System oder an der vorbereiteten Store-Beta 0.185.
+Automatische Versionierung unverändert; nur dev bearbeiten, keine neuen Branches.
+Lokal bestanden: PHP-Gesamtsuite, 239 JavaScript-Tests, native Vorbelegung/
+Validierung, Browser-Sprachwechsel mit neuer Auswahl, Stil/Kodierung/Struktur
+und Paketprüfung. Gemeinsame Designerquelle: npm run verify mit sechs Tests.
+Fortsetzung inzwischen über Test-Symcon am ausdrücklich freigegebenen Z2M-2
+praktisch geprüft: Restfrist mit derselben Laufkennung, Abbruch bei abgelaufener
+Frist und Nachholen mit erneuter Bedingungsprüfung. Testbedingungen verhinderten
+Schaltbefehle; Originalregeln und Betrieb anschließend wiederhergestellt.
+Auch die Statuskorrektur ist nach Modulupdate 0.188 praktisch bestätigt:
+erste Anfrage während des Anlaufs unbeantwortet, nach zehn Sekunden Zeitlimit
+und zwei Sekunden Pause automatisch wiederholt und frisch bestätigt. Keine
+dritte Anfrage, Entwürfe/Auswahl und gespeicherter Regelstand unverändert,
+ursprünglicher Betrieb erhalten. Nachweis und verbleibender Freigabeweg:
+[aktueller Prüfstand](docs/PRUEFLISTE.md#neustartprüfungen-und-planungsabgleich--08112026).
+
+## Historischer Beta-Kandidat – 07.11.2026
 
 Symcon-Beta hat Vorrang; keine weitere Desktop-Funktion in diesem Auftrag.
 Die gemeinsamen Designer-Anpassungen sind im lokalen Kandidaten festgeschrieben

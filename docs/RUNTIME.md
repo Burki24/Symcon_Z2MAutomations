@@ -1,5 +1,31 @@
 # Automationen ausführen
 
+## Wartende Läufe nach Z2M-Neustart fortsetzen
+
+restart_policy je Regel ist optional: abort (Standard), resume (Restzeit warten;
+bei bereits abgelaufener Frist abbrechen), resume_expired (Restzeit warten oder
+ausstehenden Schritt nach erneuter Bedingungsprüfung nachholen). Zusätzlich
+bleibt der bestätigte systemweite automatische Wiederanlauf erforderlich.
+
+RunJournal speichert wartende Automatikläufe in
+data/z2m-automations/running-automations.json. Das begrenzte, atomar geschriebene
+Dokument bindet Regelkennung, Laufkennung, expandierten Aktionsschritt und
+absolute Frist an Basistopic, Revision und Konfigurationsprüfsumme. Die Ausfallzeit
+zählt mit. Vor der Geräte-/Mesh-Übergabe wird der Wartepunkt dauerhaft entfernt;
+unbestätigte Übergaben werden nicht wiederholt. Nachfolgende Wartezeiten beginnen
+normal. Ein Absturz zwischen Entnahme und Übergabe kann den Schritt verlieren;
+exakt einmalige Gerätewirkung wird nicht zugesichert.
+
+Geordnetes Beenden friert Wartepunkte ein. Bestätigter globaler/gezielter Stopp
+und geänderte Speicherung entfernen die betroffenen Fortsetzungen. Falsche
+Bindung, beschädigte/überlange Datei, ungültige Schritte oder zurückgestellte
+Uhr verhindern die Wiederaufnahme. Einzelstarts und Mindestdauern von Auslösern
+werden nicht fortgesetzt. Gerätebedingungen benötigen frische Beobachtungen;
+start_only bleibt auf den ursprünglichen Start begrenzt. Wiederverwendbare
+Folgen behalten ihre expandierte Schrittnummer.
+
+Entscheidung: [ADR 0036](adr/0036-resume-waiting-runs-after-restart.md).
+
 ## Bedingungen nur beim Start
 
 `device_value.start_only: true` beschränkt eine Gerätebedingung auf die

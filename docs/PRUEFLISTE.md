@@ -1,6 +1,36 @@
 # Aktueller Umsetzungs- und Prüfstand
 
-## Aktueller Beta-Abschluss – 07.11.2026
+## Neustartprüfungen und Planungsabgleich – 08.11.2026
+
+Beide Praxisaufträge abgeschlossen. Umgebung: Test-Symcon 9.1 mit ausdrücklich
+freigegebenem, gemeinsam genutztem Z2M-Empfänger 2.14.2-dev. Native Debugausgaben,
+MQTT-Rückmeldungen und Vorher-/Nachher-Vergleiche sind außerhalb des Repositorys
+gesichert; keine privaten Installationsdaten übernehmen.
+
+| Nachweis | Bestätigtes Ergebnis | Grenze |
+| --- | --- | --- |
+| N1: Wartende Automatikläufe fortsetzen | Modul 0.186, Erweiterungsbuild 829a9cbf479b. Dieselbe Laufkennung und Schrittposition nach Neustart; 180 Sekunden Wartezeit enden zur ursprünglichen Frist. Bei während des Neustarts abgelaufener Frist beendet resume den Lauf; resume_expired prüft den ausstehenden Schritt und verwirft ihn wegen der abgelaufenen Testbedingung. Status und Debug stimmen überein. Testregeln entfernt, ursprüngliche Regeln und Betrieb wiederhergestellt. | Keine Test-Schaltbefehle. Eine tatsächliche Gerätewirkung des nachgeholten Schritts und ein harter Stromausfall wurden hier nicht geprüft. |
+| N2: Automatische Statusbestätigung | Modul 0.188. Erste Anfrage im Z2M-Anlauf unbeantwortet; nach zehn Sekunden Zeitlimit und zwei Sekunden Pause einmal automatisch wiederholt. Frische, nicht gespeicherte Antwort mit neuer passender Anfragekennung bestätigt Erweiterung und Betrieb. Keine dritte Anfrage; Status bleibt bestätigt. Entwürfe und Auswahl exakt erhalten, gespeicherte Revision/Prüfsumme und ursprünglicher Betrieb unverändert; Aufzeichnungen beendet. | Kein manueller Statusaufruf nach Neustart. Erweiterungsbuild 4d6cda174348 blieb unverändert; dieser Lauf belegt die Modulkorrektur, keine erneute Fortsetzungsprüfung. Ausschöpfen aller drei Versuche bleibt durch Regressionstests belegt. |
+
+Die ursprüngliche Funktionsagenda, die fünf Designerpunkte und R1–R4 sind im
+jeweils dokumentierten Umfang abgeschlossen. B1–B4 bleiben abgeschlossen.
+R5 bezeichnet zusätzliche Geräte-/Versionsabnahmen; drei bis acht reale Broker
+sind weiterhin nicht praktisch abgenommen. Die neuen Neustartfälle sind kein
+Anlass, bereits bestandene Praxisprüfungen pauschal zu wiederholen.
+
+Releasebasis auf dem lokal eingesehenen main: 0.185, Commit 973929a.
+Entwicklungsstand auf dev: 0.188; diese Dokumentationsänderung ist darin noch
+nicht enthalten. Für die nächste Beta bleiben Versionsautomatik und CI des
+endgültigen Commits, PR von dev nach main und die ausdrücklich freigegebene
+Store-Einreichung getrennte Schritte. Aktueller Online-CI-/Storestatus wurde in
+diesem Dokumentationsauftrag nicht geprüft. Keine feste nächste Versionsnummer
+vorwegnehmen; Details im [Beta-Abnahmebericht](BETA_ABNAHME.md).
+
+Die datierten Abschnitte darunter bleiben historische Nachweise; dieser Abgleich
+ersetzt ihre inzwischen erledigten Offenpunkte. Windows/Linux bleiben ein
+separates Vorhaben. In diesem Auftrag ausschließlich Dokumentation geändert.
+
+## Historischer Beta-Abschluss – 07.11.2026
 
 Lokaler Kandidat geprüft: 229 JavaScript-Tests samt PHP-Gesamtsuite,
 Paketgrenzen und isolierte echte Browserprüfung bestanden. B1–B4 sind
@@ -192,6 +222,8 @@ beschreibt den Ausbau; sie ist keine neue Drei-/Acht-System-Abnahme.
 - [x] R3: Unabhängigen Vorher-/Nachher-Vergleich für S1 im selben automatischen Installationslauf am 06.11.2026 ergänzt; ursprüngliche lokale Bearbeitungsdaten und Betrieb wieder bestätigt.
 - [x] R4-Vorbereitung: vorhandene Belege abgleichen, verbleibende Fälle P0–P6 und isolierten Testaufbau festlegen; direkte Einrichtung, Altübernahme und echte Neustarts unterscheiden.
 - [x] R4-Praxis: Zentralen-Restabnahme gemäß R4_ACCEPTANCE_PLAN.md im dort abgegrenzten Umfang abgeschlossen, einschließlich nativer Klickprüfung und Rückweg.
+- [x] N1: Fortsetzung nach Z2M-Neustart mit Restfrist und abgelaufener Frist praktisch geprüft; erneute Bedingungsprüfung verhindert Test-Schaltbefehle.
+- [x] N2: Automatische Statusbestätigung mit Zeitlimit, verzögerter Wiederholung, frischer Antwort, Debug und unverändertem Betrieb praktisch bestätigt.
 - [ ] R5, zusätzliche Kompatibilitätsarbeit: weitere Versionen und Converter nur auf konkreten Praxisauftrag prüfen; kein pauschales Hindernis der ersten Beta.
 - [x] B4: Native Mausradfalle an innerer Scrollgrenze korrigieren und mit regulär installiertem Paket praktisch nachprüfen.
 

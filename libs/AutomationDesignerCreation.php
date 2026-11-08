@@ -110,7 +110,8 @@ trait AutomationDesignerCreation
             $simple = $this->DesignerEditShape($request, ['requestId', 'context', 'name', 'source', 'target']);
             if ((!$complete && !$simple) || !is_string($request['requestId'] ?? null) || !RuntimeDebugContract::UUID($request['requestId'])
                 || !is_string($request['context'] ?? null)
-                || ($complete && !$this->DesignerEditShape($request['rule'], ['name', 'retrigger', 'triggers', 'conditions', 'actions']))
+                || ($complete && !$this->DesignerEditShape($request['rule'], ['name', 'retrigger', 'triggers', 'conditions', 'actions'])
+                    && !$this->DesignerEditShape($request['rule'], ['name', 'retrigger', 'restart_policy', 'triggers', 'conditions', 'actions']))
                 || ($simple && !is_string($request['name'] ?? null))) {
                 return $this->DesignerCreateFailure(400, 'Die Angaben zur neuen Automation sind unvollständig. Bitte die Auswahl prüfen.');
             }
@@ -168,6 +169,7 @@ trait AutomationDesignerCreation
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'create', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
             $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
+            $this->DebugRestartPolicy($rule);
             $this->DebugEvent(
                 'AKTION',
                 'Neue Automation aus der Browserauswahl ausgeschaltet im lokalen Entwurf ergänzt. Bestehende Regeln erhalten; keine Übertragung oder Aktivierung.',

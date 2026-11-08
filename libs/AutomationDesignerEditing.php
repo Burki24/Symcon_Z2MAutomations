@@ -58,7 +58,7 @@ trait AutomationDesignerEditing
             if (!$this->DesignerEditShape($request, ['requestId', 'context', 'ruleId', 'changes'])
                 || !is_string($request['requestId']) || !RuntimeDebugContract::UUID($request['requestId'])
                 || !is_string($request['context']) || !is_string($request['ruleId'])
-                || !is_array($request['changes']) || array_diff(array_keys($request['changes']), ['name', 'enabled', 'retrigger', 'triggers', 'conditions', 'actions']) !== []) {
+                || !is_array($request['changes']) || array_diff(array_keys($request['changes']), ['name', 'enabled', 'retrigger', 'restart_policy', 'triggers', 'conditions', 'actions']) !== []) {
                 return $this->DesignerCreateFailure(400, 'Die Angaben zur Bearbeitung sind unvollständig oder nicht unterstützt.');
             }
             $sessions = $this->DesignerSessions();
@@ -105,6 +105,7 @@ trait AutomationDesignerEditing
                 }
             }
             if ($changed && array_key_exists('actions', $fields)) $this->DesignerActionOrderDebug($original['actions'], $rule['actions']);
+            if (array_key_exists('restart_policy', $fields)) $this->DebugRestartPolicy($rule);
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'edit', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);
             $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
@@ -123,10 +124,11 @@ trait AutomationDesignerEditing
     {
         foreach ($fields as $key => &$value) {
             $error = match ($key) {
-                'name'      => !is_string($value) || !$this->ValidEditorName(trim($value)) ? 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.' : '',
-                'enabled'   => !is_bool($value) ? 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.' : '',
-                'retrigger' => !in_array($value, ['ignore', 'restart', 'extend'], true) ? 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.' : '',
-                default     => ''
+                'name'           => !is_string($value) || !$this->ValidEditorName(trim($value)) ? 'Bitte einen Namen mit 1 bis 120 Zeichen ohne Steuerzeichen eingeben.' : '',
+                'enabled'        => !is_bool($value) ? 'Bitte den Regelschalter prüfen. Er betrifft nur den lokalen Entwurf.' : '',
+                'retrigger'      => !in_array($value, ['ignore', 'restart', 'extend'], true) ? 'Bitte ein angebotenes Verhalten bei erneuter Auslösung wählen.' : '',
+                'restart_policy' => !in_array($value, ['abort', 'resume', 'resume_expired'], true) ? 'Bitte ein angebotenes Verhalten nach einem Z2M-Neustart wählen.' : '',
+                default          => ''
             };
             if ($error !== '') return null;
             if ($key === 'name') $value = trim($value);

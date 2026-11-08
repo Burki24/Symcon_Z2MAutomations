@@ -41,6 +41,13 @@ $editPost = static function (array $changes, string $rule = 'synthetic_device') 
     return $module->Hook('edit', 'POST', $editToken);
 };
 $device = '0x0000000000000001';
+foreach (['resume', 'resume_expired', 'abort'] as $policy) {
+    $check($editPost(['restart_policy' => $policy])[0] === 200, 'Browser accepts the selected restart policy');
+    $policyView = json_decode($module->GetDesignerData(), true);
+    $check($policyView['configuration']['automations'][0]['restart_policy'] === $policy, 'Browser data prefills the saved restart policy');
+}
+$policyFingerprint = $module->Fingerprint();
+$check($editPost(['restart_policy' => 'retry_all'])[0] === 422 && $module->Fingerprint() === $policyFingerprint, 'Invalid recovery policy cannot change the draft');
 $noOpFingerprint = $module->Fingerprint();
 $check($editPost([])[0] === 200 && $module->Fingerprint() === $noOpFingerprint, 'Unchanged prefilled fields do not rewrite the draft');
 $fullDraft = $expectedEdit;

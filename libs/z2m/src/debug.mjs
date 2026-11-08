@@ -55,7 +55,7 @@ export class RuntimeDiagnostics {
             if (typeof context.origin === 'string' && context.origin.length <= 1024) record.origin = createHash('sha256').update(context.origin).digest('hex');
             if (typeof details.Erfüllt === 'boolean') record.passed = details.Erfüllt;
             const reason = details.Grund;
-            if (['inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'].includes(reason)) record.reason = reason;
+            if (['storage_error', 'inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'].includes(reason)) record.reason = reason;
             this.sentAt.push(this.now());
             this.queue.push({clients: [...this.clients.keys()], record});
             if (!this.sending) void this.drain().catch(() => { this.dropped = Math.min(1000000, this.dropped + 1); });

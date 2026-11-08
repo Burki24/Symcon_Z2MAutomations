@@ -262,8 +262,15 @@ Sie sind nicht schaltbar und geben den zuletzt bestätigten Stand wieder.
 | Letzter Erweiterungsfehler / `LastError` | String / keine | Rückmeldung zu einem fehlgeschlagenen Auftrag. |
 | Automationen laufen in Z2M / `ExecutionActive` | Boolean / keine | Die Ausführung ist laut zuletzt bestätigtem Z2M-Status aktiv. False bedeutet gestoppt oder noch nicht bestätigt. |
 
-Nach einer Unterbrechung oder einem Neustart den Verbindungs- und Erweiterungsstatus
-erneut abfragen. Ein gespeicherter Wert allein ist keine dauernde Erreichbarkeitsprüfung.
+Wenn Z2M sich nach einem Neustart wieder online meldet, fragt das Modul den
+Erweiterungs- und Betriebsstatus automatisch ab. Antwortet die Erweiterung noch
+nicht oder ist sie noch nicht bereit, folgen bis zu zwei weitere Versuche mit
+jeweils zwei Sekunden Pause. Nach drei erfolglosen Versuchen bleibt eine
+Fehlermeldung sichtbar. Dann **Erweiterungsstatus abfragen** wählen und Verbindung
+und Erweiterung prüfen. Manuelle Aufträge haben Vorrang. Diese Prüfung speichert
+keine Regeln und aktiviert oder schaltet nichts.
+
+Ein gespeicherter Wert allein ist keine dauernde Erreichbarkeitsprüfung.
 Bereits aktivierte Automationen laufen in Z2M unabhängig von Symcon weiter.
 
 ## 8. Skriptfunktionen

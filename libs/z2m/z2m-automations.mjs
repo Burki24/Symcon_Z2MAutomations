@@ -1,5 +1,5 @@
 // Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.
-export const EXTENSION_BUILD = '4d6cda17434819e331927b17515470f9d7f427a192f9b874b28e671228e00722';
+export const EXTENSION_BUILD = '829a9cbf479b726f8a1150b20cd4547023851c3e0f0f9c76a9687262d9b05aea';
 import {createHash, randomUUID} from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import {join} from 'node:path';
@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {TextDecoder} from 'node:util';
 import Ajv from 'ajv';
 import {parseEvents, constructFromEvents, JSON_SCHEMA, mapTag, EVENT_ID} from 'js-yaml';
-const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}},"sequences":{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/sequence"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"start_only":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]},{"$ref":"#/definitions/sequenceCall"}]},"sceneAction":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"scene"},"target":{"$ref":"#/definitions/target"},"scene_id":{"type":"integer","minimum":0,"maximum":255},"endpoint":{"type":"integer","minimum":1,"maximum":240},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","scene_id"],"allOf":[{"if":{"properties":{"target":{"type":"object","properties":{"type":{"const":"group"}}}}},"then":{"properties":{"endpoint":false}},"else":{"properties":{"endpoint":{"type":"integer","minimum":1,"maximum":240}},"required":["endpoint"]}}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"retrigger":{"enum":["ignore","restart","extend"]},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"},{"$ref":"#/definitions/sunTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"},{"$ref":"#/definitions/weekdayCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"},"sunTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sun"},"event":{"enum":["sunrise","sunset"]},"latitude":{"type":"number","minimum":-90,"maximum":90},"longitude":{"type":"number","minimum":-180,"maximum":180},"offset_minutes":{"type":"integer","minimum":-720,"maximum":720},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","event","latitude","longitude","offset_minutes","timezone"]},"leafAction":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"sequenceCall":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sequence"},"sequence_id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","sequence_id"]},"sequence":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/leafAction"}}},"required":["id","name","actions"]},"weekdayCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"weekday"},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","weekdays","timezone"]}}};
+const AUTOMATIONS_SCHEMA = {"$schema":"http://json-schema.org/draft-07/schema#","$id":"urn:burki24:z2m-automations:schema:1","title":"Z2MAutomations configuration v1","type":"object","additionalProperties":false,"properties":{"schema_version":{"const":1},"revision":{"type":"integer","minimum":1,"maximum":9007199254740991},"automations":{"type":"array","maxItems":100,"items":{"$ref":"#/definitions/automation"}},"mesh_peers":{"type":"array","maxItems":8,"uniqueItems":true,"items":{"$ref":"#/definitions/system"}},"sequences":{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/sequence"}}},"required":["schema_version","revision","automations"],"definitions":{"device":{"type":"string","pattern":"^0x[0-9a-f]{16}$"},"jsonValue":{"anyOf":[{"type":["string","number","boolean","null"],"maxLength":256},{"type":"array","maxItems":32,"items":{"$ref":"#/definitions/jsonValue"}},{"type":"object","maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}}]},"deviceTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"for_seconds":{"type":"integer","minimum":0,"maximum":86400},"on_change":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time"},"at":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","at","timezone"]},"deviceCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device_value"},"device":{"$ref":"#/definitions/device"},"property":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"operator":{"enum":["eq","ne","gt","gte","lt","lte"]},"value":{"type":["string","number","boolean","null"],"maxLength":256},"start_only":{"type":"boolean"}},"required":["type","device","property","operator","value"],"allOf":[{"if":{"properties":{"operator":{"enum":["gt","gte","lt","lte"]}}},"then":{"properties":{"value":{"type":"number"}}}}]},"timeCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"time_window"},"after":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"before":{"type":"string","pattern":"^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"},"timezone":{"type":"string","minLength":1,"maxLength":64},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}}},"required":["type","after","before","timezone"]},"target":{"oneOf":[{"type":"object","additionalProperties":false,"properties":{"type":{"const":"device"},"id":{"$ref":"#/definitions/device"},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"group"},"id":{"type":"integer","minimum":1,"maximum":65535},"system":{"$ref":"#/definitions/system"}},"required":["type","id"]}]},"action":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]},{"$ref":"#/definitions/sequenceCall"}]},"sceneAction":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"scene"},"target":{"$ref":"#/definitions/target"},"scene_id":{"type":"integer","minimum":0,"maximum":255},"endpoint":{"type":"integer","minimum":1,"maximum":240},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","scene_id"],"allOf":[{"if":{"properties":{"target":{"type":"object","properties":{"type":{"const":"group"}}}}},"then":{"properties":{"endpoint":false}},"else":{"properties":{"endpoint":{"type":"integer","minimum":1,"maximum":240}},"required":["endpoint"]}}]},"automation":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"enabled":{"type":"boolean"},"retrigger":{"enum":["ignore","restart","extend"]},"restart_policy":{"enum":["abort","resume","resume_expired"]},"triggers":{"type":"array","minItems":1,"maxItems":8,"items":{"oneOf":[{"$ref":"#/definitions/deviceTrigger"},{"$ref":"#/definitions/timeTrigger"},{"$ref":"#/definitions/sunTrigger"}]}},"conditions":{"type":"array","maxItems":16,"items":{"oneOf":[{"$ref":"#/definitions/deviceCondition"},{"$ref":"#/definitions/timeCondition"},{"$ref":"#/definitions/weekdayCondition"}]}},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/action"}}},"required":["id","name","enabled","triggers","conditions","actions"]},"system":{"type":"string","minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"},"sunTrigger":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sun"},"event":{"enum":["sunrise","sunset"]},"latitude":{"type":"number","minimum":-90,"maximum":90},"longitude":{"type":"number","minimum":-180,"maximum":180},"offset_minutes":{"type":"integer","minimum":-720,"maximum":720},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","event","latitude","longitude","offset_minutes","timezone"]},"leafAction":{"oneOf":[{"$ref":"#/definitions/sceneAction"},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"set"},"target":{"$ref":"#/definitions/target"},"values":{"type":"object","minProperties":1,"maxProperties":32,"propertyNames":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_]{0,63}$","not":{"enum":["__proto__","constructor","prototype"]}},"additionalProperties":{"$ref":"#/definitions/jsonValue"}},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","values"]},{"type":"object","additionalProperties":false,"properties":{"type":{"const":"toggle"},"target":{"$ref":"#/definitions/target"},"property":{"type":"string","pattern":"^state(?:_[A-Za-z0-9_]+)?$","maxLength":64},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","target","property"]}]},"sequenceCall":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"sequence"},"sequence_id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"delay_seconds":{"type":"integer","minimum":0,"maximum":86400}},"required":["type","sequence_id"]},"sequence":{"type":"object","additionalProperties":false,"properties":{"id":{"type":"string","pattern":"^[a-z][a-z0-9_-]{0,63}$"},"name":{"type":"string","minLength":1,"maxLength":120},"actions":{"type":"array","minItems":1,"maxItems":16,"items":{"$ref":"#/definitions/leafAction"}}},"required":["id","name","actions"]},"weekdayCondition":{"type":"object","additionalProperties":false,"properties":{"type":{"const":"weekday"},"weekdays":{"type":"array","minItems":1,"maxItems":7,"uniqueItems":true,"items":{"type":"integer","minimum":1,"maximum":7}},"timezone":{"type":"string","minLength":1,"maxLength":64}},"required":["type","weekdays","timezone"]}}};
 // Own implementation of the published NOAA general solar equations (solareqns.PDF).
 // Apparent horizon 90.833 degrees; a calculated time, not a weather observation.
 const SOLAR_DAY = 86400000;
@@ -155,6 +155,9 @@ export class AutomationRuntime {
         if (!execution || execution.rule.id !== ruleID || (execution.cancelled && !execution.restart)) throw new RuntimeError('run_conflict');
         execution.restart = null;
         execution.cancelled = true;
+        this.journal?.remove(run).catch(() => {
+            this.log('FEHLER', 'Gestoppter Lauf konnte im Fortsetzungsspeicher nicht bestätigt werden.', {}, execution.context);
+        });
         for (const [timer, wait] of this.waits) if (wait.run === run) {
             this.clock.clearTimeout(timer); this.waits.delete(timer); wait.resolve(false);
         }
@@ -397,17 +400,29 @@ export class AutomationRuntime {
         }
     }
 
-    wait(milliseconds, generation, context = {}) {
+    wait(milliseconds, generation, context = {}, fullDuration = milliseconds) {
         if (!this.canContinue(generation, context)) return Promise.resolve(false);
         if (!milliseconds) return Promise.resolve(true);
         return new Promise(resolve => {
-            const wait = {resolve, run: context.run, context, milliseconds, timer: null};
+            const wait = {resolve, run: context.run, context, milliseconds: fullDuration, timer: null};
+            let initial = true;
             wait.arm = () => {
+                const duration = initial ? milliseconds : fullDuration;
+                const renewed = !initial; initial = false;
                 if (wait.timer !== null) { this.clock.clearTimeout(wait.timer); this.waits.delete(wait.timer); }
+                if (renewed) {
+                    const execution = this.executions.get(context.run);
+                    if (execution) this.checkpoint(execution.rule, context, this.clock.wallNow() + duration, fullDuration).catch(() => {
+                        if (!this.canContinue(generation, context)) return;
+                        this.lastError = 'storage_error';
+                        this.stopRule(execution.rule.id, context.run);
+                        this.log('FEHLER', 'Verlängerte Wartezeit konnte nicht gespeichert werden; Lauf beendet.', {}, context);
+                    });
+                }
                 wait.timer = this.clock.setTimeout(() => {
                     this.waits.delete(wait.timer);
                     resolve(this.canContinue(generation, context));
-                }, milliseconds);
+                }, duration);
                 wait.timer?.unref?.();
                 this.waits.set(wait.timer, wait);
             };
@@ -456,7 +471,7 @@ export class AutomationRuntime {
         this.log('AKTION', 'Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet.', {}, {...execution.context, trigger: context.trigger});
     }
 
-    launch(rule, context = this.trace(rule), once = null, replacement = false) {
+    launch(rule, context = this.trace(rule), once = null, replacement = false, resumed = null) {
         const now = this.clock.now();
         if (!once && this.active && this.running.has(rule.id)) { this.retrigger(rule, context); return; }
         const reason = !this.active && !once ? 'inactive' : this.running.has(rule.id) ? 'already_running'
@@ -480,7 +495,7 @@ export class AutomationRuntime {
             }
         }
         this.executions.set(context.run, execution);
-        if (!this.conditions(rule, context)) {
+        if (!resumed && !this.conditions(rule, context)) {
             this.executionState(rule, context, 'skipped', 'conditions_not_met');
             this.executions.delete(context.run);
             this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'conditions_not_met'}, context);
@@ -490,7 +505,7 @@ export class AutomationRuntime {
         this.executionState(rule, context, 'running');
         this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
-        const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
+        const task = Promise.resolve().then(() => this.run(rule, generation, context, resumed)).catch(error => {
             if (execution.restart) {
                 execution.restart = null;
                 this.log('FEHLER', 'Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen.', {}, context);
@@ -500,7 +515,9 @@ export class AutomationRuntime {
             if (!once) this.lastError = code;
             this.executionState(rule, context, 'failed', code);
             this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: code}, context);
-        }).finally(() => {
+        }).finally(async () => {
+            try { await this.journal?.remove(context.run); }
+            catch { this.log('FEHLER', 'Fortsetzungspunkt konnte nicht gelöscht werden; keine automatische Wiederholung erlaubt.', {}, context); }
             const restart = execution.restart;
             if (restart) this.executionState(rule, context, 'stopped');
             if (this.results.get(rule.id)?.run === context.run && this.results.get(rule.id)?.state === 'running') this.executionState(rule, context, 'completed');
@@ -519,22 +536,65 @@ export class AutomationRuntime {
         return this.results.get(rule.id);
     }
 
-    async run(rule, generation, context) {
+    restoreRuns(records) {
+        const scheduled = new Set();
+        for (const saved of records) {
+            const rule = this.rules.find(item => item.id === saved.rule_id);
+            const context = rule ? {...this.trace(rule), run: saved.run, step: saved.step} : {};
+            const action = rule ? expandActionPlan(this.active.document, rule.actions)[saved.step - 1]?.action : null;
+            const now = this.clock.wallNow();
+            if (!rule || !['resume', 'resume_expired'].includes(rule.restart_policy) || !action
+                || (action.delay_seconds ?? 0) * 1000 !== saved.delay || now < saved.saved_at
+                || (now >= saved.deadline && rule.restart_policy !== 'resume_expired')) {
+                this.log('AKTION', 'Unterbrochener Lauf nicht fortgesetzt: Freigabe fehlt, Wartezeit abgelaufen oder Uhrzeit unplausibel.', {}, context);
+                if (rule) this.executionState(rule, context, 'stopped');
+                continue;
+            }
+            this.log('AKTION', now >= saved.deadline ? 'Wartezeit während Neustart abgelaufen; ausstehenden Schritt mit erneuter Bedingungsprüfung nachholen.'
+                : 'Unterbrochenen Lauf am gespeicherten Aktionsschritt mit verbleibender Wartezeit fortsetzen.', {}, context);
+            this.launch(rule, context, null, true, saved);
+            scheduled.add(saved.run);
+        }
+        return scheduled;
+    }
+
+    async checkpoint(rule, context, deadline, delay) {
+        const execution = this.executions.get(context.run);
+        if (!this.journal || execution?.once || !['resume', 'resume_expired'].includes(rule.restart_policy) || !this.journal.enabled()) return;
+        try {
+            await this.journal.put({rule_id: rule.id, run: context.run, step: context.step,
+                saved_at: this.clock.wallNow(), deadline, delay});
+            this.log('AKTION', 'Wartepunkt für Fortsetzung nach Z2M-Neustart dauerhaft gespeichert.', {}, context);
+        } catch { throw new RuntimeError('storage_error'); }
+    }
+
+    async run(rule, generation, context, resumed = null) {
         const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
         for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
+            if (resumed && index < resumed.step - 1) continue;
             const {action} = entry;
             if (!this.canContinue(generation, context) || this.executions.get(context.run)?.restart) return;
             const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0,
                 ...(entry.sequence ? {sequence: entry.sequence, sequence_step: entry.sequence_step} : {})};
             if (entry.sequence_step === 1) this.log('AKTION', 'Wiederverwendbare Aktionsfolge im Regellauf begonnen.', {}, step);
             this.executionState(rule, context, 'running', '', index + 1);
+            const deadline = resumed ? resumed.deadline : this.clock.wallNow() + step.delay * 1000;
+            const remaining = resumed ? Math.max(0, deadline - this.clock.wallNow()) : step.delay * 1000;
+            if (remaining > 0) await this.checkpoint(rule, step, deadline, step.delay * 1000);
+            if (!this.canContinue(generation, context)) return;
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
-            if (!await this.wait(step.delay * 1000, generation, step)) {
+            if (!await this.wait(Math.max(0, deadline - this.clock.wallNow()), generation, step, step.delay * 1000)) {
                 this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
                 return;
             }
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
             if (!this.canContinue(generation, context)) return;
+            try {
+                if (this.journal?.runs.has(context.run)) { await this.journal.flush(); await this.journal.remove(context.run); }
+            }
+            catch { throw new RuntimeError('storage_error'); }
+            if (!this.canContinue(generation, context)) return;
+            resumed = null;
             if (!this.conditions(rule, step, false)) {
                 this.executionState(rule, context, 'skipped', 'conditions_not_met', index + 1);
                 this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;
@@ -818,7 +878,7 @@ export function buildEditorScenes(zigbee, devices, groups) {
     return result;
 }
 
-const DEBUG_EVENTS = {"event_01":{"event":"AKTION","message":"Gespeicherte Revision für neue Auslöser aktiviert."},"event_02":{"event":"AKTION","message":"Ausführung gestoppt; ausstehende Verzögerungen verworfen."},"event_03":{"event":"EMPFANG","message":"Neue Eigenschaften einer konfigurierten Quelle ausgewertet."},"event_04":{"event":"AKTION","message":"Wert unverändert; Auslöser verlangt eine Wertänderung."},"event_05":{"event":"AKTION","message":"Regellauf nicht gestartet."},"event_06":{"event":"START","message":"Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."},"event_07":{"event":"FEHLER","message":"Aktionsfolge abgebrochen; keine automatische Wiederholung."},"event_08":{"event":"ENDE","message":"Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."},"event_09":{"event":"AKTION","message":"Bedingung vor Aktion nicht mehr erfüllt."},"event_10":{"event":"AKTION","message":"Vorhandene Szene für den Aufruf erneut geprüft."},"event_11":{"event":"AKTION","message":"Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."},"event_12":{"event":"FEHLER","message":"Bridge-Abonnement konnte beim Stopp nicht entfernt werden."},"event_13":{"event":"SENDEN","message":"Freigabe für eine Aktion im zweiten Z2M-System angefordert."},"event_14":{"event":"EMPFANG","message":"Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."},"event_15":{"event":"EMPFANG","message":"Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."},"event_16":{"event":"FEHLER","message":"Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."},"event_17":{"event":"FEHLER","message":"Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."},"event_18":{"event":"FEHLER","message":"MQTT-Antwort konnte nicht veröffentlicht werden."},"event_19":{"event":"START","message":"Erweiterung starten."},"event_20":{"event":"FEHLER","message":"Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."},"event_21":{"event":"ENDE","message":"Startaufruf beendet."},"event_22":{"event":"START","message":"Erweiterung stoppen."},"event_23":{"event":"ENDE","message":"Stoppaufruf beendet."},"event_24":{"event":"AKTION","message":"Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."},"event_25":{"event":"AKTION","message":"Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."},"event_26":{"event":"AKTION","message":"Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."},"event_27":{"event":"FEHLER","message":"Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."},"event_28":{"event":"START","message":"Erweiterungsauftrag empfangen."},"event_29":{"event":"ENDE","message":"Erweiterungsauftrag beendet; Ergebnis siehe Antwort."},"event_30":{"event":"FEHLER","message":"Ungültigen Erweiterungsauftrag abgewiesen."},"event_31":{"event":"AKTION","message":"Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."},"event_32":{"event":"FEHLER","message":"Erweiterungsauftrag abgewiesen."},"event_33":{"event":"FEHLER","message":"Entwurf an dieser Stelle korrigieren."},"event_34":{"event":"AKTION","message":"Bedingung geprüft."},"event_35":{"event":"AKTION","message":"Auslöser geprüft."},"event_36":{"event":"AKTION","message":"Mindestdauer begonnen."},"event_37":{"event":"AKTION","message":"Mindestdauer abgebrochen."},"event_38":{"event":"AKTION","message":"Mindestdauer erreicht."},"event_39":{"event":"AKTION","message":"Zeitpunkt erreicht."},"event_40":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt begonnen."},"event_41":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt beendet."},"event_42":{"event":"AKTION","message":"Aktionsschritt wegen Stopp abgebrochen."},"event_43":{"event":"EMPFANG","message":"Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."},"event_44":{"event":"SENDEN","message":"Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"scene_send":{"event":"SENDEN","message":"Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"step_failed":{"event":"FEHLER","message":"Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."},"astro_plan":{"event":"AKTION","message":"Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt."},"astro_missing":{"event":"AKTION","message":"Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen."},"astro_due":{"event":"AKTION","message":"Astro-Zeitpunkt einschließlich Zeitversatz erreicht."},"once_request":{"event":"AKTION","message":"Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert."},"once_start":{"event":"START","message":"Einmaliger Regellauf mit erfüllten Bedingungen begonnen."},"run_stop":{"event":"AKTION","message":"Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."},"sequence_start":{"event":"AKTION","message":"Wiederverwendbare Aktionsfolge im Regellauf begonnen."},"event_45":{"event":"AKTION","message":"Kalendertag gegen erlaubte Wochentage geprüft."},"event_46":{"event":"AKTION","message":"Erneute Auslösung ignoriert; vorhandener Regellauf bleibt unverändert."},"event_47":{"event":"AKTION","message":"Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert."},"event_48":{"event":"AKTION","message":"Keine laufende Wartezeit; erneute Auslösung verändert den Ablauf nicht."},"event_49":{"event":"AKTION","message":"Wartezeit wegen erneuter Auslösung auf volle Dauer zurückgesetzt."},"event_50":{"event":"AKTION","message":"Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet."},"event_51":{"event":"FEHLER","message":"Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen."},"event_52":{"event":"AKTION","message":"Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft."},"condition_start_only":{"event":"AKTION","message":"Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft."}};
+const DEBUG_EVENTS = {"event_01":{"event":"AKTION","message":"Gespeicherte Revision für neue Auslöser aktiviert."},"event_02":{"event":"AKTION","message":"Ausführung gestoppt; ausstehende Verzögerungen verworfen."},"event_03":{"event":"EMPFANG","message":"Neue Eigenschaften einer konfigurierten Quelle ausgewertet."},"event_04":{"event":"AKTION","message":"Wert unverändert; Auslöser verlangt eine Wertänderung."},"event_05":{"event":"AKTION","message":"Regellauf nicht gestartet."},"event_06":{"event":"START","message":"Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen."},"event_07":{"event":"FEHLER","message":"Aktionsfolge abgebrochen; keine automatische Wiederholung."},"event_08":{"event":"ENDE","message":"Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung."},"event_09":{"event":"AKTION","message":"Bedingung vor Aktion nicht mehr erfüllt."},"event_10":{"event":"AKTION","message":"Vorhandene Szene für den Aufruf erneut geprüft."},"event_11":{"event":"AKTION","message":"Umschaltziel aus dem aktuellen Z2M-Zustand ermittelt."},"event_12":{"event":"FEHLER","message":"Bridge-Abonnement konnte beim Stopp nicht entfernt werden."},"event_13":{"event":"SENDEN","message":"Freigabe für eine Aktion im zweiten Z2M-System angefordert."},"event_14":{"event":"EMPFANG","message":"Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt."},"event_15":{"event":"EMPFANG","message":"Einmalig freigegebene Aktion vom zweiten Z2M-System empfangen."},"event_16":{"event":"FEHLER","message":"Empfangene Aktion nicht ausgeführt; keine automatische Wiederholung."},"event_17":{"event":"FEHLER","message":"Bridge-Nachricht verworfen; keine zusätzliche Geräteaktion."},"event_18":{"event":"FEHLER","message":"MQTT-Antwort konnte nicht veröffentlicht werden."},"event_19":{"event":"START","message":"Erweiterung starten."},"event_20":{"event":"FEHLER","message":"Geräteereignis verworfen; interne Verarbeitung fehlgeschlagen."},"event_21":{"event":"ENDE","message":"Startaufruf beendet."},"event_22":{"event":"START","message":"Erweiterung stoppen."},"event_23":{"event":"ENDE","message":"Stoppaufruf beendet."},"event_24":{"event":"AKTION","message":"Kein gespeicherter Betriebszustand; Automationen bleiben gestoppt."},"event_25":{"event":"AKTION","message":"Kein automatischer Wiederanlauf: bewusst gestoppt oder Wiederanlauf ausgeschaltet."},"event_26":{"event":"AKTION","message":"Automationen nach Neustart automatisch aktiviert; neue Auslöser und ausdrücklich freigegebene Fortsetzungen werden verarbeitet."},"event_27":{"event":"FEHLER","message":"Automatischer Wiederanlauf abgebrochen; Automationen bleiben gestoppt."},"event_28":{"event":"START","message":"Erweiterungsauftrag empfangen."},"event_29":{"event":"ENDE","message":"Erweiterungsauftrag beendet; Ergebnis siehe Antwort."},"event_30":{"event":"FEHLER","message":"Ungültigen Erweiterungsauftrag abgewiesen."},"event_31":{"event":"AKTION","message":"Vorhandene Szenen für den Klick-Editor gelesen; keine Geräte geschaltet."},"event_32":{"event":"FEHLER","message":"Erweiterungsauftrag abgewiesen."},"event_33":{"event":"FEHLER","message":"Entwurf an dieser Stelle korrigieren."},"event_34":{"event":"AKTION","message":"Bedingung geprüft."},"event_35":{"event":"AKTION","message":"Auslöser geprüft."},"event_36":{"event":"AKTION","message":"Mindestdauer begonnen."},"event_37":{"event":"AKTION","message":"Mindestdauer abgebrochen."},"event_38":{"event":"AKTION","message":"Mindestdauer erreicht."},"event_39":{"event":"AKTION","message":"Zeitpunkt erreicht."},"event_40":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt begonnen."},"event_41":{"event":"AKTION","message":"Wartezeit vor Aktionsschritt beendet."},"event_42":{"event":"AKTION","message":"Aktionsschritt wegen Stopp abgebrochen."},"event_43":{"event":"EMPFANG","message":"Native Befehlsverarbeitung hat die Übergabe angenommen; Gerätewirkung nicht bestätigt."},"event_44":{"event":"SENDEN","message":"Set-Aktion an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"scene_send":{"event":"SENDEN","message":"Szenenaufruf an native Z2M-Befehlsverarbeitung übergeben; Gerätewirkung nicht bestätigt."},"step_failed":{"event":"FEHLER","message":"Aktionsschritt fehlgeschlagen; die restliche Folge wird abgebrochen."},"astro_plan":{"event":"AKTION","message":"Astro-Auslöser für den heutigen Tag geprüft; Zeitversatz berücksichtigt."},"astro_missing":{"event":"AKTION","message":"Heute gibt es für dieses Sonnenereignis keinen Zeitpunkt; Auslöser wird übersprungen."},"astro_due":{"event":"AKTION","message":"Astro-Zeitpunkt einschließlich Zeitversatz erreicht."},"once_request":{"event":"AKTION","message":"Einmaliger Start angefordert; gespeicherte Auslöser bleiben unverändert."},"once_start":{"event":"START","message":"Einmaliger Regellauf mit erfüllten Bedingungen begonnen."},"run_stop":{"event":"AKTION","message":"Ausgewählten Regellauf gestoppt; bereits übergebene Befehle bleiben wirksam."},"sequence_start":{"event":"AKTION","message":"Wiederverwendbare Aktionsfolge im Regellauf begonnen."},"event_45":{"event":"AKTION","message":"Kalendertag gegen erlaubte Wochentage geprüft."},"event_46":{"event":"AKTION","message":"Erneute Auslösung ignoriert; vorhandener Regellauf bleibt unverändert."},"event_47":{"event":"AKTION","message":"Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert."},"event_48":{"event":"AKTION","message":"Keine laufende Wartezeit; erneute Auslösung verändert den Ablauf nicht."},"event_49":{"event":"AKTION","message":"Wartezeit wegen erneuter Auslösung auf volle Dauer zurückgesetzt."},"event_50":{"event":"AKTION","message":"Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet."},"event_51":{"event":"FEHLER","message":"Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen."},"event_52":{"event":"AKTION","message":"Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft."},"condition_start_only":{"event":"AKTION","message":"Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft."},"event_53":{"event":"FEHLER","message":"Fortsetzungspunkt konnte nicht gelöscht werden; keine automatische Wiederholung erlaubt."},"event_54":{"event":"FEHLER","message":"Gestoppter Lauf konnte im Fortsetzungsspeicher nicht bestätigt werden."},"event_55":{"event":"AKTION","message":"Unterbrochener Lauf nicht fortgesetzt: Freigabe fehlt, Wartezeit abgelaufen oder Uhrzeit unplausibel."},"event_56":{"event":"AKTION","message":"Wartezeit während Neustart abgelaufen; ausstehenden Schritt mit erneuter Bedingungsprüfung nachholen."},"event_57":{"event":"AKTION","message":"Unterbrochenen Lauf am gespeicherten Aktionsschritt mit verbleibender Wartezeit fortsetzen."},"event_58":{"event":"AKTION","message":"Wartepunkt für Fortsetzung nach Z2M-Neustart dauerhaft gespeichert."},"event_59":{"event":"FEHLER","message":"Verlängerte Wartezeit konnte nicht gespeichert werden; Lauf beendet."},"event_60":{"event":"FEHLER","message":"Fortsetzungsspeicher konnte beim Beenden nicht bestätigt werden."},"event_61":{"event":"FEHLER","message":"Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt."}};
 
 export {DEBUG_EVENTS};
 const debugCodes = new Map(Object.entries(DEBUG_EVENTS).map(([code, entry]) => [entry.message, code]));
@@ -874,7 +934,7 @@ export class RuntimeDiagnostics {
             if (typeof context.origin === 'string' && context.origin.length <= 1024) record.origin = createHash('sha256').update(context.origin).digest('hex');
             if (typeof details.Erfüllt === 'boolean') record.passed = details.Erfüllt;
             const reason = details.Grund;
-            if (['inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'].includes(reason)) record.reason = reason;
+            if (['storage_error', 'inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'].includes(reason)) record.reason = reason;
             this.sentAt.push(this.now());
             this.queue.push({clients: [...this.clients.keys()], record});
             if (!this.sending) void this.drain().catch(() => { this.dropped = Math.min(1000000, this.dropped + 1); });
@@ -941,6 +1001,95 @@ export function expandActionPlan(document, actions) {
 }
 
 
+// Only waiting automatic runs are recoverable. Commands are consumed before handoff.
+export class RunJournal {
+    constructor(store, binding, enabled) {
+        this.store = store;
+        this.binding = binding;
+        this.enabled = enabled;
+        this.runs = new Map();
+        this.queue = Promise.resolve();
+        this.frozen = false;
+        this.failed = false;
+        this.pending = 0;
+    }
+
+    save() {
+        if (this.pending >= 64) { this.failed = true; return Promise.reject(new Error('storage_error')); }
+        const payload = JSON.stringify({version: 1, ...this.binding(), runs: [...this.runs.values()]});
+        const text = JSON.stringify({payload, checksum: createHash('sha256').update(payload).digest('hex')});
+        if (Buffer.byteLength(text) > 32768) return Promise.reject(new Error('storage_error'));
+        this.pending++;
+        const task = this.queue.then(() => this.store.atomicWrite('running-automations.json', text)).finally(() => { this.pending--; });
+        this.queue = task.catch(() => { this.failed = true; });
+        return task;
+    }
+
+    put(record) {
+        if (this.frozen) return Promise.resolve();
+        if (this.failed || !this.enabled() || (!this.runs.has(record.run) && this.runs.size >= 16)) return Promise.reject(new Error('storage_error'));
+        this.runs.set(record.run, record);
+        return this.save();
+    }
+
+    remove(run) {
+        if (this.frozen || !this.runs.delete(run)) return Promise.resolve();
+        return this.save();
+    }
+
+    async reset(force = false) {
+        const hadRuns = this.runs.size > 0;
+        this.runs.clear();
+        if (this.frozen) return;
+        this.failed = false;
+        if (hadRuns || force) await this.save();
+    }
+
+    async flush() {
+        await this.queue;
+        if (this.failed) throw new Error('storage_error');
+    }
+
+    async load() {
+        this.frozen = false;
+        this.failed = false;
+        this.runs.clear();
+        const path = join(this.store.directory, 'running-automations.json');
+        let text;
+        try {
+            const stat = await this.store.io.lstat(path);
+            if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 32768) throw new Error('storage_error');
+            const bytes = await this.store.io.readFile(path);
+            if (bytes.length > 32768) throw new Error('storage_error');
+            text = new TextDecoder('utf-8', {fatal: true}).decode(bytes);
+        } catch (error) {
+            if (error.code === 'ENOENT') return [];
+            throw error;
+        }
+        const envelope = JSON.parse(text);
+        if (!envelope || Object.keys(envelope).length !== 2 || typeof envelope.payload !== 'string'
+            || envelope.checksum !== createHash('sha256').update(envelope.payload).digest('hex')) throw new Error('storage_error');
+        const saved = JSON.parse(envelope.payload), binding = this.binding();
+        if (!saved || Object.keys(saved).length !== 5 || saved.version !== 1 || saved.system !== binding.system
+            || saved.revision !== binding.revision || saved.checksum !== binding.checksum
+            || !Array.isArray(saved.runs) || saved.runs.length > 16) throw new Error('storage_error');
+        const rules = new Set(), runs = new Set();
+        for (const item of saved.runs) {
+            if (!item || Object.keys(item).length !== 6 || typeof item.rule_id !== 'string'
+                || typeof item.run !== 'string' || !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(item.run)
+                || !Number.isInteger(item.step) || item.step < 1 || item.step > 16
+                || !Number.isSafeInteger(item.saved_at) || item.saved_at < 0
+                || !Number.isSafeInteger(item.deadline) || item.deadline <= item.saved_at
+                || !Number.isInteger(item.delay) || item.delay < 1 || item.delay > 86400000
+                || item.deadline - item.saved_at > item.delay || rules.has(item.rule_id) || runs.has(item.run)) throw new Error('storage_error');
+            rules.add(item.rule_id); runs.add(item.run);
+            this.runs.set(item.run, item);
+        }
+        return [...this.runs.values()];
+    }
+}
+
+
 export const LIMITS = Object.freeze({yamlBytes: 131072, requestBytes: 1048576, queuedRequests: 16});
 const PREFIX = 'symcon/automations';
 const VALID_TRANSACTION = /^[A-Za-z0-9_-]{1,64}$/;
@@ -995,7 +1144,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'restart_policy', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -1334,6 +1483,10 @@ export default class Z2MAutomationsExtension {
         // A real deployed file is in data/external_extensions, including Z2M temporary import copies.
         const directory = options.directory ?? fileURLToPath(new URL('../z2m-automations/', import.meta.url));
         this.store = new ConfigurationStore(directory, options.io ?? fs);
+        this.runJournal = new RunJournal(this.store, () => ({system: this.baseTopic,
+            revision: this.store.current?.document.revision ?? 0, checksum: this.store.current?.checksum ?? null}),
+        () => this.executionIntent?.active === true && this.executionIntent?.enabled === true);
+        this.runtime.journal = this.runJournal;
         this.queue = Promise.resolve();
         this.pending = 0;
         this.accepting = false;
@@ -1395,6 +1548,7 @@ export default class Z2MAutomationsExtension {
                 this.runtime.diagnostics = this.diagnostics;
             }
             this.baseTopic = this.settings.get().mqtt.base_topic;
+            this.runJournal.frozen = false;
             this.runtime.system = this.baseTopic;
             this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
             this.session = randomUUID();
@@ -1420,12 +1574,15 @@ export default class Z2MAutomationsExtension {
         this.runtime.log('START', 'Erweiterung stoppen.');
         try {
             this.accepting = false;
+            this.runJournal.frozen = true;
             this.activationToken = null;
             this.eventBus.removeListeners(this);
             this.runtime.deactivate();
             await this.mesh?.stop();
             await this.queue;
             await this.runtime.stop();
+            try { await this.runJournal.flush(); }
+            catch { this.runtime.log('FEHLER', 'Fortsetzungsspeicher konnte beim Beenden nicht bestätigt werden.'); }
             this.diagnostics.stop();
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
@@ -1511,8 +1668,17 @@ export default class Z2MAutomationsExtension {
             await this.prepareMesh();
             this.runtime.activate(this.store.current);
             this.resumeStatus = 'resumed';
-            this.runtime.log('AKTION', 'Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet.',
+            this.runtime.log('AKTION', 'Automationen nach Neustart automatisch aktiviert; neue Auslöser und ausdrücklich freigegebene Fortsetzungen werden verarbeitet.',
                 {Revision: intent.revision, Regeln: this.runtime.rules.length});
+            try {
+                const records = await this.runJournal.load();
+                const scheduled = this.runtime.restoreRuns(records);
+                for (const saved of records) if (!scheduled.has(saved.run)) await this.runJournal.remove(saved.run);
+            } catch {
+                this.runJournal.failed = true;
+                this.runtime.lastError = 'storage_error';
+                this.runtime.log('FEHLER', 'Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt.');
+            }
         } catch (error) {
             this.runtime.deactivate();
             this.resumeStatus = 'blocked';
@@ -1613,6 +1779,11 @@ export default class Z2MAutomationsExtension {
                     } else {
                         if (typeof request.run !== 'string' || !/^[a-f0-9-]{36}$/.test(request.run)) fail('invalid_request');
                         this.runtime.stopRule(request.rule_id, request.run);
+                        try { await this.runJournal.flush(); }
+                        catch {
+                            await this.persistExecution(Boolean(this.runtime.active), false);
+                            fail('storage_error');
+                        }
                     }
                     data = this.executionStatus();
                 }
@@ -1643,7 +1814,7 @@ export default class Z2MAutomationsExtension {
                     }
                     data = await this.store.save(candidate, request.expected_revision);
                     this.activationToken = null;
-                    if (!data.unchanged) this.runtime.deactivate();
+                    if (!data.unchanged) { this.runtime.deactivate(); await this.runJournal.reset(true); }
                     data.executing = this.runtime.metadata().executing;
                 }
                 if (['activate', 'deactivate'].includes(operation)) {
@@ -1661,6 +1832,7 @@ export default class Z2MAutomationsExtension {
                         await this.prepareMesh();
                         // Disarm the previous durable intent before attempting a new activation.
                         await this.persistExecution(false, request.resume_after_restart ?? true);
+                        if (this.runtime.active?.checksum !== this.store.current.checksum || this.runJournal.failed) await this.runJournal.reset(true);
                         if (!this.accepting) fail('not_ready');
                         this.runtime.activate(this.store.current);
                         try { await this.persistExecution(true, request.resume_after_restart ?? true); }
@@ -1670,6 +1842,7 @@ export default class Z2MAutomationsExtension {
                         this.activationToken = null;
                         this.runtime.deactivate();
                         await this.persistExecution(false);
+                        await this.runJournal.reset(true);
                     }
                     data = this.status();
                 }

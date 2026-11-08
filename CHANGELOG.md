@@ -6,6 +6,10 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Je Automation wählen, ob ein wartender Lauf nach einem Z2M-Neustart fortgesetzt
+  wird. Bei bereits abgelaufener Wartezeit lässt sich die ausstehende Aktion
+  nachholen oder der Lauf beenden. Bereits erledigte Aktionen werden nicht
+  wiederholt. Standard bleibt der Abbruch des unterbrochenen Laufs.
 - Eine Automationszentrale verwaltet bis zu acht Z2M-Systeme mit getrennten
   Entwürfen und vorhandenen Symcon-MQTT-Verbindungen. Geräte und Kanäle können
   im Browserdesigner gesucht und ohne YAML-Kenntnisse ausgewählt werden.
@@ -26,6 +30,10 @@ Versionierung der Library bleibt maßgeblich.
   Bei erneuter Auslösung ignorieren, neu starten oder die Wartezeit verlängern.
 - Automatischer Wiederanlauf nach Z2M-Neustart ist einstellbar. Aktivierte Regeln
   laufen in der eigenen Z2M-Erweiterung und benötigen kein laufendes Symcon.
+- Nach einem Z2M-Neustart wird der Erweiterungs- und Betriebsstatus automatisch
+  bestätigt. Falls die Erweiterung noch startet, wird nur die lesende Statusabfrage
+  höchstens dreimal versucht. Manuelle Aufträge haben Vorrang; Schalt- und
+  Speicheraufträge werden nicht wiederholt.
 - Erweiterungsinstallation je System mit Bestätigung, Buildvergleich und
   anschließendem Geräteabruf. Zeitbegrenzte Debug-Aufzeichnungen erklären
   Abläufe und systemübergreifende Aktionen.

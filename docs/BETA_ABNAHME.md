@@ -1,5 +1,22 @@
 # Beta-Abnahme – Veröffentlichungsstand vorbereiten
 
+## Planungsabgleich – 08.11.2026
+
+Die erste main-Basis 0.185 ist im lokalen Repository unter 973929a vorhanden;
+der Benutzer hat den erfolgreichen PR bestätigt. dev steht inzwischen auf
+0.188 mit Fortsetzung wartender Läufe und korrigierter Statusbestätigung.
+Die zugehörigen Praxisprüfungen N1/N2 sind abgeschlossen; siehe
+[Prüfliste](PRUEFLISTE.md). B1–B4 werden nicht erneut geöffnet.
+
+Für eine folgende Beta bleibt B5 der endgültige Versions-/CI-/Commit- und
+Store-Freigabeweg. Neue Dokumentationscommits zählen für die Versionsautomatik;
+0.188 deshalb nicht als nächste Veröffentlichungsnummer festschreiben.
+Aktuelle Online-CI und Store-Veröffentlichung wurden hier nicht geprüft.
+Die folgenden Kandidaten-/Prüfangaben vom 07.11.2026 sind historisch und
+ersetzen keine Abnahme des nächsten Veröffentlichungscommits.
+
+## Historischer Kandidat – 07.11.2026
+
 Stand: 07.11.2026. Ziel: **erste Beta**, kein Stable-Antrag.
 
 **BEDINGT EINREICHUNGSREIF:** Der lokale Quellkandidat ist geprüft. Kein
@@ -137,22 +154,20 @@ anlegen; die Testinstallation am selben Broker verwendet denselben Z2M-Regelspei
 2. Automatische Versionsanpassung abwarten und pullen. Tests und Check Style
    müssen für den tatsächlich gewählten Stand grün sein; alte CI gilt nicht
    für diese uncommitteten Änderungen.
-3. Vom geprüften Metadatenstand einen temporären Releasezweig für den PR nach
-   main verwenden. Dort das Changelog der bestätigten Version und dem tatsächlichen
-   Veröffentlichungsdatum zuordnen. Die Metadaten-Action läuft nur auf dev;
-   so erzeugt diese reine Release-Zuordnung keine weitere Versionsanhebung.
-   Tests und Check Style müssen auch für den Release-PR grün sein. Danach den
-   endgültigen main-Commit festhalten; dev erhalten und zurücksynchronisieren.
-   Keine manuelle vorgezogene Versionsanhebung in dieser Vorbereitung.
+3. Den geprüften dev-Stand direkt per PR nach main übernehmen; keinen neuen
+   Releasezweig anlegen. dev bleibt der dauerhafte Arbeitszweig. Eine ausdrücklich
+   beauftragte Changelog-Zuordnung und deren mögliche automatische Versionsanhebung
+   vor dem PR abgleichen. Tests und Check Style müssen für den endgültigen Stand
+   grün sein. Danach den vollständigen main-Commit festhalten und main/dev bei
+   Bedarf zurücksynchronisieren. Keine Versionsnummer von Hand vorwegnehmen.
 4. Dokumentationslink auf denselben Commit setzen und erst auf ausdrücklichen
    Veröffentlichungsauftrag den Beta-Kanal einreichen. Die Beta wird dabei
    unmittelbar angeboten; es gibt keinen vorgeschalteten Stable-Review.
 
 Die zentrale Versionsregel zählt auch reine Dokumentationscommits als
 Quelländerung. Deshalb die bestätigte Versionsüberschrift nicht wiederholt auf
-dev nachführen; das würde die nächste automatische Anhebung auslösen. Der
-Releasezweig enthält dieselben Quell-/Metadaten und nur die endgültige
-Changelog-Zuordnung. Nach Rücksynchronisierung darf dev regulär weiterzählen;
+dev nachführen; das würde die nächste automatische Anhebung auslösen.
+Nach dem PR und gegebenenfalls der Rücksynchronisierung darf dev regulär weiterzählen;
 die bereits veröffentlichte main-Version bleibt dabei unverändert.
 
 Quelle: [aktuelle Symcon-Einreichungsregeln](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/),

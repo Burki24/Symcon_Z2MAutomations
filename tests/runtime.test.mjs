@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {mkdtemp, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, rm, writeFile, readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import Extension, {validateYaml, entityScenes, buildEditorScenes, DEBUG_EVENTS} from '../libs/z2m/z2m-automations.mjs';
+import Extension, {validateYaml, entityScenes, buildEditorScenes, DEBUG_EVENTS, RunJournal} from '../libs/z2m/z2m-automations.mjs';
 
 const sourceID = '0x0000000000000001';
 const targetID = '0x0000000000000002';
@@ -12,6 +13,202 @@ const rule = () => ({id: 'synthetic_rule', name: 'Synthetic rule', enabled: true
     conditions: [], actions: [{type: 'set', target: {type: 'device', id: targetID}, values: {state: 'ON'}}]});
 const yaml = (rules = [rule()], revision = 1) => JSON.stringify({schema_version: 1, revision, automations: rules});
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
+const settleJournal = async h => {
+    for (let i = 0; i < 5; i++) {
+        await new Promise(resolve => setImmediate(resolve));
+        await h.extension.runJournal.flush();
+        await flush();
+    }
+};
+
+test('restart continues only the waiting tail, counts downtime and retains the run identity', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = {...rule(), restart_policy: 'resume'};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true}); await settleJournal(h);
+        const run = h.extension.status().execution.runs[0].run;
+        await h.clock.advance(2000); const wall = h.clock.wallNow(); await h.close(false);
+        h = await harness(directory, true, h => { h.clock.wall = wall + 1000; }); await settleJournal(h);
+        assert.equal(h.commands.length, 0, 'The completed ON action is never replayed');
+        assert.equal(h.extension.status().execution.runs[0].run, run);
+        await h.clock.advance(1999); await settleJournal(h); assert.equal(h.commands.length, 0);
+        await h.clock.advance(1); await settleJournal(h);
+        assert.deepEqual(h.commands.map(command => command.data), [{state: 'OFF'}]);
+        assert.ok(h.logs.some(line => line.includes('verbleibender Wartezeit fortsetzen')));
+        await h.close(false); h = await harness(directory); await settleJournal(h);
+        await h.clock.advance(10000); assert.equal(h.commands.length, 0, 'A completed continuation cannot run again');
+    } finally { await h.close(); }
+});
+
+test('expired waits either end the run or catch up exactly the pending action as configured', async () => {
+    for (const policy of ['abort', 'resume', 'resume_expired']) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            const r = {...rule(), restart_policy: policy};
+            r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+            await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true}); await settleJournal(h);
+            const wall = h.clock.wallNow(); await h.close(false);
+            h = await harness(directory, true, h => { h.clock.wall = wall + 6000; }); await settleJournal(h);
+            assert.deepEqual(h.commands.map(command => command.data), policy === 'resume_expired' ? [{state: 'OFF'}] : []);
+            if (policy !== 'abort') assert.ok(h.logs.some(line => line.includes(policy === 'resume' ? 'Wartezeit abgelaufen' : 'Schritt mit erneuter Bedingungsprüfung nachholen')));
+        } finally { await h.close(); }
+    }
+});
+
+test('recovered waits require fresh normal conditions, preserve start-only semantics and reject clock rollback', async () => {
+    for (const mode of ['fresh', 'missing', 'start_only', 'rollback']) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            const r = {...rule(), restart_policy: 'resume', conditions: [{type: 'device_value', device: sourceID,
+                property: 'illuminance', operator: 'lt', value: 50, ...(mode === 'start_only' ? {start_only: true} : {})}]};
+            r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+            await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true, illuminance: 10}); await settleJournal(h);
+            const wall = h.clock.wallNow(); await h.close(false);
+            h = await harness(directory, true, h => { h.clock.wall = wall + (mode === 'rollback' ? -1000 : 1000); }); await settleJournal(h);
+            if (mode === 'fresh') await h.event({illuminance: 10});
+            await h.clock.advance(5000); await settleJournal(h);
+            assert.equal(h.commands.length, ['fresh', 'start_only'].includes(mode) ? 1 : 0, mode);
+        } finally { await h.close(); }
+    }
+});
+
+test('explicit global stop and changed configuration cannot resurrect waiting automatic runs', async () => {
+    for (const mode of ['stop', 'changed', 'disabled']) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            const r = {...rule(), restart_policy: 'resume_expired'}; r.actions[0].delay_seconds = 5;
+            await h.store(yaml([r])); await h.activate({resume_after_restart: mode !== 'disabled'});
+            await h.event({occupancy: true}); await settleJournal(h);
+            if (mode === 'stop') await h.deactivate();
+            if (mode === 'changed') await h.store(yaml([{...r, name: 'Changed synthetic rule'}], 2));
+            await h.close(false); h = await harness(directory); await settleJournal(h);
+            await h.clock.advance(10000); assert.equal(h.commands.length, 0, mode);
+        } finally { await h.close(); }
+    }
+});
+
+test('restart continuation is opt-in and accepts only the three declared policies', () => {
+    for (const restart_policy of ['abort', 'resume', 'resume_expired']) {
+        assert.doesNotThrow(() => validateYaml(yaml([{...rule(), restart_policy}])));
+    }
+    for (const restart_policy of [null, true, 'retry', {}, 1]) {
+        assert.throws(() => validateYaml(yaml([{...rule(), restart_policy}])));
+    }
+    assert.throws(() => validateYaml(yaml([{...rule(), restart_policy: 'retry'}])), error =>
+        error.details?.issues.some(issue => issue.path === '/automations/0/restart_policy'));
+});
+
+test('an uncertain device handoff has no recoverable checkpoint and is not repeated after restart', async () => {
+    const first = await harness(); let second; let release;
+    try {
+        const r = {...rule(), restart_policy: 'resume_expired'};
+        r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+        await first.store(yaml([r])); await first.activate(); await first.event({occupancy: true}); await settleJournal(first);
+        let handoffs = 0;
+        first.extension.runtime.dispatch = () => { handoffs++; return new Promise(resolve => { release = resolve; }); };
+        await first.clock.advance(5000); await settleJournal(first);
+        assert.equal(handoffs, 1);
+        const envelope = JSON.parse(await readFile(join(first.directory, 'running-automations.json'), 'utf8'));
+        assert.deepEqual(JSON.parse(envelope.payload).runs, [], 'Durable consume happens before the unconfirmed handoff');
+        second = await harness(first.directory); await settleJournal(second); await second.clock.advance(10000);
+        assert.equal(second.commands.length, 0, 'Cold extension startup cannot repeat the uncertain action');
+    } finally {
+        release?.(); await first.close(false); if (second) await second.close(); else await rm(first.directory, {recursive: true, force: true});
+    }
+});
+
+test('journal backpressure is bounded and failures cannot create an unlimited persistence queue', async () => {
+    let release; const gate = new Promise(resolve => { release = resolve; });
+    const journal = new RunJournal({atomicWrite: () => gate}, () => ({system: 'synthetic/system', revision: 1, checksum: 'a'.repeat(64)}), () => true);
+    const pending = [];
+    for (let i = 0; i < 65; i++) pending.push(journal.put({rule_id: 'synthetic_rule', run: '11111111-1111-4111-8111-111111111111',
+        step: 1, saved_at: 1000, deadline: 2000 + i, delay: 5000}).then(() => true, () => false));
+    assert.equal(journal.pending, 64);
+    release(); const results = await Promise.all(pending);
+    assert.equal(results.filter(ok => !ok).length, 1);
+    assert.equal(journal.pending, 0); assert.equal(journal.failed, true);
+});
+
+test('renewed waits retain their full duration across multiple restarts and preserve reusable sequence position', async () => {
+    let h = await harness(); const directory = h.directory;
+    try {
+        const r = {...rule(), restart_policy: 'resume', retrigger: 'extend', actions: [{type: 'sequence', sequence_id: 'synthetic_sequence'}]};
+        const document = {schema_version: 1, revision: 1, automations: [r], sequences: [{id: 'synthetic_sequence', name: 'Synthetic sequence',
+            actions: [rule().actions[0], {...rule().actions[0], values: {state: 'OFF'}, delay_seconds: 5}]}]};
+        await h.store(JSON.stringify(document)); await h.activate(); await h.event({occupancy: true}); await settleJournal(h);
+        await h.clock.advance(3000); await h.event({occupancy: true}); await settleJournal(h);
+        let wall = h.clock.wallNow(); await h.close(false);
+        h = await harness(directory, true, h => { h.clock.wall = wall + 1000; }); await settleJournal(h);
+        await h.clock.advance(1000); await settleJournal(h); assert.equal(h.commands.length, 0);
+        wall = h.clock.wallNow(); await h.close(false);
+        h = await harness(directory, true, h => { h.clock.wall = wall + 1000; }); await settleJournal(h);
+        await h.clock.advance(1999); await settleJournal(h); assert.equal(h.commands.length, 0);
+        await h.clock.advance(1); await settleJournal(h);
+        assert.deepEqual(h.commands.map(command => command.data), [{state: 'OFF'}]);
+        assert.ok(h.logs.some(line => line.includes('"sequence_step":2')));
+    } finally { await h.close(); }
+});
+
+test('invalid journals, wrong system bindings and changed checksums never authorize continuation', async () => {
+    for (const mode of ['corrupt', 'foreign', 'checksum', 'duplicate']) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            const r = {...rule(), restart_policy: 'resume_expired'}; r.actions[0].delay_seconds = 5;
+            await h.store(yaml([r])); await h.activate(); await h.event({occupancy: true}); await settleJournal(h); await h.close(false);
+            const path = join(directory, 'running-automations.json');
+            const envelope = JSON.parse(await readFile(path, 'utf8')), saved = JSON.parse(envelope.payload);
+            if (mode === 'foreign') saved.system = 'synthetic/foreign';
+            if (mode === 'checksum') saved.checksum = '0'.repeat(64);
+            if (mode === 'duplicate') saved.runs.push(saved.runs[0]);
+            envelope.payload = JSON.stringify(saved); envelope.checksum = createHash('sha256').update(envelope.payload).digest('hex');
+            await writeFile(path, mode === 'corrupt' ? '{invalid-json' : JSON.stringify(envelope));
+            h = await harness(directory); await h.clock.advance(10000);
+            assert.equal(h.commands.length, 0, mode);
+            assert.ok(h.logs.some(line => line.includes('Fortsetzungsspeicher unlesbar oder unpassend')));
+            assert.equal(h.extension.status().executing, true, 'Fresh automatic triggers remain available');
+            assert.equal(h.extension.status().runtime_error, 'storage_error', 'The recovery failure is also visible in status');
+                if (mode === 'corrupt') {
+                    assert.equal((await h.activate()).status, 'ok', 'Explicit activation repairs the failed journal before allowing recovery again');
+                    const envelope = JSON.parse(await readFile(join(directory, 'running-automations.json'), 'utf8'));
+                    assert.deepEqual(JSON.parse(envelope.payload).runs, [], 'Repair cannot re-arm an old rejected run');
+                    assert.equal(h.extension.runJournal.failed, false);
+                }
+        } finally { await h.close(); }
+    }
+});
+
+test('journal write failures stop the tail before handoff and single starts are never persisted', async () => {
+    for (const mode of ['failure', 'single', 'targeted_stop']) {
+        let h = await harness(); const directory = h.directory;
+        try {
+            const r = {...rule(), restart_policy: 'resume_expired'};
+            r.actions.push({...r.actions[0], values: {state: 'OFF'}, delay_seconds: 5});
+            await h.store(yaml([r])); await h.activate();
+            if (mode === 'failure') {
+                const write = h.extension.store.atomicWrite.bind(h.extension.store);
+                h.extension.store.atomicWrite = (name, text) => name === 'running-automations.json' ? Promise.reject(new Error('synthetic private error')) : write(name, text);
+            }
+            if (mode === 'single') await h.request('run_once', {session: h.session, rule_id: r.id, expected_revision: 1, checksum: h.extension.status().checksum});
+            else await h.event({occupancy: true});
+            if (mode === 'failure') {
+                for (let i = 0; i < 8; i++) await new Promise(resolve => setImmediate(resolve));
+                await h.clock.advance(6000);
+                assert.deepEqual(h.commands.map(command => command.data), [{state: 'ON'}]);
+                assert.equal(h.extension.status().execution.runs[0].error, 'storage_error');
+            } else {
+                await settleJournal(h);
+                if (mode === 'targeted_stop') {
+                    const run = h.extension.status().execution.runs[0].run;
+                    const result = await h.request('stop_rule', {session: h.session, rule_id: r.id, run, expected_revision: 1, checksum: h.extension.status().checksum});
+                    assert.equal(result.status, 'ok');
+                }
+                await h.close(false); h = await harness(directory); await settleJournal(h);
+                await h.clock.advance(10000); assert.equal(h.commands.length, 0, mode);
+            }
+        } finally { await h.close(); }
+    }
+});
 
 test('a delayed composite set with RGB color is handed off once with every typed property intact', async () => {
     const h = await harness();

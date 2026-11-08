@@ -12,6 +12,7 @@ import {MeshTransport, meshSystemValid} from './mesh.mjs';
 import {buildEditorScenes, hasScene} from './scenes.mjs';
 import {RuntimeDiagnostics} from './debug.mjs';
 import {expandActionPlan, SequenceError} from './sequences.mjs';
+import {RunJournal} from './run-journal.mjs';
 
 export const LIMITS = Object.freeze({yamlBytes: 131072, requestBytes: 1048576, queuedRequests: 16});
 const PREFIX = 'symcon/automations';
@@ -67,7 +68,7 @@ function selectDiagnosticBranches(node) {
 }
 selectDiagnosticBranches(diagnosticSchema);
 const diagnoseSchema = new Ajv({strict: true, allowUnionTypes: true, allErrors: true, discriminator: true}).compile(diagnosticSchema);
-const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
+const DETAIL_FIELDS = new Set(['schema_version', 'revision', 'automations', 'sequences', 'sequence_id', 'mesh_peers', 'restart_policy', 'id', 'name', 'enabled', 'triggers', 'conditions', 'actions',
     'type', 'device', 'property', 'operator', 'value', 'for_seconds', 'on_change', 'at', 'timezone', 'event', 'latitude', 'longitude', 'offset_minutes', 'after', 'before', 'weekdays', 'target', 'system', 'values', 'delay_seconds', 'scene_id', 'endpoint']);
 const DETAIL_REASONS = new Set(['required', 'type', 'enum', 'const', 'pattern', 'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength',
     'minProperties', 'maxProperties', 'additionalProperties', 'uniqueItems', 'not', 'discriminator']);
@@ -406,6 +407,10 @@ export default class Z2MAutomationsExtension {
         // A real deployed file is in data/external_extensions, including Z2M temporary import copies.
         const directory = options.directory ?? fileURLToPath(new URL('../z2m-automations/', import.meta.url));
         this.store = new ConfigurationStore(directory, options.io ?? fs);
+        this.runJournal = new RunJournal(this.store, () => ({system: this.baseTopic,
+            revision: this.store.current?.document.revision ?? 0, checksum: this.store.current?.checksum ?? null}),
+        () => this.executionIntent?.active === true && this.executionIntent?.enabled === true);
+        this.runtime.journal = this.runJournal;
         this.queue = Promise.resolve();
         this.pending = 0;
         this.accepting = false;
@@ -467,6 +472,7 @@ export default class Z2MAutomationsExtension {
                 this.runtime.diagnostics = this.diagnostics;
             }
             this.baseTopic = this.settings.get().mqtt.base_topic;
+            this.runJournal.frozen = false;
             this.runtime.system = this.baseTopic;
             this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
             this.session = randomUUID();
@@ -492,12 +498,15 @@ export default class Z2MAutomationsExtension {
         this.runtime.log('START', 'Erweiterung stoppen.');
         try {
             this.accepting = false;
+            this.runJournal.frozen = true;
             this.activationToken = null;
             this.eventBus.removeListeners(this);
             this.runtime.deactivate();
             await this.mesh?.stop();
             await this.queue;
             await this.runtime.stop();
+            try { await this.runJournal.flush(); }
+            catch { this.runtime.log('FEHLER', 'Fortsetzungsspeicher konnte beim Beenden nicht bestätigt werden.'); }
             this.diagnostics.stop();
             await this.publish('status', this.status(), true);
         } finally { this.runtime.log('ENDE', 'Stoppaufruf beendet.', {Bereit: this.accepting}); }
@@ -583,8 +592,17 @@ export default class Z2MAutomationsExtension {
             await this.prepareMesh();
             this.runtime.activate(this.store.current);
             this.resumeStatus = 'resumed';
-            this.runtime.log('AKTION', 'Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet.',
+            this.runtime.log('AKTION', 'Automationen nach Neustart automatisch aktiviert; neue Auslöser und ausdrücklich freigegebene Fortsetzungen werden verarbeitet.',
                 {Revision: intent.revision, Regeln: this.runtime.rules.length});
+            try {
+                const records = await this.runJournal.load();
+                const scheduled = this.runtime.restoreRuns(records);
+                for (const saved of records) if (!scheduled.has(saved.run)) await this.runJournal.remove(saved.run);
+            } catch {
+                this.runJournal.failed = true;
+                this.runtime.lastError = 'storage_error';
+                this.runtime.log('FEHLER', 'Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt.');
+            }
         } catch (error) {
             this.runtime.deactivate();
             this.resumeStatus = 'blocked';
@@ -685,6 +703,11 @@ export default class Z2MAutomationsExtension {
                     } else {
                         if (typeof request.run !== 'string' || !/^[a-f0-9-]{36}$/.test(request.run)) fail('invalid_request');
                         this.runtime.stopRule(request.rule_id, request.run);
+                        try { await this.runJournal.flush(); }
+                        catch {
+                            await this.persistExecution(Boolean(this.runtime.active), false);
+                            fail('storage_error');
+                        }
                     }
                     data = this.executionStatus();
                 }
@@ -715,7 +738,7 @@ export default class Z2MAutomationsExtension {
                     }
                     data = await this.store.save(candidate, request.expected_revision);
                     this.activationToken = null;
-                    if (!data.unchanged) this.runtime.deactivate();
+                    if (!data.unchanged) { this.runtime.deactivate(); await this.runJournal.reset(true); }
                     data.executing = this.runtime.metadata().executing;
                 }
                 if (['activate', 'deactivate'].includes(operation)) {
@@ -733,6 +756,7 @@ export default class Z2MAutomationsExtension {
                         await this.prepareMesh();
                         // Disarm the previous durable intent before attempting a new activation.
                         await this.persistExecution(false, request.resume_after_restart ?? true);
+                        if (this.runtime.active?.checksum !== this.store.current.checksum || this.runJournal.failed) await this.runJournal.reset(true);
                         if (!this.accepting) fail('not_ready');
                         this.runtime.activate(this.store.current);
                         try { await this.persistExecution(true, request.resume_after_restart ?? true); }
@@ -742,6 +766,7 @@ export default class Z2MAutomationsExtension {
                         this.activationToken = null;
                         this.runtime.deactivate();
                         await this.persistExecution(false);
+                        await this.runJournal.reset(true);
                     }
                     data = this.status();
                 }

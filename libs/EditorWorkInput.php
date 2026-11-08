@@ -10,7 +10,7 @@ use Traversable;
 /** Only editable values enter the work snapshot, never the complete form or configuration. */
 final class EditorWorkInput
 {
-    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorRetrigger', 'EditorTimeMode', 'EditorAt', 'EditorTimes', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
+    public const FIELDS = ['EditorName', 'EditorEnabled', 'EditorRestartPolicy', 'EditorRetrigger', 'EditorTimeMode', 'EditorAt', 'EditorTimes', 'EditorTimezone', 'EditorLatitude', 'EditorLongitude', 'EditorSolarOffset',
         'EditorWeekdays', 'EditorWeekdayTimezone', 'EditorDayMonday', 'EditorDayTuesday', 'EditorDayWednesday', 'EditorDayThursday', 'EditorDayFriday', 'EditorDaySaturday', 'EditorDaySunday',
         'EditorWindow', 'EditorAfter', 'EditorBefore', 'EditorWindowTimezone', 'EditorMonday', 'EditorTuesday', 'EditorWednesday', 'EditorThursday',
         'EditorFriday', 'EditorSaturday', 'EditorSunday', 'EditorActions', 'EditorTriggers', 'EditorConditionList'];
@@ -19,6 +19,10 @@ final class EditorWorkInput
     public static function Callback(string $deletedList = ''): string
     {
         $names = array_map(static fn (string $field): string => preg_quote(substr($field, 6), '/'), array_merge(self::FIELDS, ['EditorRule', 'EditorEditToken']));
+        // Keep the native form below its transport budget without widening the field allowlist.
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        $names = array_values(array_diff($names, $days, array_map(static fn (string $day): string => 'Day' . $day, $days)));
+        $names[] = '(?:Day)?(?:' . implode('|', $days) . ')';
         $pattern = '/\A(?:(?:Device|Time|Sequence)?Editor(?:' . implode('|', $names) . ')|Sequence(?:WorkID|EditorID|EditorToken))\z/D';
         return strtr(<<<'PHP'
 json_encode(['_form' => array_map(static fn ($v) => $v instanceof \Traversable ? iterator_to_array($v) : $v, array_filter(get_defined_vars(), static fn ($k) => preg_match(%PATTERN%, $k), ARRAY_FILTER_USE_KEY)), '_deleted' => %DELETED%], JSON_THROW_ON_ERROR)
@@ -54,7 +58,7 @@ PHP, ['%PATTERN%' => var_export($pattern, true), '%DELETED%' => var_export($dele
 
     public static function Normalize(array $values, string $area): array
     {
-        $keys = ['EditorName', 'EditorEnabled', 'EditorRetrigger'];
+        $keys = ['EditorName', 'EditorEnabled', 'EditorRestartPolicy', 'EditorRetrigger'];
         if ($area !== 'advanced') {
             $keys[] = 'EditorActions';
         }

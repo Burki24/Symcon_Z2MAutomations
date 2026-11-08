@@ -978,6 +978,12 @@ Aktivierungstoken oder Empfängersitzung werden ausgegeben.
 Die Verbindung erklärt zuerst die reine Statusprüfung, dann den ausdrücklichen
 Befehl und die erforderliche Abschlussbestätigung. Laufmeldungen nennen begrenzte
 Anzahl und Folgenummer. Timeout, geänderte Zuordnung, Neustart und Verlust des
-flüchtigen Workflows lösen keinen erneuten Versand aus. Der Benutzer wird zur
-Statusprüfung aufgefordert. Statusvariablen erklären separat Automatikbetrieb
+flüchtigen Workflows lösen keinen erneuten Versand von Schreib- oder Schaltaufträgen
+aus. Der Benutzer wird zur Statusprüfung aufgefordert. Statusvariablen erklären separat Automatikbetrieb
 und Einzelstart; ein abgeschlossener Lauf behauptet keine bestätigte Gerätewirkung.
+
+Beim Z2M-Anlauf darf ausschließlich eine automatische lesende Statusprüfung
+höchstens dreimal erfolgen. Debug nennt Verzögerung, Versuch, Ursache, Vorrang
+anderer Aufträge, Bestätigung und ausgeschöpftes Versuchslimit. Retain-Nachrichten
+und verspätete Antworten bestätigen nichts; manuelle Schreibaufträge werden nie
+wiederholt. Regressionen: tests/restart-status.php und tests/status-refresh.php.

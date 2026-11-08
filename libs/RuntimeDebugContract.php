@@ -49,7 +49,7 @@ final class RuntimeDebugContract
         if (array_key_exists('passed', $record) && !is_bool($record['passed'])) {
             return null;
         }
-        if (array_key_exists('reason', $record) && !in_array($record['reason'], ['inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'], true)) {
+        if (array_key_exists('reason', $record) && !in_array($record['reason'], ['storage_error', 'inactive', 'already_running', 'concurrency_limit', 'cooldown', 'conditions_not_met', 'action_failed', 'action_timeout', 'unknown_entity', 'state_unavailable', 'rate_limited', 'scene_unavailable', 'mesh_timeout', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_stopped', 'mesh_rejected', 'mesh_invalid', 'mesh_busy'], true)) {
             return null;
         }
         return $record + ['dropped' => $payload->dropped];
@@ -58,6 +58,7 @@ final class RuntimeDebugContract
     public static function Reason(string $reason): string
     {
         return match ($reason) {
+            'storage_error'                              => 'Der Fortsetzungspunkt konnte nicht sicher gespeichert werden. Der Lauf wurde beendet.',
             'inactive', 'mesh_stopped'                   => 'Ausführung gestoppt.',
             'already_running'                            => 'Diese Automation läuft bereits.',
             'concurrency_limit'                          => 'Zu viele Automationen laufen gleichzeitig.',

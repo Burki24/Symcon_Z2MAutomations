@@ -1,7 +1,9 @@
 # Umbauplan: eine Verwaltung für bis zu acht Z2M-Systeme
 
-Stand: **06.11.2026**. Schritte 1 bis 6 implementiert; Schritt 7 teilweise
-praktisch bestätigt, mit begrenzten offenen Nachweisen.
+Stand: **08.11.2026**. Schritte 1 bis 7 im dokumentierten Umfang abgeschlossen:
+bis acht Systeme synthetisch, zwei Systeme praktisch. R1–R4 und die ergänzenden
+Neustartfälle N1/N2 sind in der [aktuellen Prüfliste](PRUEFLISTE.md) zugeordnet.
+Weitere Versions-/Geräteabnahmen und mehr als zwei reale Broker bleiben R5.
 Architekturentscheidung: [ADR 0026](adr/0026-central-manager-and-system-connections.md).
 
 Die lokale Grundlage enthält SystemContract, lesende Bestandsvorschau,
@@ -17,8 +19,8 @@ integriert. Bestätigte Zweiersystem-Praxis ist in der aktuellen
 [Prüfliste](PRUEFLISTE.md) berücksichtigt. R1 ist für drei und acht echte
 Erweiterungsinstanzen synthetisch sowie R2 und R3 im begrenzten Praxisumfang
 bestätigt. R3 belegt beide automatischen Installations-/Katalogketten mit
-unabhängigem Vorher-/Nachher-Vergleich und ursprünglichem Betrieb. Die offenen
-Nachweise R4/R5 werden dort einzeln geführt.
+unabhängigem Vorher-/Nachher-Vergleich und ursprünglichem Betrieb. Zusätzliche
+R5-Prüfungen werden dort einzeln geführt.
 Reale Mosquitto-Bridges mit mehr als zwei Brokern sind dadurch nicht abgenommen.
 Ein Update allein führt weder Übernahme noch
 Z2M-Aufträge aus.

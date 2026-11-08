@@ -1,21 +1,28 @@
 # Entwicklungsagenda
 
-## Erste Beta vorbereiten
+## Aktueller Abgleich – 08.11.2026
 
-Der Funktionsumfang bleibt eingefroren. Die vier Abschlusspunkte werden im
-[Beta-Abnahmebericht](BETA_ABNAHME.md) nach Codebasis, lokaler Prüfung,
-Symcon-Praxis und tatsächlich fehlenden Nachweisen getrennt geführt.
-Die [Beta-Anleitung](BETA.md) ergänzt die Benutzerunterlagen. R1–R3 und die
-bereits bestätigten Designerprüfungen werden nicht erneut als offen angesetzt.
-R4/R5 bleiben im dort konkret benannten Umfang offen; fehlende Testumgebungen
-werden nicht durch produktive Versionswechsel oder pauschale Freigaben ersetzt.
-Der [R4-Nachweisabgleich mit Testplan](R4_ACCEPTANCE_PLAN.md) ist vorbereitet.
-Nächster Schritt ist die isolierte MQTT-Testanbindung der synthetischen
-Gegenstelle; danach zuerst native direkte Einrichtung und lokaler Rückweg.
-Die Praxisfälle sind noch nicht ausgeführt. Bestehende Benutzerverbindungen
-werden dafür weder übernommen noch zurückgerollt.
+Die Funktionsagenda 1–6, die fünf Designerpunkte und R1–R4 sind im belegten
+Umfang abgeschlossen. Das gilt auch für direkte Einrichtung, Altübernahme,
+Rückwege und native Klickprüfung; sie stehen nicht erneut als nächste Aufgabe an.
+Zusätzlich sind Fortsetzung wartender Automatikläufe und automatische
+Statusbestätigung nach Z2M-Neustart praktisch bestätigt. Umfang und Grenzen
+stehen als N1/N2 in der [aktuellen Prüfliste](PRUEFLISTE.md).
 
-## Aktueller Abgleich am 06.11.2026
+Nächster begrenzter Schritt für die Symcon-Beta ist der Freigabeweg für den
+aktuellen Entwicklungsstand: nach Benutzer-Commit/Push die automatische Version
+und finale CI prüfen, direkt von dev nach main übernehmen und den exakten
+main-Commit für die Store-Einreichung festlegen. dev bleibt Arbeitszweig;
+keine zusätzlichen Releasezweige und keine Veröffentlichung ohne Auftrag.
+0.185 bleibt die bisher vorbereitete main-Basis, 0.188 der aktuell eingesehene
+dev-Stand; keine nächste Version von Hand festlegen.
+
+R5 und reale Verbünde mit mehr als zwei Brokern bleiben zusätzliche gezielte
+Praxisarbeit. Die unabhängige Windows-/Linux-App gehört in ihr eigenes Projekt.
+Der [Beta-Abnahmebericht](BETA_ABNAHME.md) trennt Nachweise und Freigabe;
+die [Beta-Anleitung](BETA.md) ergänzt die Benutzerunterlagen.
+
+## Historischer Abgleich am 06.11.2026
 
 Die ursprüngliche Funktionsagenda unten ist im beschriebenen Umfang umgesetzt
 und praktisch geprüft. Der anschließende Umbau auf eine zentrale Verwaltung

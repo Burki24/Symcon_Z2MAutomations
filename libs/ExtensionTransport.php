@@ -9,9 +9,12 @@ use Throwable;
 
 require_once __DIR__ . '/DraftTransferProtocol.php';
 require_once __DIR__ . '/RuntimeControlProtocol.php';
+require_once __DIR__ . '/AutomaticExtensionStatus.php';
 
 trait ExtensionTransport
 {
+    use AutomaticExtensionStatus;
+
     public function InstallExtension(bool $Notify = false): string
     {
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Notify)
@@ -43,7 +46,7 @@ trait ExtensionTransport
     private function NewExtensionState(): array
     {
         return ['extension' => null, 'extensionConfirmed' => false, 'runtimeConfirmed' => false, 'workflow' => null, 'validation' => null,
-            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => '', 'validationDetails' => null, 'execution' => null];
+            'operation'     => ['kind' => 'none', 'status' => 'idle', 'transaction' => ''], 'lastError' => '', 'validationDetails' => null, 'execution' => null, 'automaticStatus' => null];
     }
 
     private function ExtensionFrame(array &$state, string $wire, array $payload = [], ?string $transaction = null): array
@@ -148,7 +151,8 @@ trait ExtensionTransport
         }
         $freshStopProbe = $state['workflow'] !== null && $state['workflow']['kind'] === 'deactivate'
             && $state['workflow']['wire'] === 'status' && !($state['workflow']['verifyRuntime'] ?? false);
-        if (($changedSession || !$metadata['ready']) && $state['workflow'] !== null && $state['workflow']['kind'] !== 'install' && !$freshStopProbe) {
+        if (($changedSession || !$metadata['ready']) && $state['workflow'] !== null && $state['workflow']['kind'] !== 'install' && !$freshStopProbe
+            && !($state['workflow']['automaticStatus'] ?? false)) {
             $this->FinishExtensionWorkflow($state, 'cancelled', 'session_mismatch');
         }
         $state['extension'] = $metadata;
@@ -242,7 +246,7 @@ trait ExtensionTransport
     {
         $state += $this->NewExtensionState();
         if ($state['workflow'] !== null && $state['workflow']['deadline'] <= $this->Now()) {
-            $this->FinishExtensionWorkflow($state, 'timeout', 'timeout');
+            if (!$this->RetryExtensionConfirmation($state, 'timeout')) $this->FinishExtensionWorkflow($state, 'timeout', 'timeout');
             $state['extensionConfirmed'] = false;
         }
         if (!$state['mqttConnected'] || !$state['bridgeOnline'] || !$state['extensionConfirmed']) {

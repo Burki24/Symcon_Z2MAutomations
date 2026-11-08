@@ -105,6 +105,9 @@ export class AutomationRuntime {
         if (!execution || execution.rule.id !== ruleID || (execution.cancelled && !execution.restart)) throw new RuntimeError('run_conflict');
         execution.restart = null;
         execution.cancelled = true;
+        this.journal?.remove(run).catch(() => {
+            this.log('FEHLER', 'Gestoppter Lauf konnte im Fortsetzungsspeicher nicht bestätigt werden.', {}, execution.context);
+        });
         for (const [timer, wait] of this.waits) if (wait.run === run) {
             this.clock.clearTimeout(timer); this.waits.delete(timer); wait.resolve(false);
         }
@@ -347,17 +350,29 @@ export class AutomationRuntime {
         }
     }
 
-    wait(milliseconds, generation, context = {}) {
+    wait(milliseconds, generation, context = {}, fullDuration = milliseconds) {
         if (!this.canContinue(generation, context)) return Promise.resolve(false);
         if (!milliseconds) return Promise.resolve(true);
         return new Promise(resolve => {
-            const wait = {resolve, run: context.run, context, milliseconds, timer: null};
+            const wait = {resolve, run: context.run, context, milliseconds: fullDuration, timer: null};
+            let initial = true;
             wait.arm = () => {
+                const duration = initial ? milliseconds : fullDuration;
+                const renewed = !initial; initial = false;
                 if (wait.timer !== null) { this.clock.clearTimeout(wait.timer); this.waits.delete(wait.timer); }
+                if (renewed) {
+                    const execution = this.executions.get(context.run);
+                    if (execution) this.checkpoint(execution.rule, context, this.clock.wallNow() + duration, fullDuration).catch(() => {
+                        if (!this.canContinue(generation, context)) return;
+                        this.lastError = 'storage_error';
+                        this.stopRule(execution.rule.id, context.run);
+                        this.log('FEHLER', 'Verlängerte Wartezeit konnte nicht gespeichert werden; Lauf beendet.', {}, context);
+                    });
+                }
                 wait.timer = this.clock.setTimeout(() => {
                     this.waits.delete(wait.timer);
                     resolve(this.canContinue(generation, context));
-                }, milliseconds);
+                }, duration);
                 wait.timer?.unref?.();
                 this.waits.set(wait.timer, wait);
             };
@@ -406,7 +421,7 @@ export class AutomationRuntime {
         this.log('AKTION', 'Neustart wegen erneuter Auslösung vorgemerkt; laufende Befehlsübergabe wird abgewartet.', {}, {...execution.context, trigger: context.trigger});
     }
 
-    launch(rule, context = this.trace(rule), once = null, replacement = false) {
+    launch(rule, context = this.trace(rule), once = null, replacement = false, resumed = null) {
         const now = this.clock.now();
         if (!once && this.active && this.running.has(rule.id)) { this.retrigger(rule, context); return; }
         const reason = !this.active && !once ? 'inactive' : this.running.has(rule.id) ? 'already_running'
@@ -430,7 +445,7 @@ export class AutomationRuntime {
             }
         }
         this.executions.set(context.run, execution);
-        if (!this.conditions(rule, context)) {
+        if (!resumed && !this.conditions(rule, context)) {
             this.executionState(rule, context, 'skipped', 'conditions_not_met');
             this.executions.delete(context.run);
             this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'conditions_not_met'}, context);
@@ -440,7 +455,7 @@ export class AutomationRuntime {
         this.executionState(rule, context, 'running');
         this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
-        const task = Promise.resolve().then(() => this.run(rule, generation, context)).catch(error => {
+        const task = Promise.resolve().then(() => this.run(rule, generation, context, resumed)).catch(error => {
             if (execution.restart) {
                 execution.restart = null;
                 this.log('FEHLER', 'Vorgemerkter Neustart wegen fehlgeschlagener oder unbestätigter Befehlsübergabe verworfen.', {}, context);
@@ -450,7 +465,9 @@ export class AutomationRuntime {
             if (!once) this.lastError = code;
             this.executionState(rule, context, 'failed', code);
             this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Regel: rule.id, Grund: code}, context);
-        }).finally(() => {
+        }).finally(async () => {
+            try { await this.journal?.remove(context.run); }
+            catch { this.log('FEHLER', 'Fortsetzungspunkt konnte nicht gelöscht werden; keine automatische Wiederholung erlaubt.', {}, context); }
             const restart = execution.restart;
             if (restart) this.executionState(rule, context, 'stopped');
             if (this.results.get(rule.id)?.run === context.run && this.results.get(rule.id)?.state === 'running') this.executionState(rule, context, 'completed');
@@ -469,22 +486,65 @@ export class AutomationRuntime {
         return this.results.get(rule.id);
     }
 
-    async run(rule, generation, context) {
+    restoreRuns(records) {
+        const scheduled = new Set();
+        for (const saved of records) {
+            const rule = this.rules.find(item => item.id === saved.rule_id);
+            const context = rule ? {...this.trace(rule), run: saved.run, step: saved.step} : {};
+            const action = rule ? expandActionPlan(this.active.document, rule.actions)[saved.step - 1]?.action : null;
+            const now = this.clock.wallNow();
+            if (!rule || !['resume', 'resume_expired'].includes(rule.restart_policy) || !action
+                || (action.delay_seconds ?? 0) * 1000 !== saved.delay || now < saved.saved_at
+                || (now >= saved.deadline && rule.restart_policy !== 'resume_expired')) {
+                this.log('AKTION', 'Unterbrochener Lauf nicht fortgesetzt: Freigabe fehlt, Wartezeit abgelaufen oder Uhrzeit unplausibel.', {}, context);
+                if (rule) this.executionState(rule, context, 'stopped');
+                continue;
+            }
+            this.log('AKTION', now >= saved.deadline ? 'Wartezeit während Neustart abgelaufen; ausstehenden Schritt mit erneuter Bedingungsprüfung nachholen.'
+                : 'Unterbrochenen Lauf am gespeicherten Aktionsschritt mit verbleibender Wartezeit fortsetzen.', {}, context);
+            this.launch(rule, context, null, true, saved);
+            scheduled.add(saved.run);
+        }
+        return scheduled;
+    }
+
+    async checkpoint(rule, context, deadline, delay) {
+        const execution = this.executions.get(context.run);
+        if (!this.journal || execution?.once || !['resume', 'resume_expired'].includes(rule.restart_policy) || !this.journal.enabled()) return;
+        try {
+            await this.journal.put({rule_id: rule.id, run: context.run, step: context.step,
+                saved_at: this.clock.wallNow(), deadline, delay});
+            this.log('AKTION', 'Wartepunkt für Fortsetzung nach Z2M-Neustart dauerhaft gespeichert.', {}, context);
+        } catch { throw new RuntimeError('storage_error'); }
+    }
+
+    async run(rule, generation, context, resumed = null) {
         const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
         for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
+            if (resumed && index < resumed.step - 1) continue;
             const {action} = entry;
             if (!this.canContinue(generation, context) || this.executions.get(context.run)?.restart) return;
             const step = {...context, step: index + 1, delay: action.delay_seconds ?? 0,
                 ...(entry.sequence ? {sequence: entry.sequence, sequence_step: entry.sequence_step} : {})};
             if (entry.sequence_step === 1) this.log('AKTION', 'Wiederverwendbare Aktionsfolge im Regellauf begonnen.', {}, step);
             this.executionState(rule, context, 'running', '', index + 1);
+            const deadline = resumed ? resumed.deadline : this.clock.wallNow() + step.delay * 1000;
+            const remaining = resumed ? Math.max(0, deadline - this.clock.wallNow()) : step.delay * 1000;
+            if (remaining > 0) await this.checkpoint(rule, step, deadline, step.delay * 1000);
+            if (!this.canContinue(generation, context)) return;
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt begonnen.', {}, step);
-            if (!await this.wait(step.delay * 1000, generation, step)) {
+            if (!await this.wait(Math.max(0, deadline - this.clock.wallNow()), generation, step, step.delay * 1000)) {
                 this.log('AKTION', 'Aktionsschritt wegen Stopp abgebrochen.', {}, step);
                 return;
             }
             if (step.delay) this.log('AKTION', 'Wartezeit vor Aktionsschritt beendet.', {}, step);
             if (!this.canContinue(generation, context)) return;
+            try {
+                if (this.journal?.runs.has(context.run)) { await this.journal.flush(); await this.journal.remove(context.run); }
+            }
+            catch { throw new RuntimeError('storage_error'); }
+            if (!this.canContinue(generation, context)) return;
+            resumed = null;
             if (!this.conditions(rule, step, false)) {
                 this.executionState(rule, context, 'skipped', 'conditions_not_met', index + 1);
                 this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;

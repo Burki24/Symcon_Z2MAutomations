@@ -89,7 +89,7 @@ trait AutomationEditorSchedule
                     return $this->RejectEditorChange($state, 'editor_condition');
                 }
                 $reason = 'editor_schedule';
-                $parts = $this->BuildScheduledRule($Source, $Trigger, $Target, $Action, $Options, $reason, $ActionSteps, $TriggerSteps, $ConditionSteps, $rule['retrigger'] ?? 'ignore');
+                $parts = $this->BuildScheduledRule($Source, $Trigger, $Target, $Action, $Options, $reason, $ActionSteps, $TriggerSteps, $ConditionSteps, $rule['retrigger'] ?? 'ignore', $rule['restart_policy'] ?? 'abort');
                 if ($parts === null) {
                     return $this->RejectEditorChange($state, $reason);
                 }
@@ -106,6 +106,7 @@ trait AutomationEditorSchedule
             $this->DebugEvent('AKTION', 'Auslöser und Bedingungen für den lokalen Entwurf vorbereitet.', ['Bereich' => $this->EditorTypeLabel($this->EditorRuleType($rule)), 'Auslöser' => count($rule['triggers']), 'Verknüpfung' => 'ODER', 'Bedingungen' => count($rule['conditions']),
                 'NurBeimStart'                                                                                      => count(array_filter($rule['conditions'], static fn (array $c): bool => $c['start_only'] ?? false)), 'Bedingungsverknüpfung' => 'UND']);
             $this->DebugEditorActionSteps($rule['actions']);
+            $this->DebugRestartPolicy($rule);
             $this->DebugEvent('AKTION', 'Verhalten bei erneuter Auslösung für den lokalen Entwurf übernommen.', ['ErneuteAuslösung' => match ($rule['retrigger'] ?? 'ignore') {
                 'restart' => 'Von vorn beginnen', 'extend' => 'Laufende Wartezeit zurücksetzen', default => 'Ignorieren'
             }]);
@@ -153,10 +154,20 @@ trait AutomationEditorSchedule
 
     private function ScheduleDefaults(): array
     {
-        return ['EditorRetrigger'   => 'ignore', 'EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
-            'EditorWindow'          => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
-            'EditorMonday'          => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
-            'EditorConditionType'   => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
+        return ['EditorRestartPolicy' => 'abort', 'EditorRetrigger'   => 'ignore', 'EditorTriggerType' => 'device', 'EditorTimeMode' => 'clock', 'EditorLatitude' => '', 'EditorLongitude' => '', 'EditorSolarOffset' => 0, 'EditorAt' => '18:00:00', 'EditorTimezone' => 'Europe/Berlin', 'EditorHold' => 0, 'EditorDelay' => 0,
+            'EditorWindow'            => false, 'EditorAfter' => '18:00:00', 'EditorBefore' => '06:00:00', 'EditorWindowTimezone' => 'Europe/Berlin',
+            'EditorMonday'            => true, 'EditorTuesday' => true, 'EditorWednesday' => true, 'EditorThursday' => true, 'EditorFriday' => true, 'EditorSaturday' => true, 'EditorSunday' => true,
+            'EditorConditionType'     => 'none', 'EditorCondition' => '', 'EditorConditionChoice' => '', 'EditorNumericProperty' => '', 'EditorCompare' => 'eq', 'EditorNumber' => 0.0] + $this->CalendarDefaults();
+    }
+
+    private function DebugRestartPolicy(array $rule): void
+    {
+        $this->DebugEvent('AKTION', 'Fortsetzung nach Z2M-Neustart für den lokalen Entwurf geprüft; kein Lauf gestartet.', [
+            'Verhalten' => match ($rule['restart_policy'] ?? 'abort') {
+                'resume'         => 'Wartezeit fortsetzen; bei Ablauf den Lauf beenden',
+                'resume_expired' => 'Wartezeit fortsetzen; bei Ablauf die ausstehende Aktion nachholen',
+                default          => 'Unterbrochenen Lauf beenden'
+            }]);
     }
 
     private function EditorClockTime(mixed $value): ?string
@@ -167,7 +178,7 @@ trait AutomationEditorSchedule
         return preg_match('/\A(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?\z/D', $value) === 1 ? (strlen($value) === 5 ? $value . ':00' : $value) : null;
     }
 
-    private function BuildScheduledRule(string $sourceID, string $triggerKey, string $targetID, string $actionKey, string $options, string &$reason, string $actionSteps = '', string $triggerSteps = '', string $conditionSteps = '', string $retrigger = 'ignore'): ?array
+    private function BuildScheduledRule(string $sourceID, string $triggerKey, string $targetID, string $actionKey, string $options, string &$reason, string $actionSteps = '', string $triggerSteps = '', string $conditionSteps = '', string $retrigger = 'ignore', string $restartPolicy = 'abort'): ?array
     {
         if (strlen($options) > 8192) {
             return null;
@@ -179,12 +190,17 @@ trait AutomationEditorSchedule
         }
         $defaults = $this->ScheduleDefaults();
         $defaults['EditorRetrigger'] = $retrigger;
+        $defaults['EditorRestartPolicy'] = $restartPolicy;
         if (!is_array($input) || array_diff(array_keys($input), array_keys($defaults)) !== []) {
             return null;
         }
         $v = array_replace($defaults, $input);
         if (!in_array($v['EditorRetrigger'], ['ignore', 'restart', 'extend'], true)) {
             $reason = 'editor_retrigger';
+            return null;
+        }
+        if (!in_array($v['EditorRestartPolicy'], ['abort', 'resume', 'resume_expired'], true)) {
+            $reason = 'editor_restart_policy';
             return null;
         }
         foreach ($defaults as $key => $default) {
@@ -320,7 +336,7 @@ trait AutomationEditorSchedule
             $reason = 'editor_conditions';
             return null;
         }
-        return ['retrigger' => $v['EditorRetrigger'], 'triggers' => $triggers ?? [$trigger], 'conditions' => $conditions, 'actions' => $actions];
+        return ['restart_policy' => $v['EditorRestartPolicy'], 'retrigger' => $v['EditorRetrigger'], 'triggers' => $triggers ?? [$trigger], 'conditions' => $conditions, 'actions' => $actions];
     }
 
     private function ScheduledEditorFields(array $rule): ?array
@@ -332,6 +348,7 @@ trait AutomationEditorSchedule
         $a = SequencePlan::Expand($this->ReadEditorDraft()['configuration'], $rule['actions'])[0]['action'];
         $v = $this->ScheduleDefaults();
         $v['EditorRetrigger'] = $rule['retrigger'] ?? 'ignore';
+        $v['EditorRestartPolicy'] = $rule['restart_policy'] ?? 'abort';
         if (!in_array($v['EditorRetrigger'], ['ignore', 'restart', 'extend'], true)) {
             return null;
         }

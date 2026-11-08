@@ -97,6 +97,8 @@ vor. Umfang und Grenzen stehen in der [Kompatibilitätsübersicht](docs/COMPATIB
   aktivieren und stoppen sowie einzelne Abläufe einmal starten oder beenden.
 - Bei erneuter Auslösung ignorieren, neu starten oder die Wartezeit zurücksetzen;
   automatischen Wiederanlauf nach einem Z2M-Neustart einstellen.
+- Wartende Automatikläufe nach einem Z2M-Neustart wahlweise fortsetzen; bei bereits
+  abgelaufener Wartezeit die ausstehende Aktion nachholen oder den Lauf beenden.
 
 Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls.
 

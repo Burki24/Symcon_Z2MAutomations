@@ -68,11 +68,13 @@ trait MQTTTransport
                     if ($suffix === 'bridge/state') {
                         $bridge = is_object($payload) ? ($payload->state ?? null) : $payload;
                         if (in_array($bridge, ['online', 'offline'], true)) {
+                            if ($bridge === 'online' && $state['bridgeState'] === 'offline') $this->QueueExtensionConfirmation($state);
                             $state['bridgeState'] = $bridge;
                             if ($bridge === 'offline' && $state['pending'] !== null) {
                                 $this->FinishHealthCheck($state, 'cancelled');
                             }
                             if ($bridge === 'offline') {
+                                $state['automaticStatus'] = null;
                                 $state['validation'] = null;
                                 $state['extensionConfirmed'] = false;
                                 $state['extension'] = null;
@@ -164,6 +166,7 @@ trait MQTTTransport
             {
                 $this->SaveState($this->RefreshState());
             });
+            $this->DispatchExtensionConfirmation();
         });
     }
 
@@ -174,7 +177,7 @@ trait MQTTTransport
 
     private function PublicTransportState(array $state, bool $sessionProof = false): array
     {
-        unset($state['scope'], $state['pending'], $state['workflow'], $state['validationDetails']['names']);
+        unset($state['scope'], $state['pending'], $state['workflow'], $state['automaticStatus'], $state['validationDetails']['names']);
         if ($state['extension'] !== null) {
             if ($sessionProof) $state['extension']['session'] = hash('sha256', $state['extension']['session']);
             else unset($state['extension']['session']);
@@ -367,6 +370,7 @@ trait MQTTTransport
                 $deadlines[] = $request['deadline'];
             }
         }
+        if (is_int($state['automaticStatus']['due'] ?? null)) $deadlines[] = $state['automaticStatus']['due'];
         $this->SetTimerInterval('RequestTimeout', $deadlines === [] ? 0 : max(1, (min($deadlines) - $this->Now()) * 1000));
         $status = !$this->ReadPropertyBoolean('Active') ? 104 : (!$this->ValidConfiguration() ? 200 : (!$state['mqttConnected'] ? 201 : (!$state['bridgeOnline'] ? 202 : 102)));
         $this->SetStatus($status);
