@@ -37,5 +37,7 @@ Einzelstarts und Auslöser-Mindestdauern bleiben flüchtig.
 abort je Regel oder ausgeschalteter systemweiter Wiederanlauf deaktivieren die
 Fortsetzung. Vorhandene Regeln ohne Feld ändern ihr Verhalten nicht.
 Synthetische Tests prüfen Fristen, Bedingungen, Verlängerung, Folgenposition,
-Neustarts, Stopp und ungültige Speicherstände. Eine neue Praxisabnahme auf
-installiertem Z2M bleibt ein gesonderter Auftrag.
+Neustarts, Stopp und ungültige Speicherstände. Am 08.11.2026 auf installiertem
+Z2M mit Restfrist und abgelaufener Frist praktisch bestätigt; Testbedingungen
+verhinderten Gerätebefehle. Umfang und verbleibende Grenzen: N1 in der
+[Prüfliste](../PRUEFLISTE.md).

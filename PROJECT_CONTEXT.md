@@ -23,10 +23,14 @@ Fortsetzung inzwischen über Test-Symcon am ausdrücklich freigegebenen Z2M-2
 praktisch geprüft: Restfrist mit derselben Laufkennung, Abbruch bei abgelaufener
 Frist und Nachholen mit erneuter Bedingungsprüfung. Testbedingungen verhinderten
 Schaltbefehle; Originalregeln und Betrieb anschließend wiederhergestellt.
-Die hier folgende Korrektur der automatischen Statusabfrage ist zunächst lokal
-geprüft und benötigt nach dem Modulupdate eine eigene Praxisbestätigung.
+Auch die Statuskorrektur ist nach Modulupdate 0.188 praktisch bestätigt:
+erste Anfrage während des Anlaufs unbeantwortet, nach zehn Sekunden Zeitlimit
+und zwei Sekunden Pause automatisch wiederholt und frisch bestätigt. Keine
+dritte Anfrage, Entwürfe/Auswahl und gespeicherter Regelstand unverändert,
+ursprünglicher Betrieb erhalten. Nachweis und verbleibender Freigabeweg:
+[aktueller Prüfstand](docs/PRUEFLISTE.md#neustartprüfungen-und-planungsabgleich--08112026).
 
-## Aktueller Beta-Kandidat – 07.11.2026
+## Historischer Beta-Kandidat – 07.11.2026
 
 Symcon-Beta hat Vorrang; keine weitere Desktop-Funktion in diesem Auftrag.
 Die gemeinsamen Designer-Anpassungen sind im lokalen Kandidaten festgeschrieben
