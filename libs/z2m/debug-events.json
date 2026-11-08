@@ -101,7 +101,7 @@
     },
     "event_26": {
         "event": "AKTION",
-        "message": "Automationen nach Neustart automatisch aktiviert; nur neue Auslöser werden verarbeitet."
+        "message": "Automationen nach Neustart automatisch aktiviert; neue Auslöser und ausdrücklich freigegebene Fortsetzungen werden verarbeitet."
     },
     "event_27": {
         "event": "FEHLER",
@@ -246,5 +246,41 @@
     "condition_start_only": {
         "event": "AKTION",
         "message": "Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft."
+    },
+    "event_53": {
+        "event": "FEHLER",
+        "message": "Fortsetzungspunkt konnte nicht gelöscht werden; keine automatische Wiederholung erlaubt."
+    },
+    "event_54": {
+        "event": "FEHLER",
+        "message": "Gestoppter Lauf konnte im Fortsetzungsspeicher nicht bestätigt werden."
+    },
+    "event_55": {
+        "event": "AKTION",
+        "message": "Unterbrochener Lauf nicht fortgesetzt: Freigabe fehlt, Wartezeit abgelaufen oder Uhrzeit unplausibel."
+    },
+    "event_56": {
+        "event": "AKTION",
+        "message": "Wartezeit während Neustart abgelaufen; ausstehenden Schritt mit erneuter Bedingungsprüfung nachholen."
+    },
+    "event_57": {
+        "event": "AKTION",
+        "message": "Unterbrochenen Lauf am gespeicherten Aktionsschritt mit verbleibender Wartezeit fortsetzen."
+    },
+    "event_58": {
+        "event": "AKTION",
+        "message": "Wartepunkt für Fortsetzung nach Z2M-Neustart dauerhaft gespeichert."
+    },
+    "event_59": {
+        "event": "FEHLER",
+        "message": "Verlängerte Wartezeit konnte nicht gespeichert werden; Lauf beendet."
+    },
+    "event_60": {
+        "event": "FEHLER",
+        "message": "Fortsetzungsspeicher konnte beim Beenden nicht bestätigt werden."
+    },
+    "event_61": {
+        "event": "FEHLER",
+        "message": "Fortsetzungsspeicher unlesbar oder unpassend; kein gespeicherter Lauf wird fortgesetzt."
     }
 }

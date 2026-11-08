@@ -58,6 +58,7 @@ try {
     assert.equal(await page.locator('html').getAttribute('lang'), 'en');
     await page.locator('#edit-automation-button').click();
     const dialog = page.locator('#edit-dialog'); await dialog.waitFor({state: 'visible'});
+    await dialog.getByLabel('After a Zigbee2MQTT restart', {exact: true}).selectOption('resume_expired');
     const name = dialog.locator('input[type=text]').first(); await name.fill('Unsaved user input – Ein ON');
     await dialog.locator('[data-action-index="0"] input[type=number]').first().fill('9');
     await dialog.locator('[data-action-index="1"]').getByRole('button', {name: 'Move up', exact: true}).click();
@@ -86,6 +87,7 @@ try {
     assert.deepEqual(await dialog.locator('input[type=checkbox]').evaluateAll(nodes => nodes.map(n => n.checked)), checks);
     assert.equal(await dialog.locator('input[type=text]').first().inputValue(), 'Unsaved user input – Ein ON');
     assert.match(await dialog.innerText(), /Name der Automation/);
+    assert.equal(await dialog.getByLabel('Nach einem Zigbee2MQTT-Neustart', {exact: true}).inputValue(), 'resume_expired');
     await dialog.locator('[data-language-picker] select').selectOption('en');
     assert.match(await dialog.innerText(), /Automation name/);
     assert.equal(await name.inputValue(), 'Unsaved user input – Ein ON');
@@ -98,6 +100,7 @@ try {
     assert.equal(writes.length, 1);
     assert.equal(writes[0].route, 'edit', 'only the synthetic local draft endpoint is used');
     assert.equal(writes[0].body.changes.name, 'Unsaved user input – Ein ON');
+    assert.equal(writes[0].body.changes.restart_policy, 'resume_expired');
     assert.deepEqual(writes[0].body.changes.actions.map(action => [action.values.state, action.delay_seconds]), [['OFF', 0], ['ON', 9]], 'language changes retain order, typed values and edited delay');
     assert.equal(rules.get('a').enabled, false);
     assert.equal(rules.get('b').name, rule.name, 'the other system draft is untouched');

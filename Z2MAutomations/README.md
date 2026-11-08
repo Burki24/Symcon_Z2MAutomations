@@ -481,8 +481,31 @@ Danach stellt Z2M nach einem Neustart denselben freigegebenen Regelstand selbst
 wieder bereit. Ein bewusster Stopp bleibt dauerhaft wirksam. Das bloße Speichern
 geänderter Regeln erteilt keine neue Wiederanlauffreigabe.
 
-Verpasste Schaltzeiten, unterbrochene Folgen und Wartezeiten werden nicht
-nachgeholt. Gerätebedingungen warten auf neue Werte. Fehlende Geräte,
+Verpasste Zeit- und Sonnenauslöser werden nicht nachgeholt. Für unterbrochene
+Aktionsfolgen wählen Sie beim Erstellen oder Bearbeiten einer Automation unter
+**Nach einem Zigbee2MQTT-Neustart** eines der folgenden Verhalten:
+
+| Auswahl | Verhalten |
+| --- | --- |
+| Unterbrochenen Lauf beenden | Standard. Die laufende Folge und ihre Wartezeit enden beim Neustart. |
+| Fortsetzen; bei abgelaufener Wartezeit den Lauf beenden | Am gespeicherten Aktionsschritt nur die verbleibende Zeit warten. Ist sie beim Neustart bereits verstrichen, endet der Lauf. |
+| Fortsetzen; bei abgelaufener Wartezeit die ausstehende Aktion nachholen | Nur die verbleibende Zeit warten; ist sie bereits verstrichen, die ausstehende Aktion nach erneuter Bedingungsprüfung ausführen. |
+
+Diese Auswahl gilt nur für **wartende Automatikläufe** und setzt zusätzlich
+den aktivierten Automatikbetrieb nach Neustart voraus. Regeln ohne die neue
+Angabe behalten den Standard. Die Ausfallzeit zählt zur Wartezeit. Folgende
+Wartezeiten beginnen regulär, wenn der jeweilige Schritt erreicht wird.
+Erledigte Aktionen werden nicht erneut ausgeführt. Bereits übergebene oder
+unbestätigte Gerätebefehle werden nicht wiederholt; es gibt keine Zusicherung,
+dass ein gerade übergebener Befehl das Gerät erreicht hat.
+
+Einzelstarts und noch laufende Mindestdauern von Auslösern werden nicht
+fortgesetzt. Ein bestätigter Stopp, ein anderer Regelstand oder eine beschädigte
+Fortsetzungsdatei verhindert die Wiederaufnahme des alten Laufs. Ein bereits
+eingeschaltetes Licht wird durch den Abbruch nicht automatisch ausgeschaltet.
+
+Gerätebedingungen benötigen neue Werte; **Nur beim Start** wird bei einer
+Fortsetzung nicht erneut geprüft. Fehlende Geräte,
 beschädigte Dateien oder ein abweichender Regelstand können den Wiederanlauf
 verhindern. Bei systemübergreifenden Aktionen brauchen beide Seiten ihre eigene
 Aktivierung und Wiederanlaufeinstellung.

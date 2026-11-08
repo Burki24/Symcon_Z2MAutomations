@@ -5154,5 +5154,29 @@
     "desktop.failed": [
         "Die Desktopansicht konnte nicht geladen werden. Bitte die Anwendung schließen und erneut starten.",
         "The desktop view could not be loaded. Close the application and try again."
+    ],
+    "restart.label": [
+        "Nach einem Zigbee2MQTT-Neustart",
+        "After a Zigbee2MQTT restart"
+    ],
+    "restart.abort": [
+        "Unterbrochenen Lauf beenden",
+        "End the interrupted run"
+    ],
+    "restart.resume": [
+        "Fortsetzen; bei abgelaufener Wartezeit den Lauf beenden",
+        "Continue; end the run if its waiting time has expired"
+    ],
+    "restart.expired": [
+        "Fortsetzen; bei abgelaufener Wartezeit die Aktion nachholen",
+        "Continue; execute the pending action if its waiting time has expired"
+    ],
+    "restart.help": [
+        "Gilt nur für wartende Automatikläufe. Zusätzlich den Automatikbetrieb nach Neustart einschalten. Die Ausfallzeit zählt zur Wartezeit. Erledigte Aktionen werden nicht wiederholt; Einzelstarts werden nicht fortgesetzt.",
+        "For waiting automatic runs only. Also enable automatic operation after restart. Downtime counts toward the waiting time. Completed actions are never repeated; one-shot runs are not resumed."
+    ],
+    "restart.invalid": [
+        "Bitte ein angebotenes Verhalten nach einem Z2M-Neustart wählen.",
+        "Please select an available behavior after a Z2M restart."
     ]
 }

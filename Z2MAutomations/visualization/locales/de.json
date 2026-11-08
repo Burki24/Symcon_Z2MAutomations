@@ -1287,5 +1287,11 @@
     "desktop.ready": "Desktop bereit",
     "desktop.windows": "für Windows",
     "desktop.linux": "für Linux",
-    "desktop.failed": "Die Desktopansicht konnte nicht geladen werden. Bitte die Anwendung schließen und erneut starten."
+    "desktop.failed": "Die Desktopansicht konnte nicht geladen werden. Bitte die Anwendung schließen und erneut starten.",
+    "restart.label": "Nach einem Zigbee2MQTT-Neustart",
+    "restart.abort": "Unterbrochenen Lauf beenden",
+    "restart.resume": "Fortsetzen; bei abgelaufener Wartezeit den Lauf beenden",
+    "restart.expired": "Fortsetzen; bei abgelaufener Wartezeit die Aktion nachholen",
+    "restart.help": "Gilt nur für wartende Automatikläufe. Zusätzlich den Automatikbetrieb nach Neustart einschalten. Die Ausfallzeit zählt zur Wartezeit. Erledigte Aktionen werden nicht wiederholt; Einzelstarts werden nicht fortgesetzt.",
+    "restart.invalid": "Bitte ein angebotenes Verhalten nach einem Z2M-Neustart wählen."
 }

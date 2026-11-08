@@ -596,7 +596,13 @@
             "Device data refreshed. Drafts and open inputs are unchanged. Refresh the browser view to see the new device data.": "Gerätedaten aktualisiert. Entwürfe und offene Eingaben sind unverändert. Mit „Ansicht aktualisieren“ werden die neuen Gerätedaten im Browser angezeigt.",
             "Update the bundled extension before refreshing device data separately. Your draft remains unchanged.": "Bitte zuerst die mitgelieferte Erweiterung aktualisieren. Danach können die Gerätedaten einzeln geladen werden. Ihr Entwurf bleibt unverändert.",
             "Open automation designer": "Automationsdesigner öffnen",
-            "View existing automations and device properties in the browser, or add a new disabled rule to the local draft. Transfer and activation remain in the native form.": "Vorhandene Automationen und Geräteeigenschaften im Browser ansehen oder eine neue ausgeschaltete Regel im lokalen Entwurf ergänzen. Übertragen und Aktivieren weiterhin im nativen Formular."
+            "View existing automations and device properties in the browser, or add a new disabled rule to the local draft. Transfer and activation remain in the native form.": "Vorhandene Automationen und Geräteeigenschaften im Browser ansehen oder eine neue ausgeschaltete Regel im lokalen Entwurf ergänzen. Übertragen und Aktivieren weiterhin im nativen Formular.",
+            "After a Zigbee2MQTT restart": "Nach einem Zigbee2MQTT-Neustart",
+            "End the interrupted run": "Unterbrochenen Lauf beenden",
+            "Continue; end the run if its waiting time has expired": "Fortsetzen; bei abgelaufener Wartezeit den Lauf beenden",
+            "Continue; execute the pending action if its waiting time has expired": "Fortsetzen; bei abgelaufener Wartezeit die ausstehende Aktion nachholen",
+            "For waiting automatic runs only. Enable automatic operation after restart as well. Downtime counts toward the waiting time. Completed actions are never repeated; one-shot runs are not resumed.": "Gilt nur für wartende Automatikläufe. Zusätzlich den Automatikbetrieb nach Neustart einschalten. Die Ausfallzeit zählt zur Wartezeit. Erledigte Aktionen werden nicht wiederholt; Einzelstarts werden nicht fortgesetzt.",
+            "Choose what happens to a waiting automation after a Z2M restart.": "Bitte wählen, was mit einem wartenden Lauf nach einem Z2M-Neustart geschieht."
         }
     }
 }

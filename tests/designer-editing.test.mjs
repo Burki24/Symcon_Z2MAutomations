@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import {creationRule, ruleChanges, sequenceChanges, targetDevice, valueIndex} from '../Z2MAutomations/visualization/editor.js';
 
 test('complete creation submits the same typed sections as editing without server-owned fields', () => {
-    const working = {id: 'must-not-submit', enabled: true, mesh_peers: ['must-not-submit'], name: 'Complete', retrigger: 'extend',
+    const working = {id: 'must-not-submit', enabled: true, mesh_peers: ['must-not-submit'], name: 'Complete', retrigger: 'extend', restart_policy: 'resume_expired',
         triggers: [{type: 'time', at: '07:00:00', timezone: 'UTC'}, {type: 'sun', event: 'sunset', offset_minutes: -15, latitude: 0, longitude: 0, timezone: 'UTC'}],
         conditions: [{type: 'device_value', value: false, start_only: true}],
         actions: [{type: 'set', values: {level: 0, color: {hex: '#123456'}}, delay_seconds: 5}]};
     const fields = creationRule(working);
-    assert.deepEqual(Object.keys(fields), ['name', 'retrigger', 'triggers', 'conditions', 'actions']);
+    assert.deepEqual(Object.keys(fields), ['name', 'retrigger', 'restart_policy', 'triggers', 'conditions', 'actions']);
+    assert.equal(fields.restart_policy, 'resume_expired');
     assert.equal(fields.conditions[0].value, false);
     assert.deepEqual(fields.actions, working.actions);
     fields.actions[0].values.level = 70;

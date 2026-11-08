@@ -6,6 +6,10 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Je Automation wählen, ob ein wartender Lauf nach einem Z2M-Neustart fortgesetzt
+  wird. Bei bereits abgelaufener Wartezeit lässt sich die ausstehende Aktion
+  nachholen oder der Lauf beenden. Bereits erledigte Aktionen werden nicht
+  wiederholt. Standard bleibt der Abbruch des unterbrochenen Laufs.
 - Eine Automationszentrale verwaltet bis zu acht Z2M-Systeme mit getrennten
   Entwürfen und vorhandenen Symcon-MQTT-Verbindungen. Geräte und Kanäle können
   im Browserdesigner gesucht und ohne YAML-Kenntnisse ausgewählt werden.

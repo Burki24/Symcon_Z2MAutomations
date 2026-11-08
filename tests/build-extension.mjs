@@ -12,6 +12,11 @@ if (code.split(marker).length !== 2) throw new Error('Expected exactly one schem
 const sequenceMarker = "import {expandActionPlan, SequenceError} from './sequences.mjs';";
 if (code.split(sequenceMarker).length !== 2) throw new Error('Expected exactly one sequence import.');
 const sequences = await readFile(new URL('../libs/z2m/src/sequences.mjs', import.meta.url), 'utf8');
+const journalMarker = "import {RunJournal} from './run-journal.mjs';";
+if (code.split(journalMarker).length !== 2) throw new Error('Expected exactly one run journal import.');
+const journal = (await readFile(new URL('../libs/z2m/src/run-journal.mjs', import.meta.url), 'utf8'))
+    .replace("import {createHash} from 'node:crypto';\n", '')
+    .replace("import {join} from 'node:path';\n", '');
 const runtimeMarker = "import {AutomationRuntime, RuntimeError} from './runtime.mjs';";
 if (code.split(runtimeMarker).length !== 2) throw new Error('Expected exactly one runtime import.');
 const runtime = (await readFile(new URL('../libs/z2m/src/runtime.mjs', import.meta.url), 'utf8'))
@@ -37,7 +42,7 @@ const mesh = (await readFile(new URL('../libs/z2m/src/mesh.mjs', import.meta.url
 const solar = await readFile(new URL('../libs/z2m/src/solar.mjs', import.meta.url), 'utf8');
 const template = '// Generated from own extension, runtime, mesh, scenes, sequences, diagnostics, event catalog and schema sources. Do not edit.\n'
     + code.replace(marker, 'const AUTOMATIONS_SCHEMA = ' + JSON.stringify(JSON.parse(await readFile(schema, 'utf8'))) + ';')
-        .replace(sequenceMarker, sequences).replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
+        .replace(journalMarker, journal).replace(sequenceMarker, sequences).replace(runtimeMarker, solar + '\n' + runtime).replace(meshMarker, mesh).replace(sceneMarker, scenes).replace(debugMarker, diagnostics);
 const build = createHash('sha256').update(template, 'utf8').digest('hex');
 const generated = template.replace(buildMarker, `export const EXTENSION_BUILD = '${build}';`);
 if (process.argv.includes('--check')) {

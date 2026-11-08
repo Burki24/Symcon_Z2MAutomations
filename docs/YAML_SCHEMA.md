@@ -1,5 +1,21 @@
 # Automationsschema Version 1
 
+## Fortsetzung wartender Automatikläufe
+
+Das optionale Feld restart_policy je Automation akzeptiert abort (Standard),
+resume oder resume_expired. Beide Fortsetzungsarten setzen den bestätigten
+Automatikbetrieb mit Wiederanlauf nach Z2M-Neustart voraus. resume beendet einen
+Lauf, dessen gespeicherte Wartezeit beim Wiederanlauf bereits abgelaufen ist;
+resume_expired prüft die Bedingungen des ausstehenden Schritts und holt ihn nach.
+Die Ausfallzeit zählt mit. Aufgerufene Aktionsfolgen werden am expandierten
+Schritt fortgesetzt. Einzelstarts, Mindestdauern und Gerätebefehle während einer
+unbestätigten Übergabe sind nicht wiederaufnehmbar. Ein fehlendes Feld ändert
+das bisherige Verhalten nicht. Das Schema bleibt Version 1.
+
+```yaml
+restart_policy: resume_expired
+```
+
 ## Mehrere Eigenschaften und Farben im Klick-Editor
 
 Der vorhandene set.values-Vertrag erlaubt bereits mehrere Eigenschaften und
