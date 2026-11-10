@@ -144,7 +144,8 @@ stehen dessen Automationen, Aktionsfolgen und Geräte.
 | Automationen links | Regeln suchen, filtern und auswählen; zwischen Geräte-, Zeitregeln und Aktionsfolgen wechseln. |
 | Ablauf in der Mitte | **Wenn**, **Nur wenn** und **Dann** zeigen Auslöser, Bedingungen und Aktionen. |
 | Eigenschaften rechts | Ein angeklickter Baustein zeigt seine vorhandenen Angaben. Zum Ändern **Automation bearbeiten** wählen. |
-| + Neue Automation | Öffnet den vollständigen Regel-Editor. |
+| Neue Automation als Entwurf | Öffnet den Assistenten für das ausgewählte System. |
+| Statuszeile | Zeigt System, lokalen Entwurf, gespeicherte Z2M-Revision und Betrieb getrennt. Die Schaltfläche führt zum passenden Prüfschritt. |
 | Prüfen & übertragen | Entwurf in Z2M prüfen und nach Bestätigung speichern. |
 | Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
 | Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
@@ -202,20 +203,19 @@ Designerlinks gewähren Zugriff auf die Bearbeitung und sollten nicht weitergege
 
 ### Erste Automation: Licht bei Tastendruck
 
-1. Das System des Tasters auswählen und **+ Neue Automation** öffnen.
-2. Einen Namen eintragen, beispielsweise **Flurlicht bei Tastendruck**.
-3. Unter **1. Wenn – Auslöser (ODER)** die Art **Geräteereignis** wählen.
-4. Über **Gerät suchen** den Taster finden und unter **Gerät** auswählen.
-5. **Eigenschaft / Kanal**, Vergleich und **Wert** wählen, beispielsweise
+1. Das System des Tasters auswählen. In der Automationsliste **Neue Automation
+   als Entwurf** öffnen und das angezeigte System prüfen.
+2. Im nächsten Schritt einen Namen eintragen, etwa **Flurlicht bei Tastendruck**.
+   Als Auslöser **Geräteereignis** wählen. Den Taster suchen und auswählen.
+   **Eigenschaft / Kanal**, Vergleich und **Wert** einstellen, beispielsweise
    **Tasterereignis**, **ist gleich**, **Einfach drücken**.
-6. Unter **2. Nur wenn – Bedingungen (UND)** bei Bedarf Bedingungen ergänzen.
-   Für eine Regel ohne Einschränkung die Bedingungsliste leer lassen.
-7. Unter **3. Dann – Aktionen in dieser Reihenfolge** **Werte setzen** wählen,
-   das Zielgerät suchen und seinen Kanal sowie **Ein** auswählen.
-8. Einen weiteren Aktionsschritt ergänzen: dasselbe Licht, Wert **Aus**,
-   **Wartezeit vor diesem Schritt** beispielsweise 60 Sekunden.
-9. **Ausgeschaltet zum Entwurf hinzufügen** wählen. Die neue Regel liegt damit
-   im Symcon-Entwurf und kann weiter bearbeitet werden.
+3. Bei Bedarf Bedingungen ergänzen. Für eine Regel ohne Einschränkung mit
+   **Weiter** zum nächsten Schritt wechseln.
+4. Als Aktion **Werte setzen** wählen, das Zielgerät suchen und seinen Kanal
+   sowie **Ein** auswählen. Einen zweiten Schritt für dasselbe Licht mit
+   **Aus** und beispielsweise 60 Sekunden Wartezeit hinzufügen.
+5. In der Übersicht System, Auslöser und Aktionen prüfen. **Ausgeschaltet zum
+   Entwurf hinzufügen** legt die Regel im Symcon-Entwurf an.
 
 Der folgende Ausschnitt zeigt Gerät, Kanal und Wert eines vorhandenen Auslösers:
 
@@ -652,7 +652,8 @@ bleiben erhalten; Name und Regelschalter können weiterhin bearbeitet werden.
 
 1. Die Automationszentrale als Objekt in die Kachelvisualisierung aufnehmen.
 2. Die Kachel öffnen. Der vollständige Designer verbindet sich direkt darin.
-3. Das gewünschte System wählen und den Designer wie im Browser bedienen.
+3. Das gewünschte System wählen. Entwurfsassistent und Statuszeile funktionieren
+   wie im Browserdesigner.
 
 ![Vollständiger Automationsdesigner in der normalen Symcon-Kachel](../docs/screenshots/kachelansicht.png)
 

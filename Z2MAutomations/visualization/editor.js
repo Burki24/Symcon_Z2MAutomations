@@ -1,8 +1,8 @@
-import {designerRequest as fetch} from './transport.js';
-import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse} from './localization.js';
+import {designerRequest as fetch, isDesktop} from './transport.js';
+import {t, bindText, bindHTML, bindAttribute, localizedOption, localizeRecord, MessageError, ResponseError, locale, formatDate, formatNumber, onLanguageChange, installLanguagePicker, localizeResponse, sortByName} from './localization.js';
 /* Shared rule editor: complete creation and cloned, field-scoped editing stay local to the draft. */
 import {creationDevices, creationProperties, creationValue, requestIdentity} from './creator.js';
-import {systemHeaders} from './workspace.js';
+import {selectedSystemName, systemHeaders} from './workspace.js';
 import {moveAction, installActionSorting} from './action-order.js';
 
 const copy = value => structuredClone(value);
@@ -23,10 +23,18 @@ const kinds = localizeRecord(() => ({triggers: {device: t("ui.device.event.704e0
 const dayNames = localizeRecord(() => ([t("ui.mon.d23e867e"), t("ui.tue.16ab7287"), t("ui.wed.d8f33a13"), t("ui.thu.30094e0b"), t("ui.fri.eed8f901"), t("ui.sat.a951efc7"), t("ui.sun.fb1df1a2")]));
 const valueLabel = value => typeof value === 'boolean' ? (value ? t("ui.yes.detected.f51e55b6") : t("ui.no.not.detected.2e04e05d")) : ({ON: t("ui.on.b9a637bc"), OFF: t("ui.off.f0ce9450"), TOGGLE: t("ui.toggle.77fec02e")}[value] ?? String(value ?? t("ui.no.value.36bac452")));
 
-export function installEditing({getData, getRule, reload, onCreated, onEdited, onSequenceSaved, summaries}) {
+export function installEditing({getData, getRule, reload, switchToDraft, onCreated, onEdited, onSequenceSaved, summaries}) {
     const createButton = document.createElement('button');
     createButton.id = 'new-automation-button'; createButton.className = 'primary'; bindText(createButton, () => t("ui.new.automation.9643f89c"));
     document.querySelector('.toolbar').prepend(createButton);
+    const sidebarCreate = createButton.cloneNode(false);
+    sidebarCreate.id = 'draft-wizard-start';
+    bindText(sidebarCreate, () => t('wizard.entry'));
+    const entry = document.createElement('div'); entry.className = 'draft-wizard-entry';
+    const entryNotice = document.createElement('p'); entryNotice.id = 'draft-wizard-notice'; entryNotice.className = 'field-help';
+    sidebarCreate.setAttribute('aria-describedby', entryNotice.id);
+    entry.append(sidebarCreate, entryNotice);
+    document.querySelector('.navigation .panel-heading').after(entry);
     const editButton = document.createElement('button');
     editButton.id = 'edit-automation-button'; bindText(editButton, () => t("ui.edit.automation.ac46d0d5"));
     document.querySelector('.entry-tools').prepend(editButton);
@@ -34,10 +42,31 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
     document.querySelector('.toolbar').prepend(sequenceButton);
     const dialog = document.createElement('dialog');
     dialog.id = 'edit-dialog'; dialog.className = 'creation-dialog rule-edit-dialog'; dialog.setAttribute('aria-labelledby', 'edit-title');
-    bindHTML(dialog, () => `<form id="edit-form"><span class="eyebrow">${t("ui.existing.automation.3d70df71")}</span><h2 id="edit-title">${t("ui.edit.automation.ac46d0d5")}</h2><p>${t("ui.changes.affect.only.the.local.44d7d6b3")}</p><p id="edit-usage" hidden></p><div id="edit-fields"></div><p id="edit-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" id="edit-reload">${t("ui.reload.and.discard.input.56f16c4b")}</button><button type="button" id="edit-cancel">${t("ui.cancel.f7ff1178")}</button><button type="submit" id="edit-submit" class="primary">${t("ui.apply.changes.to.draft.1e42a9b6")}</button></div></form>`);
+    bindHTML(dialog, () => `<form id="edit-form"><span class="eyebrow">${t("ui.existing.automation.3d70df71")}</span><h2 id="edit-title">${t("ui.edit.automation.ac46d0d5")}</h2><p>${isDesktop() ? t('wizard.desktopDraftOnly') : t("ui.changes.affect.only.the.local.44d7d6b3")}</p><p id="edit-usage" hidden></p><div id="edit-fields"></div><p id="edit-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button type="button" id="edit-reload">${t("ui.reload.and.discard.input.56f16c4b")}</button><button type="button" id="edit-cancel">${t("ui.cancel.f7ff1178")}</button><button type="button" id="edit-back" hidden></button><button type="button" id="edit-next" class="primary" hidden></button><button type="submit" id="edit-submit" class="primary">${t("ui.apply.changes.to.draft.1e42a9b6")}</button></div></form>`);
     document.body.append(dialog);
     const $ = name => dialog.querySelector('#edit-' + name);
     let original; let working; let context; let requestId; let busy = false; let serial = 0; let sequenceMode = false; let creatingSequence = false; let creatingRule = false; let boundHeaders = {}; let sorting;
+    let wizardStep = 0;
+    let wizardSystem = '';
+    let wizardTopic = '';
+    let wizardStale = false;
+    let startingWizard = false;
+    const wizardSteps = ['start', 'triggers', 'conditions', 'actions', 'review'];
+    const wizardLabels = {start: 'wizard.start', triggers: 'wizard.triggers', conditions: 'wizard.conditions', actions: 'wizard.actions', review: 'wizard.review'};
+    const inWizard = () => creatingRule;
+    let pendingKey = ''; const recovered = new Set();
+    const editorKey = () => getData()?.desktop?.project ? 'z2ma.desktop.editor.' + getData().desktop.projectId + '.' + getData().workspaceContext.systemId : '';
+    function remember() {
+        if (!pendingKey || !dialog.open) return;
+        const value = JSON.stringify({epoch: getData().desktop.epoch, original, working, context, requestId, sequenceMode, creatingSequence, creatingRule, boundHeaders, wizardStep});
+        if (value.length <= 131072) { try { sessionStorage.setItem(pendingKey, value); } catch {} }
+    }
+    for (const event of ['input', 'change', 'click']) $('form').addEventListener(event, () => queueMicrotask(remember));
+    dialog.addEventListener('close', () => {
+        if (!isDesktop()) return;
+        try { if (pendingKey) sessionStorage.removeItem(pendingKey); } catch {}
+        pendingKey = ''; document.dispatchEvent(new CustomEvent('z2ma-editor-pending', {detail: false}));
+    });
     const hint = text => { bindText($('message'), () => text); };
     const node = (tag, text, className) => { const element = document.createElement(tag); if (text !== undefined) bindText(element, () => text); if (className) element.className = className; return element; };
     function field(parent, label, value, set, options = {}) {
@@ -89,7 +118,7 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
             const found = creationDevices(getData(), side, search.value);
             if (current && !found.some(device => device.key === current.key)) found.unshift(current);
             select.replaceChildren(localizedOption(() => t("ui.select.device.c5925e7a"), ''));
-            for (const device of found) select.add(localizedOption(() => t("ui.text.db1b0c15", {p1: device.name, p2: device.target.system ?? getData().module.baseTopic}), device.key));
+            for (const device of sortByName(found)) select.add(localizedOption(() => t("ui.text.db1b0c15", {p1: device.name, p2: device.target.system ?? getData().module.baseTopic}), device.key));
             if (current) select.value = current.key;
         }
         refreshOptions();
@@ -170,8 +199,34 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
         const scroll = dialog.scrollTop;
         const expanded = new Map([...dialog.querySelectorAll('details[data-section]')].map(element => [element.dataset.section, element.open]));
         serial = 0; const root = $('fields'); root.replaceChildren();
-        field(root, () => (sequenceMode ? t("ui.action.sequence.name.8cc6bff8") : t("ui.automation.name.bf8d6866")), working.name, value => { working.name = value; }, {maxLength: 120});
-        if (!sequenceMode) {
+        const step = inWizard() ? wizardSteps[wizardStep] : null;
+        $('back').hidden = !step || wizardStep === 0;
+        $('next').hidden = !step || step === 'review';
+        $('submit').hidden = Boolean(step && step !== 'review');
+        $('reload').hidden = Boolean(step && !wizardStale);
+        if (step) {
+            const heading = node('h3', () => t('wizard.step', {number: wizardStep + 1, total: wizardSteps.length, title: t(wizardLabels[step])}));
+            heading.tabIndex = -1;
+            root.append(heading);
+        }
+        if (step === 'start') {
+            root.append(node('p', () => t('wizard.system', {name: wizardSystem}), 'field-help'));
+            root.append(node('p', () => t('wizard.localOnly'), 'field-help'));
+            return;
+        }
+        if (step === 'review') {
+            root.append(node('p', () => t('wizard.system', {name: wizardSystem}), 'field-help'));
+            root.append(node('p', working.name));
+            for (const section of ['triggers', 'conditions', 'actions']) {
+                root.append(node('h4', () => t(wizardLabels[section])));
+                for (const item of working[section]) root.append(node('p', () => summaries[section](item)));
+                if (!working[section].length) root.append(node('p', () => t('wizard.noConditions')));
+            }
+            root.append(node('p', () => t('wizard.localOnly'), 'field-help'));
+            return;
+        }
+        if (!step || step === 'triggers') field(root, () => (sequenceMode ? t("ui.action.sequence.name.8cc6bff8") : t("ui.automation.name.bf8d6866")), working.name, value => { working.name = value; }, {maxLength: 120});
+        if (!sequenceMode && (!step || step === 'triggers')) {
             if (creatingRule) root.append(node('p', () => (t("ui.the.new.rule.is.added.ed2d46e3")), 'field-help'));
             else check(root, () => (t("ui.rule.enabled.in.draft.does.12ebbfe4")), working, 'enabled');
             field(root, () => (t("ui.on.retrigger.7588befa")), working.retrigger ?? 'ignore', value => { working.retrigger = value; }, {choices: () => Object.entries({ignore: t("ui.ignore.0e54a990"), restart: t("ui.restart.from.the.beginning.f723ba35"), extend: t("ui.reset.current.delay.2561f6e5")})});
@@ -180,6 +235,7 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
         }
         const sections = () => sequenceMode ? [['actions', t("ui.1.actions.in.this.order.91604b88")]] : [['triggers', t("ui.1.when.triggers.or.be4b17f7")], ['conditions', t("ui.2.only.if.conditions.and.cf758b2a")], ['actions', t("ui.3.then.actions.in.this.6409acb6")]];
         for (const [section, title] of sections()) {
+            if (step && section !== step) continue;
             const itemKinds = localizeRecord(() => sequenceMode ? Object.fromEntries(Object.entries(kinds.actions).filter(([type]) => type !== 'sequence')) : kinds[section]);
             const details = node('details', undefined, 'edit-section'); details.dataset.section = section; details.open = expanded.get(section) ?? true; details.append(node('summary', () => sections().find(([key]) => key === section)[1])); root.append(details);
             const allowed = sequenceMode ? creatingSequence || getData().sequenceSections?.[original.id] === true : creatingRule || getData().editSections?.[original.id]?.[section] === true;
@@ -236,6 +292,7 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
         const next = moveAction(working.actions, from, to);
         if (next === working.actions) return;
         working.actions = next; renderFields();
+        remember();
         hint(() => (t("ui.action.step.moved.to.position.4a6180c0", {p1: from + 1, p2: to + 1})));
         dialog.querySelector(`[data-action-index="${to}"] [data-order-handle]`)?.focus({preventScroll: true});
     }
@@ -243,13 +300,17 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
     const changes = () => sequenceMode ? sequenceChanges(original, working) : ruleChanges(original, working);
     function open(entry, sequence = entry.kind === 'sequence', creating = false) {
         sequenceMode = sequence; creatingSequence = creating && sequence; creatingRule = creating && !sequence;
+        wizardStep = 0; wizardStale = false;
+        bindText($('reload'), () => t("ui.reload.and.discard.input.56f16c4b"));
         original = copy(entry); delete original.kind; working = copy(original);
         if (creatingSequence) working.actions = [newItem('actions', 'set')];
         if (creatingRule) { working.triggers = [newItem('triggers', 'device')]; working.actions = [newItem('actions', 'set')]; }
         context = getData().createContext; requestId = requestIdentity();
         boundHeaders = systemHeaders(getData());
+        wizardSystem = selectedSystemName(getData());
+        wizardTopic = getData()?.module?.baseTopic ?? '';
         bindText($('title'), () => sequenceMode ? (creatingSequence ? t("ui.new.action.sequence.cc6b663e") : t("ui.edit.action.sequence.2e8a0548")) : creatingRule ? t("ui.new.automation.40e06b5f") : t("ui.edit.automation.ac46d0d5"));
-        bindText(dialog.querySelector('.eyebrow'), () => sequenceMode ? 'WIEDERVERWENDBARE AKTIONSFOLGE' : creatingRule ? 'NEUE AUTOMATION' : t("ui.existing.automation.3d70df71"));
+        bindText(dialog.querySelector('.eyebrow'), () => sequenceMode ? t('editor.sequenceEyebrow') : creatingRule ? t('editor.newEyebrow') : t("ui.existing.automation.3d70df71"));
         $('usage').hidden = !sequenceMode;
         const usage = (getData().configuration?.automations ?? []).filter(rule => rule.actions.some(action => action.type === 'sequence' && action.sequence_id === original.id)).length;
         bindText($('usage'), () => usage ? t("ui.this.sequence.after.transfer.changes.5c27add8", {p1: usage === 1 ? t("ui.one.automation.uses.ad76d112") : t("ui.automations.use.cd669568", {p1: usage}), p2: usage === 1 ? t("ui.this.rule.262ca3e4") : t("ui.all.these.rules.d3b36f4c")})
@@ -259,15 +320,69 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
             : t("ui.all.fields.are.prefilled.only.138f6007"))));
         bindText($('submit'), () => creatingRule ? t("ui.add.to.draft.disabled.aea3e1b7") : creatingSequence ? t("ui.apply.action.sequence.to.draft.e6ecbfcd") : t("ui.apply.changes.to.draft.1e42a9b6"));
         $('submit').disabled = !canSave();
-        if (!dialog.open) dialog.showModal(); $('fields').querySelector('input')?.focus();
+        if (!dialog.open) dialog.showModal();
+        $('fields').querySelector(inWizard() ? 'h3' : 'input')?.focus();
+        if (isDesktop()) { pendingKey = editorKey(); remember(); document.dispatchEvent(new CustomEvent('z2ma-editor-pending', {detail: true})); }
     }
     editButton.addEventListener('click', () => { const entry = getRule(); if (entry?.triggers || entry?.kind === 'sequence') open(entry); });
     const newRule = () => open({id: '', name: '', enabled: false, retrigger: 'ignore', restart_policy: 'abort', triggers: [], conditions: [], actions: []}, false, true);
-    createButton.addEventListener('click', () => { if (getData()?.createAllowed) newRule(); });
+    async function startWizard() {
+        if (startingWizard || dialog.open) return;
+        startingWizard = true;
+        try {
+            if (isDesktop() && getData()?.desktop?.source === 'stored' && !await switchToDraft()) return;
+            if (getData()?.createAllowed && !dialog.open) newRule();
+        } finally { startingWizard = false; }
+    }
+    createButton.addEventListener('click', startWizard);
+    sidebarCreate.addEventListener('click', startWizard);
+    bindText($('back'), () => t('wizard.back'));
+    bindText($('next'), () => t('wizard.next'));
+    function moveWizard(delta) {
+        if (busy || !inWizard() || !wizardSteps[wizardStep + delta]) return;
+        if (delta > 0) {
+            const section = $('fields').querySelector('details[data-section]');
+            if (section) section.open = true;
+            if (!$('form').reportValidity()) return;
+        }
+        wizardStep += delta;
+        renderFields();
+        dialog.scrollTop = 0;
+        $('fields').querySelector('h3')?.focus();
+        remember();
+    }
+    $('back').addEventListener('click', () => moveWizard(-1));
+    $('next').addEventListener('click', () => moveWizard(1));
     sequenceButton.addEventListener('click', () => { if (getData()?.sequenceCreateAllowed) open({id: '', name: '', actions: []}, true, true); });
     $('cancel').addEventListener('click', () => { if (!busy) dialog.close(); });
     dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
     $('reload').addEventListener('click', async () => {
+        if (inWizard()) {
+            if (busy || !wizardStale) return;
+            busy = true;
+            $('reload').disabled = true;
+            try {
+                if (await reload() && (!isDesktop() || editorKey() === pendingKey) && getData()?.createAllowed) {
+                    const headers = systemHeaders(getData());
+                    if (headers['X-Z2MA-System-ID'] === boundHeaders['X-Z2MA-System-ID']
+                        && headers['X-Z2MA-Generation'] === boundHeaders['X-Z2MA-Generation']
+                        && (getData().module?.baseTopic ?? '') === wizardTopic) {
+                        context = getData().createContext; boundHeaders = headers;
+                        wizardSystem = selectedSystemName(getData());
+                        wizardStale = false; renderFields(); remember();
+                        hint(() => t('wizard.refreshed'));
+                        (wizardStep === wizardSteps.length - 1 ? $('submit') : $('next')).focus();
+                        return;
+                    }
+                }
+                hint(() => t('wizard.refreshFailed'));
+            } finally {
+                busy = false;
+                $('reload').disabled = false;
+                $('submit').disabled = wizardStale || !canSave();
+            }
+            return;
+        }
         if (busy || (Object.keys(changes()).length && !confirm(t("ui.discard.your.input.and.load.d4dbc666")))) return;
         if (await reload()) {
             if (creatingSequence) { open({id: '', name: '', actions: []}, true, true); return; }
@@ -278,7 +393,8 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
         else hint(() => (t("ui.the.view.could.not.be.3bee7031")));
     });
     $('form').addEventListener('submit', async event => {
-        event.preventDefault(); if (busy || !canSave()) return;
+        event.preventDefault(); if (busy || wizardStale || !canSave()) return;
+        if (inWizard() && wizardStep < wizardSteps.length - 1) { moveWizard(1); return; }
         const payload = creatingRule ? {requestId, context, rule: creationRule(working)} : {requestId, context, [sequenceMode ? 'sequenceId' : 'ruleId']: original.id, changes: changes()};
         const controls = [...dialog.querySelectorAll('button, input, select')].map(element => [element, element.disabled]);
         busy = true; for (const [element] of controls) element.disabled = true; hint(() => (t("ui.checking.changes.and.applying.them.1a7c8c07")));
@@ -287,12 +403,47 @@ export function installEditing({getData, getRule, reload, onCreated, onEdited, o
             const endpoint = new URL(sequenceMode ? 'sequence' : creatingRule ? 'create' : 'edit', location.href); endpoint.hash = '';
             const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Z2MA-Read-Token': location.hash.slice(1), ...boundHeaders}, body: JSON.stringify(payload), credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal});
             const text = await response.text(); if (text.length > 4096) throw new Error('transport'); const result = localizeResponse(JSON.parse(text));
-            if (!response.ok) { hint(() => (result.message || t("ui.the.change.could.not.be.dbe4cffb"))); return; }
+            if (!response.ok) {
+                if (inWizard() && (isDesktop() ? result.error === 'draftStale' : response.status === 409)) {
+                    wizardStale = true;
+                    bindText($('reload'), () => t('wizard.refresh'));
+                    $('reload').hidden = false;
+                    hint(() => isDesktop() ? t('wizard.stale') : result.message || t('wizard.stale'));
+                } else hint(() => (result.message || t("ui.the.change.could.not.be.dbe4cffb")));
+                return;
+            }
             dialog.close(); if (sequenceMode) await onSequenceSaved(result.sequenceId); else if (creatingRule) await onCreated(result.ruleId); else await onEdited(result.ruleId);
         } catch { hint(() => (t("ui.no.confirmation.from.the.module.7daee70c"))); }
-        finally { clearTimeout(timer); busy = false; for (const [element, disabled] of controls) element.disabled = disabled; }
+        finally {
+            clearTimeout(timer); busy = false;
+            for (const [element, disabled] of controls) element.disabled = disabled;
+            if (wizardStale && dialog.open) { $('submit').disabled = true; $('reload').focus(); }
+        }
     });
     return {refresh() {
+        if (isDesktop() && getData()?.desktop?.project) {
+            const key = editorKey();
+            if (!dialog.open && !recovered.has(key)) {
+                recovered.add(key);
+                try {
+                    const raw = sessionStorage.getItem(key);
+                    if (raw && raw.length <= 131072) {
+                        const saved = JSON.parse(raw);
+                        if (saved.epoch === getData().desktop.epoch && saved.original && saved.working && typeof saved.requestId === 'string') {
+                            open(saved.original, saved.sequenceMode, saved.creatingSequence || saved.creatingRule);
+                            original = saved.original; working = saved.working; context = saved.context; requestId = saved.requestId; boundHeaders = saved.boundHeaders;
+                            if (inWizard() && Number.isInteger(saved.wizardStep) && wizardSteps[saved.wizardStep]) wizardStep = saved.wizardStep;
+                            renderFields(); remember();
+                        } else sessionStorage.removeItem(key);
+                    }
+                } catch { /* Invalid temporary editor state is never applied to a project. */ }
+            }
+        }
+        const data = getData();
+        const fromStored = isDesktop() && data?.desktop?.project && data.workspaceContext?.systemId && data.desktop.source === 'stored';
+        sidebarCreate.disabled = !data?.createAllowed && !fromStored;
+        entryNotice.hidden = !data || !sidebarCreate.disabled;
+        bindText(entryNotice, () => data?.createNotice || t(isDesktop() ? 'wizard.setupNeeded' : 'wizard.noDraft'));
         createButton.disabled = !getData()?.createAllowed;
         createButton.title = getData()?.createNotice || t("ui.create.a.complete.automation.as.dfe84ce2");
         const sequence = getRule()?.kind === 'sequence';

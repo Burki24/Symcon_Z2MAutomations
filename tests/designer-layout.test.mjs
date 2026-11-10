@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {layoutStatus} from '../Z2MAutomations/visualization/layout.js';
+import {layoutStatus, workflowStatus} from '../Z2MAutomations/visualization/layout.js';
 
 test('missing observations never appear as confirmed system or device state', () => {
     assert.deepEqual(layoutStatus(null), {transfer: 'Nicht verfügbar', runtime: 'Nicht bestätigt', catalog: 'Nicht verfügbar'});
@@ -31,4 +31,23 @@ test('a stored catalog timestamp never overrides the missing editor confirmation
     assert.equal(layoutStatus({catalogAvailable: false, catalogRefresh: {loadedAt: null, storedAt: 1800000000}}).catalog, 'Nicht bestätigt');
     assert.equal(layoutStatus({catalogAvailable: true, catalogRefresh: {loadedAt: null, storedAt: 1800000000}}).catalog, 'Nicht bestätigt');
     assert.equal(layoutStatus({catalogAvailable: false, catalogRefresh: {loadedAt: null, storedAt: null}}).catalog, 'Noch nicht geladen');
+});
+
+test('the workflow separates the selected system and stored revision from runtime confirmation', () => {
+    const data = {
+        module: {baseTopic: 'test/base'},
+        workspace: {systems: [{systemId: 'b', name: 'Anderes System'}, {systemId: 'a', name: 'Testsystem'}]},
+        workspaceContext: {systemId: 'a'},
+        status: {confirmed: false, storedRevision: 3},
+        transfer: {receiverConfirmed: true, storedRevision: 4, canStore: false}
+    };
+    assert.deepEqual(workflowStatus(data, false), {
+        system: 'Testsystem', stored: 'In Z2M gespeichert · Revision 4', projectFile: '', next: 'review'
+    });
+    data.transfer.canStore = true;
+    assert.equal(workflowStatus(data, false).next, 'store');
+    data.transfer.receiverConfirmed = false;
+    assert.equal(workflowStatus(data, false).stored, 'Zuletzt in Z2M gelesen · Revision 4');
+    data.status = {...data.status, storedConfirmed: true, storedRevision: 5};
+    assert.equal(workflowStatus(data, false).stored, 'In Z2M gespeichert · Revision 5');
 });

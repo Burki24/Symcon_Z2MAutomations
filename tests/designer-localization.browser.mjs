@@ -15,18 +15,24 @@ const rule = {id: 'rule_a', name: 'Eigener Name – ON', enabled: false, retrigg
     actions: [{type: 'set', target: {type: 'device', id: 'lamp'}, values: {state: 'ON'}, delay_seconds: 5},
         {type: 'set', target: {type: 'device', id: 'lamp'}, values: {state: 'OFF'}, delay_seconds: 0}]};
 const rules = new Map([['a', structuredClone(rule)], ['b', structuredClone(rule)]]);
+const createdRules = new Map([['a', []], ['b', []]]);
+const sequence = {id: 'test_steps', name: 'Test action sequence', actions: [rule.actions[0]]};
 const systems = ['a', 'b'].map((name, index) => ({name: 'Eigenes System ' + name, binding: {systemId: name, generation: 1, baseTopic: name === 'a' ? 'zigbee2mqtt' : 'Z2M-2'}}));
+const interaction = readFileSync(new URL('../libs/helper/visualization/interaction.min.js', import.meta.url), 'utf8');
+let createContext = 'c'.repeat(64);
 function model(id = 'a') {
     return {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
         readAt: 1800000000, catalogAvailable: true, catalogLoadedAt: 1800000000, draftAvailable: true, draftMismatch: false, openFormEdits: false,
-        configuration: {schema_version: 1, revision: 4, mesh_peers: ['kept-peer'], automations: [structuredClone(rules.get(id))], sequences: []},
+        configuration: {schema_version: 1, revision: 4 + createdRules.get(id).length, mesh_peers: ['kept-peer'],
+            automations: [rules.get(id), ...createdRules.get(id)], sequences: [sequence]},
         devices: [{key: 'lamp', name: 'Eigener Gerätename – Ein', target: {type: 'device', id: 'lamp'},
             properties: [{id: 'state', label: 'Eigener Kanal', type: 'binary', readable: true, writable: true, values: ['ON', 'OFF'], actionValues: ['ON', 'OFF', 'TOGGLE'], valueLabels: [], unit: ''}]}],
         status: {confirmed: true, mqttConnected: true, executing: true, activeRevision: 4, storedRevision: 4},
-        timezones: ['UTC', 'Europe/Berlin'], createContext: 'c'.repeat(64), createAllowed: true, editAllowed: true, manageAllowed: true, sequenceAllowed: true,
+        timezones: ['UTC', 'Europe/Berlin'], createContext, createAllowed: true, editAllowed: true, manageAllowed: true, sequenceAllowed: true,
         sequenceCreateAllowed: true, createNotice: '', editNotice: '', sequenceNotice: '', sequenceSections: {},
         editSections: {rule_a: {triggers: true, conditions: true, actions: true}},
-        workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: 'e'.repeat(64)}};
+        workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: 'e'.repeat(64)},
+        transfer: {message: 'Synthetic transfer', details: '', pending: false, receiverConfirmed: true, storedRevision: 4, canValidate: true, canStore: false}};
 }
 let active = 'a';
 const server = createServer(async (request, response) => {
@@ -35,21 +41,82 @@ const server = createServer(async (request, response) => {
     if (request.method === 'POST') {
         const parts = []; for await (const part of request) parts.push(part);
         const body = JSON.parse(Buffer.concat(parts).toString('utf8'));
+        response.setHeader('Content-Type', 'application/json');
         if (route === 'language') audits.push(body);
         else if (route === 'select-system') active = body.systemId;
+        else if (route === 'create') {
+            writes.push({route, body, systemId: request.headers['x-z2ma-system-id']});
+            if (body.context !== createContext) {response.writeHead(409); response.end(JSON.stringify({ok: false})); return;}
+            const id = 'created_' + active;
+            createdRules.get(active).push({...body.rule, id, enabled: false});
+            response.end(JSON.stringify({ok: true, ruleId: id})); return;
+        }
         else { writes.push({route, body}); if (route === 'edit') Object.assign(rules.get(active), structuredClone(body.changes)); }
-        response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ok: true, ruleId: 'rule_a'})); return;
+        response.end(JSON.stringify({ok: true, ruleId: 'rule_a'})); return;
     }
     if (route === 'data') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(model(active))); return;}
     if (!/^[a-z-]+\.(?:js|html|css)$/.test(route)) {response.writeHead(404); response.end(); return;}
     try {
-        let body = readFileSync(new URL(route, assets), 'utf8');
+        let body = route === 'interaction.js' ? interaction : readFileSync(new URL(route, assets), 'utf8');
         if (route === 'index.html') body = body.replace('type="module" src="designer.js"', 'defer src="startup.js"').replace("connect-src 'none'", "connect-src 'self'");
+        if (route === 'tile.html') {
+            body = body.replace('/* TILE_STYLE */', readFileSync(new URL('tile.css', assets), 'utf8'))
+                .replace('/* TILE_BOOTSTRAP */', JSON.stringify({path: '/index.html', objectId: 10000, canMaximize: false}))
+                .replace('/* TILE_INTERACTION */', () => interaction)
+                .replace('/* TILE_SCRIPT */', () => readFileSync(new URL('tile.js', assets), 'utf8'))
+                .replace('/* TILE_ORIGIN */', `window.SymconHTTPOrigin = {resolve: () => location.origin};
+                    window.requestAction = (_, json) => {
+                        const state = {selectedSystem: ${JSON.stringify(active)}, systems: [{systemId: ${JSON.stringify(active)}, name: 'Test system', status: 'Ready'}]};
+                        const access = {systemId: state.selectedSystem, path: '/index.html', token: '${token}', expires: Math.floor(Date.now() / 1000) + 60};
+                        queueMicrotask(() => window.handleMessage(JSON.stringify({...JSON.parse(json), type: 'z2ma-tile', version: 1, ok: true, state, access})));
+                    };`);
+        }
         response.setHeader('Content-Type', route.endsWith('.js') ? 'application/javascript' : route.endsWith('.css') ? 'text/css' : 'text/html'); response.end(body);
     } catch {response.writeHead(404); response.end();}
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({channel: 'msedge', headless: true});
+async function verifyDraftWizard(view, system, refresh = false) {
+    const start = view.locator('#draft-wizard-start:not(:disabled)');
+    await start.waitFor({state: 'attached'});
+    const navigation = view.locator('.navigation .designer-fold');
+    if (await navigation.getAttribute('open') === null) await navigation.locator('summary').click();
+    assert.equal(await view.locator('#workflow-system').innerText(), 'Eigenes System ' + system);
+    assert.match(await view.locator('#draft-status').innerText(), /Revision 4/);
+    assert.match(await view.locator('#workflow-stored').innerText(), /Revision 4/);
+    assert.match(await view.locator('#runtime-status').innerText(), /Revision 4/);
+    await start.click();
+    const dialog = view.locator('#edit-dialog');
+    const next = dialog.locator('#edit-next');
+    const name = 'Wizard test ' + system;
+    assert.match(await dialog.innerText(), new RegExp('Eigenes System ' + system));
+    await next.click();
+    await dialog.locator('#edit-fields input[type=text]').first().fill(name);
+    await dialog.locator('[data-section=triggers] fieldset select').first().selectOption('time');
+    await next.click();
+    await next.click();
+    const action = dialog.locator('[data-section=actions] fieldset select');
+    await action.first().selectOption('sequence');
+    await action.nth(1).selectOption(sequence.id);
+    await next.click();
+    const submit = dialog.locator('#edit-submit');
+    if (refresh) {
+        createContext = 'f'.repeat(64);
+        await submit.click();
+        await dialog.locator('#edit-reload').click();
+        await dialog.locator('#edit-submit:not(:disabled)').waitFor();
+        assert.match(await dialog.locator('#edit-fields').innerText(), new RegExp(name));
+    }
+    await submit.click();
+    await dialog.waitFor({state: 'hidden'});
+    await view.getByRole('heading', {name, exact: true}).waitFor();
+    assert.equal(createdRules.get(system).length, 1);
+    assert.equal(createdRules.get(system)[0].enabled, false);
+    assert.match(await view.locator('#draft-status').innerText(), /Revision 5/);
+    assert.match(await view.locator('#workflow-stored').innerText(), /Revision 4/);
+    await view.locator('#workflow-next').click();
+    await view.locator('#designer-transfer button[data-transfer-action=validate]:focus').waitFor();
+}
 try {
     const context = await browser.newContext({locale: 'en-GB', viewport: {width: 1440, height: 1000}});
     const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
@@ -68,9 +135,16 @@ try {
     await name.evaluate(node => {window.__nameField = node;});
     const box = await dialog.boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.wheel(0, 240); await page.waitForTimeout(100);
-    assert.ok(await dialog.evaluate(node => node.scrollTop > 0), 'the open editor accepts real mouse-wheel input');
-    await dialog.evaluate(node => {window.__dialogScroll = node.scrollTop;});
+    const beforeWheel = await dialog.evaluate(node => {
+        window.__dialogScroll = null;
+        node.addEventListener('wheel', () => node.addEventListener('scrollend', () => {
+            window.__dialogScroll = node.scrollTop;
+        }, {once: true}), {once: true});
+        return node.scrollTop;
+    });
+    await page.mouse.wheel(0, 240);
+    await page.waitForFunction(() => window.__dialogScroll !== null);
+    assert.ok(await page.evaluate(before => window.__dialogScroll > before, beforeWheel), 'the open editor accepts real mouse-wheel input');
     await dialog.evaluate((root, {english, german}) => {
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const rows = []; let node;
         while ((node = walker.nextNode())) {
@@ -122,7 +196,17 @@ try {
     assert.deepEqual(writes.map(write => write.route), ['edit'], 'no Z2M store, install, activation or device request');
     assert.ok(audits.length >= 3);
     assert.ok(audits.every(row => Object.keys(row).sort().join() === 'language,openEditor,previousLanguage'));
+    await verifyDraftWizard(page, 'b', true);
+    active = 'a';
+    const tile = await context.newPage(); tile.on('pageerror', error => errors.push(error.message));
+    await tile.setViewportSize({width: 400, height: 740});
+    await tile.goto('http://127.0.0.1:' + server.address().port + '/tile.html');
+    await tile.getByText('Designer in der Kachel verbunden.', {exact: false}).waitFor();
+    await verifyDraftWizard(tile.frameLocator('#designer-frame'), 'a');
+    assert.deepEqual(writes.map(write => [write.route, write.systemId]), [['edit', undefined], ['create', 'b'], ['create', 'b'], ['create', 'a']]);
+    assert.equal(writes[1].body.requestId, writes[2].body.requestId, 'refresh retains the request identity');
     assert.deepEqual(errors, []);
+    console.log('Offline draft wizard passed: browser and tile, stale-context recovery, disabled creation and status shortcut.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {
