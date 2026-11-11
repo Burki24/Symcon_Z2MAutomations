@@ -96,6 +96,7 @@ function schemaDetails(document) {
     return {issues: issues.slice(0, 20), truncated: issues.length > 20};
 }
 const validateMeshAction = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/leafAction');
+const validateMeshCondition = new Ajv({strict: true, allowUnionTypes: true}).addSchema(AUTOMATIONS_SCHEMA).getSchema(AUTOMATIONS_SCHEMA.$id + '#/definitions/deviceCondition');
 const yamlSchema = JSON_SCHEMA.withTags({
     ...mapTag,
     create: () => Object.create(null),
@@ -140,6 +141,11 @@ export function validateYaml(yaml) {
         const path = '/automations/' + index;
         if (ids.has(automation.id)) issues.push({path: path + '/id', reason: 'duplicate_id'});
         ids.add(automation.id);
+        for (const [condition, clause] of automation.conditions.entries()) {
+            if (automation.enabled && clause.system !== undefined && !document.mesh_peers?.includes(clause.system)) {
+                issues.push({path: path + '/conditions/' + condition + '/system', reason: 'remote_permission'});
+            }
+        }
         let plan = [];
         try { plan = expandActionPlan(document, automation.actions); }
         catch (error) {
@@ -396,6 +402,7 @@ export default class Z2MAutomationsExtension {
         this.diagnostics = new RuntimeDiagnostics(mqtt, options.clock);
         this.runtime = new AutomationRuntime({zigbee: _zigbee, logger, clock: options.clock,
             remoteDispatch: (action, context) => this.mesh.dispatch(action, context),
+            remoteCondition: (clause, context) => this.mesh.condition(clause, context),
             onDeactivate: () => this.mesh?.cancel(),
             onCancelRun: run => this.mesh?.cancelRun(run),
             readState: typeof _state?.get === 'function' ? entity => _state.get(entity) : undefined,
@@ -475,7 +482,7 @@ export default class Z2MAutomationsExtension {
             this.baseTopic = this.settings.get().mqtt.base_topic;
             this.runJournal.frozen = false;
             this.runtime.system = this.baseTopic;
-            this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, clock: this.clock});
+            this.mesh = new MeshTransport({mqtt: this.mqtt, system: this.baseTopic, runtime: this.runtime, validateAction: validateMeshAction, validateCondition: validateMeshCondition, clock: this.clock});
             this.session = randomUUID();
             this.runtime.results.clear();
             this.runtime.executionSequence = 0;
@@ -698,7 +705,8 @@ export default class Z2MAutomationsExtension {
                         await this.store.verifyDisk();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         const selected = this.store.current.document.automations.find(rule => rule.id === request.rule_id);
-                        if (selected && expandActionPlan(this.store.current.document, selected.actions).some(step => step.action.target.system !== undefined)) await this.prepareMesh();
+                        if (selected && (selected.conditions.some(clause => clause.system !== undefined)
+                            || expandActionPlan(this.store.current.document, selected.actions).some(step => step.action.target.system !== undefined))) await this.prepareMesh();
                         if (!this.accepting || generation !== this.runtime.generation) fail('not_ready');
                         this.runtime.startOnce(this.store.current, request.rule_id);
                     } else {

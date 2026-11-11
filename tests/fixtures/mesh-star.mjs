@@ -93,8 +93,9 @@ export async function meshStar(systems = ['synthetic/s1', 'synthetic/s3', 'synth
                     publications.push(packet);
                     if (!network.hold(packet)) route(index, -1, packet);
                 }};
+            node.state = {state: 'OFF'};
             node.extension = new Extension({resolveEntity: id => id === sourceID ? device : null, groupsIterator: () => [group]},
-                mqtt, {get: () => ({state: 'OFF'})}, null, bus, null, null, null,
+                mqtt, {get: () => node.state}, null, bus, null, null, null,
                 {get: () => ({mqtt: {base_topic: system}})}, {debug: message => node.logs.push(message)}, {directory, clock});
             node.request = async (operation, fields = {}) => {
                 const transaction = 'synthetic-star-' + ++request;

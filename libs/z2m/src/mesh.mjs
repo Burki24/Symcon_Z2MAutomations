@@ -10,11 +10,12 @@ export const meshSystemValid = value => typeof value === 'string' && value.lengt
 export const meshSystemKey = value => createHash('sha256').update(value).digest('hex');
 
 export class MeshTransport {
-    constructor({mqtt, system, runtime, validateAction, clock, uuid = randomUUID}) {
+    constructor({mqtt, system, runtime, validateAction, validateCondition, clock, uuid = randomUUID}) {
         this.mqtt = mqtt;
         this.system = system;
         this.runtime = runtime;
         this.validateAction = validateAction;
+        this.validateCondition = validateCondition;
         this.clock = clock ?? {now: () => performance.now(), setTimeout, clearTimeout};
         this.uuid = uuid;
         this.waiters = new Map();
@@ -118,6 +119,20 @@ export class MeshTransport {
         this.runtime.log('EMPFANG', 'Zielsystem hat die native Befehlsübergabe bestätigt; Gerätewirkung nicht bestätigt.', {}, context);
     }
 
+    async condition(clause, context = {}) {
+        const destination = clause.system;
+        const allowed = () => this.subscribed && destination !== this.system && this.runtime.permittedPeer(destination, context);
+        if (!allowed()) throw new RuntimeError('mesh_not_allowed');
+        const generation = this.runtime.generation;
+        const {system, ...condition} = clause;
+        const transaction = this.uuid();
+        const trace = debugTrace(context);
+        const result = await this.exchange(destination, 'condition', {transaction, condition, ...(trace ? {trace} : {})}, 'condition_result', context);
+        if (generation !== this.runtime.generation || !allowed()) throw new RuntimeError('mesh_stopped');
+        if (result.status !== 'ok' || typeof result.passed !== 'boolean') throw new RuntimeError('mesh_rejected');
+        return result.passed;
+    }
+
     async receive(event) {
         const prefix = MESH_ROOT + meshSystemKey(this.system) + '/';
         if (typeof event?.topic !== 'string' || !event.topic.startsWith(prefix)) return false;
@@ -128,7 +143,7 @@ export class MeshTransport {
             if (!meshObject(message) || message.mesh_version !== 1 || !meshSystemValid(message.source)
                 || typeof message.transaction !== 'string' || !/^[a-f0-9-]{36}$/.test(message.transaction)
                 || message.source === this.system) throw new RuntimeError('mesh_not_allowed');
-            if (['challenge', 'result'].includes(phase)) {
+            if (['challenge', 'result', 'condition_result'].includes(phase)) {
                 const waiter = this.waiters.get(message.transaction);
                 if (!waiter || waiter.destination !== message.source || waiter.phase !== phase) return true;
                 this.waiters.delete(message.transaction);
@@ -138,7 +153,13 @@ export class MeshTransport {
             }
             if (!this.allowed(message.source)) throw new RuntimeError('mesh_not_allowed');
             const key = message.source + ':' + message.transaction;
-            if (phase === 'prepare') {
+            if (phase === 'condition') {
+                if (Object.keys(message).filter(key => key !== 'trace').sort().join(',') !== 'condition,mesh_version,source,transaction'
+                    || !this.validateCondition?.(message.condition) || message.condition.system !== undefined) throw new RuntimeError('mesh_invalid');
+                const passed = this.runtime.readCondition(message.condition);
+                this.runtime.log('AKTION', 'Bedingung geprüft.', {Erfüllt: passed}, {...debugTrace(message.trace), origin: message.source});
+                await this.publish(message.source, 'condition_result', {transaction: message.transaction, status: 'ok', passed});
+            } else if (phase === 'prepare') {
                 if (Object.keys(message).filter(key => key !== 'trace').sort().join(',') !== 'digest,mesh_version,source,transaction'
                     || typeof message.digest !== 'string' || !/^[a-f0-9]{64}$/.test(message.digest)) throw new RuntimeError('mesh_invalid');
                 for (const [id, entry] of this.challenges) if (entry.expires <= this.clock.now()) this.challenges.delete(id);

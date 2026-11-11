@@ -140,10 +140,19 @@ selbst ersetzen keine Sicherung der Symcon-Konfiguration oder des Z2M-Datenordne
 
 ## 5. Mehrere Z2M-Systeme
 
-Jedes beteiligte Z2M-System benötigt seine eigene Erweiterung. Eine
-Automationszentrale kann bis zu acht Systeme verwalten. Geräteauslöser und
-Gerätebedingungen gehören zum eigenen System; freigegebene Aktionsziele können
-auf einem anderen System liegen.
+Each participating Z2M system needs its own extension. Up to eight systems can
+be managed. Device triggers remain local. A `device_value` condition may name a
+partner using the optional `system` base topic, just as actions use
+`target.system`. Extension 0.2.1 or later is required on both systems for remote
+conditions. The desktop editor exposes them; the Symcon forms remain unchanged.
+
+Both configurations must explicitly declare the partner in `mesh_peers`, and
+the receiving extension must be active. A condition is evaluated against the
+owning Z2M instance's current cached device state, independently at run start
+and before each action. `start_only` conditions are checked at run start only.
+Unknown values, missing replies, revoked permissions and stopped receivers
+cannot authorize an action. No physical device read or command is issued by a
+condition. See [ADR 0038](../../docs/adr/0038-remote-device-conditions.md).
 
 Die Übertragung zwischen den Erweiterungen verwendet ausschließlich
 `z2ma/mesh/#`. Bei einem gemeinsamen Broker sind passende Rechte nötig; bei

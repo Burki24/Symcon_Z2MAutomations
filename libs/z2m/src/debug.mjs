@@ -5,8 +5,11 @@ export {DEBUG_EVENTS};
 const debugCodes = new Map(Object.entries(DEBUG_EVENTS).map(([code, entry]) => [entry.message, code]));
 const debugUUID = value => typeof value === 'string' && /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value);
 export const debugTrace = value => value && debugUUID(value.run) && Number.isInteger(value.rule) && value.rule >= 1 && value.rule <= 100
-    && Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 && Number.isSafeInteger(value.revision) && value.revision >= 1
-    ? {run: value.run, rule: value.rule, step: value.step, revision: value.revision,
+    && (Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 || Number.isInteger(value.condition) && value.condition >= 1 && value.condition <= 16)
+    && Number.isSafeInteger(value.revision) && value.revision >= 1
+    ? {run: value.run, rule: value.rule, revision: value.revision,
+        ...(Number.isInteger(value.step) && value.step >= 1 && value.step <= 16 ? {step: value.step} : {}),
+        ...(Number.isInteger(value.condition) && value.condition >= 1 && value.condition <= 16 ? {condition: value.condition} : {}),
         ...(Number.isInteger(value.sequence) && value.sequence >= 1 && value.sequence <= 32
             && Number.isInteger(value.sequence_step) && value.sequence_step >= 1 && value.sequence_step <= 16
             ? {sequence: value.sequence, sequence_step: value.sequence_step} : {})} : undefined;

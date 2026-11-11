@@ -23,11 +23,12 @@ function compare(actual, clause) {
 }
 
 export class AutomationRuntime {
-    constructor({zigbee, dispatch, logger, clock = nativeClock, available = true, readState, remoteDispatch, onDeactivate, onCancelRun}) {
+    constructor({zigbee, dispatch, logger, clock = nativeClock, available = true, readState, remoteDispatch, remoteCondition, onDeactivate, onCancelRun}) {
         this.zigbee = zigbee;
         this.dispatch = dispatch;
         this.readState = readState;
         this.remoteDispatch = remoteDispatch;
+        this.remoteCondition = remoteCondition;
         this.onDeactivate = onDeactivate;
         this.onCancelRun = onCancelRun;
         this.logger = logger;
@@ -84,7 +85,9 @@ export class AutomationRuntime {
         if (!this.available || typeof this.dispatch !== 'function') throw new RuntimeError('runtime_unavailable');
         const rule = candidate.document.automations.find(item => item.id === ruleID);
         if (!rule) throw new RuntimeError('rule_missing');
-        for (const clause of rule.conditions) if (clause.device && !this.device(clause.device)) throw new RuntimeError('unknown_entity');
+        for (const clause of rule.conditions) if (clause.system !== undefined) {
+            if (!candidate.document.mesh_peers?.includes(clause.system) || typeof this.remoteCondition !== 'function') throw new RuntimeError('mesh_not_allowed');
+        } else if (clause.device && !this.device(clause.device)) throw new RuntimeError('unknown_entity');
         for (const {action} of expandActionPlan(candidate.document, rule.actions)) {
             if (action.target.system !== undefined) {
                 if (!candidate.document.mesh_peers?.includes(action.target.system) || typeof this.remoteDispatch !== 'function') throw new RuntimeError('mesh_not_allowed');
@@ -157,6 +160,10 @@ export class AutomationRuntime {
         for (const rule of rules) {
             for (const clause of [...rule.triggers, ...rule.conditions]) {
                 if (!clause.device) continue;
+                if (clause.system !== undefined) {
+                    if (!candidate.document.mesh_peers?.includes(clause.system) || typeof this.remoteCondition !== 'function') throw new RuntimeError('mesh_not_allowed');
+                    continue;
+                }
                 if (!this.device(clause.device)) throw new RuntimeError('unknown_entity');
                 if (!references.has(clause.device)) references.set(clause.device, new Set());
                 references.get(clause.device).add(clause.property);
@@ -228,6 +235,8 @@ export class AutomationRuntime {
 
     conditions(rule, context = {}, starting = true) {
         return rule.conditions.every((clause, index) => {
+            // Remote clauses are evaluated by checkedConditions, never against a local IEEE match.
+            if (clause.system !== undefined) return true;
             if (clause.start_only && !starting) {
                 this.log('AKTION', 'Nur beim Start gültige Bedingung im laufenden Ablauf nicht erneut geprüft.', {}, {...context, condition: index + 1});
                 return true;
@@ -254,12 +263,33 @@ export class AutomationRuntime {
         });
     }
 
+    readCondition(clause) {
+        const device = this.device(clause.device);
+        if (!device || typeof this.readState !== 'function') return false;
+        let state;
+        try { state = this.readState(device); } catch { return false; }
+        return object(state) && Object.hasOwn(state, clause.property) && compare(state[clause.property], clause);
+    }
+
+    async checkedConditions(rule, context, starting = true) {
+        if (!this.conditions(rule, context, starting)) return false;
+        for (const [index, clause] of rule.conditions.entries()) {
+            if (clause.system === undefined || clause.start_only && !starting) continue;
+            if (typeof this.remoteCondition !== 'function') throw new RuntimeError('mesh_unavailable');
+            const passed = await this.remoteCondition(clause, {...context, condition: index + 1});
+            this.log('AKTION', 'Bedingung geprüft.', {Erfüllt: passed}, {...context, condition: index + 1});
+            if (!passed) return false;
+        }
+        // Local values may have changed while a remote answer was in flight.
+        return this.conditions(rule, context, starting);
+    }
+
     receive(event) {
         if ((!this.active && this.executions.size === 0) || !event?.entity?.isDevice?.() || !object(event.payload)
             || ['publishCached', 'lastSeenChanged'].includes(event.stateChangeReason)) return;
         const id = event.entity.ieeeAddr;
         for (const execution of this.executions.values()) if (execution.once && !execution.cancelled) {
-            for (const clause of execution.rule.conditions) if (clause.device === id && Object.hasOwn(event.payload, clause.property)) {
+            for (const clause of execution.rule.conditions) if (clause.system === undefined && clause.device === id && Object.hasOwn(event.payload, clause.property)) {
                 const values = execution.values.get(id) ?? Object.create(null);
                 values[clause.property] = scalar(event.payload[clause.property]) ? event.payload[clause.property] : undefined;
                 execution.values.set(id, values);
@@ -380,7 +410,7 @@ export class AutomationRuntime {
         });
     }
 
-    retrigger(rule, context) {
+    retrigger(rule, context, checked = false) {
         const execution = [...this.executions.values()].find(item => item.rule.id === rule.id);
         const policy = rule.retrigger ?? 'ignore';
         const now = this.clock.now();
@@ -390,6 +420,20 @@ export class AutomationRuntime {
         }
         if (now - (this.cooldowns.get(rule.id) ?? -Infinity) < RUNTIME_LIMITS.ruleCooldownMs) {
             this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'cooldown'}, context);
+            return;
+        }
+        if (!checked && rule.conditions.some(clause => clause.system !== undefined)) {
+            if (execution.retriggerPending) return;
+            execution.retriggerPending = true;
+            void this.checkedConditions(rule, {...context, run: execution.context.run}, policy !== 'extend').then(passed => {
+                execution.retriggerPending = false;
+                if (this.executions.get(execution.context.run) !== execution || !this.canContinue(execution.generation, execution.context)) return;
+                if (passed) this.retrigger(rule, context, true);
+                else this.log('AKTION', 'Erneute Auslösung wegen nicht erfüllter Bedingungen verworfen; vorhandener Lauf bleibt unverändert.', {}, context);
+            }).catch(error => {
+                execution.retriggerPending = false;
+                this.log('FEHLER', 'Aktionsfolge abgebrochen; keine automatische Wiederholung.', {Grund: error instanceof RuntimeError ? error.code : 'mesh_unavailable'}, context);
+            });
             return;
         }
         if (!this.conditions(rule, context, policy !== 'extend')) {
@@ -436,7 +480,7 @@ export class AutomationRuntime {
         const execution = {rule, context, generation, candidate: once ?? this.active, once: Boolean(once), cancelled: false};
         if (once) {
             execution.values = new Map();
-            for (const clause of rule.conditions) if (clause.device) {
+            for (const clause of rule.conditions) if (clause.device && clause.system === undefined) {
                 let cached;
                 try { cached = this.readState?.(this.device(clause.device)); } catch { /* Unknown conditions cannot authorize a command. */ }
                 const values = execution.values.get(clause.device) ?? Object.create(null);
@@ -453,7 +497,10 @@ export class AutomationRuntime {
         }
         this.cooldowns.set(rule.id, now);
         this.executionState(rule, context, 'running');
-        this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
+        if (!rule.conditions.some(clause => clause.system !== undefined)) {
+            execution.started = true;
+            this.log('START', once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
+        }
         // Schedule the task after registering it so synchronous feedback cannot re-enter this rule.
         const task = Promise.resolve().then(() => this.run(rule, generation, context, resumed)).catch(error => {
             if (execution.restart) {
@@ -474,7 +521,7 @@ export class AutomationRuntime {
             this.executions.delete(context.run);
             if (this.running.get(rule.id) === task) this.running.delete(rule.id);
             this.tasks.delete(task);
-            this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
+            if (execution.started) this.log('ENDE', 'Aktionsfolge beendet; Übergaben sind keine Gerätebestätigung.', {Regel: rule.id}, context);
             if (restart && restart.generation === this.generation && this.active === restart.candidate) {
                 this.onCancelRun?.(context.run);
                 this.log('AKTION', 'Vorheriger Lauf beendet; erneute Auslösung wird für Neustart geprüft.', {}, restart.context);
@@ -520,6 +567,16 @@ export class AutomationRuntime {
 
     async run(rule, generation, context, resumed = null) {
         const document = this.executions.get(context.run)?.candidate.document ?? this.active?.document;
+        if (!resumed && rule.conditions.some(clause => clause.system !== undefined)) {
+            const passed = await this.checkedConditions(rule, context);
+            if (!this.canContinue(generation, context)) return;
+            if (!passed) {
+                this.executionState(rule, context, 'skipped', 'conditions_not_met');
+                this.log('AKTION', 'Regellauf nicht gestartet.', {Grund: 'conditions_not_met'}, context); return;
+            }
+            this.executions.get(context.run).started = true;
+            this.log('START', this.executions.get(context.run)?.once ? 'Einmaliger Regellauf mit erfüllten Bedingungen begonnen.' : 'Auslöser und Bedingungen erfüllt; Aktionsfolge begonnen.', {Regel: rule.id}, context);
+        }
         for (const [index, entry] of expandActionPlan(document, rule.actions).entries()) {
             if (resumed && index < resumed.step - 1) continue;
             const {action} = entry;
@@ -545,7 +602,9 @@ export class AutomationRuntime {
             catch { throw new RuntimeError('storage_error'); }
             if (!this.canContinue(generation, context)) return;
             resumed = null;
-            if (!this.conditions(rule, step, false)) {
+            const passed = await this.checkedConditions(rule, step, false);
+            if (!this.canContinue(generation, context) || this.executions.get(context.run)?.restart) return;
+            if (!passed) {
                 this.executionState(rule, context, 'skipped', 'conditions_not_met', index + 1);
                 this.log('AKTION', 'Bedingung vor Aktion nicht mehr erfüllt.', {Regel: rule.id}, step); return;
             }

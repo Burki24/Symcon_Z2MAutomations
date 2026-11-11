@@ -6,6 +6,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- The shared Z2M extension supports device-value conditions on explicitly
+  permitted partner systems. Each check asks the owning extension for a fresh
+  decision; missing values, stopped receivers and timeouts prevent the action.
+  The desktop app exposes this selection; the Symcon forms remain unchanged.
+
 - Im Browserdesigner und in der Kachel Automationen in einem Formular erstellen
   und den vollständigen Systementwurf direkt als YAML herunterladen. Neue
   Regeln beginnen ausgeschaltet. Die Übernahme nach Zigbee2MQTT bleibt separat.
