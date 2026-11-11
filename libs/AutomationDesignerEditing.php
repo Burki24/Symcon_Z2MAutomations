@@ -34,14 +34,14 @@ trait AutomationDesignerEditing
         return false;
     }
 
-    private function DesignerEditRequest(): array
+    private function DesignerEditRequest(bool $export = false): array
     {
         $failure = $this->DesignerWriteHeaders();
         if ($failure !== null) {
             return $failure;
         }
         $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
-        return $this->WithTransportLock(function () use ($token): array
+        return $this->WithTransportLock(function () use ($token, $export): array
         {
             if (!$this->DesignerWriteAccess($token, 'edit')) {
                 return $this->DesignerCreateFailure(403, 'Der Bearbeitungszugang fehlt oder ist abgelaufen. Bitte den Designer erneut im Modul öffnen.');
@@ -67,7 +67,7 @@ trait AutomationDesignerEditing
                 return $this->DesignerCreateFailure(403, 'Der Bearbeitungszugang ist inzwischen abgelaufen. Bitte den Designer erneut im Modul öffnen.');
             }
             $digest = hash('sha256', json_encode([$request['ruleId'], $request['changes']], JSON_THROW_ON_ERROR));
-            foreach ($sessions[$sessionIndex]['receipts'] ?? [] as $receipt) {
+            foreach ($export ? [] : ($sessions[$sessionIndex]['receipts'] ?? []) as $receipt) {
                 if ($receipt['request'] === $request['requestId']) {
                     if (($receipt['kind'] ?? 'create') !== 'edit' || $receipt['digest'] !== $digest) {
                         return $this->DesignerCreateFailure(409, 'Dieser Auftrag wurde bereits mit anderen Angaben verwendet. Bitte die Ansicht aktualisieren.');
@@ -98,10 +98,12 @@ trait AutomationDesignerEditing
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerWriteAccess($token, 'edit')) {
                 return $this->DesignerCreateFailure(409, 'Die Verbindung oder der Zugang wurde geändert. Bitte den Designer erneut im Modul öffnen.');
             }
+            $draft['configuration']['automations'][$index] = $rule;
+            $invalidDraft = 'Die Änderung konnte nicht übernommen werden. Bitte Länge der Aktionsfolge und Entwurfsgröße prüfen.';
+            if ($export) return $this->DesignerExportYaml($draft, $invalidDraft);
             if ($changed) {
-                $draft['configuration']['automations'][$index] = $rule;
                 if (!$this->CommitEditorChange($state, $draft, 'draft_updated', $rule['id'])) {
-                    return $this->DesignerCreateFailure(422, 'Die Änderung konnte nicht übernommen werden. Bitte Länge der Aktionsfolge und Entwurfsgröße prüfen.');
+                    return $this->DesignerCreateFailure(422, $invalidDraft);
                 }
             }
             if ($changed && array_key_exists('actions', $fields)) $this->DesignerActionOrderDebug($original['actions'], $rule['actions']);
@@ -118,6 +120,15 @@ trait AutomationDesignerEditing
             );
             return [200, ['ruleId' => $rule['id'], 'message' => 'Änderung im lokalen Symcon-Entwurf übernommen. Z2M bleibt unverändert.']];
         });
+    }
+
+    private function DesignerExportYaml(array $draft, string $invalidDraft): array
+    {
+        $error = '';
+        $yaml = $this->EncodeEditorDraft($draft, $error);
+        if ($yaml === null) return $this->DesignerCreateFailure(422, $invalidDraft);
+        $this->DebugEvent('AKTION', 'YAML-Datei aus dem lokalen Entwurf vorbereitet.', ['Automationen' => count($draft['configuration']['automations'])]);
+        return [200, ['yaml' => $yaml]];
     }
 
     private function DesignerRuleFields(array $fields, ?array $original, string &$error): ?array

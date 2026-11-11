@@ -7,7 +7,7 @@ const {chromium} = await import(pathToFileURL(process.env.Z2MA_PLAYWRIGHT_MODULE
 const catalogs = JSON.parse(readFileSync(new URL('../Z2MAutomations/visualization/locales/en.json', import.meta.url), 'utf8'));
 const german = JSON.parse(readFileSync(new URL('../Z2MAutomations/visualization/locales/de.json', import.meta.url), 'utf8'));
 const assets = new URL('../Z2MAutomations/visualization/', import.meta.url);
-const audits = []; const writes = []; const errors = [];
+const audits = []; const writes = []; const exports = []; const errors = [];
 const token = 'a'.repeat(64);
 const rule = {id: 'rule_a', name: 'Eigener Name – ON', enabled: false, retrigger: 'extend',
     triggers: [{type: 'device', device: 'lamp', property: 'state', operator: 'eq', value: 'ON'}],
@@ -44,6 +44,14 @@ const server = createServer(async (request, response) => {
         response.setHeader('Content-Type', 'application/json');
         if (route === 'language') audits.push(body);
         else if (route === 'select-system') active = body.systemId;
+        else if (route === 'create-yaml') {
+            const systemId = request.headers['x-z2ma-system-id'];
+            exports.push({route, systemId});
+            const candidate = structuredClone(model(systemId).configuration);
+            candidate.revision++;
+            candidate.automations.push({...body.rule, id: 'exported_' + systemId, enabled: false});
+            response.end(JSON.stringify({yaml: JSON.stringify(candidate, null, 2) + '\n'})); return;
+        }
         else if (route === 'create') {
             writes.push({route, body, systemId: request.headers['x-z2ma-system-id']});
             if (body.context !== createContext) {response.writeHead(409); response.end(JSON.stringify({ok: false})); return;}
@@ -76,7 +84,7 @@ const server = createServer(async (request, response) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({channel: 'msedge', headless: true});
-async function verifyDraftWizard(view, system, refresh = false) {
+async function verifyDraftForm(page, view, system, refresh = false) {
     const start = view.locator('#draft-wizard-start:not(:disabled)');
     await start.waitFor({state: 'attached'});
     const navigation = view.locator('.navigation .designer-fold');
@@ -87,26 +95,69 @@ async function verifyDraftWizard(view, system, refresh = false) {
     assert.match(await view.locator('#runtime-status').innerText(), /Revision 4/);
     await start.click();
     const dialog = view.locator('#edit-dialog');
-    const next = dialog.locator('#edit-next');
-    const name = 'Wizard test ' + system;
+    const name = 'Form test ' + system;
+    const nameInput = dialog.locator('#edit-fields input[type=text]').first();
+    const exportButton = dialog.locator('#edit-export');
     assert.match(await dialog.innerText(), new RegExp('Eigenes System ' + system));
-    await next.click();
-    await dialog.locator('#edit-fields input[type=text]').first().fill(name);
+    assert.equal(await dialog.locator('[data-section=conditions]').getAttribute('open'), null);
+    assert.equal(await dialog.locator('#edit-next').count(), 0);
+    assert.ok(await dialog.evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'the form fits its available width');
+    assert.ok(await exportButton.evaluate(node => {
+        const button = node.getBoundingClientRect();
+        const dialog = node.closest('dialog').getBoundingClientRect();
+        return button.top >= dialog.top && button.bottom <= Math.min(dialog.bottom, innerHeight);
+    }), 'the YAML action is visible at the start of the form');
+    if (view !== page) {
+        const box = await dialog.boundingBox();
+        await page.mouse.move(box.x + 20, box.y + 80);
+        for (const delta of [240, -240]) {
+            const top = await dialog.evaluate(node => {
+                delete node.dataset.testWheel;
+                node.addEventListener('scrollend', () => { node.dataset.testWheel = 'scrolled'; }, {once: true});
+                return node.scrollTop;
+            });
+            await page.mouse.wheel(0, delta);
+            await view.locator('#edit-dialog[data-test-wheel=scrolled]').waitFor();
+            assert.ok(await dialog.evaluate((node, before) => node.scrollTop - before, top) * delta > 0, 'the tile editor scrolls in the wheel direction');
+        }
+    }
+    await exportButton.click();
+    assert.equal(await nameInput.getAttribute('aria-invalid'), 'true');
+    assert.ok(await nameInput.evaluate(node => node === node.ownerDocument.activeElement));
+    await nameInput.fill(name);
+    const conditions = dialog.locator('[data-section=conditions]');
+    await conditions.locator('summary').click();
+    await conditions.getByRole('button', {name: 'Bedingung hinzufügen', exact: true}).click();
+    const conditionKind = conditions.locator('fieldset select').first();
+    assert.equal(await conditionKind.inputValue(), 'device_value');
+    assert.ok(await conditionKind.evaluate(node => node === node.ownerDocument.activeElement));
+    await conditions.locator('fieldset .edit-row-tools button').click();
+    await conditions.locator('summary').click();
     await dialog.locator('[data-section=triggers] fieldset select').first().selectOption('time');
-    await next.click();
-    await next.click();
     const action = dialog.locator('[data-section=actions] fieldset select');
     await action.first().selectOption('sequence');
     await action.nth(1).selectOption(sequence.id);
-    await next.click();
     const submit = dialog.locator('#edit-submit');
     if (refresh) {
         createContext = 'f'.repeat(64);
         await submit.click();
         await dialog.locator('#edit-reload').click();
         await dialog.locator('#edit-submit:not(:disabled)').waitFor();
-        assert.match(await dialog.locator('#edit-fields').innerText(), new RegExp(name));
+        assert.equal(await nameInput.inputValue(), name);
     }
+    const before = model(system).configuration;
+    const [download] = await Promise.all([page.waitForEvent('download'), exportButton.click()]);
+    assert.equal(download.suggestedFilename(), 'automations.yaml');
+    const candidate = JSON.parse(readFileSync(await download.path(), 'utf8'));
+    assert.deepEqual(candidate.automations[0], before.automations[0]);
+    assert.deepEqual(candidate.mesh_peers, before.mesh_peers);
+    assert.deepEqual(candidate.sequences, before.sequences);
+    assert.equal(candidate.automations[1].name, name);
+    assert.equal(candidate.automations[1].enabled, false);
+    assert.equal(candidate.automations[1].actions[0].sequence_id, sequence.id);
+    assert.deepEqual(model(system).configuration, before);
+    assert.ok(await dialog.isVisible());
+    assert.equal(await nameInput.inputValue(), name);
     await submit.click();
     await dialog.waitFor({state: 'hidden'});
     await view.getByRole('heading', {name, exact: true}).waitFor();
@@ -125,11 +176,15 @@ try {
     assert.equal(await page.locator('html').getAttribute('lang'), 'en');
     await page.locator('#edit-automation-button').click();
     const dialog = page.locator('#edit-dialog'); await dialog.waitFor({state: 'visible'});
+    await dialog.locator('[data-section=settings] summary').click();
     await dialog.getByLabel('After a Zigbee2MQTT restart', {exact: true}).selectOption('resume_expired');
     const name = dialog.locator('input[type=text]').first(); await name.fill('Unsaved user input – Ein ON');
     await dialog.locator('[data-action-index="0"] input[type=number]').first().fill('9');
     await dialog.locator('[data-action-index="1"]').getByRole('button', {name: 'Move up', exact: true}).click();
     const search = dialog.locator('input[type=search]').first(); await search.fill('Eigener');
+    await search.press('Enter');
+    assert.ok(await dialog.locator('.edit-device-picker select').first().evaluate(node => node === node.ownerDocument.activeElement));
+    assert.deepEqual(writes, [], 'Enter in a device search selects the results control without submitting');
     const selects = await dialog.locator('select:not([data-language-select])').evaluateAll(nodes => nodes.map(n => n.value));
     const checks = await dialog.locator('input[type=checkbox]').evaluateAll(nodes => nodes.map(n => n.checked));
     await name.evaluate(node => {window.__nameField = node;});
@@ -196,17 +251,18 @@ try {
     assert.deepEqual(writes.map(write => write.route), ['edit'], 'no Z2M store, install, activation or device request');
     assert.ok(audits.length >= 3);
     assert.ok(audits.every(row => Object.keys(row).sort().join() === 'language,openEditor,previousLanguage'));
-    await verifyDraftWizard(page, 'b', true);
+    await verifyDraftForm(page, page, 'b', true);
     active = 'a';
     const tile = await context.newPage(); tile.on('pageerror', error => errors.push(error.message));
     await tile.setViewportSize({width: 400, height: 740});
     await tile.goto('http://127.0.0.1:' + server.address().port + '/tile.html');
     await tile.getByText('Designer in der Kachel verbunden.', {exact: false}).waitFor();
-    await verifyDraftWizard(tile.frameLocator('#designer-frame'), 'a');
+    await verifyDraftForm(tile, tile.frameLocator('#designer-frame'), 'a');
     assert.deepEqual(writes.map(write => [write.route, write.systemId]), [['edit', undefined], ['create', 'b'], ['create', 'b'], ['create', 'a']]);
     assert.equal(writes[1].body.requestId, writes[2].body.requestId, 'refresh retains the request identity');
+    assert.deepEqual(exports, [{route: 'create-yaml', systemId: 'b'}, {route: 'create-yaml', systemId: 'a'}]);
     assert.deepEqual(errors, []);
-    console.log('Offline draft wizard passed: browser and tile, stale-context recovery, disabled creation and status shortcut.');
+    console.log('Offline draft form passed: browser and tile, field validation, scoped YAML downloads and independent draft save.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {

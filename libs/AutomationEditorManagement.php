@@ -320,17 +320,24 @@ trait AutomationEditorManagement
         return false;
     }
 
-    private function CommitEditorChange(array $state, array $draft, string $status, string $selection): bool
+    private function EncodeEditorDraft(array &$draft, string &$error): ?string
     {
-        $sequenceError = SequencePlan::Error($draft['configuration']);
-        if ($sequenceError !== '') {
-            return $this->RejectEditorChange($state, $sequenceError);
-        }
+        $error = SequencePlan::Error($draft['configuration']);
+        if ($error !== '') return null;
         $draft['configuration']['revision'] = $draft['baseRevision'] + 1;
         $yaml = json_encode($draft['configuration'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
-        if (!ExtensionContract::ValidYamlText($yaml)) {
-            return $this->RejectEditorChange($state, 'editor_invalid');
+        if (!ExtensionContract::Revision($draft['configuration']['revision']) || !ExtensionContract::ValidYamlText($yaml)) {
+            $error = 'editor_invalid';
+            return null;
         }
+        return $yaml;
+    }
+
+    private function CommitEditorChange(array $state, array $draft, string $status, string $selection): bool
+    {
+        $error = '';
+        $yaml = $this->EncodeEditorDraft($draft, $error);
+        if ($yaml === null) return $this->RejectEditorChange($state, $error);
         $this->SaveEditorDraft($draft, $yaml);
         $this->SetEditorSelection($this->ReadEditorDraft(), $selection);
         $this->CompleteEditorWork(str_starts_with($status, 'sequence_') ? 'sequence' : 'rule');

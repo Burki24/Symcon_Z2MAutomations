@@ -55,12 +55,12 @@ trait AutomationDesigner
             $prefix = '/hook/' . $this->DesignerHookName() . '/';
             $uri = $_SERVER['REQUEST_URI'] ?? '';
             $asset = str_starts_with($uri, $prefix) ? substr($uri, strlen($prefix)) : '';
-            $types = self::DESIGNER_ASSETS + ['language' => 'application/json', 'access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
+            $types = self::DESIGNER_ASSETS + ['language' => 'application/json', 'access-renew' => 'application/json', 'runtime' => 'application/json', 'runtime-status' => 'application/json', 'transfer' => 'application/json', 'transfer-status' => 'application/json', 'select-system' => 'application/json', 'devices' => 'application/json', 'data' => 'application/json', 'create' => 'application/json', 'edit' => 'application/json', 'create-yaml' => 'application/json', 'edit-yaml' => 'application/json', 'sequence' => 'application/json', 'manage' => 'application/json', 'catalog-refresh' => 'application/json', 'catalog-status' => 'application/json', 'event-import' => 'application/json', 'diagnostics' => 'application/json', 'diagnostics-status' => 'application/json', 'installation' => 'application/json', 'installation-status' => 'application/json', 'permissions' => 'application/json', 'permissions-status' => 'application/json'];
             if (!isset($types[$asset])) {
                 $this->DesignerResponse(404, 'text/plain', 'Diese Designeradresse ist nicht verfügbar.');
                 return;
             }
-            $method = in_array($asset, ['language', 'access-renew', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
+            $method = in_array($asset, ['language', 'access-renew', 'create', 'edit', 'create-yaml', 'edit-yaml', 'sequence', 'manage', 'select-system', 'transfer', 'runtime', 'catalog-refresh', 'event-import', 'diagnostics', 'installation', 'permissions'], true) ? 'POST' : 'GET';
             if (($_SERVER['REQUEST_METHOD'] ?? '') !== $method) {
                 header('Allow: ' . $method);
                 $this->DesignerResponse(405, 'text/plain', 'Diese Aktion unterstützt die verwendete Aufrufart nicht.');
@@ -77,7 +77,7 @@ trait AutomationDesigner
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;
                 }
-                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'sequence', 'manage', 'select-system', 'transfer', 'transfer-status', 'runtime', 'runtime-status', 'catalog-refresh', 'catalog-status', 'event-import', 'diagnostics', 'diagnostics-status', 'installation', 'installation-status', 'permissions', 'permissions-status'], true)) {
+                if ($this->WorkspaceMode() && in_array($asset, ['data', 'devices', 'create', 'edit', 'create-yaml', 'edit-yaml', 'sequence', 'manage', 'select-system', 'transfer', 'transfer-status', 'runtime', 'runtime-status', 'catalog-refresh', 'catalog-status', 'event-import', 'diagnostics', 'diagnostics-status', 'installation', 'installation-status', 'permissions', 'permissions-status'], true)) {
                     [$status, $result] = $this->WorkspaceDesignerRequest($asset);
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;
@@ -86,9 +86,12 @@ trait AutomationDesigner
                     $this->DesignerResponse(404, 'text/plain', 'Bitte zuerst Systeme zuordnen.');
                     return;
                 }
-                if (in_array($asset, ['create', 'edit', 'sequence', 'manage'], true)) {
+                if (in_array($asset, ['create', 'edit', 'create-yaml', 'edit-yaml', 'sequence', 'manage'], true)) {
                     [$status, $result] = match ($asset) {
-                        'create' => $this->DesignerCreateRequest(), 'edit' => $this->DesignerEditRequest(), 'sequence' => $this->DesignerSequenceRequest(), 'manage' => $this->DesignerManageRequest()
+                        'create', 'create-yaml' => $this->DesignerCreateRequest($asset === 'create-yaml'),
+                        'edit', 'edit-yaml'     => $this->DesignerEditRequest($asset === 'edit-yaml'),
+                        'sequence'              => $this->DesignerSequenceRequest(),
+                        'manage'                => $this->DesignerManageRequest()
                     };
                     $this->DesignerResponse($status, 'application/json', json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
                     return;

@@ -6,6 +6,10 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Im Browserdesigner und in der Kachel Automationen in einem Formular erstellen
+  und den vollständigen Systementwurf direkt als YAML herunterladen. Neue
+  Regeln beginnen ausgeschaltet. Die Übernahme nach Zigbee2MQTT bleibt separat.
+
 - Eigene, automatisch steigende Erweiterungsversion ab 0.2.0. Geänderte
   Erweiterungsquellen erhöhen beim Bauen die letzte Versionszahl; unveränderte
   Builds behalten ihre Version. Verbindung, Zentrale und Webdesigner zeigen

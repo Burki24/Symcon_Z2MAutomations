@@ -5612,12 +5612,12 @@
         "The draft or device catalog changed. Refresh the view to continue with your input."
     ],
     "wizard.refreshed": [
-        "Ansicht aktualisiert. Prüfe die Übersicht und übernimm den Entwurf erneut.",
-        "View refreshed. Review your draft and submit it again."
+        "Ansicht aktualisiert. Prüfe deine Eingaben und versuche es erneut.",
+        "View refreshed. Review your input and try again."
     ],
     "wizard.refreshFailed": [
-        "Die Ansicht konnte für dieses Projekt und System nicht aktualisiert werden. Deine Eingaben bleiben im Assistenten.",
-        "The view could not be refreshed for this project and system. Your input remains in the wizard."
+        "Die Ansicht konnte für dieses Projekt und System nicht aktualisiert werden. Deine Eingaben bleiben im Formular.",
+        "The view could not be refreshed for this project and system. Your input remains in the form."
     ],
     "wizard.setupNeeded": [
         "Öffne ein lokales Projekt und wähle ein Z2M-System aus.",
@@ -5724,8 +5724,88 @@
         "Next"
     ],
     "wizard.unavailable": [
-        "Der Assistent konnte für dieses System nicht geöffnet werden.",
-        "The assistant could not open for this system."
+        "Das Formular konnte für dieses System nicht geöffnet werden.",
+        "The form could not open for this system."
+    ],
+    "editor.ruleCount.one": [
+        "{{count}} Automation im Entwurf",
+        "{{count}} automation in the draft"
+    ],
+    "editor.ruleCount.other": [
+        "{{count}} Automationen im Entwurf",
+        "{{count}} automations in the draft"
+    ],
+    "editor.when": [
+        "1. Wenn · Auslöser",
+        "1. When · Triggers"
+    ],
+    "editor.onlyIf": [
+        "2. Nur wenn · Bedingungen (optional)",
+        "2. Only if · Conditions (optional)"
+    ],
+    "editor.then": [
+        "3. Dann · Aktionen in dieser Reihenfolge",
+        "3. Then · Actions in this order"
+    ],
+    "editor.addTrigger": [
+        "Auslöser hinzufügen",
+        "Add trigger"
+    ],
+    "editor.addCondition": [
+        "Bedingung hinzufügen",
+        "Add condition"
+    ],
+    "editor.addAction": [
+        "Aktion hinzufügen",
+        "Add action"
+    ],
+    "editor.settings": [
+        "Weitere Einstellungen",
+        "More settings"
+    ],
+    "editor.export": [
+        "YAML erstellen",
+        "Create YAML"
+    ],
+    "editor.exportHelp": [
+        "Die YAML-Datei enthält alle Automationen im Entwurf dieses Systems samt aktueller Eingabe. Neue Automationen sind ausgeschaltet. Die Übernahme nach Z2M erfolgt separat.",
+        "The YAML file includes all automations in this system's draft and your current input. New automations are disabled. Transfer to Z2M is a separate action."
+    ],
+    "editor.exporting": [
+        "Eingaben prüfen und YAML erstellen …",
+        "Checking input and creating YAML …"
+    ],
+    "editor.exported": [
+        "YAML-Datei gespeichert.",
+        "YAML file saved."
+    ],
+    "editor.downloadStarted": [
+        "Download der YAML-Datei gestartet.",
+        "YAML download started."
+    ],
+    "editor.exportCanceled": [
+        "Dateiauswahl abgebrochen. Deine Eingaben bleiben im Formular.",
+        "File selection canceled. Your input remains in the form."
+    ],
+    "editor.exportFailed": [
+        "Die YAML-Datei konnte nicht erstellt werden. Deine Eingaben bleiben im Formular.",
+        "Could not create the YAML file. Your input remains in the form."
+    ],
+    "editor.fieldRequired": [
+        "Bitte ausfüllen oder auswählen.",
+        "Enter or select a value."
+    ],
+    "editor.fieldInvalid": [
+        "Bitte den Wert und den zulässigen Bereich prüfen.",
+        "Check the value and allowed range."
+    ],
+    "editor.checkFields": [
+        "Bitte die markierten Felder prüfen.",
+        "Check the highlighted fields."
+    ],
+    "editor.staleEdit": [
+        "Der Entwurf oder Gerätekatalog hat sich geändert. Lade den aktuellen Stand, um die Automation erneut zu bearbeiten.",
+        "The draft or device catalog changed. Reload the current draft to edit the automation again."
     ],
     "wizard.created": [
         "Automation ausgeschaltet im lokalen Entwurf angelegt. Speichere das Projekt, um sie dauerhaft zu behalten.",
@@ -5974,6 +6054,322 @@
     "project.draftSchema": [
         "Der Entwurf entspricht nicht dem unterstützten Konfigurationsschema.",
         "The draft does not match the supported configuration schema."
+    ],
+    "validation.document": [
+        "Entwurf",
+        "Draft"
+    ],
+    "validation.position": [
+        "{{label}} {{number}}",
+        "{{label}} {{number}}"
+    ],
+    "validation.named": [
+        "{{label}} „{{name}}“",
+        "{{label}} ‘{{name}}’"
+    ],
+    "validation.addTrigger": [
+        "Füge mindestens einen Auslöser hinzu.",
+        "Add at least one trigger."
+    ],
+    "validation.addAction": [
+        "Füge mindestens eine Aktion hinzu.",
+        "Add at least one action."
+    ],
+    "validation.timeFormat": [
+        "Gib eine Uhrzeit im Format HH:MM:SS ein.",
+        "Enter a time in HH:MM:SS format."
+    ],
+    "validation.more": [
+        "Weitere Prüfhinweise folgen, nachdem du diese Stellen korrigiert und erneut geprüft hast.",
+        "Correct the listed issues and validate again to see the remaining issues."
+    ],
+    "validation.field.schema_version": [
+        "Dateiversion",
+        "File version"
+    ],
+    "validation.field.revision": [
+        "Revision",
+        "Revision"
+    ],
+    "validation.field.automations": [
+        "Automation",
+        "Automation"
+    ],
+    "validation.field.sequences": [
+        "Aktionsfolge",
+        "Action sequence"
+    ],
+    "validation.field.mesh_peers": [
+        "Partnerfreigaben",
+        "Partner permissions"
+    ],
+    "validation.field.id": [
+        "Kennung",
+        "Identifier"
+    ],
+    "validation.field.name": [
+        "Name",
+        "Name"
+    ],
+    "validation.field.enabled": [
+        "Regelschalter",
+        "Rule switch"
+    ],
+    "validation.field.retrigger": [
+        "Erneute Auslösung",
+        "On retrigger"
+    ],
+    "validation.field.restart_policy": [
+        "Verhalten nach Z2M-Neustart",
+        "Behaviour after a Z2M restart"
+    ],
+    "validation.field.triggers": [
+        "Auslöser",
+        "Trigger"
+    ],
+    "validation.field.conditions": [
+        "Bedingung",
+        "Condition"
+    ],
+    "validation.field.actions": [
+        "Aktion",
+        "Action"
+    ],
+    "validation.field.type": [
+        "Art des Eintrags",
+        "Entry type"
+    ],
+    "validation.field.device": [
+        "Gerät",
+        "Device"
+    ],
+    "validation.field.property": [
+        "Eigenschaft / Kanal",
+        "Property or channel"
+    ],
+    "validation.field.operator": [
+        "Vergleich",
+        "Comparison"
+    ],
+    "validation.field.value": [
+        "Wert",
+        "Value"
+    ],
+    "validation.field.for_seconds": [
+        "Mindestdauer",
+        "Minimum duration"
+    ],
+    "validation.field.on_change": [
+        "Nur bei Wertänderung",
+        "Only on value change"
+    ],
+    "validation.field.start_only": [
+        "Nur bei Start",
+        "Only at start"
+    ],
+    "validation.field.at": [
+        "Uhrzeit",
+        "Time"
+    ],
+    "validation.field.timezone": [
+        "Zeitzone",
+        "Time zone"
+    ],
+    "validation.field.after": [
+        "Beginn des Zeitfensters",
+        "Start of time window"
+    ],
+    "validation.field.before": [
+        "Ende des Zeitfensters",
+        "End of time window"
+    ],
+    "validation.field.weekdays": [
+        "Wochentage",
+        "Weekdays"
+    ],
+    "validation.field.target": [
+        "Ziel",
+        "Target"
+    ],
+    "validation.field.system": [
+        "Zielsystem",
+        "Target system"
+    ],
+    "validation.field.values": [
+        "Aktionswerte",
+        "Action values"
+    ],
+    "validation.field.delay_seconds": [
+        "Wartezeit vor dem Schritt",
+        "Wait before step"
+    ],
+    "validation.field.event": [
+        "Sonnenereignis",
+        "Solar event"
+    ],
+    "validation.field.latitude": [
+        "Breitengrad",
+        "Latitude"
+    ],
+    "validation.field.longitude": [
+        "Längengrad",
+        "Longitude"
+    ],
+    "validation.field.offset_minutes": [
+        "Zeitversatz",
+        "Time offset"
+    ],
+    "validation.field.scene_id": [
+        "Szene",
+        "Scene"
+    ],
+    "validation.field.endpoint": [
+        "Gerätekanal",
+        "Device channel"
+    ],
+    "validation.field.sequence_id": [
+        "Aktionsfolge",
+        "Action sequence"
+    ],
+    "validation.reason.required": [
+        "Diese Angabe fehlt.",
+        "This entry is missing."
+    ],
+    "validation.reason.type": [
+        "Der Wert hat einen ungültigen Datentyp.",
+        "The value has an invalid type."
+    ],
+    "validation.reason.enum": [
+        "Wähle einen zulässigen Wert.",
+        "Choose a supported value."
+    ],
+    "validation.reason.const": [
+        "Diese Auswahl ist für den Entwurf unzulässig.",
+        "This choice is invalid for the draft."
+    ],
+    "validation.reason.pattern": [
+        "Das Format dieser Angabe ist ungültig.",
+        "This entry has an invalid format."
+    ],
+    "validation.reason.number": [
+        "Gib eine Zahl ein.",
+        "Enter a number."
+    ],
+    "validation.reason.integer": [
+        "Gib eine ganze Zahl ein.",
+        "Enter a whole number."
+    ],
+    "validation.reason.boolean": [
+        "Wähle Ja oder Nein.",
+        "Choose yes or no."
+    ],
+    "validation.reason.string": [
+        "Gib Text ein.",
+        "Enter text."
+    ],
+    "validation.reason.array": [
+        "Hier wird eine Liste benötigt.",
+        "A list is required here."
+    ],
+    "validation.reason.object": [
+        "Hier wird eine Gruppe von Einstellungen benötigt.",
+        "A group of settings is required here."
+    ],
+    "validation.reason.minimum": [
+        "Der kleinste zulässige Wert ist {{limit}}.",
+        "The smallest permitted value is {{limit}}."
+    ],
+    "validation.reason.maximum": [
+        "Der größte zulässige Wert ist {{limit}}.",
+        "The largest permitted value is {{limit}}."
+    ],
+    "validation.reason.minItems": [
+        "Die erforderliche Mindestanzahl ist {{limit}}.",
+        "The required minimum number of entries is {{limit}}."
+    ],
+    "validation.reason.maxItems": [
+        "Erlaubt sind höchstens {{limit}} Einträge.",
+        "The maximum number of entries is {{limit}}."
+    ],
+    "validation.reason.minLength": [
+        "Gib mindestens {{limit}} Zeichen ein.",
+        "Enter at least {{limit}} characters."
+    ],
+    "validation.reason.maxLength": [
+        "Erlaubt sind höchstens {{limit}} Zeichen.",
+        "The character limit is {{limit}}."
+    ],
+    "validation.reason.minProperties": [
+        "Die erforderliche Mindestanzahl an Angaben ist {{limit}}.",
+        "The required minimum number of settings is {{limit}}."
+    ],
+    "validation.reason.maxProperties": [
+        "Erlaubt sind höchstens {{limit}} Angaben.",
+        "The maximum number of settings is {{limit}}."
+    ],
+    "validation.reason.additionalProperties": [
+        "Dieser Abschnitt enthält eine unzulässige Einstellung.",
+        "This section contains an unsupported setting."
+    ],
+    "validation.reason.uniqueItems": [
+        "Ein Eintrag kommt mehrfach vor.",
+        "An entry is present more than once."
+    ],
+    "validation.reason.not": [
+        "Diese Angabe ist hier unzulässig.",
+        "This entry is invalid here."
+    ],
+    "validation.reason.discriminator": [
+        "Wähle eine unterstützte Art für diesen Eintrag.",
+        "Choose a supported type for this entry."
+    ],
+    "validation.reason.propertyNames": [
+        "Ein Kanal- oder Feldname hat ein ungültiges Format.",
+        "A channel or field name has an invalid format."
+    ],
+    "validation.reason.sequence_missing": [
+        "Wähle eine vorhandene Aktionsfolge.",
+        "Choose an existing action sequence."
+    ],
+    "validation.reason.sequence_nested": [
+        "Eine Aktionsfolge darf keine weitere Aktionsfolge aufrufen.",
+        "An action sequence cannot call another action sequence."
+    ],
+    "validation.reason.sequence_limit": [
+        "Mit den Aktionsfolgen sind höchstens 16 Schritte erlaubt.",
+        "At most 16 steps are allowed, including action sequences."
+    ],
+    "validation.reason.sequence_delay": [
+        "Die Wartezeit vor der Folge und ihrem ersten Schritt darf zusammen höchstens 24 Stunden betragen.",
+        "The combined wait before the sequence and its first step must be at most 24 hours."
+    ],
+    "validation.reason.sequence_duplicate": [
+        "Diese Kennung einer Aktionsfolge ist bereits vergeben.",
+        "This action sequence identifier is already in use."
+    ],
+    "validation.reason.duplicate_id": [
+        "Diese Automationskennung ist bereits vergeben.",
+        "This automation identifier is already in use."
+    ],
+    "validation.reason.timezone": [
+        "Wähle eine gültige Zeitzone.",
+        "Choose a valid time zone."
+    ],
+    "validation.reason.time_window": [
+        "Wähle unterschiedliche Uhrzeiten für Beginn und Ende.",
+        "Choose different start and end times."
+    ],
+    "validation.reason.remote_permission": [
+        "Prüfe die Partnerfreigabe für das Zielsystem.",
+        "Check the partner permission for the target system."
+    ],
+    "validation.reason.yaml_syntax": [
+        "Z2M konnte die übermittelte Konfiguration nicht lesen.",
+        "Z2M could not read the submitted configuration."
+    ],
+    "validation.reason.scene_unavailable": [
+        "Wähle eine verfügbare Szene für das Zielgerät oder die Gruppe.",
+        "Choose an available scene for the target device or group."
     ],
     "project.draftTimezone": [
         "Bitte eine gültige IANA-Zeitzone auswählen.",

@@ -151,12 +151,26 @@ trait WorkspaceDesigner
             }
             $sessions = $this->GetBuffer('DesignerSessions');
             try {
-                return $this->WithWorkspaceEditor($system, (int) $rawGeneration, $fingerprint, true, function () use ($asset): array
+                $export = $asset === 'create-yaml' || $asset === 'edit-yaml';
+                $result = $this->WithWorkspaceEditor($system, (int) $rawGeneration, $fingerprint, !$export, function () use ($asset): array
                 {
                     return match ($asset) {
-                        'create' => $this->DesignerCreateRequest(), 'edit' => $this->DesignerEditRequest(), 'sequence' => $this->DesignerSequenceRequest(), 'manage' => $this->DesignerManageRequest(), 'event-import' => $this->DesignerImportRequest(), default => [404, ['message' => 'Diese Designeraktion ist nicht verfügbar.']]
+                        'create', 'create-yaml' => $this->DesignerCreateRequest($asset === 'create-yaml'),
+                        'edit', 'edit-yaml'     => $this->DesignerEditRequest($asset === 'edit-yaml'),
+                        'sequence'              => $this->DesignerSequenceRequest(),
+                        'manage'                => $this->DesignerManageRequest(),
+                        'event-import'          => $this->DesignerImportRequest(),
+                        default                 => [404, ['message' => 'Diese Designeraktion ist nicht verfügbar.']]
                     };
                 });
+                if ($export && $result[0] === 200) {
+                    $this->WithWorkspaceLock(function () use ($system, $rawGeneration, $fingerprint): void
+                    {
+                        $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system, (int) $rawGeneration, $fingerprint);
+                        if (!$this->WorkspaceConnectionCurrent($record['binding'])) throw new RuntimeException('binding_changed');
+                    });
+                }
+                return $result;
             } catch (Throwable $exception) {
                 $this->SetBuffer('DesignerSessions', $sessions);
                 throw $exception;

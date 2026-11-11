@@ -85,14 +85,14 @@ trait AutomationDesignerCreation
         return null;
     }
 
-    private function DesignerCreateRequest(): array
+    private function DesignerCreateRequest(bool $export = false): array
     {
         $failure = $this->DesignerWriteHeaders();
         if ($failure !== null) {
             return $failure;
         }
         $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
-        return $this->WithTransportLock(function () use ($token): array
+        return $this->WithTransportLock(function () use ($token, $export): array
         {
             if (!$this->DesignerTokenAllowed($token, true)) {
                 return $this->DesignerCreateFailure(403, 'Der Zugang zur Regelerstellung ist abgelaufen. Bitte den Designer erneut im Modul öffnen.');
@@ -107,7 +107,7 @@ trait AutomationDesignerCreation
                 return $this->DesignerCreateFailure(400, 'Die Eingaben konnten nicht gelesen werden. Bitte die Auswahl erneut vornehmen.');
             }
             $complete = $this->DesignerEditShape($request, ['requestId', 'context', 'rule']);
-            $simple = $this->DesignerEditShape($request, ['requestId', 'context', 'name', 'source', 'target']);
+            $simple = !$export && $this->DesignerEditShape($request, ['requestId', 'context', 'name', 'source', 'target']);
             if ((!$complete && !$simple) || !is_string($request['requestId'] ?? null) || !RuntimeDebugContract::UUID($request['requestId'])
                 || !is_string($request['context'] ?? null)
                 || ($complete && !$this->DesignerEditShape($request['rule'], ['name', 'retrigger', 'triggers', 'conditions', 'actions'])
@@ -123,7 +123,7 @@ trait AutomationDesignerCreation
             // A view refresh may replace its optimistic context after a lost success response.
             // Retrying the same intended rule must still return its original receipt.
             $digest = hash('sha256', json_encode($complete ? ['rule' => $request['rule']] : [$request['name'], $request['source'], $request['target']], JSON_THROW_ON_ERROR));
-            foreach ($sessions[$sessionIndex]['receipts'] ?? [] as $receipt) {
+            foreach ($export ? [] : ($sessions[$sessionIndex]['receipts'] ?? []) as $receipt) {
                 if ($receipt['request'] === $request['requestId']) {
                     if (($receipt['kind'] ?? 'create') !== 'create' || $receipt['digest'] !== $digest) {
                         return $this->DesignerCreateFailure(409, 'Dieser Auftrag wurde bereits mit anderen Angaben verwendet. Bitte die Ansicht aktualisieren.');
@@ -163,8 +163,10 @@ trait AutomationDesignerCreation
             if ($state['scope'] !== $draft['scope'] || !$this->DesignerTokenAllowed($token, true)) {
                 return $this->DesignerCreateFailure(409, 'Die Verbindung oder der Zugang wurde inzwischen geändert. Bitte den Designer erneut im Modul öffnen.');
             }
+            $invalidDraft = 'Die Automation konnte nicht übernommen werden. Bitte Aktionsfolgen und Entwurfsgröße prüfen; einschließlich aufgerufener Folgen sind höchstens 16 Schritte erlaubt.';
+            if ($export) return $this->DesignerExportYaml($draft, $invalidDraft);
             if (!$this->CommitEditorChange($state, $draft, 'draft_created', $rule['id'])) {
-                return $this->DesignerCreateFailure(422, 'Die Automation konnte nicht übernommen werden. Bitte Aktionsfolgen und Entwurfsgröße prüfen; einschließlich aufgerufener Folgen sind höchstens 16 Schritte erlaubt.');
+                return $this->DesignerCreateFailure(422, $invalidDraft);
             }
             $sessions[$sessionIndex]['receipts'][] = ['request' => $request['requestId'], 'kind' => 'create', 'digest' => $digest, 'rule' => $rule['id']];
             $sessions[$sessionIndex]['receipts'] = array_slice($sessions[$sessionIndex]['receipts'], -8);

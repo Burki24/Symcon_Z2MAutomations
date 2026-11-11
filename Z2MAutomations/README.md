@@ -144,7 +144,7 @@ stehen dessen Automationen, Aktionsfolgen und Geräte.
 | Automationen links | Regeln suchen, filtern und auswählen; zwischen Geräte-, Zeitregeln und Aktionsfolgen wechseln. |
 | Ablauf in der Mitte | **Wenn**, **Nur wenn** und **Dann** zeigen Auslöser, Bedingungen und Aktionen. |
 | Eigenschaften rechts | Ein angeklickter Baustein zeigt seine vorhandenen Angaben. Zum Ändern **Automation bearbeiten** wählen. |
-| Neue Automation als Entwurf | Öffnet den Assistenten für das ausgewählte System. |
+| Neue Automation als Entwurf | Öffnet das gemeinsame Formular für das ausgewählte System. |
 | Statuszeile | Zeigt System, lokalen Entwurf, gespeicherte Z2M-Revision und Betrieb getrennt. Die Schaltfläche führt zum passenden Prüfschritt. |
 | Prüfen & übertragen | Entwurf in Z2M prüfen und nach Bestätigung speichern. |
 | Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
@@ -204,18 +204,21 @@ Designerlinks gewähren Zugriff auf die Bearbeitung und sollten nicht weitergege
 ### Erste Automation: Licht bei Tastendruck
 
 1. Das System des Tasters auswählen. In der Automationsliste **Neue Automation
-   als Entwurf** öffnen und das angezeigte System prüfen.
-2. Im nächsten Schritt einen Namen eintragen, etwa **Flurlicht bei Tastendruck**.
-   Als Auslöser **Geräteereignis** wählen. Den Taster suchen und auswählen.
+   als Entwurf** öffnen, das angezeigte System prüfen und einen Namen eingeben,
+   etwa **Flurlicht bei Tastendruck**. Browserdesigner und Kachel verwenden
+   dasselbe Formular.
+2. Unter **Wenn** den Auslöser **Geräteereignis** und den Taster auswählen.
    **Eigenschaft / Kanal**, Vergleich und **Wert** einstellen, beispielsweise
    **Tasterereignis**, **ist gleich**, **Einfach drücken**.
-3. Bei Bedarf Bedingungen ergänzen. Für eine Regel ohne Einschränkung mit
-   **Weiter** zum nächsten Schritt wechseln.
-4. Als Aktion **Werte setzen** wählen, das Zielgerät suchen und seinen Kanal
-   sowie **Ein** auswählen. Einen zweiten Schritt für dasselbe Licht mit
+3. Unter **Nur wenn** bei Bedarf Bedingungen ergänzen.
+4. Unter **Dann** die Aktion **Werte setzen**, das Zielgerät, den Kanal und
+   den Wert **Ein** auswählen. Einen zweiten Schritt für dasselbe Licht mit
    **Aus** und beispielsweise 60 Sekunden Wartezeit hinzufügen.
-5. In der Übersicht System, Auslöser und Aktionen prüfen. **Ausgeschaltet zum
-   Entwurf hinzufügen** legt die Regel im Symcon-Entwurf an.
+5. **YAML erstellen** prüft die Eingaben und lädt `automations.yaml` mit dem
+   vollständigen Entwurf des gewählten Systems und der neuen ausgeschalteten
+   Regel herunter. **Ausgeschaltet zum Entwurf hinzufügen** speichert die
+   Regel im Symcon-Entwurf. Die Übernahme nach Z2M erfolgt separat über
+   **Prüfen & übertragen**.
 
 Der folgende Ausschnitt zeigt Gerät, Kanal und Wert eines vorhandenen Auslösers:
 
@@ -227,7 +230,7 @@ gespeichert werden. Das Anlegen oder Bearbeiten allein schaltet kein Gerät.
 
 ### Geräteauslöser und mehrere Kanäle
 
-Mit **Art des neuen Eintrags** und **Eintrag hinzufügen** weitere Auslöser
+Mit **Auslöser hinzufügen** weitere Auslöser
 ergänzen. Bis zu acht Einträge können dieselbe Regel unabhängig starten (ODER),
 beispielsweise zwei Bewegungsmelder oder ein Bewegungsmelder und ein Taster.
 Die Bedingungen der Regel gelten für jeden dieser Auslöser.

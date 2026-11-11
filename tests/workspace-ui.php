@@ -293,7 +293,29 @@ $completeFields = ['name' => 'Disabled local rule', 'retrigger' => 'extend',
     'conditions'          => [['type' => 'weekday', 'weekdays' => [1, 3, 5], 'timezone' => 'UTC']],
     'actions'             => [['type' => 'set', 'target' => ['type' => 'device', 'id' => $deviceKey], 'values' => ['state_l2' => 'OFF'], 'delay_seconds' => 0],
         ['type' => 'set', 'target' => ['type' => 'device', 'id' => $deviceKey], 'values' => ['state_l2' => 'ON'], 'delay_seconds' => 5]]];
-$manager->requestBody = json_encode(['requestId' => '22222222-2222-4222-8222-222222222222', 'context' => $browserB['createContext'], 'rule' => $completeFields]);
+$createRequest = ['requestId' => '22222222-2222-4222-8222-222222222222', 'context' => $browserB['createContext'], 'rule' => $completeFields];
+$manager->requestBody = json_encode($createRequest);
+$beforeExport = $manager->RawWorkspace();
+[$code, $raw] = $manager->Hook('create-yaml', $token, $headerB, 'POST');
+$check($code === 200, 'Browser creates YAML directly from valid form input: ' . $raw);
+$candidate = $decode($decode($raw)['yaml']);
+$expected = $browserB['configuration'];
+$expected['automations'][] = $candidate['automations'][1];
+$check($candidate === $expected && $candidate['automations'][1]['enabled'] === false, 'The selected system YAML includes both rules, the new rule disabled and its existing partner grants');
+foreach ($completeFields as $field => $value) {
+    $check($candidate['automations'][1][$field] === $value, 'YAML preserves typed form field ' . $field);
+}
+$check($manager->Hook('create-yaml', $token, $headerB)[0] === 405 && $manager->Hook('create-yaml', '', $headerB, 'POST')[0] === 403, 'YAML creation requires the authenticated POST');
+$check($manager->Hook('create-yaml', $token, array_replace($headerB, ['HTTP_X_Z2MA_GENERATION' => '2']), 'POST')[0] === 409, 'YAML creation rejects a stale binding');
+$manager->requestBody = json_encode(array_replace($createRequest, ['rule' => array_replace($completeFields, ['actions' => []])]));
+$check($manager->Hook('create-yaml', $token, $headerB, 'POST')[0] === 422, 'An incomplete rule cannot be exported');
+$manager->requestBody = json_encode(['requestId' => '11111111-1111-4111-8111-111111111111', 'context' => $browserB['createContext'], 'ruleId' => 'same_rule', 'changes' => ['name' => 'Edited only in YAML']]);
+[$code, $raw] = $manager->Hook('edit-yaml', $token, $headerB, 'POST');
+$expected = $browserB['configuration'];
+$expected['automations'][0]['name'] = 'Edited only in YAML';
+$check($code === 200 && $decode($decode($raw)['yaml']) === $expected, 'The YAML applies edits in place without saving the form or using an edit receipt');
+$check($manager->RawWorkspace() === $beforeExport && count($parent->sent) === $sent, 'Export leaves both system drafts byte-identical and emits no MQTT');
+$manager->requestBody = json_encode($createRequest);
 [$code, $raw] = $manager->Hook('create', $token, $headerB, 'POST');
 $check($code === 200, 'Browser creates a disabled system-local rule: ' . $raw);
 $createdB = $detail($b)['data']['document']['editorDraft']['configuration'];
