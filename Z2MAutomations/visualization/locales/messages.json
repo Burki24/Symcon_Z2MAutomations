@@ -3256,8 +3256,8 @@
         "Device data is missing for this connection. In the native module, choose “Refresh device data only”, then choose “Refresh view” here. Drafts are preserved."
     ],
     "ui.device.data.is.missing.for.db0f1bfb": [
-        "Gerätedaten fehlen für dieses System. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.",
-        "Device data is missing for this system. Choose “Refresh device data” above. Drafts are preserved."
+        "Gerätedaten fehlen für dieses System. Öffne Schritt 4 „Verbinden und Bestand lesen“ und wähle dort „Gerätedaten aktualisieren“. Entwürfe bleiben erhalten.",
+        "Device data is missing for this system. Open step 4 “Connect and read inventory” and choose “Refresh device data”. Drafts are preserved."
     ],
     "ui.device.data.last.refreshed.7a5587aa": [
         " Gerätedaten zuletzt aktualisiert: {{p1}}.",
@@ -4412,8 +4412,8 @@
         "Saved"
     ],
     "ui.saved.device.data.is.not.ee025668": [
-        "Gespeicherte Gerätedaten sind derzeit nicht bestätigt. Oben „Gerätedaten aktualisieren“ wählen. Entwürfe bleiben erhalten.",
-        "Saved device data is not currently confirmed. Choose “Refresh device data” above. Drafts are preserved."
+        "Gespeicherte Gerätedaten sind derzeit nicht bestätigt. Öffne Schritt 4 „Verbinden und Bestand lesen“ und wähle dort „Gerätedaten aktualisieren“. Entwürfe bleiben erhalten.",
+        "Saved device data is not currently confirmed. Open step 4 “Connect and read inventory” and choose “Refresh device data”. Drafts are preserved."
     ],
     "ui.saving.replaces.only.this.system.76c800ba": [
         "Speichern ersetzt nur die Automationsdatei dieses Systems. Bei Änderungen stoppt dort die bisherige Ausführung. Es wird keine Automation aktiviert.",
@@ -8466,5 +8466,9 @@
     "symcon.systems.reopen": [
         "Bitte den Designer für die Systemzuordnung erneut im Modul öffnen.",
         "Please reopen the designer from the module to assign systems."
+    ],
+    "symcon.catalog.openRefresh": [
+        "Zu Schritt 4: Gerätedaten",
+        "Open step 4: device data"
     ]
 }

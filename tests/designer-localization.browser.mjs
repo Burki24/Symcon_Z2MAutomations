@@ -21,6 +21,7 @@ const systems = ['a', 'b'].map((name, index) => ({name: 'Eigenes System ' + name
 const interaction = readFileSync(new URL('../libs/helper/visualization/interaction.min.js', import.meta.url), 'utf8');
 let createContext = 'c'.repeat(64);
 let overflowRules = false; let rejectReview = false;
+let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 'e'.repeat(64);
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
 function transferView(id) {
@@ -35,7 +36,7 @@ const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'
     ({Connection: index + 10010, Use: true, editable: false, Name: system.name, MQTT: String(system.binding.mqttParent), Topic: system.binding.baseTopic, Status: 'Synthetic ready'}))});
 function model(id = 'a') {
     return {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
-        readAt: 1800000000, catalogAvailable: true, catalogLoadedAt: 1800000000, draftAvailable: true, draftMismatch: false, openFormEdits: false,
+        readAt: 1800000000, catalogAvailable, catalogLoadedAt: catalogAvailable ? 1800000000 : null, draftAvailable: true, draftMismatch: false, openFormEdits: false,
         configuration: {schema_version: 1, revision: 4 + createdRules.get(id).length, mesh_peers: ['kept-peer'],
             automations: [rules.get(id), ...createdRules.get(id), ...(overflowRules ? Array.from({length: 30}, (_, i) => ({...rule, id: 'overflow_' + i, name: 'Synthetic automation ' + i})) : [])], sequences: [sequence]},
         devices: [{key: 'lamp', name: 'Eigener Gerätename – Ein', target: {type: 'device', id: 'lamp'},
@@ -44,7 +45,10 @@ function model(id = 'a') {
         timezones: ['UTC', 'Europe/Berlin'], createContext, createAllowed: true, editAllowed: true, manageAllowed: true, sequenceAllowed: true,
         sequenceCreateAllowed: true, createNotice: '', editNotice: '', sequenceNotice: '', sequenceSections: {},
         editSections: {rule_a: {triggers: true, conditions: true, actions: true}},
-        workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: 'e'.repeat(64)},
+        workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: catalogFingerprint},
+        catalogRefresh: {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: catalogAvailable ? 'loaded' : 'idle',
+            pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
+            storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
         transfer: transferView(id), runtime: runtimeView(id)};
 }
 let active = 'a';
@@ -59,6 +63,11 @@ const server = createServer(async (request, response) => {
         else if (route === 'select-system') active = body.systemId;
         else if (route === 'workspace-configure') {
             operations.push({route, body}); response.end(JSON.stringify(setupView())); return;
+        }
+        else if (route === 'catalog-refresh') {
+            const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            catalogAvailable = true; storedCatalog = true; catalogFingerprint = '4'.repeat(64);
+            response.end(JSON.stringify({ok: true, catalogRefresh: model(id).catalogRefresh})); return;
         }
         else if (route === 'runtime') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
@@ -118,6 +127,30 @@ async function showStep(view, key) {
     const button = view.locator('#desktop-nav-' + key);
     if (await button.isVisible()) await button.click(); else await view.locator('#desktop-step').selectOption(key);
     await view.locator('#desktop-view-' + key).waitFor({state: 'visible'});
+}
+async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
+    catalogAvailable = false; storedCatalog = hasStored; catalogFingerprint = 'e'.repeat(64);
+    await page.reload();
+    const issues = view.locator('#issues'); await issues.waitFor({state: 'visible'});
+    await view.locator('#designer-language').selectOption(language);
+    assert.match(await issues.innerText(), language === 'de' ? /Schritt 4.*Verbinden und Bestand lesen.*Gerätedaten aktualisieren/ : /step 4.*Connect and read inventory.*Refresh device data/);
+    assert.doesNotMatch(await issues.innerText(), /Oben|at the top/);
+    const before = structuredClone(model(active).configuration); const beforeWrites = writes.length; const beforeOperations = operations.length;
+    await view.locator('#validate-button').click();
+    await view.locator('#validate-button:not(:disabled)').waitFor();
+    assert.equal(catalogAvailable, false, 'refreshing the module view never starts a device read');
+    await showStep(view, 'automations');
+    await view.locator('#symcon-open-device-refresh').click();
+    await view.locator('#desktop-view-connection').waitFor({state: 'visible'});
+    const refresh = view.locator('.system-catalog button').first();
+    assert.equal(await refresh.innerText(), language === 'de' ? 'Gerätedaten aktualisieren' : 'Refresh device data');
+    assert.equal(operations.length, beforeOperations, 'the shortcut only navigates and sends no MQTT request');
+    await refresh.click();
+    await issues.waitFor({state: 'hidden'});
+    assert.equal(await view.locator('#symcon-open-device-refresh').isVisible(), false);
+    assert.deepEqual(operations.slice(beforeOperations).map(row => row.route), ['catalog-refresh']);
+    assert.equal(writes.length, beforeWrites, 'reading device data performs no draft write');
+    assert.deepEqual(model(active).configuration, before, 'the local automation draft is preserved');
 }
 async function verifyWorkspaceWheel(page) {
     overflowRules = true;
@@ -361,7 +394,11 @@ try {
     assert.deepEqual(writes.at(-1).body.changes, {enabled: true});
     assert.deepEqual(model('a').configuration.automations[0], {...beforeRelease.automations[0], enabled: true});
     assert.equal(operations.length, beforeReleaseOperations, 'editing a permission sends no transfer or runtime command');
+    await verifyMissingCatalogNavigation(page, page, 'en', false);
+    await verifyMissingCatalogNavigation(page, page, 'de', true);
+    await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
     assert.deepEqual(errors, []);
+    console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();

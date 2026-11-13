@@ -68,6 +68,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
+- Hinweise zu fehlenden oder unbestätigten Gerätedaten nennen im Browserdesigner
+  und in der Kachel Schritt 4 und die tatsächliche Aktualisierungsschaltfläche.
+  Ein direkter Navigationsbutton öffnet den Bereich. Der Abruf startet erst über
+  „Gerätedaten aktualisieren“.
+
 - Zentral verwaltete Z2M-Verbindungen zeigen anstelle des gesperrten
   Installationsbuttons die zuständige Automationszentrale mit Name und Instanz-ID.
   Dadurch erscheint keine wirkungslose Sicherheitsabfrage mehr. Eigenständige

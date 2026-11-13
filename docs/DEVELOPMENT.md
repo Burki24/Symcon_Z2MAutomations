@@ -1,3 +1,14 @@
+## Eindeutiger Gerätedatenhinweis – 13.11.2026
+
+Der gemeinsame Designer verweist bei fehlenden oder unbestätigten Gerätedaten
+jetzt auf Schritt 4 „Verbinden und Bestand lesen“ und den dortigen Button
+„Gerätedaten aktualisieren“. Ein direkter Navigationsbutton öffnet diesen Bereich.
+Ansichtaktualisierung und Navigation starten keinen Abruf. Der bestehende
+Offline-Browsertest reproduzierte zuvor den irreführenden Hinweis „oben“ und
+prüft jetzt Browser/Kachel, DE/EN, expliziten Abruf und unveränderte Entwürfe.
+Das geprüfte Designer-Paket ist mit Inhaltskennung `0050242cba38` festgeschrieben.
+Keine Live-Installation oder reale MQTT-Anfrage ausgeführt.
+
 ## Gemeinsamer geführter Arbeitsplatz – 13.11.2026
 
 Die kanonischen Quellen liegen weiterhin ausschließlich im App-Repository.
