@@ -13,10 +13,12 @@
         "pretest": "node tests/build-extension.mjs --check && node tests/build-locales.mjs --check",
         "test": "node --test tests/native-console-probe.test.mjs tests/extension.test.mjs tests/runtime.test.mjs tests/mesh.test.mjs tests/mesh-three.test.mjs tests/mesh-eight.test.mjs tests/mesh-conditions.test.mjs tests/debug.test.mjs tests/solar.test.mjs",
         "build:locales": "node tests/build-locales.mjs",
-        "check:locales": "node tests/build-locales.mjs --check"
+        "check:locales": "node tests/build-locales.mjs --check",
+        "test:browser": "node --test tests/browser-ci.test.mjs && node tests/designer-localization.browser.mjs"
     },
     "devDependencies": {
         "ajv": "8.20.0",
-        "js-yaml": "5.4.2"
+        "js-yaml": "5.4.2",
+        "playwright": "1.65.0"
     }
 }

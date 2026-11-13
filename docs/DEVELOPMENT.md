@@ -1,3 +1,35 @@
+## Bildfreie Browserprüfung in CI – 13.11.2026
+
+Der Workflow `tests.yml` führt `npm run test:browser` als eigenen Pflichtjob
+für Pushes, Pull Requests und manuelle Läufe aus. Playwright 1.65.0 und das
+offizielle [Noble-Containerimage](https://playwright.dev/docs/docker) sind versionsgleich festgeschrieben; das Image
+ist zusätzlich per Digest gebunden und enthält Chromium samt Systembibliotheken.
+Der Job benötigt deshalb keinen APT-Abruf. Paketversion und Imagetag gemeinsam
+aktualisieren; `tests/browser-ci.test.mjs` prüft diese Bindung.
+
+Der vorhandene Offline-Test prüft DE/EN, Browser und eingebettete Kachel,
+Gerätedatenhinweis, direkte Navigation zu Schritt 4 und erst danach den
+ausdrücklichen Geräteabruf. Navigation und Ansichtaktualisierung senden keinen
+MQTT-Auftrag; der lokale Entwurf bleibt erhalten. Alle Daten und Antworten
+stammen aus dem synthetischen Loopback-Testserver, nicht aus einer Symcon-Instanz.
+
+Vor dem Browserstart verbietet `browser-capture-policy.mjs` Aufnahme-APIs und
+Video-/Tracing-Optionen im Testskript. Negative Tests prüfen die Sperre ohne
+Aufnahmen. Es gibt keine Bild-, Video- oder Trace-Artefakte, auch bei Fehlern;
+die begrenzte Text-/DOM-Diagnose bleibt erhalten. Der Browserlauf ist auf fünf,
+der gesamte Job auf zehn Minuten begrenzt. Fehler lassen den Workflow scheitern.
+
+Lokal nach `npm ci --ignore-scripts --no-audit --no-fund` einmalig
+`npx playwright install chromium`, danach `npm run test:browser` ausführen.
+Optional kann `Z2MA_BROWSER_CHANNEL=msedge` einen vorhandenen Edge verwenden;
+`Z2MA_PLAYWRIGHT_MODULE` bleibt als explizite externe Modulquelle verfügbar.
+Die CI verwendet beide Ausnahmen nicht. Lokal bestanden: frisches `npm ci`,
+der Browserlauf mit gepinntem Chromium unter Windows und drei CI-/Aufnahmesperren-
+Tests, PHP-Gesamtsuite mit 261 JavaScript-Tests, Strukturprüfung, actionlint 1.7.12,
+offizieller StylePHP-Check der 18 eigenen JSON-Dateien und PHP CS Fixer ohne
+Befund für 157 Dateien. Der neue Linux-Containerjob muss nach Commit und Push
+auf GitHub erstmals bestätigt werden; lokal ist kein Docker installiert.
+
 ## Eindeutiger Gerätedatenhinweis – 13.11.2026
 
 Der gemeinsame Designer verweist bei fehlenden oder unbestätigten Gerätedaten
@@ -24,7 +56,7 @@ für 157 Dateien. Nach dem letzten reinen Layoutabgleich zusätzlich Paketprüfu
 und die 20 betroffenen Request-/Übermittlungs-/Betriebstests erfolgreich.
 
 Die echte Offline-Browserprüfung `tests/designer-localization.browser.mjs`
-verwendet eine vorhandene Playwright-Installation über `Z2MA_PLAYWRIGHT_MODULE`.
+verwendet standardmäßig das gepinnte Playwright und dessen Chromium.
 Sie prüft im Browser und in der eingebetteten Kachel acht Schritte, getrennte
 Systeme, DE/EN bei offenen Eingaben, 360–3840 Pixel, Hell/Dunkel, tatsächliche
 Mausradbewegung, direkte Korrekturstellen und lokale Freigabehäkchen. Abbrechen

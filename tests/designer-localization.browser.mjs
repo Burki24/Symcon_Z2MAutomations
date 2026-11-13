@@ -1,9 +1,11 @@
-/* Offline browser acceptance. Supply an existing Playwright installation; never connects to Symcon or MQTT. */
+/* Offline browser acceptance against synthetic loopback fixtures; never connects to Symcon or MQTT. */
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
-const {chromium} = await import(pathToFileURL(process.env.Z2MA_PLAYWRIGHT_MODULE).href);
+import {assertNoBrowserCapture} from './browser-capture-policy.mjs';
+assertNoBrowserCapture(readFileSync(new URL(import.meta.url), 'utf8'));
+const {chromium} = await import(process.env.Z2MA_PLAYWRIGHT_MODULE ? pathToFileURL(process.env.Z2MA_PLAYWRIGHT_MODULE).href : 'playwright');
 const catalogs = JSON.parse(readFileSync(new URL('../Z2MAutomations/visualization/locales/en.json', import.meta.url), 'utf8'));
 const german = JSON.parse(readFileSync(new URL('../Z2MAutomations/visualization/locales/de.json', import.meta.url), 'utf8'));
 const assets = new URL('../Z2MAutomations/visualization/', import.meta.url);
@@ -121,8 +123,8 @@ const server = createServer(async (request, response) => {
         response.setHeader('Content-Type', route.endsWith('.js') ? 'application/javascript' : route.endsWith('.css') ? 'text/css' : 'text/html'); response.end(body);
     } catch {response.writeHead(404); response.end();}
 });
+const browser = await chromium.launch({headless: true, ...(process.env.Z2MA_BROWSER_CHANNEL ? {channel: process.env.Z2MA_BROWSER_CHANNEL} : {})});
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const browser = await chromium.launch({channel: 'msedge', headless: true});
 async function showStep(view, key) {
     const button = view.locator('#desktop-nav-' + key);
     if (await button.isVisible()) await button.click(); else await view.locator('#desktop-step').selectOption(key);
