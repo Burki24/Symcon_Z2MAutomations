@@ -6,13 +6,21 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Nummerierter Arbeitsplatz im Browserdesigner und in der Kachel: Einrichtung,
+  Entwurf, Prüfung, bestätigte Übermittlung und Betrieb haben eigene Bereiche.
+  Fehler lassen sich an der benannten Stelle korrigieren; Freigabeschalter sind
+  direkt unter Betrieb erreichbar. Der Übermittlungsablauf führt nach Bestätigung
+  durch Statusprüfung, nötigen Stopp, erneute Prüfung und bestätigtes Speichern.
+  Der Start bleibt separat. Sprache wird zentral gewählt, YAML bei Bedarf in
+  Schritt 5 exportiert. Vorhandene Symcon-Verbindungen und Entwürfe bleiben erhalten.
+
 - The shared Z2M extension supports device-value conditions on explicitly
   permitted partner systems. Each check asks the owning extension for a fresh
   decision; missing values, stopped receivers and timeouts prevent the action.
   The desktop app exposes this selection; the Symcon forms remain unchanged.
 
 - Im Browserdesigner und in der Kachel Automationen in einem Formular erstellen
-  und den vollständigen Systementwurf direkt als YAML herunterladen. Neue
+  und den vollständigen Systementwurf optional als YAML herunterladen. Neue
   Regeln beginnen ausgeschaltet. Die Übernahme nach Zigbee2MQTT bleibt separat.
 
 - Eigene, automatisch steigende Erweiterungsversion ab 0.2.0. Geänderte

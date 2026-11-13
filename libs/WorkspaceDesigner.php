@@ -34,6 +34,39 @@ trait WorkspaceDesigner
         try {
             $token = $_SERVER['HTTP_X_Z2MA_READ_TOKEN'] ?? '';
             if (!$this->DesignerTokenAllowed($token)) return [403, ['message' => 'Der Designerzugang ist abgelaufen. Bitte den Designer erneut im Modul öffnen.']];
+            if (in_array($asset, ['workspace-status', 'workspace-configure'], true)) {
+                if (!$this->DesignerWriteAccess($token, 'setup')) return [403, ['message' => 'Bitte den Designer für die Systemzuordnung erneut im Modul öffnen.']];
+                $state = $this->ReadWorkspace();
+                $choices = $this->WorkspaceConnectionChoices($state);
+                if ($asset === 'workspace-configure') {
+                    $failure = $this->DesignerWriteHeaders();
+                    if ($failure !== null) return $failure;
+                    $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
+                    if (!$this->DesignerEditShape($body, ['requestId', 'fingerprint', 'candidates', 'connections']) || !RuntimeDebugContract::UUID($body['requestId'])
+                        || !ExtensionContract::Checksum($body['fingerprint']) || !ExtensionContract::Checksum($body['candidates'])
+                        || !is_array($body['connections']) || !array_is_list($body['connections']) || count($body['connections']) > SystemContract::MAX_SYSTEMS
+                        || !hash_equals($choices['fingerprint'], $body['candidates'])) throw new RuntimeException('invalid_request');
+                    foreach ($body['connections'] as $id) if (!is_int($id) || !array_key_exists($id, $choices['availability']) || $choices['availability'][$id] !== '') throw new RuntimeException('connection_unavailable');
+                    $sessions = $this->DesignerSessions();
+                    if (!hash_equals(WorkspaceState::Fingerprint($state), $body['fingerprint'])) throw new RuntimeException('stale_workspace');
+                    $assigned = array_map(static fn (array $record): int => $record['binding']['connectionInstance'], array_values($state['systems']));
+                    $selected = $body['connections'];
+                    sort($assigned);
+                    sort($selected);
+                    if ($assigned !== $selected) {
+                        $result = json_decode($this->ConfigureWorkspace(json_encode($body['connections'], JSON_THROW_ON_ERROR), $body['fingerprint'], str_replace('-', '', $body['requestId'])), true, 32, JSON_THROW_ON_ERROR);
+                        if (!$result['ok']) return [409, $result];
+                    }
+                    // Only the session that explicitly assigned these systems receives the new scope.
+                    foreach ($sessions as &$session) if (hash_equals($session['hash'], hash('sha256', $token))) $session['scope'] = $this->DesignerAccessScope();
+                    unset($session);
+                    $this->WriteEditorBuffer('DesignerSessions', json_encode($sessions, JSON_THROW_ON_ERROR));
+                    $state = $this->ReadWorkspace();
+                    $choices = $this->WorkspaceConnectionChoices($state);
+                    $this->DebugEvent('AKTION', 'Systemzuordnung aus dem Designer ausdrücklich übernommen. Nur der ausführende Zugang wurde an die bestätigte Zuordnung gebunden. Keine MQTT-Anfrage.');
+                }
+                return [200, ['ok' => true, 'fingerprint' => WorkspaceState::Fingerprint($state), 'candidates' => $choices['fingerprint'], 'choices' => $choices['rows']]];
+            }
             if ($asset === 'data') return [200, json_decode($this->WorkspaceDesignerData($_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? $this->DesignerInitialSystem($token)), true, 32, JSON_THROW_ON_ERROR)];
             if ($asset === 'permissions-status') return $this->WorkspacePermissionsRequest(false);
             if ($asset === 'installation-status') {

@@ -1,5 +1,15 @@
 # Projektkontext: Z2MAutomations
 
+## Gemeinsamer Arbeitsplatz – 13.11.2026
+
+Die mit App 0.99.0 praktisch abgenommene Bedienführung wird als geprüftes
+Designer-Paket in Browserdesigner und Kachel übernommen. Acht nummerierte
+Bereiche, direkt erreichbare Korrekturstellen, lokale Freigabeschalter und
+bestätigtes Stoppen/Prüfen/Speichern verwenden die bestehenden nativen Grenzen.
+MQTT-Parents, Entwürfe, Besitzer, Kachel-/Interaktionshelper und Protokolle bleiben
+unter Symcon-Verantwortung. Siehe [ADR 0039](docs/adr/0039-shared-guided-workspace.md).
+Native Abnahme nach Modulupdate noch offen; keine Live-Systeme geändert.
+
 ## Entwicklung auf dev – 08.11.2026
 
 Automatische Statusbestätigung nach Z2M-Neustart korrigiert: Z2M kann bereits

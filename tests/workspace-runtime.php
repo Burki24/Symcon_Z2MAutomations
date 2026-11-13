@@ -189,6 +189,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $request($first, 'status');
     $check($decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'Pure runtime status does not block local return.');
     $check($view($first)['canActivate'], 'Matching saved draft can activate.');
+    $check($view($first)['releasedCount'] === 0 && $view($first)['ruleCount'] === 1, 'Confirmed matching stored configuration reports its actual enabled count.');
     $active = $request($first, 'activate');
     $check($active['ok'] && $active['runtime']['status'] === 'activated' && $active['runtime']['executing'] === true && $active['runtime']['resumeAfterRestart'], 'Activation is followed by a fresh status and restart intent confirmation: ' . json_encode($active));
     $check(!$decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'A possible external control prevents a misleading local rollback.');
@@ -251,6 +252,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $dirty['work']['rule'] = ['dirty' => true, 'input' => ['EditorName' => 'PRIVATE_UNSAVED']];
     $check($decode($manager->UpdateWorkspaceSystem($first['systemId'], 1, $snapshot['fingerprint'], json_encode($dirty), $op()))['ok'], 'Seed pending local input.');
     $check(!$view($first)['canActivate'] && $view($first)['canStop'], 'Unsaved inputs disable starting but never global stopping.');
+    $check($view($first)['releasedCount'] === null && $view($first)['ruleCount'] === null, 'Unsettled local input cannot be advertised as confirmed stored permissions.');
     $check($request($first, 'deactivate')['runtime']['status'] === 'stopped' && $details($first)['data'] === $dirty, 'Stopping retains unsaved work.');
     $snapshot = $details($first);
     $manager->UpdateWorkspaceSystem($first['systemId'], 1, $snapshot['fingerprint'], json_encode($original), $op());

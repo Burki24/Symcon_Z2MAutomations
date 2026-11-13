@@ -95,7 +95,7 @@ trait DesignerEmbedding
         $session = ['hash' => hash('sha256', $token), 'expires' => $this->Now() + 900, 'limit' => $this->Now() + 28800,
             'scope'        => $this->DesignerAccessScope(), 'initialSystem' => $system,
             'create'       => true, 'edit' => true, 'sequences' => true, 'manage' => true, 'receipts' => []];
-        if ($this->WorkspaceMode()) foreach (['runtime', 'catalog', 'imports', 'diagnostics', 'installation', 'permissions'] as $right) $session[$right] = true;
+        if ($this->WorkspaceMode()) foreach (['setup', 'runtime', 'catalog', 'imports', 'diagnostics', 'installation', 'permissions'] as $right) $session[$right] = true;
         $sessions[] = $session;
         $this->WriteEditorBuffer('DesignerSessions', json_encode(array_slice($sessions, -4), JSON_THROW_ON_ERROR));
         $this->DebugEvent('AKTION', 'Designerzugang erstellt: 15 Minuten gültig, bei geöffneter Ansicht bis zu acht Stunden verlängerbar. Entwürfe und Auswahl bleiben unverändert; keine Abfrage oder Geräteaktion.');

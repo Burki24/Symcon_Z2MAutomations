@@ -236,6 +236,7 @@ trait WorkspaceTransfer
         return ['systemId'      => $system, 'generation' => $record['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($record),
             'context'           => WorkspaceState::Fingerprint($job ?? []), 'operation' => $job['request']['operation'] ?? '', 'kind' => $job['request']['kind'] ?? '',
             'status'            => $status, 'message' => $message, 'details' => $details, 'blocked' => $blocked, 'pending' => $pending,
+            'findings'          => $current ? ($job['details']['issues'] ?? []) : [],
             'canValidate'       => $blocked === '', 'canStore' => $blocked === '' && $current && $status === 'validated' && $job['canStore'],
             'receiverConfirmed' => $info['state']['extensionConfirmed'] ?? false,
             'storedRevision'    => $info['state']['extension']['storedRevision'] ?? null,

@@ -134,7 +134,22 @@ Dateisystemrechte. Einzelheiten beschreibt [Sicherung und Rückweg](../docs/MIGR
 
 Im nativen Zentralenformular **Automationsdesigner öffnen** wählen. Der Designer
 öffnet den Arbeitsbereich der Zentrale. Oben wählen Sie das Z2M-System; links
-stehen dessen Automationen, Aktionsfolgen und Geräte.
+stehen die nummerierten Arbeitsschritte, rechts der gewählte Arbeitsbereich.
+Der Designer startet bei den Automationen. Die Kachel verwendet denselben Aufbau;
+bei wenig Platz ersetzt eine Schrittauswahl die linke Navigation. Die vorhandenen
+Bildschirmbilder zeigen teilweise den früheren Aufbau.
+
+| Schritt | Arbeitsbereich |
+| --- | --- |
+| 1. Zentrale | Verwendete Symcon-Zentrale und lokale Speicherung prüfen. |
+| 2. MQTT-Verbindungen | Vorhandene MQTT-Parents überblicken. Broker und Zugangsdaten werden in Symcon eingerichtet. |
+| 3. Z2M-Systeme | Vorhandene Z2M-Verbindungen ausdrücklich zuordnen und Partnerfreigaben öffnen. |
+| 4. Bestand lesen | Gerätedaten nachladen, getrennte Geräte-/Gruppenlisten ansehen und die Erweiterung prüfen. |
+| 5. Arbeitsstand | Den lokalen Entwurf öffnen und bei Bedarf als YAML exportieren. |
+| 6. Automationen | Regeln und Aktionsfolgen erstellen, bearbeiten, kopieren und löschen. |
+| 7. Entwurf prüfen | Fehler mit Regel, Abschnitt und Feld anzeigen; direkt zur Korrekturstelle wechseln. |
+| 8. Nach Z2M übermitteln | Ziel und Wirkung bestätigen; Statusprüfung, nötiger Stopp, erneute Prüfung und Speicherung laufen geführt ab. |
+| Betrieb | Gespeicherte Regeln starten, stoppen oder einmal ausführen; Freigaben im lokalen Entwurf ändern. |
 
 ![Browserdesigner mit Automationsliste, Ablauf und Eigenschaften](../docs/screenshots/webfrontend.png)
 
@@ -145,8 +160,8 @@ stehen dessen Automationen, Aktionsfolgen und Geräte.
 | Ablauf in der Mitte | **Wenn**, **Nur wenn** und **Dann** zeigen Auslöser, Bedingungen und Aktionen. |
 | Eigenschaften rechts | Ein angeklickter Baustein zeigt seine vorhandenen Angaben. Zum Ändern **Automation bearbeiten** wählen. |
 | Neue Automation als Entwurf | Öffnet das gemeinsame Formular für das ausgewählte System. |
-| Statuszeile | Zeigt System, lokalen Entwurf, gespeicherte Z2M-Revision und Betrieb getrennt. Die Schaltfläche führt zum passenden Prüfschritt. |
-| Prüfen & übertragen | Entwurf in Z2M prüfen und nach Bestätigung speichern. |
+| Statuszeile | Zeigt ausgewähltes System, gespeicherte Z2M-Revision und bestätigten Betrieb getrennt. Der lokale Entwurf steht im Arbeitsbereich. |
+| Entwurf prüfen / Nach Z2M übermitteln | Prüfung und bestätigte Übernahme haben eigene Schritte. |
 | Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
 | Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
 | Verwaltung | Aktionsfolgen, Systeme und Diagnose, Partnerfreigaben sowie Ereignisimport öffnen. |
@@ -166,7 +181,7 @@ oder ausdrücklich verworfen werden. Regeln und Aktionsfolgen bleiben je System 
 **Ansicht aktualisieren** liest nur den bereits vorhandenen Modulstand aus
 Symcon. Für frische Gerätedaten aus Z2M:
 
-1. Das gewünschte System auswählen und **Gerätedaten** öffnen.
+1. Das gewünschte System auswählen und Schritt 4 **Verbinden und Bestand lesen** öffnen.
 2. **Gerätedaten aktualisieren** wählen.
 3. Die Verbindungsprüfung und den Geräteabruf abwarten. Währenddessen ist der
    Ladebutton gesperrt; anschließend erscheinen Ladezeit und Anzahl der Einträge.
@@ -182,8 +197,8 @@ schließen und **Ansicht aktualisieren** wählen.
 
 ### Zugang zum Designer
 
-**Sprache:** Oben im Designer und auch in geöffneten Bearbeitungsdialogen können
-Sie zwischen **Deutsch** und **English** wechseln. Zunächst gilt die
+**Sprache:** Oben im Designer können Sie zwischen **Deutsch** und **English**
+wechseln. Die Auswahl gilt für alle Bereiche und Dialoge. Zunächst gilt die
 Browsersprache; Ihre Auswahl wird im Browser gespeichert. Andere
 Browsersprachen verwenden Englisch. Offene Eingaben bleiben beim Wechsel
 erhalten. Gerätenamen, eigene Regelnamen, Szenennamen und technische Werte
@@ -193,6 +208,8 @@ Der Zugang gilt zunächst 15 Minuten. Bei sichtbarer Ansicht wird er alle vier
 Minuten automatisch verlängert. **Zugang verlängern** führt dies sofort aus,
 ohne die Bearbeitung neu zu laden. Nach einem Modulupdate, geänderten
 Systemzuordnungen oder spätestens acht Stunden den Designer erneut im Modul öffnen.
+Wer selbst in Schritt 3 neue Verbindungen zuordnet, behält seinen Zugang;
+andere bereits geöffnete Designer müssen danach erneut geöffnet werden.
 
 Ein abgelaufener Link lässt sich nicht verlängern. Noch sichtbare Eingaben werden
 nicht automatisch verworfen oder erneut gesendet. Höchstens vier Zugänge sind
@@ -203,22 +220,20 @@ Designerlinks gewähren Zugriff auf die Bearbeitung und sollten nicht weitergege
 
 ### Erste Automation: Licht bei Tastendruck
 
-1. Das System des Tasters auswählen. In der Automationsliste **Neue Automation
+1. Das System des Tasters auswählen. In Schritt 6 **Neue Automation
    als Entwurf** öffnen, das angezeigte System prüfen und einen Namen eingeben,
    etwa **Flurlicht bei Tastendruck**. Browserdesigner und Kachel verwenden
    dasselbe Formular.
-2. Unter **Wenn** den Auslöser **Geräteereignis** und den Taster auswählen.
+2. Unter **Wenn** den Auslöser **Gerätestatus** und den Taster auswählen.
    **Eigenschaft / Kanal**, Vergleich und **Wert** einstellen, beispielsweise
    **Tasterereignis**, **ist gleich**, **Einfach drücken**.
 3. Unter **Nur wenn** bei Bedarf Bedingungen ergänzen.
 4. Unter **Dann** die Aktion **Werte setzen**, das Zielgerät, den Kanal und
    den Wert **Ein** auswählen. Einen zweiten Schritt für dasselbe Licht mit
    **Aus** und beispielsweise 60 Sekunden Wartezeit hinzufügen.
-5. **YAML erstellen** prüft die Eingaben und lädt `automations.yaml` mit dem
-   vollständigen Entwurf des gewählten Systems und der neuen ausgeschalteten
-   Regel herunter. **Ausgeschaltet zum Entwurf hinzufügen** speichert die
-   Regel im Symcon-Entwurf. Die Übernahme nach Z2M erfolgt separat über
-   **Prüfen & übertragen**.
+5. **Ausgeschaltet zum Entwurf hinzufügen** prüft die Eingaben und speichert die
+   Regel im Symcon-Entwurf. YAML ist nur ein optionaler Export in Schritt 5.
+   Die Übernahme nach Z2M erfolgt separat in Schritt 8.
 
 Der folgende Ausschnitt zeigt Gerät, Kanal und Wert eines vorhandenen Auslösers:
 
@@ -259,9 +274,9 @@ Uhrzeiten lassen sich nicht übernehmen.
 
 ![Uhrzeit und Zeitzone eines zeitlichen Auslösers](../docs/screenshots/zentrale-uhrzeit.png)
 
-Für Sonnenauf- oder Sonnenuntergang **Art des Eintrags → Sonnenzeit** wählen:
+Für Sonnenauf- oder Sonnenuntergang die entsprechende **Art des Eintrags** wählen:
 
-1. Das gewünschte Sonnenereignis auswählen.
+1. **Sonnenaufgang** oder **Sonnenuntergang** auswählen.
 2. Breitengrad und Längengrad des Standorts in Dezimalgrad eintragen.
 3. Die passende Zeitzone angeben; eine automatische Ortung findet nicht statt.
 4. Den **Zeitversatz** in ganzen Minuten einstellen: −30 bedeutet eine halbe
@@ -340,7 +355,7 @@ Wirkung am Gerät. Bereits gesendete Befehle lassen sich durch Stoppen nicht zur
 
 ### Wiederverwendbare Aktionsfolgen
 
-1. Unter **Verwaltung → Neue Aktionsfolge** einen Namen vergeben.
+1. In Schritt 6 **Neue Aktionsfolge** wählen und einen Namen vergeben.
 2. Aktionen, Geräte, Kanäle, Werte und Wartezeiten wie bei einer Regel zusammenstellen.
 3. Die Reihenfolge anordnen und **Aktionsfolge in den Entwurf übernehmen** wählen.
 4. Eine Automation bearbeiten, als Aktion **Aktionsfolge aufrufen** wählen und
@@ -417,10 +432,15 @@ Die drei Schritte haben unterschiedliche Auswirkungen:
 | In Z2M speichern | Ersetzt die Automationsdatei genau dieses Systems. Bei geändertem Inhalt stoppt die bisherige Ausführung. |
 
 1. Das gewünschte Z2M-System auswählen und offene Bearbeitungen übernehmen oder schließen.
-2. **Prüfen & übertragen** öffnen und **Entwurf in Z2M prüfen** wählen.
-3. Bei erfolgreicher Prüfung **Geprüften Entwurf in Z2M speichern** wählen und
-   den Bestätigungsdialog lesen und bestätigen.
-4. Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
+2. Schritt 7 **Entwurf prüfen** wählen. Bei Fehlern nennt die Liste die betroffene
+   Automation, den Abschnitt und die Eigenschaft. **Zur Stelle im Entwurf** öffnet
+   das Feld zur Korrektur. Anschließend erneut prüfen.
+3. Bei erfolgreicher Prüfung Schritt 8 **Nach Z2M übermitteln** öffnen und
+   **Geprüften Entwurf in Z2M speichern** wählen. Den
+   Bestätigungsdialog lesen und bestätigen.
+4. Der Designer liest den Betriebsstatus, stoppt nötigenfalls Betrieb,
+   Wiederanlauf und offene Einzelläufe und prüft den aktuellen Entwurf erneut.
+   Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
 5. Soll die neue Fassung laufen, anschließend im Bereich **Betrieb** aktivieren.
 
 ![Bereich zum Prüfen und Übertragen des ausgewählten Systementwurfs](../docs/screenshots/zentrale-pruefen-uebertragen.png)
@@ -428,6 +448,17 @@ Die drei Schritte haben unterschiedliche Auswirkungen:
 Eine Entwurfsänderung oder ein Z2M-Neustart kann eine neue Prüfung erforderlich
 machen. Vor dem Senden werden die Schaltrechte erneut geprüft. Andere Systeme
 behalten ihre Entwürfe und ihren Betrieb.
+
+Die Regelschalter des nativen Entwurfs bleiben beim Speichern erhalten. Die
+Erweiterung sichert den bisherigen Dateistand auf dem Z2M-Host. Der Ablauf
+aktiviert keine Automation. Fehlt eine Bestätigung, wird kein Steuer- oder
+Speicherauftrag automatisch erneut gesendet.
+
+Im Bereich **Betrieb → Regeln für den Automatikbetrieb freigeben** können Sie
+die Häkchen der gewünschten Regeln direkt ändern. Das speichert ausschließlich
+den jeweiligen lokalen Schalter. Danach prüfen und in Schritt 8 übermitteln.
+Die Anzahl der in Z2M freigegebenen Regeln wird nur für einen bestätigten,
+mit dem Entwurf übereinstimmenden Stand angezeigt; andernfalls steht dort ein Hinweis.
 
 Bei Ablehnung nennt die Fehlerliste Automation, betroffenen Schritt und Ursache.
 Es werden bis zu 20 Fehler gleichzeitig angezeigt. Die Nummern beziehen sich auf

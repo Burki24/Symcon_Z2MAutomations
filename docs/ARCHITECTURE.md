@@ -543,6 +543,13 @@ werden sichtbar, niemals durch automatisches Wiederholen ersetzt.
 
 ## Gemeinsames Designer-Paket ab Desktop D1
 
+Der gemeinsame nummerierte Arbeitsplatz einschließlich Symcon-Präsentationsadapter
+ist in [ADR 0039](adr/0039-shared-guided-workspace.md) festgelegt. Die PHP-Grenze
+bleibt hier: Einrichtung über vorhandene Verbindungen und geprüfte Zuordnungen,
+lokale systemgebundene Entwürfe, getrennte Prüfung/Übermittlung/Betriebssteuerung.
+Die gemeinsame Shell verschiebt bestehende Bedienelemente samt Listenern und
+behält den tatsächlichen Scrollcontainer der Automationsliste bei.
+
 Die kanonische Designerquelle samt Sprachkatalogen liegt in
 Burki24/Z2M-Automations unter packages/designer/src. Symcon enthält weiterhin
 lokale, festgeschriebene Assets; zur Laufzeit und Prüfung wird kein Nachbarrepo

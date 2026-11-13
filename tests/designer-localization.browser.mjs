@@ -17,14 +17,27 @@ const rule = {id: 'rule_a', name: 'Eigener Name – ON', enabled: false, retrigg
 const rules = new Map([['a', structuredClone(rule)], ['b', structuredClone(rule)]]);
 const createdRules = new Map([['a', []], ['b', []]]);
 const sequence = {id: 'test_steps', name: 'Test action sequence', actions: [rule.actions[0]]};
-const systems = ['a', 'b'].map((name, index) => ({name: 'Eigenes System ' + name, binding: {systemId: name, generation: 1, baseTopic: name === 'a' ? 'zigbee2mqtt' : 'Z2M-2'}}));
+const systems = ['a', 'b'].map((name, index) => ({name: 'Eigenes System ' + name, binding: {systemId: name, generation: 1, mqttParent: index + 10001, baseTopic: name === 'a' ? 'zigbee2mqtt' : 'Z2M-2'}}));
 const interaction = readFileSync(new URL('../libs/helper/visualization/interaction.min.js', import.meta.url), 'utf8');
 let createContext = 'c'.repeat(64);
+let overflowRules = false; let rejectReview = false;
+const operations = [];
+const transferViews = new Map(); const runtimeViews = new Map();
+function transferView(id) {
+    return transferViews.get(id) ?? {message: 'Synthetic transfer', details: '', pending: false, receiverConfirmed: true, storedRevision: 4,
+        canValidate: true, canStore: false, context: '1'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64)};
+}
+function runtimeView(id) {
+    return runtimeViews.get(id) ?? {message: 'Synthetic runtime', pending: false, confirmed: true, executing: true, resumeAfterRestart: true,
+        canRefresh: true, canActivate: false, canStop: true, context: '2'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64), rules: {}};
+}
+const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'.repeat(64), choices: systems.map((system, index) =>
+    ({Connection: index + 10010, Use: true, editable: false, Name: system.name, MQTT: String(system.binding.mqttParent), Topic: system.binding.baseTopic, Status: 'Synthetic ready'}))});
 function model(id = 'a') {
     return {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
         readAt: 1800000000, catalogAvailable: true, catalogLoadedAt: 1800000000, draftAvailable: true, draftMismatch: false, openFormEdits: false,
         configuration: {schema_version: 1, revision: 4 + createdRules.get(id).length, mesh_peers: ['kept-peer'],
-            automations: [rules.get(id), ...createdRules.get(id)], sequences: [sequence]},
+            automations: [rules.get(id), ...createdRules.get(id), ...(overflowRules ? Array.from({length: 30}, (_, i) => ({...rule, id: 'overflow_' + i, name: 'Synthetic automation ' + i})) : [])], sequences: [sequence]},
         devices: [{key: 'lamp', name: 'Eigener Gerätename – Ein', target: {type: 'device', id: 'lamp'},
             properties: [{id: 'state', label: 'Eigener Kanal', type: 'binary', readable: true, writable: true, values: ['ON', 'OFF'], actionValues: ['ON', 'OFF', 'TOGGLE'], valueLabels: [], unit: ''}]}],
         status: {confirmed: true, mqttConnected: true, executing: true, activeRevision: 4, storedRevision: 4},
@@ -32,7 +45,7 @@ function model(id = 'a') {
         sequenceCreateAllowed: true, createNotice: '', editNotice: '', sequenceNotice: '', sequenceSections: {},
         editSections: {rule_a: {triggers: true, conditions: true, actions: true}},
         workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: 'e'.repeat(64)},
-        transfer: {message: 'Synthetic transfer', details: '', pending: false, receiverConfirmed: true, storedRevision: 4, canValidate: true, canStore: false}};
+        transfer: transferView(id), runtime: runtimeView(id)};
 }
 let active = 'a';
 const server = createServer(async (request, response) => {
@@ -44,6 +57,22 @@ const server = createServer(async (request, response) => {
         response.setHeader('Content-Type', 'application/json');
         if (route === 'language') audits.push(body);
         else if (route === 'select-system') active = body.systemId;
+        else if (route === 'workspace-configure') {
+            operations.push({route, body}); response.end(JSON.stringify(setupView())); return;
+        }
+        else if (route === 'runtime') {
+            const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            if (body.action === 'deactivate') runtimeViews.set(id, {...runtimeView(id), executing: false, resumeAfterRestart: false, status: 'stopped'});
+            response.end(JSON.stringify({ok: true, runtime: runtimeView(id)})); return;
+        }
+        else if (route === 'transfer') {
+            const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            transferViews.set(id, {...transferView(id), canStore: body.action === 'validate', status: body.action === 'validate' ? 'validated' : 'stored',
+                message: body.action === 'validate' ? 'Synthetic validated' : 'Synthetic stored', storedRevision: body.action === 'store' ? model(id).configuration.revision : 4});
+            if (body.action === 'validate' && rejectReview) transferViews.set(id, {...transferView(id), canStore: false, status: 'error', message: 'Synthetic rejected',
+                findings: [{path: '/automations/0/actions/0/values/state', reason: 'capability_enum', capability: {system: id, device: 'Synthetic lamp', label: 'State', property: 'state', actual: 'INVALID', actualType: 'string', allowed: ['ON', 'OFF']}}]});
+            response.end(JSON.stringify({ok: true, transfer: transferView(id)})); return;
+        }
         else if (route === 'create-yaml') {
             const systemId = request.headers['x-z2ma-system-id'];
             exports.push({route, systemId});
@@ -59,10 +88,11 @@ const server = createServer(async (request, response) => {
             createdRules.get(active).push({...body.rule, id, enabled: false});
             response.end(JSON.stringify({ok: true, ruleId: id})); return;
         }
-        else { writes.push({route, body}); if (route === 'edit') Object.assign(rules.get(active), structuredClone(body.changes)); }
+        else { writes.push({route, body, systemId: request.headers['x-z2ma-system-id']}); if (route === 'edit') Object.assign(rules.get(active), structuredClone(body.changes)); }
         response.end(JSON.stringify({ok: true, ruleId: 'rule_a'})); return;
     }
     if (route === 'data') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(model(active))); return;}
+    if (route === 'workspace-status') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(setupView())); return;}
     if (!/^[a-z-]+\.(?:js|html|css)$/.test(route)) {response.writeHead(404); response.end(); return;}
     try {
         let body = route === 'interaction.js' ? interaction : readFileSync(new URL(route, assets), 'utf8');
@@ -84,44 +114,73 @@ const server = createServer(async (request, response) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({channel: 'msedge', headless: true});
+async function showStep(view, key) {
+    const button = view.locator('#desktop-nav-' + key);
+    if (await button.isVisible()) await button.click(); else await view.locator('#desktop-step').selectOption(key);
+    await view.locator('#desktop-view-' + key).waitFor({state: 'visible'});
+}
+async function verifyWorkspaceWheel(page) {
+    overflowRules = true;
+    await page.reload();
+    await page.locator('#entry-list .entry').nth(25).waitFor({state: 'attached'});
+    const list = page.locator('#entry-list');
+    assert.ok(await list.evaluate(node => node.scrollHeight > node.clientHeight && node.clientHeight > 80));
+    assert.ok(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1), 'the desktop workspace fits the window');
+    const outer = await page.locator('#desktop-view-automations').evaluate(node => node.scrollTop);
+    const box = await list.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + Math.min(box.height / 2, 100));
+    for (const delta of [240, -240]) {
+        const before = await list.evaluate(node => node.scrollTop);
+        await page.mouse.wheel(0, delta);
+        await page.waitForFunction(({before, delta}) => (document.querySelector('#entry-list').scrollTop - before) * delta > 0, {before, delta});
+    }
+    assert.equal(await page.locator('#desktop-view-automations').evaluate(node => node.scrollTop), outer, 'the wheel stays inside the automation list');
+    overflowRules = false; await page.reload();
+    await page.locator('#edit-automation-button:not(:disabled)').waitFor();
+}
 async function verifyDraftForm(page, view, system, refresh = false) {
     const start = view.locator('#draft-wizard-start:not(:disabled)');
     await start.waitFor({state: 'attached'});
     const navigation = view.locator('.navigation .designer-fold');
     if (await navigation.getAttribute('open') === null) await navigation.locator('summary').click();
-    assert.equal(await view.locator('#workflow-system').innerText(), 'Eigenes System ' + system);
-    assert.match(await view.locator('#draft-status').innerText(), /Revision 4/);
-    assert.match(await view.locator('#workflow-stored').innerText(), /Revision 4/);
-    assert.match(await view.locator('#runtime-status').innerText(), /Revision 4/);
+    assert.equal(await view.locator('#designer-system option:checked').innerText(), 'Eigenes System ' + system + ' · ' + systems.find(row => row.binding.systemId === system).binding.baseTopic);
+    assert.match(await view.locator('.desktop-source').innerText(), /Revision 4/);
+    assert.match(await view.locator('#symcon-stored-status').innerText(), /Revision 4/);
+    await showStep(view, 'system');
+    await view.locator('#symcon-system-choices input').first().waitFor();
+    assert.equal(await view.locator('#symcon-system-choices input:checked').count(), 2);
+    await showStep(view, 'automations');
     await start.click();
     const dialog = view.locator('#edit-dialog');
     const name = 'Form test ' + system;
     const nameInput = dialog.locator('#edit-fields input[type=text]').first();
-    const exportButton = dialog.locator('#edit-export');
+    const submit = dialog.locator('#edit-submit');
     assert.match(await dialog.innerText(), new RegExp('Eigenes System ' + system));
     assert.equal(await dialog.locator('[data-section=conditions]').getAttribute('open'), null);
     assert.equal(await dialog.locator('#edit-next').count(), 0);
     assert.ok(await dialog.evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'the form fits its available width');
-    assert.ok(await exportButton.evaluate(node => {
+    assert.equal(await dialog.locator('#edit-export').isVisible(), false, 'YAML export is kept in step 5');
+    assert.equal(await dialog.locator('[data-language-picker]').isVisible(), false, 'language is selected in the central header');
+    assert.ok(await submit.evaluate(node => {
         const button = node.getBoundingClientRect();
         const dialog = node.closest('dialog').getBoundingClientRect();
         return button.top >= dialog.top && button.bottom <= Math.min(dialog.bottom, innerHeight);
-    }), 'the YAML action is visible at the start of the form');
+    }), 'the save action stays visible at the start of the form');
     if (view !== page) {
         const box = await dialog.boundingBox();
         await page.mouse.move(box.x + 20, box.y + 80);
         for (const delta of [240, -240]) {
-            const top = await dialog.evaluate(node => {
+            const top = await dialog.locator('#edit-content').evaluate(node => {
                 delete node.dataset.testWheel;
                 node.addEventListener('scrollend', () => { node.dataset.testWheel = 'scrolled'; }, {once: true});
                 return node.scrollTop;
             });
             await page.mouse.wheel(0, delta);
-            await view.locator('#edit-dialog[data-test-wheel=scrolled]').waitFor();
-            assert.ok(await dialog.evaluate((node, before) => node.scrollTop - before, top) * delta > 0, 'the tile editor scrolls in the wheel direction');
+            await view.locator('#edit-content[data-test-wheel=scrolled]').waitFor();
+            assert.ok(await dialog.locator('#edit-content').evaluate((node, before) => node.scrollTop - before, top) * delta > 0, 'the tile editor scrolls in the wheel direction');
         }
     }
-    await exportButton.click();
+    await submit.click();
     assert.equal(await nameInput.getAttribute('aria-invalid'), 'true');
     assert.ok(await nameInput.evaluate(node => node === node.ownerDocument.activeElement));
     await nameInput.fill(name);
@@ -129,7 +188,7 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     await conditions.locator('summary').click();
     await conditions.getByRole('button', {name: 'Bedingung hinzufügen', exact: true}).click();
     const conditionKind = conditions.locator('fieldset select').first();
-    assert.equal(await conditionKind.inputValue(), 'device_value');
+    assert.equal(await conditionKind.inputValue(), 'status');
     assert.ok(await conditionKind.evaluate(node => node === node.ownerDocument.activeElement));
     await conditions.locator('fieldset .edit-row-tools button').click();
     await conditions.locator('summary').click();
@@ -137,7 +196,6 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     const action = dialog.locator('[data-section=actions] fieldset select');
     await action.first().selectOption('sequence');
     await action.nth(1).selectOption(sequence.id);
-    const submit = dialog.locator('#edit-submit');
     if (refresh) {
         createContext = 'f'.repeat(64);
         await submit.click();
@@ -146,7 +204,18 @@ async function verifyDraftForm(page, view, system, refresh = false) {
         assert.equal(await nameInput.inputValue(), name);
     }
     const before = model(system).configuration;
-    const [download] = await Promise.all([page.waitForEvent('download'), exportButton.click()]);
+    assert.ok(await dialog.isVisible());
+    assert.equal(await nameInput.inputValue(), name);
+    await submit.click();
+    await dialog.waitFor({state: 'hidden'});
+    await view.getByRole('heading', {name, exact: true}).waitFor();
+    assert.equal(createdRules.get(system).length, 1);
+    assert.equal(createdRules.get(system)[0].enabled, false);
+    assert.match(await view.locator('.desktop-source').innerText(), /Revision 5/);
+    assert.match(await view.locator('#symcon-stored-status').innerText(), /Revision 4/);
+    await showStep(view, 'draft');
+    await view.locator('#symcon-export-draft').waitFor({state: 'visible'});
+    const [download] = await Promise.all([page.waitForEvent('download'), view.locator('#symcon-export-draft').click()]);
     assert.equal(download.suggestedFilename(), 'automations.yaml');
     const candidate = JSON.parse(readFileSync(await download.path(), 'utf8'));
     assert.deepEqual(candidate.automations[0], before.automations[0]);
@@ -155,18 +224,23 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     assert.equal(candidate.automations[1].name, name);
     assert.equal(candidate.automations[1].enabled, false);
     assert.equal(candidate.automations[1].actions[0].sequence_id, sequence.id);
-    assert.deepEqual(model(system).configuration, before);
-    assert.ok(await dialog.isVisible());
-    assert.equal(await nameInput.inputValue(), name);
-    await submit.click();
-    await dialog.waitFor({state: 'hidden'});
-    await view.getByRole('heading', {name, exact: true}).waitFor();
-    assert.equal(createdRules.get(system).length, 1);
-    assert.equal(createdRules.get(system)[0].enabled, false);
-    assert.match(await view.locator('#draft-status').innerText(), /Revision 5/);
-    assert.match(await view.locator('#workflow-stored').innerText(), /Revision 4/);
-    await view.locator('#workflow-next').click();
-    await view.locator('#designer-transfer button[data-transfer-action=validate]:focus').waitFor();
+    await showStep(view, 'review');
+    await view.locator('button[data-transfer-action=validate]').click();
+    await view.locator('.desktop-review').getByText('Synthetic validated', {exact: true}).waitFor();
+    await showStep(view, 'transfer');
+    const beforeOperations = operations.length;
+    await view.locator('button[data-transfer-action=store]').click();
+    const confirmation = view.locator('.guided-confirmation');
+    await confirmation.waitFor({state: 'visible'});
+    assert.ok(await confirmation.locator('button').first().evaluate(node => node === node.ownerDocument.activeElement), 'cancel has the safe initial focus');
+    await confirmation.press('Escape');
+    await confirmation.waitFor({state: 'detached'});
+    assert.equal(operations.length, beforeOperations, 'cancelled transmission sends nothing');
+    await view.locator('button[data-transfer-action=store]').click();
+    await confirmation.locator('button.primary').click();
+    await view.locator('.system-transfer:not(.system-runtime)').getByText('Synthetic stored', {exact: true}).waitFor();
+    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store']]);
+    assert.ok(operations.slice(beforeOperations).every(row => row.systemId === system), 'all operations address the explicitly selected system');
 }
 try {
     const context = await browser.newContext({locale: 'en-GB', viewport: {width: 1440, height: 1000}});
@@ -190,7 +264,7 @@ try {
     await name.evaluate(node => {window.__nameField = node;});
     const box = await dialog.boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    const beforeWheel = await dialog.evaluate(node => {
+    const beforeWheel = await dialog.locator('#edit-content').evaluate(node => {
         window.__dialogScroll = null;
         node.addEventListener('wheel', () => node.addEventListener('scrollend', () => {
             window.__dialogScroll = node.scrollTop;
@@ -208,7 +282,7 @@ try {
         }
         window.__languageRows = rows;
     }, {english: catalogs, german});
-    await dialog.locator('[data-language-picker] select').selectOption('de');
+    await page.evaluate(async () => (await import('./localization.js')).setLanguage('de'));
     assert.deepEqual(await page.evaluate(() => window.__languageRows.filter(row => row.node.isConnected && row.node.data.trim() !== row.expected).map(row => ({before: row.original, after: row.node.data.trim(), expected: row.expected}))), [], 'every bound editor caption changes language');
     assert.equal(await name.inputValue(), 'Unsaved user input – Ein ON');
     assert.equal(await search.inputValue(), 'Eigener');
@@ -217,13 +291,13 @@ try {
     assert.equal(await dialog.locator('input[type=text]').first().inputValue(), 'Unsaved user input – Ein ON');
     assert.match(await dialog.innerText(), /Name der Automation/);
     assert.equal(await dialog.getByLabel('Nach einem Zigbee2MQTT-Neustart', {exact: true}).inputValue(), 'resume_expired');
-    await dialog.locator('[data-language-picker] select').selectOption('en');
+    await page.evaluate(async () => (await import('./localization.js')).setLanguage('en'));
     assert.match(await dialog.innerText(), /Automation name/);
     assert.equal(await name.inputValue(), 'Unsaved user input – Ein ON');
     assert.equal(await search.inputValue(), 'Eigener');
     const currentSelects = await dialog.locator('select:not([data-language-select])').evaluateAll(nodes => nodes.map(n => n.value));
     assert.deepEqual(currentSelects, selects, 'typed channel/value selections stay unchanged');
-    assert.equal(await dialog.evaluate(node => node.scrollTop), await page.evaluate(() => window.__dialogScroll));
+    assert.equal(await dialog.locator('#edit-content').evaluate(node => node.scrollTop), await page.evaluate(() => window.__dialogScroll));
     await dialog.locator('#edit-submit').click();
     await dialog.waitFor({state: 'hidden'});
     assert.equal(writes.length, 1);
@@ -251,6 +325,21 @@ try {
     assert.deepEqual(writes.map(write => write.route), ['edit'], 'no Z2M store, install, activation or device request');
     assert.ok(audits.length >= 3);
     assert.ok(audits.every(row => Object.keys(row).sort().join() === 'language,openEditor,previousLanguage'));
+    await page.setViewportSize({width: 1440, height: 900});
+    await verifyWorkspaceWheel(page);
+    rejectReview = true;
+    await showStep(page, 'review');
+    await page.locator('button[data-transfer-action=validate]').click();
+    const finding = page.locator('.desktop-findings li');
+    await finding.waitFor();
+    assert.match(await finding.innerText(), /Eigener Name.*Aktion 1.*state/s);
+    assert.match(await finding.innerText(), /INVALID.*ON.*OFF/s, 'the finding explains the actual value and allowed values');
+    await finding.locator('button').click();
+    await page.locator('#edit-dialog').waitFor({state: 'visible'});
+    assert.equal(await page.locator('#edit-dialog [aria-invalid=true]').count(), 1);
+    assert.ok(await page.locator('#edit-dialog [aria-invalid=true]').evaluate(node => node === node.ownerDocument.activeElement), 'correction opens and focuses the actual value field');
+    await page.locator('#edit-cancel').click();
+    rejectReview = false; await showStep(page, 'automations');
     await verifyDraftForm(page, page, 'b', true);
     active = 'a';
     const tile = await context.newPage(); tile.on('pageerror', error => errors.push(error.message));
@@ -258,11 +347,22 @@ try {
     await tile.goto('http://127.0.0.1:' + server.address().port + '/tile.html');
     await tile.getByText('Designer in der Kachel verbunden.', {exact: false}).waitFor();
     await verifyDraftForm(tile, tile.frameLocator('#designer-frame'), 'a');
-    assert.deepEqual(writes.map(write => [write.route, write.systemId]), [['edit', undefined], ['create', 'b'], ['create', 'b'], ['create', 'a']]);
+    assert.deepEqual(writes.map(write => [write.route, write.systemId]), [['edit', 'a'], ['create', 'b'], ['create', 'b'], ['create', 'a']]);
     assert.equal(writes[1].body.requestId, writes[2].body.requestId, 'refresh retains the request identity');
-    assert.deepEqual(exports, [{route: 'create-yaml', systemId: 'b'}, {route: 'create-yaml', systemId: 'a'}]);
+    assert.deepEqual(exports, [], 'optional step 5 downloads use the displayed local draft without a write request');
+    const tileView = tile.frameLocator('#designer-frame');
+    await showStep(tileView, 'operation');
+    const beforeRelease = structuredClone(model('a').configuration);
+    const beforeReleaseOperations = operations.length;
+    await tileView.locator('#symcon-rule-switches input[data-rule-id="rule_a"]').check();
+    await tileView.getByText('Freigabe im Entwurf gespeichert. Jetzt prüfen und in Schritt 8 übermitteln.', {exact: true}).waitFor();
+    assert.equal(rules.get('a').enabled, true);
+    assert.equal(rules.get('b').enabled, false);
+    assert.deepEqual(writes.at(-1).body.changes, {enabled: true});
+    assert.deepEqual(model('a').configuration.automations[0], {...beforeRelease.automations[0], enabled: true});
+    assert.equal(operations.length, beforeReleaseOperations, 'editing a permission sends no transfer or runtime command');
     assert.deepEqual(errors, []);
-    console.log('Offline draft form passed: browser and tile, field validation, scoped YAML downloads and independent draft save.');
+    console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {
@@ -272,4 +372,15 @@ try {
         assert.equal(await view.locator('html').getAttribute('lang'), expected, 'browser default and English fallback');
         await fresh.close();
     }
+} catch (error) {
+    for (const context of browser.contexts()) for (const page of context.pages()) for (const frame of page.frames()) {
+        if (!frame.url().includes('/index.html')) continue;
+        console.error('GUIDED_LAYOUT_FAILURE', await frame.evaluate(() => ({height: innerHeight, width: innerWidth,
+            elements: ['.app-header', '.desktop-shell', '.desktop-steps', '.desktop-context', '.desktop-content', '.designer-feedback', '#desktop-view-automations', '#desktop-view-automations .desktop-step-body', '.workspace', '.navigation', '.designer-fold', '.designer-access'].map(selector => {
+                const node = document.querySelector(selector); if (!node) return {selector};
+                const rect = node.getBoundingClientRect(); const style = getComputedStyle(node);
+                return {selector, top: rect.top, bottom: rect.bottom, height: rect.height, scrollHeight: node.scrollHeight, clientHeight: node.clientHeight, overflow: style.overflow, flex: style.flex};
+            })})));
+    }
+    throw error;
 } finally {await browser.close(); await new Promise(resolve => server.close(resolve));}

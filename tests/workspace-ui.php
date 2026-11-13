@@ -28,6 +28,13 @@ class WorkspaceUIProbe extends Z2MAutomations
     public array $debugMessages = [];
     public $onCatalogRead = null;
     public string $requestBody = '';
+    public function SetupAccess(string $token, bool $allowed): void
+    {
+        $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
+        foreach ($sessions as &$session) if ($session['hash'] === hash('sha256', $token)) $session['setup'] = $allowed;
+        unset($session);
+        $this->SetBuffer('DesignerSessions', json_encode($sessions));
+    }
     public function RemoveImportAccess(string $token): void
     {
         $sessions = json_decode($this->GetBuffer('DesignerSessions'), true);
@@ -222,6 +229,7 @@ $selected = $decode($manager->GetDesignerData());
 $token = substr(strrchr($manager->OpenAutomationDesigner(), '#'), 1);
 [$code, $raw] = $manager->Hook('data', $token);
 $check($code === 200 && $decode($raw)['workspaceContext']['systemId'] === $a, 'Authenticated browser data uses selected system');
+require __DIR__ . '/workspace-guided.inc.php';
 require __DIR__ . '/designer-tile.inc.php';
 $headers = ['HTTP_X_Z2MA_SYSTEM_ID' => $a, 'HTTP_X_Z2MA_GENERATION' => '1', 'HTTP_X_Z2MA_FINGERPRINT' => $detail($a)['fingerprint']];
 $manager->requestBody = json_encode(['requestId' => '11111111-1111-4111-8111-111111111111', 'context' => $selected['createContext'], 'ruleId' => 'same_rule', 'changes' => ['name' => 'Changed only A']]);

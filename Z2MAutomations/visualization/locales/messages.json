@@ -3859,6 +3859,10 @@
         "Mehrere Werte werden als gemeinsamer Gerätebefehl gesetzt. Zum Umschalten die Aktionsart „Umschalten“ wählen.",
         "Multiple values are sent as a single device command. To toggle, choose the “Toggle” action type."
     ],
+    "editor.stateValuesHelp": [
+        "Mehrere Werte werden als gemeinsamer Gerätebefehl gesetzt. Bei einem bedienbaren State-Kanal kannst du Ein, Aus oder Umschalten (TOGGLE) wählen.",
+        "Multiple values are sent as a single device command. A writable state channel offers On, Off or Toggle (TOGGLE)."
+    ],
     "ui.name.and.behaviour.of.the.c1dd0e9d": [
         "Name und Verhalten des gesamten Ablaufs.",
         "Name and behaviour of the entire sequence."
@@ -5207,6 +5211,898 @@
         "für Linux",
         "for Linux"
     ],
+    "desktop.workspace": [
+        "Bedienfolge",
+        "Workflow steps"
+    ],
+    "desktop.steps.picker": [
+        "Arbeitsschritt",
+        "Workflow step"
+    ],
+    "desktop.steps.project": [
+        "Projekt öffnen oder anlegen",
+        "Open or create a project"
+    ],
+    "desktop.steps.broker": [
+        "Broker einrichten",
+        "Set up broker"
+    ],
+    "desktop.steps.system": [
+        "Z2M-System zuordnen",
+        "Assign a Z2M system"
+    ],
+    "desktop.steps.connection": [
+        "Verbinden und Bestand lesen",
+        "Connect and read Z2M state"
+    ],
+    "desktop.steps.draft": [
+        "Arbeitsstand wählen",
+        "Choose a starting point"
+    ],
+    "desktop.steps.automations": [
+        "Automationen bearbeiten",
+        "Edit automations"
+    ],
+    "desktop.steps.review": [
+        "Entwurf prüfen",
+        "Check draft"
+    ],
+    "desktop.steps.transfer": [
+        "Nach Z2M übermitteln",
+        "Transfer to Z2M"
+    ],
+    "desktop.steps.operation": [
+        "Betrieb",
+        "Operation"
+    ],
+    "desktop.steps.need.project": [
+        "Öffne oder erstelle zuerst ein Projekt.",
+        "Open or create a project first."
+    ],
+    "desktop.steps.need.broker": [
+        "Richte zuerst einen MQTT-Broker ein.",
+        "Set up an MQTT broker first."
+    ],
+    "desktop.steps.need.system": [
+        "Ordne dem Broker zuerst ein Z2M-System zu.",
+        "Assign a Z2M system to the broker first."
+    ],
+    "desktop.steps.projectContext": [
+        "Projekt · {{name}}",
+        "Project · {{name}}"
+    ],
+    "desktop.steps.projectOptions": [
+        "Weitere Projektaktionen",
+        "More project actions"
+    ],
+    "desktop.steps.brokerHelp": [
+        "Gib die Adresse des MQTT-Brokers ein und hinterlege bei Bedarf seine Zugangsdaten.",
+        "Enter the MQTT broker address and add its credentials if required."
+    ],
+    "desktop.overview.broker": [
+        "Angelegte Broker ({{count}})",
+        "Configured brokers ({{count}})"
+    ],
+    "desktop.overview.system": [
+        "Angelegte Z2M-Systeme ({{count}})",
+        "Configured Z2M systems ({{count}})"
+    ],
+    "desktop.overview.empty.broker": [
+        "In diesem Projekt sind noch keine Broker angelegt.",
+        "No brokers have been added to this project yet."
+    ],
+    "desktop.overview.empty.system": [
+        "In diesem Projekt sind noch keine Z2M-Systeme angelegt.",
+        "No Z2M systems have been added to this project yet."
+    ],
+    "desktop.overview.tls": [
+        "TLS an",
+        "TLS on"
+    ],
+    "desktop.overview.plain": [
+        "TLS aus",
+        "TLS off"
+    ],
+    "desktop.overview.assigned": [
+        "Z2M · {{names}}",
+        "Z2M · {{names}}"
+    ],
+    "desktop.overview.unassigned": [
+        "Kein Z2M-System zugeordnet",
+        "No Z2M system assigned"
+    ],
+    "desktop.overview.brokerName": [
+        "Broker · {{name}}",
+        "Broker · {{name}}"
+    ],
+    "desktop.overview.baseTopic": [
+        "Basistopic · {{topic}}",
+        "Base topic · {{topic}}"
+    ],
+    "desktop.partners.title": [
+        "Partnerfreigaben im Projekt",
+        "Partner permissions in this project"
+    ],
+    "desktop.partners.count": [
+        "Partnerfreigaben im Projekt ({{count}})",
+        "Partner permissions in this project ({{count}})"
+    ],
+    "desktop.partners.scope": [
+        "Freigaben gelten für alle Automationen des jeweiligen Z2M-Systems in diesem Projekt. Neue Automationen benötigen keine eigenen Freigaben. Jede Richtung wird einzeln eingerichtet; für die systemübergreifende Nutzung müssen beide Systeme einander erlauben.",
+        "Permissions apply to every automation of the respective Z2M system in this project. New automations need no individual grants. Each direction is configured separately; cross-system use requires both systems to allow each other."
+    ],
+    "desktop.partners.saved": [
+        "Projekt gespeichert. In Z2M werden Freigaben nach der separaten Übernahme und Aktivierung des Empfängers wirksam.",
+        "Project saved. Permissions take effect in Z2M after separately transferring them and activating the receiver."
+    ],
+    "desktop.partners.unsaved": [
+        "Das Projekt enthält ungespeicherte Änderungen. Speichere es in Schritt 1. Die Übernahme und Aktivierung in Z2M erfolgen separat.",
+        "The project has unsaved changes. Save it in step 1. Transfer and activation in Z2M are separate steps."
+    ],
+    "desktop.partners.empty": [
+        "Es sind noch keine Partnerfreigaben eingerichtet oder aus Z2M bekannt. Wähle oben das empfangende System und öffne „Partnerfreigaben“.",
+        "No partner permissions are configured or known from Z2M yet. Select the receiving system above and open Partner permissions."
+    ],
+    "desktop.partners.source": [
+        "Von System",
+        "From system"
+    ],
+    "desktop.partners.receiver": [
+        "An System",
+        "To system"
+    ],
+    "desktop.partners.project": [
+        "Im Projekt",
+        "In project"
+    ],
+    "desktop.partners.z2m": [
+        "In Z2M gespeichert",
+        "Stored in Z2M"
+    ],
+    "desktop.partners.configured": [
+        "Eingerichtet",
+        "Configured"
+    ],
+    "desktop.partners.removed": [
+        "Entfernt · Übernahme ausstehend",
+        "Removed · transfer pending"
+    ],
+    "desktop.partners.unassigned": [
+        "Nicht eindeutig im Projekt zugeordnet",
+        "Not uniquely assigned in this project"
+    ],
+    "desktop.partners.oneWay": [
+        "Die Gegenrichtung fehlt im Projekt.",
+        "The reverse direction is missing in this project."
+    ],
+    "desktop.partners.unknown": [
+        "Noch nicht gelesen",
+        "Not read yet"
+    ],
+    "desktop.partners.confirmed": [
+        "Freigegeben · frisch bestätigt",
+        "Allowed · freshly confirmed"
+    ],
+    "desktop.partners.denied": [
+        "Nicht freigegeben · frisch bestätigt",
+        "Not allowed · freshly confirmed"
+    ],
+    "desktop.partners.lastGranted": [
+        "Zuletzt freigegeben · aktuell unbestätigt",
+        "Last known: allowed · currently unconfirmed"
+    ],
+    "desktop.partners.lastDenied": [
+        "Zuletzt nicht freigegeben · aktuell unbestätigt",
+        "Last known: not allowed · currently unconfirmed"
+    ],
+    "desktop.partners.active": [
+        "Betrieb mit diesem Stand aktiv",
+        "Operation active with this configuration"
+    ],
+    "desktop.partners.stopped": [
+        "Betrieb gestoppt",
+        "Operation stopped"
+    ],
+    "desktop.partners.runtimeUnknown": [
+        "Aktiver Betriebsstand nicht bestätigt",
+        "Active operational configuration not confirmed"
+    ],
+    "desktop.partners.requirements": [
+        "MQTT-Rechte und Broker-Bridge · nicht geprüft",
+        "MQTT rights and broker bridge · not checked"
+    ],
+    "desktop.partners.accounts": [
+        "Zusätzliche Mosquitto-Benutzer sind nicht zwingend nötig. Die bestehenden Z2M- und Bridge-Konten können passende Rechte erhalten. Eigene Benutzer erleichtern die getrennte Verwaltung.",
+        "Additional Mosquitto users are not mandatory. Existing Z2M and bridge accounts can receive the required permissions. Separate users make independent administration easier."
+    ],
+    "desktop.partners.acl": [
+        "Die beteiligten Z2M-Clients und gegebenenfalls die Bridge benötigen Lese- und Schreibrechte für z2ma/mesh/#. Diese Rechte werden auf den Mosquitto-Brokern eingerichtet.",
+        "Participating Z2M clients and the bridge, if used, need read and write access to z2ma/mesh/#. Configure these permissions on the Mosquitto brokers."
+    ],
+    "desktop.partners.bridge": [
+        "Bei getrennten Brokern muss eine MQTT-Bridge z2ma/mesh/# zwischen den Brokern transportieren. Bei einem gemeinsamen Broker entfällt die Bridge.",
+        "Separate brokers need an MQTT bridge carrying z2ma/mesh/# between them. A shared broker needs no bridge."
+    ],
+    "desktop.partners.unverified": [
+        "Die App richtet keine Broker-Benutzer, MQTT-Rechte oder Bridges ein. Eine erfolgreiche App-Verbindung bestätigt deren Einrichtung für die Z2M- und Bridge-Konten nicht.",
+        "The app does not create broker users, MQTT permissions or bridges. A successful app connection does not confirm their setup for the Z2M and bridge accounts."
+    ],
+    "desktop.steps.systemHelp": [
+        "Ordne dem System seinen Broker und das Basistopic aus der Zigbee2MQTT-Konfiguration zu.",
+        "Assign the system its broker and the base topic from the Zigbee2MQTT configuration."
+    ],
+    "desktop.steps.readState": [
+        "Bestand lesen",
+        "Read Z2M state"
+    ],
+    "desktop.steps.catalog": [
+        "Geladener Katalog · {{devices}} Geräte und Gruppen · {{scenes}} Szenen",
+        "Loaded catalog · {{devices}} devices and groups · {{scenes}} scenes"
+    ],
+    "desktop.catalog.device": [
+        "Geräte ({{count}})",
+        "Devices ({{count}})"
+    ],
+    "desktop.catalog.group": [
+        "Gruppen ({{count}})",
+        "Groups ({{count}})"
+    ],
+    "desktop.catalog.empty.device": [
+        "Der gelesene Katalog enthält keine Geräte.",
+        "No devices in the loaded catalog."
+    ],
+    "desktop.catalog.empty.group": [
+        "Der gelesene Katalog enthält keine Gruppen.",
+        "No groups in the loaded catalog."
+    ],
+    "desktop.steps.readStored": [
+        "Aktuellen Z2M-Stand lesen",
+        "Read current Z2M state"
+    ],
+    "desktop.steps.local": [
+        "Lokaler Entwurf",
+        "Local draft"
+    ],
+    "desktop.steps.localHelp": [
+        "Projekt speichern und YAML-Export bewahren diesen lokalen Entwurf. Seine Revision wird unabhängig vom Z2M-Stand gezählt.",
+        "Saving the project and exporting YAML preserve this local draft. Its revision is counted independently from stored Z2M state."
+    ],
+    "desktop.steps.stored": [
+        "In Zigbee2MQTT gespeicherter Stand",
+        "State stored in Zigbee2MQTT"
+    ],
+    "desktop.steps.storedHelp": [
+        "Beim Kopieren bleiben IDs und Inhalte erhalten. Die Regeln werden im lokalen Entwurf ausgeschaltet; Z2M bleibt unverändert. Die zuerst gewählte Projektsicherung enthält den bisherigen Entwurf. Speichere das Projekt nach dem Kopieren in Schritt 1, um den neuen Entwurf aufzubewahren.",
+        "Copying preserves IDs and content. Rules are disabled in the local draft; Z2M remains unchanged. The project backup selected first contains the previous draft. Save the project in step 1 after copying to preserve the new draft."
+    ],
+    "desktop.steps.configurationCounts.one": [
+        "{{rules}} Automation · {{enabled}} freigegeben · {{sequences}} Aktionsfolgen",
+        "{{rules}} automation · {{enabled}} enabled · {{sequences}} action sequences"
+    ],
+    "desktop.steps.configurationCounts.other": [
+        "{{rules}} Automationen · {{enabled}} freigegeben · {{sequences}} Aktionsfolgen",
+        "{{rules}} automations · {{enabled}} enabled · {{sequences}} action sequences"
+    ],
+    "desktop.steps.storedSource": [
+        "In Z2M gespeichert · Revision {{revision}}",
+        "Stored in Z2M · revision {{revision}}"
+    ],
+    "desktop.steps.lastReadSource": [
+        "Zuletzt in Z2M gelesen · Revision {{revision}}",
+        "Last read from Z2M · revision {{revision}}"
+    ],
+    "desktop.steps.noStored": [
+        "Für dieses System wurde noch kein Stand aus Zigbee2MQTT gelesen.",
+        "No Zigbee2MQTT state has been read for this system yet."
+    ],
+    "desktop.steps.noStoredRules": [
+        "Für dieses System sind in Zigbee2MQTT noch keine Automationen gespeichert.",
+        "Zigbee2MQTT has no stored automations for this system yet."
+    ],
+    "desktop.steps.editDraft": [
+        "Lokalen Entwurf bearbeiten",
+        "Edit local draft"
+    ],
+    "desktop.steps.contents": [
+        "Im Entwurf · {{rules}} Automationen · {{sequences}} Aktionsfolgen",
+        "In the draft · {{rules}} automations · {{sequences}} action sequences"
+    ],
+    "desktop.steps.flagsReviewHelp": [
+        "Wähle diese Prüfung, wenn du nur Regelschalter im lokalen Entwurf geändert hast. Beim Übermitteln bleiben diese Einstellungen erhalten.",
+        "Choose this check after changing only the rule switches in the local draft. Transferring the draft keeps those settings."
+    ],
+    "desktop.steps.transferTarget": [
+        "Ziel · {{name}} · {{topic}}",
+        "Target · {{name}} · {{topic}}"
+    ],
+    "desktop.steps.transferNeedsReview": [
+        "Prüfe den Entwurf dieses Systems, bevor du ihn übermittelst.",
+        "Check the draft for this system before transferring it."
+    ],
+    "desktop.steps.transferHelp": [
+        "Nach deiner Bestätigung sichert die App den bisherigen Stand, stoppt den Automationsbetrieb und übermittelt den vollständigen Entwurf. Anschließend prüft sie das Ergebnis. Der Betrieb bleibt gestoppt.",
+        "After your confirmation, the app backs up the previous state, stops automation operation and transfers the complete draft. It then verifies the result. Operation remains stopped."
+    ],
+    "desktop.steps.transferFlagsHelp": [
+        "Diese Übermittlung ändert nur die Freigaben der gespeicherten Automationen. Den Automatikbetrieb startest du separat.",
+        "This transfer changes only the enabled flags for stored automations. Start automatic operation separately."
+    ],
+    "desktop.noProjectHelp": [
+        "Öffne ein Projekt oder lege ein neues an, um Automationen zu bearbeiten.",
+        "Open or create a project to work on automations."
+    ],
+    "desktop.connected": [
+        "Verbunden",
+        "Connected"
+    ],
+    "desktop.disconnected": [
+        "Getrennt",
+        "Disconnected"
+    ],
+    "desktop.emptyDraft": [
+        "Noch keine Automationen",
+        "No automations yet"
+    ],
+    "desktop.emptyDraftHelp": [
+        "Wähle „Neue Automation“, um den ersten Entwurf für dieses System anzulegen.",
+        "Choose “New automation” to create the first draft rule for this system."
+    ],
+    "desktop.emptyCategory": [
+        "Keine passenden Einträge",
+        "No matching entries"
+    ],
+    "desktop.emptyCategoryHelp": [
+        "Wähle einen anderen Bereich oder ändere die Suche.",
+        "Choose another category or change the search."
+    ],
+    "desktop.fileSaved": [
+        "Projekt „{{name}}“ ist gespeichert.",
+        "Project “{{name}}” is saved."
+    ],
+    "desktop.fileUnsaved": [
+        "Projekt „{{name}}“ hat ungespeicherte Änderungen.",
+        "Project “{{name}}” has unsaved changes."
+    ],
+    "desktop.setup.connection": [
+        "Z2M-Erweiterung",
+        "Z2M extension"
+    ],
+    "desktop.setup.tls": [
+        "Erweiterte TLS-Einstellungen",
+        "Advanced TLS settings"
+    ],
+    "desktop.setup.tlsLoaded": [
+        "Die TLS-Datei ist für diese Sitzung geladen.",
+        "The TLS file is loaded for this session."
+    ],
+    "desktop.setup.tlsEmpty": [
+        "Für diesen Broker ist keine TLS-Datei geladen.",
+        "No TLS file is loaded for this broker."
+    ],
+    "desktop.setup.canceled": [
+        "Vorgang abgebrochen.",
+        "Action canceled."
+    ],
+    "desktop.setup.result.new": [
+        "Projekt „{{name}}“ angelegt. Füge einen Broker und ein Z2M-System hinzu.",
+        "Project “{{name}}” created. Add a broker and a Z2M system."
+    ],
+    "desktop.setup.result.open": [
+        "Projekt „{{name}}“ geöffnet.",
+        "Project “{{name}}” opened."
+    ],
+    "desktop.setup.result.save": [
+        "Projekt „{{name}}“ gespeichert.",
+        "Project “{{name}}” saved."
+    ],
+    "desktop.setup.result.export": [
+        "Kopie von „{{name}}“ gespeichert.",
+        "A copy of “{{name}}” was saved."
+    ],
+    "desktop.setup.result.restore": [
+        "Sicherung von „{{name}}“ geöffnet. Speichere das Projekt, um diesen Stand zu behalten.",
+        "Backup of “{{name}}” opened. Save the project to keep this version."
+    ],
+    "desktop.setup.result.status": [
+        "Projektansicht aktualisiert.",
+        "Project view refreshed."
+    ],
+    "desktop.setup.result.rename": [
+        "Projekt heißt jetzt „{{name}}“. Speichere die Projektdatei, um den Namen zu behalten.",
+        "Project renamed to “{{name}}”. Save the project file to keep the name."
+    ],
+    "desktop.setup.result.broker": [
+        "Broker „{{name}}“ im Projekt übernommen. Du kannst ihm jetzt ein Z2M-System zuordnen.",
+        "Broker “{{name}}” added to the project. You can now assign a Z2M system to it."
+    ],
+    "desktop.setup.result.system": [
+        "System „{{name}}“ im Projekt übernommen. Wähle es oben aus, um seinen Bestand zu lesen.",
+        "System “{{name}}” added to the project. Select it above to read its state."
+    ],
+    "desktop.setup.result.discard": [
+        "Offene Eingaben in der Einrichtung verworfen.",
+        "Unapplied setup entries discarded."
+    ],
+    "desktop.setup.credentialsSaved": [
+        "Zugangsdaten für „{{name}}“ hinterlegt.",
+        "Credentials for “{{name}}” saved."
+    ],
+    "desktop.setup.credentialsRemoved": [
+        "Zugangsdaten für „{{name}}“ entfernt.",
+        "Credentials for “{{name}}” removed."
+    ],
+    "desktop.connection.offline": [
+        "„{{name}}“ ist getrennt. Verbinde das System, um seinen Z2M-Stand zu lesen.",
+        "“{{name}}” is disconnected. Connect the system to read its state from Z2M."
+    ],
+    "desktop.connection.connecting": [
+        "Verbindung für „{{name}}“ wird aufgebaut.",
+        "Connecting “{{name}}”."
+    ],
+    "desktop.connection.reading": [
+        "Gerätedaten und gespeicherte Regeln von „{{name}}“ werden gelesen.",
+        "Reading devices and stored rules from “{{name}}”."
+    ],
+    "desktop.connection.ready": [
+        "Geräte und gespeicherter Stand von „{{name}}“ sind geladen.",
+        "Devices and stored state for “{{name}}” are ready."
+    ],
+    "desktop.connection.readFirst": [
+        "„{{name}}“ ist verbunden. Lies die Gerätedaten und den gespeicherten Stand.",
+        "“{{name}}” is connected. Read its devices and stored state."
+    ],
+    "desktop.connection.noReply": [
+        "Der Broker ist verbunden. „{{name}}“ hat nicht geantwortet. Prüfe das Basistopic und ob die Z2M-Erweiterung installiert ist.",
+        "The broker is connected. “{{name}}” did not reply. Check its base topic and whether the Z2M extension is installed."
+    ],
+    "desktop.connection.authentication": [
+        "„{{broker}}“ hat die Anmeldung abgelehnt. Prüfe die Zugangsdaten unter „Broker einrichten“.",
+        "“{{broker}}” rejected the login. Check its credentials under “Set up broker”."
+    ],
+    "desktop.connection.tlsError": [
+        "Das Zertifikat von „{{broker}}“ konnte nicht bestätigt werden. Prüfe die TLS-Einstellungen unter „Broker einrichten“.",
+        "The certificate for “{{broker}}” could not be verified. Check the TLS settings under “Set up broker”."
+    ],
+    "desktop.connection.permission": [
+        "„{{broker}}“ verweigert den Zugriff. Prüfe die Broker-Berechtigungen für „{{name}}“.",
+        "“{{broker}}” refused access. Check the broker permissions for “{{name}}”."
+    ],
+    "desktop.connection.connectionError": [
+        "„{{broker}}“ ist nicht erreichbar. Prüfe Host und Port unter „Broker einrichten“.",
+        "“{{broker}}” is unreachable. Check its host and port under “Set up broker”."
+    ],
+    "desktop.connection.timeout": [
+        "„{{broker}}“ hat die Verbindung nicht rechtzeitig bestätigt. Prüfe die Einstellungen und verbinde erneut.",
+        "“{{broker}}” did not confirm the connection in time. Check the settings and reconnect."
+    ],
+    "desktop.connection.credentialsMissing": [
+        "Für „{{broker}}“ fehlen gespeicherte Zugangsdaten. Hinterlege sie unter „Broker einrichten“ und wähle anschließend „Verbinden und Bestand lesen“.",
+        "Saved credentials for “{{broker}}” are missing. Add them under “Set up broker”, then choose “Connect and read Z2M state”."
+    ],
+    "desktop.connection.credentialsLocked": [
+        "Die geschützten Zugangsdaten für „{{broker}}“ sind gesperrt oder nicht verfügbar. Entsperre den Schlüsselbund auf diesem Computer und wähle anschließend „Verbinden und Bestand lesen“.",
+        "Protected credentials for “{{broker}}” are locked or unavailable. Unlock the keyring on this computer, then choose “Connect and read Z2M state”."
+    ],
+    "desktop.connection.settingsUnavailable": [
+        "Die lokale Verbindungseinstellung für „{{broker}}“ konnte nicht gelesen werden. Wähle sie unter „Broker einrichten“ erneut aus.",
+        "The local connection preference for “{{broker}}” could not be read. Select it again under “Set up broker”."
+    ],
+    "desktop.connection.noSystems": [
+        "Ordne „{{broker}}“ unter „System zuordnen“ mindestens ein Z2M-System zu.",
+        "Assign at least one Z2M system to “{{broker}}” under “Assign a Z2M system”."
+    ],
+    "desktop.connection.stale": [
+        "Die Einstellungen für „{{broker}}“ haben sich geändert. Prüfe sie unter „Broker einrichten“ und verbinde erneut.",
+        "The settings for “{{broker}}” changed. Check them under “Set up broker” and reconnect."
+    ],
+    "desktop.autoConnect.credentialsMissing": [
+        "Zugangsdaten fehlen",
+        "Credentials missing"
+    ],
+    "desktop.autoConnect.credentialsLocked": [
+        "Schlüsselbund gesperrt oder nicht verfügbar",
+        "Keyring locked or unavailable"
+    ],
+    "desktop.autoConnect.settingsUnavailable": [
+        "Lokale Verbindungseinstellung nicht lesbar",
+        "Local connection preference unavailable"
+    ],
+    "desktop.autoConnect.noSystems": [
+        "Z2M-System zuordnen",
+        "Assign a Z2M system"
+    ],
+    "desktop.autoConnect.stale": [
+        "Verbindungseinstellungen geändert",
+        "Connection settings changed"
+    ],
+    "desktop.autoConnect.connectionError": [
+        "Verbindungsaufbau fehlgeschlagen",
+        "Connection failed"
+    ],
+    "desktop.operation.automatic": [
+        "Automatikbetrieb",
+        "Automatic operation"
+    ],
+    "desktop.operation.single": [
+        "Gespeicherte Regel ausführen",
+        "Run a stored rule"
+    ],
+    "desktop.operation.readStatus": [
+        "Betriebsstatus lesen",
+        "Read operation status"
+    ],
+    "desktop.operation.runOnce": [
+        "Einmal ausführen",
+        "Run once"
+    ],
+    "desktop.operation.active": [
+        "Der Automatikbetrieb auf „{{name}}“ läuft.",
+        "Automatic operation is running on “{{name}}”."
+    ],
+    "desktop.operation.stopped": [
+        "Der Automatikbetrieb auf „{{name}}“ ist gestoppt.",
+        "Automatic operation is stopped on “{{name}}”."
+    ],
+    "desktop.operation.unavailable": [
+        "Der Betrieb von „{{name}}“ ist noch nicht bestätigt. Lies den Betriebsstatus.",
+        "Operation on “{{name}}” has not been confirmed yet. Read its operation status."
+    ],
+    "desktop.operation.noRules": [
+        "Für dieses System sind in Zigbee2MQTT noch keine Regeln gespeichert.",
+        "Zigbee2MQTT has no stored rules for this system yet."
+    ],
+    "desktop.operation.noEnabled": [
+        "Für den Automatikbetrieb braucht „{{name}}“ mindestens eine freigegebene Regel.",
+        "Automatic operation on “{{name}}” requires at least one enabled rule."
+    ],
+    "desktop.flags.count.one": [
+        "In Z2M freigegeben: {{enabled}} von {{total}} Automation.",
+        "Enabled in Z2M: {{enabled}} of {{total}} automation."
+    ],
+    "desktop.flags.count.other": [
+        "In Z2M freigegeben: {{enabled}} von {{total}} Automationen.",
+        "Enabled in Z2M: {{enabled}} of {{total}} automations."
+    ],
+    "desktop.flags.unknown": [
+        "Die Freigaben sind noch nicht frisch bestätigt. Lies den Betriebsstatus.",
+        "Rule permissions have not been freshly confirmed. Read the operation status."
+    ],
+    "desktop.flags.status.unconfirmed": [
+        "Freigaben: Nicht bestätigt",
+        "Rule permissions: Not confirmed"
+    ],
+    "desktop.flags.status.unknown": [
+        "Freigaben: Unbekannt",
+        "Rule permissions: Unknown"
+    ],
+    "desktop.flags.status.confirmed": [
+        "Freigaben: Bestätigt",
+        "Rule permissions: Confirmed"
+    ],
+    "desktop.flags.none": [
+        "Keine Automation ist freigegeben. Wähle unten die gewünschten Regeln und übernimm die Freigaben.",
+        "No automation is enabled. Select the desired rules below and apply their permissions."
+    ],
+    "desktop.flags.confirmFirst": [
+        "Eine Übertragung oder ein Extension-Update ist noch ungeklärt. Prüfe zuerst dessen Status, bevor du den Betrieb startest.",
+        "A transfer or extension update is still unresolved. Check its status before starting operation."
+    ],
+    "desktop.flags.help": [
+        "Wähle die Automationen aus, die automatisch laufen dürfen. Die App prüft die Freigaben und fragt vor der Übernahme ausdrücklich nach. Ein laufender Betrieb wird dabei gestoppt. Anschließend kannst du ihn separat aktivieren. Weitere Änderungen im lokalen Entwurf bleiben erhalten.",
+        "Select the automations allowed to run automatically. The app checks the permissions and asks for explicit confirmation before applying them. Running operation is stopped during transfer. You can activate it separately afterwards. Other local draft changes are preserved."
+    ],
+    "desktop.flags.storedOn": [
+        "In Z2M gespeichert: freigegeben",
+        "Stored in Z2M: enabled"
+    ],
+    "desktop.flags.storedOff": [
+        "In Z2M gespeichert: ausgeschaltet",
+        "Stored in Z2M: disabled"
+    ],
+    "desktop.flags.selected.one": [
+        "Ausgewählt: {{count}} Automation. Die geänderte Auswahl ist noch nicht in Z2M gespeichert.",
+        "Selected: {{count}} automation. The changed selection has not yet been stored in Z2M."
+    ],
+    "desktop.flags.selected.other": [
+        "Ausgewählt: {{count}} Automationen. Die geänderte Auswahl ist noch nicht in Z2M gespeichert.",
+        "Selected: {{count}} automations. The changed selection has not yet been stored in Z2M."
+    ],
+    "desktop.flags.changed": [
+        "Der Stand wurde inzwischen geändert. Aktualisiere die Auswahl und wähle die gewünschten Regeln erneut.",
+        "The state has changed. Refresh the selection and select the desired rules again."
+    ],
+    "desktop.flags.apply": [
+        "Freigaben prüfen und übernehmen",
+        "Check and apply rule permissions"
+    ],
+    "desktop.flags.reset": [
+        "Auswahl aktualisieren",
+        "Refresh selection"
+    ],
+    "desktop.flags.reconcile": [
+        "Übertragungsstatus prüfen",
+        "Check transfer status"
+    ],
+    "desktop.flags.checking": [
+        "Freigaben und aktuellen Z2M-Stand prüfen …",
+        "Checking rule permissions and current Z2M state …"
+    ],
+    "desktop.flags.applied": [
+        "Die Freigaben sind in Z2M bestätigt.",
+        "Rule permissions are confirmed in Z2M."
+    ],
+    "desktop.flags.unchanged": [
+        "Diese Freigaben sind bereits in Z2M gespeichert. Es war keine Übertragung erforderlich.",
+        "These permissions are already stored in Z2M. No transfer was needed."
+    ],
+    "desktop.flags.canceled": [
+        "Abgebrochen. Die ausgewählten Freigaben wurden nicht übernommen; deine Auswahl bleibt erhalten.",
+        "Canceled. The selected permissions were not applied; your selection is preserved."
+    ],
+    "project.runtimeFlagsChanged": [
+        "Die Auswahl passt nicht mehr zum aktuellen Stand. Aktualisiere die Regelauswahl unter „Betrieb“ und prüfe die Freigaben erneut.",
+        "The selection no longer matches the current state. Refresh the rule selection under “Operation” and check the permissions again."
+    ],
+    "project.transferStoreFlagsConfirm": [
+        "Regelfreigaben jetzt in Zigbee2MQTT übernehmen?",
+        "Apply rule permissions in Zigbee2MQTT now?"
+    ],
+    "project.transferStoreFlagsDetail": [
+        "{{system}} ({{topic}}) · {{broker}} · Revision {{revision}}. Es werden ausschließlich Freigaben des gespeicherten Standes geändert.",
+        "{{system}} ({{topic}}) · {{broker}} · Revision {{revision}}. Only the permissions of the stored configuration are changed."
+    ],
+    "desktop.operation.activate": [
+        "Zigbee2MQTT hat den Start des Automatikbetriebs auf „{{name}}“ bestätigt.",
+        "Zigbee2MQTT confirmed the start of automatic operation on “{{name}}”."
+    ],
+    "desktop.operation.deactivate": [
+        "Zigbee2MQTT hat den Stopp auf „{{name}}“ bestätigt.",
+        "Zigbee2MQTT confirmed the stop on “{{name}}”."
+    ],
+    "desktop.operation.run_once": [
+        "Zigbee2MQTT hat den Auftrag auf „{{name}}“ bestätigt. Der Laufstatus zeigt das Ergebnis.",
+        "Zigbee2MQTT confirmed the request on “{{name}}”. See the run status for the result."
+    ],
+    "desktop.operation.stop_rule": [
+        "Zigbee2MQTT hat den ausgewählten Lauf auf „{{name}}“ gestoppt.",
+        "Zigbee2MQTT stopped the selected run on “{{name}}”."
+    ],
+    "desktop.operation.flags": [
+        "Regeln für den Automatikbetrieb freigeben",
+        "Enable rules for automatic operation"
+    ],
+    "desktop.operation.flagsHelp": [
+        "Schalte die gewünschten Automationen im lokalen Entwurf ein oder aus. „Entwurf prüfen“ erkennt Schalteränderungen automatisch. Übermittle sie in Schritt 8 und starte anschließend den Automatikbetrieb.",
+        "Switch the desired automations on or off in the local draft. Check draft detects switch changes automatically. Transfer them in step 8, then start automatic operation."
+    ],
+    "desktop.review.check": [
+        "Entwurf prüfen",
+        "Check draft"
+    ],
+    "desktop.review.editApplied": [
+        "Änderung im lokalen Entwurf übernommen. Speichere das Projekt, um sie dauerhaft zu behalten.",
+        "Change applied to the local draft. Save the project to keep it."
+    ],
+    "desktop.review.store": [
+        "Nach Z2M übermitteln",
+        "Transfer to Z2M"
+    ],
+    "desktop.review.checkFlags": [
+        "Regelfreigaben prüfen",
+        "Check enabled rules"
+    ],
+    "desktop.review.storeFlags": [
+        "Freigaben nach Z2M übermitteln",
+        "Transfer enabled flags to Z2M"
+    ],
+    "desktop.review.checkTransfer": [
+        "Gespeicherten Stand abfragen",
+        "Read stored state"
+    ],
+    "desktop.review.correct": [
+        "Zur Stelle im Entwurf",
+        "Go to the draft field"
+    ],
+    "desktop.review.open": [
+        "Zur Entwurfsprüfung",
+        "Go to draft review"
+    ],
+    "desktop.review.operation": [
+        "Zum Betrieb",
+        "Go to Operation"
+    ],
+    "desktop.review.start": [
+        "Prüfe den Entwurf für „{{name}}“. Danach kannst du ihn separat nach Zigbee2MQTT übernehmen.",
+        "Check the draft for “{{name}}”. Transfer it to Zigbee2MQTT in a separate action."
+    ],
+    "desktop.review.startDisconnected": [
+        "Du kannst den Entwurf lokal prüfen. Für die Prüfung in Zigbee2MQTT brauchst du eine Verbindung.",
+        "You can check the draft locally. Checking it in Zigbee2MQTT requires a connection."
+    ],
+    "desktop.review.checking": [
+        "Der Entwurf wird lokal geprüft.",
+        "Checking the draft locally."
+    ],
+    "desktop.review.checkingReceiver": [
+        "Zigbee2MQTT prüft den Entwurf für „{{name}}“.",
+        "Zigbee2MQTT is checking the draft for “{{name}}”."
+    ],
+    "desktop.review.local": [
+        "Entwurf lokal geprüft. Verbinde „{{name}}“, um ihn auch in Zigbee2MQTT zu prüfen.",
+        "The local check passed. Connect “{{name}}” to check the draft in Zigbee2MQTT."
+    ],
+    "desktop.review.readAfterLocal": [
+        "Entwurf lokal geprüft. Lies zuerst den Bestand von „{{name}}“, um ihn auch in Zigbee2MQTT zu prüfen.",
+        "The local check passed. Read the state of “{{name}}” before checking the draft in Zigbee2MQTT."
+    ],
+    "desktop.review.connectedAfterCheck": [
+        "Entwurf lokal geprüft. Wähle „Entwurf prüfen“, um ihn jetzt in Zigbee2MQTT zu prüfen.",
+        "The local check passed. Choose “Check draft” to check it in Zigbee2MQTT."
+    ],
+    "desktop.review.ready": [
+        "Der Entwurf für „{{name}}“ ist geprüft. In Schritt 8 kannst du die Übermittlung bestätigen. Sichern und Stoppen übernimmt die App.",
+        "The draft for “{{name}}” is checked. Confirm its transfer in step 8. The app handles backup and stopping."
+    ],
+    "desktop.review.readyFlags": [
+        "Die App hat reine Ein-/Ausschalter-Änderungen erkannt und geprüft. Bestätige die Übermittlung in Schritt 8.",
+        "The app detected and checked changes to on/off switches only. Confirm the transfer in step 8."
+    ],
+    "desktop.review.mode.configuration": [
+        "Inhalte geändert: Der vollständige Entwurf einschließlich Aktionsfolgen und Partnerfreigaben wird übernommen. Alle Automationen werden dabei ausgeschaltet gespeichert.",
+        "Content changed: the complete draft, including sequences and partner grants, will be transferred. All automations will be stored disabled."
+    ],
+    "desktop.review.mode.flags": [
+        "Nur Ein-/Ausschalter geändert: Die geprüften Schalterstellungen werden übernommen. Der Automatikbetrieb bleibt bis zum ausdrücklichen Start gestoppt.",
+        "Only on/off switches changed: the checked switch positions will be transferred. Automatic operation remains stopped until explicitly started."
+    ],
+    "desktop.review.mode.unchanged": [
+        "Der Entwurf entspricht dem gespeicherten Z2M-Stand. Eine Übermittlung ist nicht nötig.",
+        "The draft matches the stored Z2M state. No transfer is needed."
+    ],
+    "desktop.review.changeCounts": [
+        "Automationen und Aktionsfolgen: {{added}} neu · {{changed}} geändert · {{removed}} entfernt",
+        "Automations and sequences: {{added}} new · {{changed}} changed · {{removed}} removed"
+    ],
+    "desktop.review.unchanged": [
+        "Der Entwurf und der gespeicherte Stand von „{{name}}“ sind identisch. Du kannst zum Betrieb wechseln oder den Entwurf weiter bearbeiten.",
+        "The draft matches the stored state of “{{name}}”. Open Operation or continue editing the draft."
+    ],
+    "desktop.review.stoppedAfterUncertain": [
+        "Der Stopp ist jetzt bestätigt. Es wurde noch nichts übermittelt. Prüfe den Entwurf erneut und bestätige die Übermittlung in Schritt 8.",
+        "Stopping is now confirmed. Nothing has been transferred yet. Check the draft again and confirm the transfer in step 8."
+    ],
+    "desktop.review.testNext": [
+        "Zum einmaligen Test",
+        "Go to one-time test"
+    ],
+    "desktop.review.operationNext": [
+        "Zum Automatikbetrieb",
+        "Go to automatic operation"
+    ],
+    "desktop.transfer.backingUp": [
+        "Bisheriger Stand wird gesichert …",
+        "Backing up the previous state …"
+    ],
+    "desktop.transfer.stopping": [
+        "Automationsbetrieb und laufende Aktionen werden gestoppt …",
+        "Stopping automatic operation and running actions …"
+    ],
+    "desktop.transfer.checking": [
+        "Der genaue Entwurf und die Gerätefreigaben werden erneut geprüft …",
+        "Rechecking the exact draft and device permissions …"
+    ],
+    "desktop.transfer.sending": [
+        "Geprüfter Entwurf wird nach Zigbee2MQTT übermittelt …",
+        "Transferring the checked draft to Zigbee2MQTT …"
+    ],
+    "desktop.transfer.verifying": [
+        "Gespeicherter Stand und gestoppter Betrieb werden unabhängig bestätigt …",
+        "Independently confirming stored state and stopped operation …"
+    ],
+    "desktop.transfer.complete": [
+        "Übermittlung bestätigt. Der Automationsbetrieb bleibt gestoppt.",
+        "Transfer confirmed. Automation operation remains stopped."
+    ],
+    "desktop.draftTransfer": [
+        "Geführte Übermittlung: Fortschritt geprüft",
+        "Guided transfer progress checked"
+    ],
+    "desktop.review.changed": [
+        "Der Entwurf oder der Stand in Zigbee2MQTT hat sich geändert. Prüfe erneut.",
+        "The draft or the state in Zigbee2MQTT changed. Check it again."
+    ],
+    "desktop.review.stopFirst": [
+        "Stoppe den Betrieb von „{{name}}“ im Bereich Betrieb und prüfe den Entwurf erneut, bevor du ihn übernimmst.",
+        "Stop operation on “{{name}}” in Operation and check the draft again before transferring it."
+    ],
+    "desktop.review.transferring": [
+        "Die Übernahme nach „{{name}}“ läuft.",
+        "Transferring to “{{name}}”."
+    ],
+    "desktop.review.stored": [
+        "Entwurf auf „{{name}}“ gespeichert.",
+        "The draft is stored on “{{name}}”."
+    ],
+    "desktop.review.flagsStored": [
+        "Die Regelfreigaben sind auf „{{name}}“ gespeichert.",
+        "Rule permissions are stored on “{{name}}”."
+    ],
+    "desktop.review.storedUnconfirmed": [
+        "Der aktuelle gespeicherte Stand von „{{name}}“ ist nicht frisch bestätigt. Frage den gespeicherten Stand ab.",
+        "The current stored state of “{{name}}” has not been freshly confirmed. Read the stored state."
+    ],
+    "desktop.review.canceled": [
+        "Übernahme abgebrochen. Prüfe den Entwurf erneut, wenn du ihn übernehmen möchtest.",
+        "Transfer canceled. Check the draft again to transfer it."
+    ],
+    "desktop.review.receiverRead": [
+        "Gespeicherten Stand von „{{name}}“ gelesen.",
+        "Read the stored state of “{{name}}”."
+    ],
+    "desktop.review.invalid": [
+        "Der Entwurf enthält Fehler. Korrigiere die folgenden Stellen und prüfe erneut.",
+        "The draft contains errors. Correct the entries below and check it again."
+    ],
+    "desktop.review.schema": [
+        "Der Entwurf enthält ungültige Angaben. Öffne die Automationen und prüfe ihre Auslöser und Aktionen.",
+        "The draft contains invalid entries. Open the automations and check their triggers and actions."
+    ],
+    "desktop.review.missingActionValue": [
+        "Wähle einen Kanal und einen Wert für diese Aktion.",
+        "Choose a channel and a value for this action."
+    ],
+    "desktop.review.pending": [
+        "Übernimm offene Eingaben im Formular oder in der Einrichtung und prüfe erneut.",
+        "Apply the open form or setup entries and check the draft again."
+    ],
+    "desktop.review.connectionLost": [
+        "Die Verbindung zu „{{name}}“ wurde unterbrochen. Verbinde das System und prüfe erneut.",
+        "The connection to “{{name}}” was interrupted. Reconnect and check the draft again."
+    ],
+    "desktop.review.timeout": [
+        "„{{name}}“ hat nicht rechtzeitig geantwortet. Lade den aktuellen Stand und prüfe erneut.",
+        "“{{name}}” did not answer in time. Read its current state and check again."
+    ],
+    "desktop.review.protocol": [
+        "„{{name}}“ konnte die Anfrage nicht bestätigen. Prüfe die Z2M-Erweiterung unter „Verbinden und Bestand lesen“.",
+        "“{{name}}” could not confirm the request. Check the Z2M extension under “Connect and read Z2M state”."
+    ],
+    "desktop.review.receiverChanged": [
+        "Der Stand auf „{{name}}“ hat sich während der Prüfung geändert. Lies den aktuellen Stand und prüfe erneut.",
+        "The state on “{{name}}” changed during the check. Read it and check the draft again."
+    ],
+    "desktop.review.conflict": [
+        "Auf „{{name}}“ wurde seit dem letzten Abgleich eine andere Fassung gespeichert. Vergleiche den gespeicherten Stand mit deinem Entwurf.",
+        "A different version was stored on “{{name}}” since the last comparison. Compare it with your draft."
+    ],
+    "desktop.review.uncertain": [
+        "Zigbee2MQTT hat die Übernahme für „{{name}}“ noch nicht bestätigt. Frage den gespeicherten Stand ab, bevor du erneut überträgst.",
+        "Zigbee2MQTT has not confirmed the transfer to “{{name}}”. Read the stored state before transferring again."
+    ],
+    "desktop.review.failed": [
+        "Der Vorgang konnte nicht abgeschlossen werden. Prüfe das gewählte System und versuche es erneut.",
+        "The action could not be completed. Check the selected system and try again."
+    ],
+    "desktop.review.storedView": [
+        "Du siehst den in Zigbee2MQTT gespeicherten Stand. Wechsle zum lokalen Entwurf, um Änderungen zu machen oder zu prüfen.",
+        "You are viewing the state stored in Zigbee2MQTT. Switch to the local draft to edit or check it."
+    ],
+    "desktop.review.viewStored": [
+        "Gespeicherten Z2M-Stand anzeigen",
+        "View stored Z2M state"
+    ],
+    "desktop.review.export": [
+        "YAML-Datei gespeichert.",
+        "YAML file saved."
+    ],
+    "desktop.review.import": [
+        "Datei als lokalen Entwurf übernommen. Die importierten Regeln sind ausgeschaltet.",
+        "File imported as the local draft. The imported rules are disabled."
+    ],
+    "desktop.review.adopt": [
+        "Gespeicherten Z2M-Stand als lokalen Entwurf übernommen. Die Regeln sind im Entwurf ausgeschaltet.",
+        "Stored Z2M state copied into the local draft. The draft rules are disabled."
+    ],
     "desktop.failed": [
         "Die Desktopansicht konnte nicht geladen werden. Bitte die Anwendung schließen und erneut starten.",
         "The desktop view could not be loaded. Close the application and try again."
@@ -5495,6 +6391,62 @@
         "Geschützte Ablage gesperrt oder nicht verfügbar",
         "Protected storage is locked or unavailable"
     ],
+    "project.autoConnect": [
+        "Beim Öffnen dieses Projekts automatisch verbinden",
+        "Connect automatically when opening this project"
+    ],
+    "project.autoConnect.off": [
+        "Nicht automatisch verbinden",
+        "Do not connect automatically"
+    ],
+    "project.autoConnect.credentials": [
+        "Mit gespeicherten Zugangsdaten",
+        "Use saved credentials"
+    ],
+    "project.autoConnect.anonymous": [
+        "Ohne Anmeldung",
+        "Without authentication"
+    ],
+    "project.autoConnectHelp": [
+        "Die Auswahl wird sofort auf diesem Computer für dieses Projekt und diese Brokeradresse gespeichert. Sie gilt beim nächsten Öffnen des Projekts.",
+        "The selection is saved immediately on this computer for this project and broker address. It takes effect the next time you open the project."
+    ],
+    "project.autoConnectSaved": [
+        "Verbindungseinstellung lokal gespeichert. Sie gilt beim nächsten Öffnen dieses Projekts.",
+        "Connection preference saved locally. It takes effect the next time you open this project."
+    ],
+    "project.autoConnectSettings": [
+        "Die lokale Verbindungseinstellung konnte nicht gespeichert werden. Prüfe die Schreibrechte und wähle sie erneut aus.",
+        "Could not save the local connection preference. Check write permissions and select it again."
+    ],
+    "project.credentialsMissing": [
+        "Zugangsdaten fehlen. Hinterlege sie unter „Broker einrichten“ und verbinde erneut.",
+        "Credentials are missing. Add them under “Set up broker” and reconnect."
+    ],
+    "project.credentialsLocked": [
+        "Die geschützte Ablage ist gesperrt oder nicht verfügbar. Entsperre den Schlüsselbund auf diesem Computer und verbinde erneut.",
+        "Protected storage is locked or unavailable. Unlock the keyring on this computer and reconnect."
+    ],
+    "project.connectionError": [
+        "Die Verbindung konnte nicht aufgebaut werden. Prüfe die Broker-Einstellungen und verbinde erneut.",
+        "Could not connect. Check the broker settings and reconnect."
+    ],
+    "desktop.mqttAutoConnect": [
+        "Lokale automatische Verbindung",
+        "Local automatic connection"
+    ],
+    "mqtt.error.credentialsMissing": [
+        "Zugangsdaten fehlen",
+        "Credentials missing"
+    ],
+    "mqtt.error.credentialsLocked": [
+        "Geschützte Ablage gesperrt oder nicht verfügbar",
+        "Protected storage locked or unavailable"
+    ],
+    "mqtt.error.noSystems": [
+        "Kein Z2M-System zugeordnet",
+        "No Z2M system assigned"
+    ],
     "project.unsaved": [
         "Lokales Projekt – ungespeicherte Änderungen",
         "Local project — unsaved changes"
@@ -5758,6 +6710,46 @@
     "editor.addAction": [
         "Aktion hinzufügen",
         "Add action"
+    ],
+    "editor.deviceStatus": [
+        "Gerätestatus",
+        "Device status"
+    ],
+    "editor.deviceSystem": [
+        "Z2M-System des Geräts",
+        "Device's Z2M system"
+    ],
+    "editor.deviceSystem.permissionsQuestion": [
+        "Welche Systeme dürfen Geräteaktionen anfordern und Gerätebedingungen in diesem System prüfen?",
+        "Which systems may request device actions and evaluate device conditions on this system?"
+    ],
+    "editor.deviceSystemOption": [
+        "{{system}} ({{topic}}) · Broker: {{broker}}",
+        "{{system}} ({{topic}}) · Broker: {{broker}}"
+    ],
+    "editor.deviceSystem.local": [
+        "Wähle ein Gerät dieses Systems oder wechsle oben zu einem anderen Z2M-System.",
+        "Choose a device on this system or select another Z2M system above."
+    ],
+    "editor.deviceSystem.remote": [
+        "Dieses Gerät gehört zu einem anderen Z2M-System. Getrennte Broker benötigen eine MQTT-Bridge. Für Gerätebedingungen muss auf beiden Systemen die Erweiterung ab 0.2.1 installiert sein.",
+        "This device belongs to another Z2M system. Separate brokers need an MQTT bridge. Device conditions require extension 0.2.1 or later on both systems."
+    ],
+    "editor.deviceSystem.permissions": [
+        "Partnerfreigaben fehlen. Erlaube bei beiden Systemen unter „Partnerfreigaben“ jeweils das andere System. Öffne danach diesen Entwurf erneut. Die Übernahme der Freigaben nach Z2M bleibt ein eigener Schritt.",
+        "Partner permissions are missing. Under Partner permissions, explicitly allow each system in the other system. Then reopen this draft. Transferring permissions to Z2M remains a separate step."
+    ],
+    "editor.deviceSystem.catalog": [
+        "Der Gerätekatalog dieses Systems ist noch nicht frisch geladen. Verbinde seinen Broker, lies den Bestand in Schritt 4 und öffne anschließend den Entwurf erneut.",
+        "This system's device catalog has not been freshly loaded. Connect its broker, read Z2M state in step 4 and then reopen the draft."
+    ],
+    "editor.deviceSystem.ambiguous": [
+        "Dieses System kann nicht eindeutig zugeordnet werden. Vergib in Schritt 3 für jedes beteiligte Z2M-System ein eindeutiges Basistopic.",
+        "This system cannot be identified uniquely. Assign a unique base topic to each participating Z2M system in step 3."
+    ],
+    "editor.measurement": [
+        "Messwert",
+        "Measured value"
     ],
     "editor.settings": [
         "Weitere Einstellungen",
@@ -6083,6 +7075,78 @@
         "Weitere Prüfhinweise folgen, nachdem du diese Stellen korrigiert und erneut geprüft hast.",
         "Correct the listed issues and validate again to see the remaining issues."
     ],
+    "validation.capability.context": [
+        "System: {{system}} · Gerät: {{device}} · Eigenschaft: {{property}}.",
+        "System: {{system}} · Device: {{device}} · Property: {{property}}."
+    ],
+    "validation.capability.entered": [
+        "Eingetragen: {{value}} ({{type}}).",
+        "Entered: {{value}} ({{type}})."
+    ],
+    "validation.type.operator": [
+        "Vergleich",
+        "comparison"
+    ],
+    "validation.type.number": [
+        "Zahl",
+        "number"
+    ],
+    "validation.type.string": [
+        "Text",
+        "text"
+    ],
+    "validation.type.boolean": [
+        "Ja/Nein-Wert",
+        "boolean"
+    ],
+    "validation.type.null": [
+        "Leerwert",
+        "null"
+    ],
+    "validation.type.object": [
+        "Objekt",
+        "object"
+    ],
+    "validation.type.array": [
+        "Liste",
+        "list"
+    ],
+    "validation.type.undefined": [
+        "fehlender Wert",
+        "missing value"
+    ],
+    "validation.reason.capability_operator": [
+        "Für diese Eigenschaft sind nur diese Vergleiche erlaubt: {{values}}.",
+        "Only these comparisons are allowed for this property: {{values}}."
+    ],
+    "validation.reason.capability_number": [
+        "Diese Geräteeigenschaft erwartet eine Zahl. Gib einen Zahlenwert ein.",
+        "This device property requires a number. Enter a numeric value."
+    ],
+    "validation.reason.capability_enum": [
+        "Erlaubte Werte für diese Eigenschaft: {{values}}. Wähle einen dieser Werte.",
+        "Allowed values for this property: {{values}}. Select one of these values."
+    ],
+    "validation.reason.capability_minimum": [
+        "Der kleinste zulässige Aktionswert ist {{minimum}}. Erhöhe den eingetragenen Wert.",
+        "The lowest allowed action value is {{minimum}}. Increase the entered value."
+    ],
+    "validation.reason.capability_maximum": [
+        "Der größte zulässige Aktionswert ist {{maximum}}. Verringere den eingetragenen Wert.",
+        "The highest allowed action value is {{maximum}}. Decrease the entered value."
+    ],
+    "validation.reason.capability_step": [
+        "Erlaubt sind Schritte von {{step}}, beginnend bei {{minimum}}. Wähle einen Wert in diesem Raster.",
+        "Values must use increments of {{step}}, starting at {{minimum}}. Select a value on this grid."
+    ],
+    "validation.reason.capability_color": [
+        "Erwartet wird eine Farbe im Format {\"hex\":\"#RRGGBB\"}. Wähle eine Farbe über das Farbfeld.",
+        "A colour in the format {\"hex\":\"#RRGGBB\"} is required. Select a colour using the colour field."
+    ],
+    "validation.reason.capability_toggle": [
+        "TOGGLE ist nur für einen bedienbaren State-Kanal mit bestätigtem ON und OFF erlaubt. Wähle einen zulässigen Wert oder einen anderen Kanal.",
+        "TOGGLE requires a writable state channel with confirmed ON and OFF values. Select an allowed value or a different channel."
+    ],
     "validation.field.schema_version": [
         "Dateiversion",
         "File version"
@@ -6384,8 +7448,12 @@
         "Read a fresh device catalog first. The selected property or scene is unavailable."
     ],
     "project.draftPermission": [
-        "Das Zielsystem hat diesem Absender keine Berechtigung erteilt oder die Systemzuordnung ist mehrdeutig.",
-        "The receiving system has not granted this sender access, or the system assignment is ambiguous."
+        "Prüfe die Partnerfreigaben in beiden Systemen und ihre eindeutigen Basistopics. Jedes beteiligte System muss das andere ausdrücklich erlauben.",
+        "Check partner permissions in both systems and their unique base topics. Each participating system must explicitly allow the other."
+    ],
+    "project.draftRemoteConditionVersion": [
+        "Gerätebedingungen über Systemgrenzen benötigen auf beiden Systemen die Z2M-Erweiterung ab Version 0.2.1. Aktualisiere die Erweiterung im Verbindungsbereich und lies den Bestand erneut.",
+        "Device conditions across systems require Z2M extension 0.2.1 or later on both systems. Update the extension in the connection area and read Z2M state again."
     ],
     "project.draftSequence": [
         "Die Sequenz fehlt, ist verschachtelt, wird noch verwendet oder überschreitet die Grenze von 16 Schritten bzw. die Verzögerung.",
@@ -6488,16 +7556,16 @@
         "Validate the current draft on this connection before storing it."
     ],
     "project.transferRunning": [
-        "Vor dem Speichern oder Installieren bitte den Betrieb beenden und den Wiederanlauf separat deaktivieren.",
-        "Stop operation and disable restart recovery separately before storing or installing."
+        "Stoppe vor dem Übermitteln der Konfiguration den Automationsbetrieb unter „Betrieb“. Ein gestoppter Betrieb läuft nach einem Z2M-Neustart nicht von selbst an. Zigbee2MQTT selbst muss weiterlaufen.",
+        "Stop automation operation under Operation before transferring the configuration. A stopped runtime does not resume itself after a Z2M restart. Keep Zigbee2MQTT itself running."
     ],
     "project.transferUncertain": [
         "Die Anfrage könnte Z2M erreicht haben. Nutze „Übertragung prüfen“. Es wurde nichts erneut gesendet.",
         "The request may have reached Z2M. Use Check transfer to read its outcome. No write was retried."
     ],
     "project.transferBridge": [
-        "Eine kompatible Zigbee2MQTT-Bridge ist noch nicht als online bestätigt.",
-        "A compatible online Zigbee2MQTT bridge has not been confirmed."
+        "Für die Installation muss Zigbee2MQTT laufen und seine MQTT-Bridge als online bestätigt sein. Prüfe den Dienst und lies in Schritt 4 den Bestand erneut.",
+        "Installation requires Zigbee2MQTT to be running and its MQTT bridge to be confirmed online. Check the service and read its state again in step 4."
     ],
     "project.transferValidated": [
         "Z2M hat den deaktivierten Entwurf validiert. Prüfe ihn vor dem Speichern.",
@@ -6508,28 +7576,124 @@
         "Z2M confirmed the new revision and checksum. All stored rules are disabled."
     ],
     "project.transferInstalled": [
-        "Z2M hat den mitgelieferten Extension-Build bestätigt.",
-        "Z2M confirmed the bundled extension build."
+        "Die mitgelieferte Extension ist bestätigt. Nach einem Update wurden der Z2M-Neustart, der erhaltene Automationsbestand und der vorherige Automatikbetrieb geprüft.",
+        "The bundled extension is confirmed. After an update, the Z2M restart, preserved automations and previous automatic operation were verified."
     ],
     "project.transferCanceled": [
         "Vor dem Senden abgebrochen.",
         "Canceled before sending a write."
     ],
     "project.transferStoreConfirm": [
-        "Validierten Entwurf in Z2M speichern?",
-        "Store the validated candidate in Z2M?"
+        "Entwurf jetzt nach Zigbee2MQTT übermitteln?",
+        "Transfer the draft to Zigbee2MQTT now?"
     ],
     "project.transferStoreDetail": [
-        "System {{system}} ({{topic}}) · {{broker}} · Revision {{revision}} → {{next}}, {{rules}} Regeln. {{enabled}} Regeln werden in der gespeicherten Revision freigegeben. Neue, entfernte oder geänderte IDs: {{changes}}.",
-        "System {{system}} ({{topic}}) · {{broker}} · revision {{revision}} → {{next}}, {{rules}} rules. {{enabled}} rules will be enabled in the stored revision. Added, removed or changed IDs: {{changes}}."
+        "{{system}} ({{topic}}) · {{broker}}. Der vollständige Entwurf ersetzt den gespeicherten Stand. Automationen/Aktionsfolgen: {{added}} neu, {{changed}} geändert, {{removed}} entfernt. Die App sichert den bisherigen Stand und prüft nach dem Speichern das Ergebnis.",
+        "{{system}} ({{topic}}) · {{broker}}. The complete draft replaces stored state. Automations/sequences: {{added}} new, {{changed}} changed, {{removed}} removed. The app backs up the previous state and verifies the result after saving."
+    ],
+    "project.transferStoreFlags": [
+        "Es werden nur Ein-/Ausschalter übernommen. {{enabled}} Automationen sind anschließend für den Automatikbetrieb freigegeben.",
+        "Only on/off switches will be transferred. {{enabled}} automations will be enabled for automatic operation afterwards."
+    ],
+    "project.transferStoreConfiguration": [
+        "Automationen, Aktionsfolgen und Partnerfreigaben werden aus dem Entwurf übernommen. Alle Automationen werden ausgeschaltet gespeichert.",
+        "Automations, sequences and partner grants will be taken from the draft. All automations will be stored disabled."
+    ],
+    "project.transferStoreStop": [
+        "Die App stoppt den Automationsbetrieb und beendet laufende Aktionen vor dem Speichern. Testen und Starten bleiben separate Entscheidungen.",
+        "The app stops automatic operation and ends running actions before saving. Testing and starting remain separate decisions."
+    ],
+    "project.transferStoreStopped": [
+        "Der Automationsbetrieb ist bereits gestoppt und bleibt nach dem Speichern gestoppt. Testen und Starten bleiben separate Entscheidungen.",
+        "Automatic operation is already stopped and will remain stopped after saving. Testing and starting remain separate decisions."
+    ],
+    "project.transferStopUncertain": [
+        "Der Stopp konnte nicht bestätigt werden. Es wurde nichts übermittelt. Frage den gespeicherten Stand ab. Ein Stoppbefehl wird nicht automatisch wiederholt.",
+        "Stopping could not be confirmed. Nothing was transferred. Read the stored state. A stop command will not be repeated automatically."
+    ],
+    "project.transferStopped": [
+        "Der Stopp ist bestätigt. Prüfe den Entwurf erneut, bevor du die Übermittlung bestätigst.",
+        "Stopping is confirmed. Check the draft again before confirming its transfer."
+    ],
+    "project.transferUnchanged": [
+        "Der Entwurf entspricht bereits dem gespeicherten Stand. Eine Übermittlung ist nicht nötig.",
+        "The draft already matches stored state. No transfer is needed."
     ],
     "project.transferInstallConfirm": [
-        "Mitgelieferte Extension auf diesem System installieren?",
-        "Install the bundled extension on this system?"
+        "Extension installieren und Zigbee2MQTT neu starten?",
+        "Install the extension and restart Zigbee2MQTT?"
     ],
     "project.transferInstallDetail": [
-        "System {{system}} ({{topic}}) · {{broker}} · Build {{build}}, gespeicherte Revision {{revision}}. Zigbee2MQTT lädt die Extension.",
-        "System {{system}} ({{topic}}) · {{broker}} · build {{build}}, stored revision {{revision}}. Zigbee2MQTT will load the extension."
+        "{{system}} ({{topic}}) · {{broker}} · Build {{build}}, Revision {{revision}}. Nach der Sicherung stoppt die App die Automationen, ersetzt die Extension und startet Zigbee2MQTT neu. Der gespeicherte Bestand bleibt erhalten. Ein zuvor aktiver Automatikbetrieb wird wieder aktiviert, ein gestoppter bleibt gestoppt. Unterbrochene Läufe werden beendet.",
+        "{{system}} ({{topic}}) · {{broker}} · build {{build}}, revision {{revision}}. After backup, the app stops automations, replaces the extension and restarts Zigbee2MQTT. Stored automations are preserved. Previously active automatic operation is reactivated; stopped operation remains stopped. Interrupted runs are ended."
+    ],
+    "project.extensionUpdateHelp": [
+        "Die App übernimmt Sichern, Stoppen, Aktualisieren und den Z2M-Neustart. Danach stellt sie den vorherigen Automatikbetrieb wieder her. Zigbee2MQTT muss zu Beginn laufen.",
+        "The app handles backup, stopping, updating and the Z2M restart. It then restores the previous automatic operation. Zigbee2MQTT must be running initially."
+    ],
+    "project.extensionCheck": [
+        "Update-Status prüfen",
+        "Check update status"
+    ],
+    "project.extensionUpdatePending": [
+        "Auf diesem System ist noch ein Extension-Update ungeklärt. Prüfe oder vervollständige es in Schritt 4, bevor du Automationen startest. Stoppen und Statuslesen bleiben möglich.",
+        "An extension update on this system is unresolved. Check or complete it in step 4 before starting automations. Stopping and reading status remain available."
+    ],
+    "project.extensionUpdate.preparing": [
+        "Sicherung und Update werden vorbereitet …",
+        "Preparing backup and update …"
+    ],
+    "project.extensionUpdate.stopping": [
+        "Automationen werden gestoppt …",
+        "Stopping automations …"
+    ],
+    "project.extensionUpdate.installing": [
+        "Mitgelieferte Extension wird installiert …",
+        "Installing the bundled extension …"
+    ],
+    "project.extensionUpdate.restarting": [
+        "Zigbee2MQTT wird neu gestartet …",
+        "Restarting Zigbee2MQTT …"
+    ],
+    "project.extensionUpdate.waiting": [
+        "Warte auf den bestätigten Z2M-Neustart und die neue Extension …",
+        "Waiting for a confirmed Z2M restart and the new extension …"
+    ],
+    "project.extensionUpdate.verifying": [
+        "Extension-Version und erhaltener Automationsbestand werden geprüft …",
+        "Checking the extension version and preserved automations …"
+    ],
+    "project.extensionUpdate.restoring": [
+        "Vorheriger Automatikbetrieb wird wiederhergestellt …",
+        "Restoring previous automatic operation …"
+    ],
+    "project.extensionUpdate.complete": [
+        "Update vollständig bestätigt.",
+        "Update fully confirmed."
+    ],
+    "project.extensionStopUncertain": [
+        "Der Stopp ist nicht bestätigt. Die Extension wurde nicht ersetzt. Wähle „Update-Status prüfen“. Der Stoppbefehl wird nicht erneut gesendet.",
+        "Stopping is unconfirmed. The extension was not replaced. Choose Check update status. The stop command will not be sent again."
+    ],
+    "project.extensionSaveUncertain": [
+        "Die Installation der Extension ist nicht bestätigt. Die App hat keinen Z2M-Neustart angefordert. Wähle „Update-Status prüfen“; nach bestätigter Installation kannst du den Ablauf über „Mitgelieferte Extension installieren“ fortsetzen. Es wird kein Upload wiederholt.",
+        "Extension installation is unconfirmed. The app has not requested a Z2M restart. Choose Check update status; after installation is confirmed, you can continue using Install bundled extension. The upload will not be repeated."
+    ],
+    "project.extensionRestartUncertain": [
+        "Der Z2M-Neustart mit der neuen Extension ist nicht bestätigt. Prüfe, ob Zigbee2MQTT läuft und das App-Konto sein MQTT-Neustarttopic verwenden darf. Wähle dann „Update-Status prüfen“. Der Neustartbefehl wird nicht erneut gesendet. Der Automatikbetrieb wurde noch nicht wieder aktiviert.",
+        "The Z2M restart with the new extension is unconfirmed. Check that Zigbee2MQTT is running and the app account may use its MQTT restart topic. Then choose Check update status. The restart command will not be sent again. Automatic operation has not been reactivated yet."
+    ],
+    "project.extensionVerifyUncertain": [
+        "Die neue Extension oder der unveränderte Automationsbestand ist nicht bestätigt. Der Automatikbetrieb wird nicht automatisch gestartet. Prüfe den Z2M-Status und die vor dem Update erstellte Projektsicherung.",
+        "The new extension or unchanged stored automations are unconfirmed. Automatic operation will not be started automatically. Check Z2M status and the project backup created before updating."
+    ],
+    "project.extensionRestoreUncertain": [
+        "Das Update und der Z2M-Neustart sind bestätigt, der vorherige Automatikbetrieb noch nicht. Wähle „Update-Status prüfen“. Ein bereits gesendeter Startbefehl wird nicht wiederholt. Falls er noch nicht gesendet wurde, kannst du den Ablauf über „Mitgelieferte Extension installieren“ fortsetzen.",
+        "The update and Z2M restart are confirmed, but previous automatic operation is not. Choose Check update status. A start command already sent will not be repeated. If none was sent yet, you can continue using Install bundled extension."
+    ],
+    "desktop.extensionUpdate": [
+        "Extension-Update: Fortschritt geprüft",
+        "Extension update progress checked"
     ],
     "project.timeout": [
         "Der Empfänger hat nicht rechtzeitig geantwortet.",
@@ -6750,5 +7914,557 @@
     "mqtt.recovery.stopped": [
         "Betrieb gestoppt",
         "Operation stopped"
+    ],
+    "desktop.link.title": [
+        "Systeme miteinander verbinden",
+        "Connect systems to each other"
+    ],
+    "desktop.link.needSystems": [
+        "Lege zuerst mindestens zwei Z2M-Systeme in diesem Projekt an.",
+        "First add at least two Z2M systems to this project."
+    ],
+    "desktop.link.step.choose": [
+        "Systeme auswählen",
+        "Choose systems"
+    ],
+    "desktop.link.step.check": [
+        "Voraussetzungen prüfen",
+        "Check prerequisites"
+    ],
+    "desktop.link.step.suggestions": [
+        "Konfigurationsvorschläge",
+        "Configuration suggestions"
+    ],
+    "desktop.link.progress": [
+        "Schritt {{step}} von {{total}}",
+        "Step {{step}} of {{total}}"
+    ],
+    "desktop.link.first": [
+        "Erstes Z2M-System",
+        "First Z2M system"
+    ],
+    "desktop.link.second": [
+        "Zweites Z2M-System",
+        "Second Z2M system"
+    ],
+    "desktop.link.selectSystem": [
+        "Z2M-System wählen",
+        "Choose a Z2M system"
+    ],
+    "desktop.link.intro": [
+        "Wähle zwei Systeme, deren Geräte du gemeinsam in Bedingungen und Aktionen verwenden möchtest. Geprüft werden die bereits übernommenen Einstellungen im Projekt und die erreichbaren Z2M-Erweiterungen.",
+        "Choose two systems whose devices you want to use together in conditions and actions. The check uses the applied project settings and reachable Z2M extensions."
+    ],
+    "desktop.link.readOnly": [
+        "Der Assistent liest nur. Er richtet keine Konten, Rechte oder Bridges ein und überträgt oder aktiviert keine Automationen. Getrennte Broker werden hier nicht automatisch verbunden.",
+        "This assistant only reads. It does not create accounts, permissions or bridges, or transfer or activate automations. Disconnected brokers are not connected automatically here."
+    ],
+    "desktop.link.cancel": [
+        "Abbrechen",
+        "Cancel"
+    ],
+    "desktop.link.close": [
+        "Schließen",
+        "Close"
+    ],
+    "desktop.link.back": [
+        "Zurück",
+        "Back"
+    ],
+    "desktop.link.inspect": [
+        "Voraussetzungen prüfen",
+        "Check prerequisites"
+    ],
+    "desktop.link.showSuggestions": [
+        "Vorschläge anzeigen",
+        "Show suggestions"
+    ],
+    "desktop.link.finish": [
+        "Fertig",
+        "Done"
+    ],
+    "desktop.link.repeat": [
+        "Erneut prüfen",
+        "Check again"
+    ],
+    "desktop.link.toConnection": [
+        "In Schritt 4 verbinden und Bestand lesen",
+        "Connect and read Z2M state in step 4"
+    ],
+    "desktop.link.toPermissions": [
+        "Freigaben in Schritt 3 bearbeiten",
+        "Edit permissions in step 3"
+    ],
+    "desktop.link.toTransfer": [
+        "Zu Schritt 8: Übermitteln an Z2M",
+        "Go to step 8: Transfer to Z2M"
+    ],
+    "desktop.link.checking": [
+        "Die erreichbaren Systeme werden gelesen. Das kann einige Sekunden dauern.",
+        "Reading reachable systems. This may take a few seconds."
+    ],
+    "desktop.link.waiting": [
+        "Starte die Prüfung, um die verfügbaren Informationen zu lesen.",
+        "Start the check to read the available information."
+    ],
+    "desktop.link.issues": [
+        "{{count}} Voraussetzungen fehlen. Sieh dir die Hinweise unten an. MQTT-Rechte und Bridge bleiben separat zu prüfen.",
+        "{{count}} prerequisites are missing. Read the guidance below. MQTT permissions and the bridge still need a separate check."
+    ],
+    "desktop.link.checked": [
+        "Keine fehlenden Voraussetzungen in den verfügbaren Angaben gefunden. Ungeprüfte Punkte bleiben offen; die Verbindung zwischen den Erweiterungen ist noch nicht nachgewiesen.",
+        "No missing prerequisites found in the available information. Unchecked items remain open; communication between the extensions has not yet been demonstrated."
+    ],
+    "desktop.link.failed": [
+        "Die Prüfung konnte nicht aktualisiert werden. Wähle die Systeme erneut oder starte die Prüfung noch einmal.",
+        "The check could not be updated. Choose the systems again or restart the check."
+    ],
+    "desktop.link.endpoint": [
+        "Broker {{broker}} · {{host}}:{{port}} · Basistopic {{topic}}",
+        "Broker {{broker}} · {{host}}:{{port}} · Base topic {{topic}}"
+    ],
+    "desktop.link.state.ok": [
+        "Bestätigt",
+        "Confirmed"
+    ],
+    "desktop.link.state.missing": [
+        "Fehlt",
+        "Missing"
+    ],
+    "desktop.link.state.unknown": [
+        "Nicht geprüft",
+        "Not checked"
+    ],
+    "desktop.link.state.unneeded": [
+        "Nicht erforderlich",
+        "Not required"
+    ],
+    "desktop.link.check.topics": [
+        "Eindeutige Basistopics",
+        "Unique base topics"
+    ],
+    "desktop.link.check.address": [
+        "Adresse für den Bridge-Vorschlag",
+        "Address for the bridge suggestion"
+    ],
+    "desktop.link.check.connection": [
+        "App-Verbindung zum Broker",
+        "App connection to the broker"
+    ],
+    "desktop.link.check.read": [
+        "Aktueller Z2M-Stand",
+        "Current Z2M state"
+    ],
+    "desktop.link.check.extension": [
+        "Erweiterung für gemeinsame Geräte",
+        "Extension for shared devices"
+    ],
+    "desktop.link.check.local": [
+        "Partnerfreigabe im lokalen Projekt",
+        "Partner permission in the local project"
+    ],
+    "desktop.link.check.stored": [
+        "Partnerfreigabe in Z2M gespeichert",
+        "Partner permission stored in Z2M"
+    ],
+    "desktop.link.check.runtime": [
+        "Partnerfreigabe im laufenden Betrieb",
+        "Partner permission in active operation"
+    ],
+    "desktop.link.detail.topicsUnique": [
+        "Beide Basistopics sind im Projekt eindeutig und für Partnerfreigaben geeignet.",
+        "Both base topics are unique in the project and suitable for partner permissions."
+    ],
+    "desktop.link.detail.topicsInvalid": [
+        "Jedes System braucht ein eigenes Basistopic im gesamten Projekt. Für Partnerfreigaben sind höchstens 128 Zeichen erlaubt: Buchstaben, Ziffern, Unterstrich und Bindestrich, getrennt durch Schrägstriche; Punkte sind nur ohne Schrägstriche möglich. Korrigiere die Zuordnung in Schritt 3.",
+        "Each system needs its own base topic across the entire project. Partner topics allow up to 128 characters: letters, digits, underscores and hyphens separated by slashes; dots are supported only without slashes. Correct the assignment in step 3."
+    ],
+    "desktop.link.detail.addressKnown": [
+        "Die hinterlegte Adresse kann in der Vorlage verwendet werden. Das bestätigt weder Erreichbarkeit noch Bridge-Einrichtung.",
+        "The configured address can be used in the template. This confirms neither reachability nor bridge setup."
+    ],
+    "desktop.link.detail.addressInvalid": [
+        "Die Broker-Adresse eignet sich nicht für eine sichere Vorlage. Korrigiere Host und Port in Schritt 2.",
+        "The broker address is unsuitable for a safe template. Correct the host and port in step 2."
+    ],
+    "desktop.link.detail.connected": [
+        "Die App ist mit diesem Broker verbunden. Das bestätigt nur den Zugang ihres eigenen Kontos.",
+        "The app is connected to this broker. This confirms access for its own account only."
+    ],
+    "desktop.link.detail.disconnected": [
+        "Verbinde den Broker in Schritt 4. Der Assistent stellt keine neue Verbindung her.",
+        "Connect the broker in step 4. The assistant does not establish a new connection."
+    ],
+    "desktop.link.detail.readFresh": [
+        "Die Erweiterung hat ihren aktuellen Stand über die App-Verbindung bestätigt.",
+        "The extension confirmed its current state through the app connection."
+    ],
+    "desktop.link.detail.reading": [
+        "Der Z2M-Stand wird gerade gelesen.",
+        "The Z2M state is currently being read."
+    ],
+    "desktop.link.detail.readMissing": [
+        "Es liegt kein aktuell bestätigter Z2M-Stand vor. Verbinde den Broker in Schritt 4 und prüfe erneut. Ein älterer Projektstand genügt nicht.",
+        "No currently confirmed Z2M state is available. Connect the broker in step 4 and check again. An older project observation is insufficient."
+    ],
+    "desktop.link.detail.extensionReady": [
+        "Version {{version}} unterstützt die vorgeschlagene Zusammenarbeit.",
+        "Version {{version}} supports the suggested cooperation."
+    ],
+    "desktop.link.detail.extensionOld": [
+        "Gelesen wurde Version {{version}}. Installiere die mitgelieferte Erweiterung ab Version 0.2.2 in Schritt 4 auf beiden Systemen.",
+        "Version {{version}} was read. Install the bundled extension version 0.2.2 or later on both systems in step 4."
+    ],
+    "desktop.link.detail.localGranted": [
+        "{{system}} erlaubt {{partner}} im lokalen Projekt den Zugriff. Die Freigabe gilt für alle Automationen dieses Systems.",
+        "{{system}} allows {{partner}} access in the local project. The permission applies to all automations of this system."
+    ],
+    "desktop.link.detail.localMissing": [
+        "Erlaube auf {{system}} den Partner {{partner}} über Partnerfreigaben in Schritt 3. Speichere danach das Projekt.",
+        "Allow partner {{partner}} on {{system}} through partner permissions in step 3. Then save the project."
+    ],
+    "desktop.link.detail.peerLimit": [
+        "{{system}} enthält bereits acht Partnerfreigaben. Prüfe diese in Schritt 3, bevor du einen weiteren Partner ergänzt. Der Assistent entfernt keine vorhandene Freigabe.",
+        "{{system}} already contains eight partner permissions. Review them in step 3 before adding another partner. The assistant does not remove existing permissions."
+    ],
+    "desktop.link.detail.storedGranted": [
+        "{{system}} hat die Freigabe für {{partner}} im aktuell gelesenen Z2M-Stand gespeichert.",
+        "{{system}} has stored permission for {{partner}} in the currently read Z2M state."
+    ],
+    "desktop.link.detail.storedMissing": [
+        "Auf {{system}} fehlt die gespeicherte Freigabe für {{partner}}. Prüfe den vollständigen Arbeitsstand und übermittle ihn separat in Schritt 8; bestehende Regeln vorher übernehmen.",
+        "Stored permission for {{partner}} is missing on {{system}}. Check the complete working copy and transfer it separately in step 8; include existing rules first."
+    ],
+    "desktop.link.detail.runtimeGranted": [
+        "Die laufende Konfiguration von {{system}} entspricht dem gespeicherten Stand und enthält die Freigabe für {{partner}}. MQTT-Rechte und Transportweg bleiben ungeprüft.",
+        "The active configuration on {{system}} matches its stored state and includes permission for {{partner}}. MQTT permissions and transport remain unchecked."
+    ],
+    "desktop.link.detail.runtimeStopped": [
+        "Der Betrieb von {{system}} ist gestoppt. Für den Zugriff auf dessen Geräte muss der empfangende Betrieb separat aktiviert werden.",
+        "Operation on {{system}} is stopped. Access to its devices requires the receiving operation to be activated separately."
+    ],
+    "desktop.link.detail.runtimeDifferent": [
+        "Der laufende und der gespeicherte Stand von {{system}} stimmen nicht nachweislich überein. Prüfe den Betriebsstatus, bevor du die Freigabe verwendest.",
+        "The active and stored states on {{system}} do not demonstrably match. Check operation before using the permission."
+    ],
+    "desktop.link.externalTitle": [
+        "Auf den Brokern separat zu prüfen",
+        "Check separately on the brokers"
+    ],
+    "desktop.link.externalHelp": [
+        "Eine erfolgreiche App-Verbindung bestätigt keine anderen Konten. Diese Punkte bleiben ausdrücklich offen. Der Assistent sendet keine Testnachrichten oder Gerätebefehle zwischen den Systemen.",
+        "A successful app connection does not confirm other accounts. These items explicitly remain open. The assistant sends no test messages or device commands between systems."
+    ],
+    "desktop.link.check.accounts": [
+        "Z2M- und Bridge-Konten",
+        "Z2M and bridge accounts"
+    ],
+    "desktop.link.check.rights": [
+        "MQTT-Rechte dieser Konten",
+        "MQTT permissions for those accounts"
+    ],
+    "desktop.link.check.bridge": [
+        "Transport zwischen den Brokern",
+        "Transport between brokers"
+    ],
+    "desktop.link.check.roundTrip": [
+        "Zusammenarbeit der Erweiterungen",
+        "Cooperation between extensions"
+    ],
+    "desktop.link.detail.external.accounts": [
+        "Prüfe die tatsächlich von Z2M und der Bridge verwendeten Konten auf den Servern. Zusätzliche Benutzer sind optional; vorhandene Konten können verwendet werden.",
+        "Check the accounts actually used by Z2M and the bridge on the servers. Additional users are optional; existing accounts can be used."
+    ],
+    "desktop.link.detail.external.rights": [
+        "Die Z2M-Konten und bei getrennten Brokern die Bridge-Konten brauchen Lesen und Schreiben auf z2ma/mesh/#. Die bestehenden Z2M-Rechte bleiben erhalten.",
+        "Z2M accounts and, for separate brokers, bridge accounts need read/write access to z2ma/mesh/#. Keep existing Z2M permissions."
+    ],
+    "desktop.link.detail.external.bridge": [
+        "Prüfe, ob bereits ein Transport für z2ma/mesh/# in beiden Richtungen besteht. Eine zusätzliche Bridge darf keine Schleife erzeugen.",
+        "Check whether transport for z2ma/mesh/# already exists in both directions. An additional bridge must not create a loop."
+    ],
+    "desktop.link.detail.bridgeUnneeded": [
+        "Die Projektzuordnung verwendet denselben Broker-Endpunkt. Zwischen diesen beiden Systemen ist keine zusätzliche Broker-Bridge erforderlich.",
+        "The project assignment uses the same broker endpoint. No additional broker bridge is required between these two systems."
+    ],
+    "desktop.link.detail.external.roundTrip": [
+        "Ein Ende-zu-Ende-Test mit den tatsächlichen Erweiterungen wurde nicht ausgeführt. Führe ihn nach der Einrichtung gesondert durch.",
+        "An end-to-end test using the actual extensions has not been performed. Carry it out separately after setup."
+    ],
+    "desktop.link.suggestionHelp": [
+        "Dies sind ergänzende Beispiele für Mosquitto mit Passwort- und ACL-Dateien. Keine vollständigen Ersatzdateien. Konten, Serverzugriff und vorhandene Konfiguration müssen zuerst geprüft werden. Bei Dynamic Security verwaltet der Administrator die entsprechenden Benutzer und Rollen dort; diese App richtet sie noch nicht ein.",
+        "These are supplementary examples for Mosquitto with password and ACL files, not complete replacement files. Accounts, server access and existing configuration must be checked first. With Dynamic Security, the administrator manages the corresponding users and roles there; this app does not configure them yet."
+    ],
+    "desktop.link.topology.shared": [
+        "Gemeinsamer Broker-Endpunkt: keine zusätzliche Bridge. Prüfe die Mesh-Rechte beider Z2M-Konten, auch wenn sie denselben Broker verwenden.",
+        "Shared broker endpoint: no additional bridge. Check mesh permissions for both Z2M accounts, even when they use the same broker."
+    ],
+    "desktop.link.topology.separate": [
+        "Unterschiedliche Broker-Endpunkte: die Vorlage verbindet den Broker des ersten Systems mit dem des zweiten. Eine Bridge mit beiden Richtungen genügt. Prüfe vorhandene Bridges und Adress-Aliase; bei mehreren Brokern eine schleifenfreie Topologie planen. Die Vorlage übernimmt den in der App eingestellten TLS-Modus des zweiten Brokers. Unverschlüsselte Verbindungen übertragen auch Anmeldedaten im Klartext.",
+        "Different broker endpoints: the template connects the first system's broker to the second system's broker. One bridge with both directions is enough. Check existing bridges and address aliases; plan a loop-free topology for multiple brokers. The template uses the second broker's TLS mode configured in the app. Unencrypted connections also transmit credentials in plain text."
+    ],
+    "desktop.link.noSuggestions": [
+        "Zuerst die Basistopics und Zuordnungen korrigieren. Für uneindeutige Systeme werden keine Konfigurationsauszüge erzeugt.",
+        "First correct base topics and assignments. No configuration excerpts are generated for ambiguous systems."
+    ],
+    "desktop.link.snippet.peers": [
+        "{{system}}: Auszug für die lokalen Partnerfreigaben",
+        "{{system}}: excerpt for local partner permissions"
+    ],
+    "desktop.link.snippet.acl": [
+        "{{broker}}: zusätzliche MQTT-Rechte",
+        "{{broker}}: additional MQTT permissions"
+    ],
+    "desktop.link.snippet.bridge": [
+        "{{broker}}: eine Bridge zum zweiten Broker",
+        "{{broker}}: one bridge to the second broker"
+    ],
+    "desktop.link.snippetHelp.peers": [
+        "Nutze Partnerfreigaben in Schritt 3. Der Auszug ergänzt den ausgewählten Partner und erhält weitere lokale Freigaben. Er ist kein vollständiger Automationsentwurf und darf die Konfiguration nicht ersetzen.",
+        "Use partner permissions in step 3. This excerpt adds the selected partner and preserves other local permissions. It is not a complete automation draft and must not replace the configuration."
+    ],
+    "desktop.link.snippetHelp.acl": [
+        "Ersetze REPLACE_Z2M_USER durch den tatsächlichen Z2M-Benutzer; ergänze das Topic in dessen vorhandenen ACL-Abschnitt. Bei einem gemeinsamen Broker gilt das für beide Z2M-Konten. REPLACE_BRIDGE_USER bezeichnet das Bridge-Konto auf diesem Broker. Bestehende Rechte behalten, keine Passwortdatei ersetzen.",
+        "Replace REPLACE_Z2M_USER with the actual Z2M username; add the topic to its existing ACL section. On a shared broker this applies to both Z2M accounts. REPLACE_BRIDGE_USER denotes the bridge account on this broker. Keep existing permissions and do not replace a password file."
+    ],
+    "desktop.link.snippetHelp.bridge": [
+        "Nur auf dem Broker des ersten Systems einrichten. REPLACE_LOCAL_* gehört zu diesem Broker, REPLACE_REMOTE_* zum zweiten. Alle Platzhalter auf dem Server ersetzen und die Datei vor fremdem Zugriff schützen. Bei TLS den CA-Pfad und gegebenenfalls Clientzertifikate auf diesem Server setzen; importierte App-Zertifikate werden nicht übernommen. Keine zweite Gegenrichtung und keine Schleife ergänzen.",
+        "Configure only on the first system's broker. REPLACE_LOCAL_* belongs to this broker and REPLACE_REMOTE_* to the second. Replace all placeholders on the server and protect the file from other users. For TLS, set the CA path and, if required, client certificates on that server; imported app certificates are not transferred. Do not add another reverse bridge or a loop."
+    ],
+    "desktop.link.selectText": [
+        "Text auswählen",
+        "Select text"
+    ],
+    "desktop.link.copyHelp": [
+        "Nach dem Auswählen mit Strg+C kopieren. Die App liest hierfür keine Passwörter aus dem Zugangsdaten-Speicher.",
+        "After selecting, copy with Ctrl+C. The app does not read passwords from the credential vault for this."
+    ],
+    "desktop.link.followupTitle": [
+        "So geht es weiter",
+        "Next steps"
+    ],
+    "desktop.link.followup.backup": [
+        "Die vorhandene Broker-Konfiguration und das Projekt sichern. Bestehende Konten, Regeln und Topic-Rechte beibehalten.",
+        "Back up the existing broker configuration and project. Keep existing accounts, rules and topic permissions."
+    ],
+    "desktop.link.followup.placeholders": [
+        "Ein Administrator prüft die Vorschläge und ersetzt alle Platzhalter auf den betroffenen Servern. Vorhandene Konten können weiterverwendet werden.",
+        "An administrator reviews the suggestions and replaces all placeholders on the affected servers. Existing accounts can be reused."
+    ],
+    "desktop.link.followup.apply": [
+        "Die ergänzten Broker-Einstellungen passend zur installierten Mosquitto-Version neu laden oder den Dienst gezielt neu starten. Das führt diese App nicht aus.",
+        "Reload the additional broker settings or deliberately restart the service as appropriate for the installed Mosquitto version. This app does not do that."
+    ],
+    "desktop.link.followup.transfer": [
+        "Partnerfreigaben für beide Systeme in Schritt 3 ergänzen und das Projekt speichern. In Schritt 5 bestehende Regeln berücksichtigen, in Schritt 7 prüfen und in Schritt 8 gezielt übermitteln. Den empfangenden Betrieb anschließend separat aktivieren.",
+        "Add partner permissions for both systems in step 3 and save the project. Account for existing rules in step 5, check in step 7 and transfer deliberately in step 8. Then activate the receiving operation separately."
+    ],
+    "desktop.link.followup.test": [
+        "Danach die Zusammenarbeit mit den tatsächlichen Z2M-Erweiterungen gesondert testen. Dieser Assistent bestätigt keinen Gerätebefehl und schaltet keine Automation ein.",
+        "Then separately test cooperation using the actual Z2M extensions. This assistant does not confirm a device command or turn on an automation."
+    ],
+    "symcon.workspace": [
+        "Automations-Arbeitsplatz",
+        "Automation workspace"
+    ],
+    "symcon.steps.picker": [
+        "Arbeitsschritt",
+        "Workspace step"
+    ],
+    "symcon.steps.project": [
+        "Automationszentrale",
+        "Automation centre"
+    ],
+    "symcon.steps.broker": [
+        "MQTT-Verbindungen",
+        "MQTT connections"
+    ],
+    "symcon.steps.system": [
+        "Z2M-Systeme zuordnen",
+        "Assign Z2M systems"
+    ],
+    "symcon.steps.connection": [
+        "Verbinden und Bestand lesen",
+        "Connect and read inventory"
+    ],
+    "symcon.steps.draft": [
+        "Arbeitsstand wählen",
+        "Choose working copy"
+    ],
+    "symcon.steps.automations": [
+        "Automationen bearbeiten",
+        "Edit automations"
+    ],
+    "symcon.steps.review": [
+        "Entwurf prüfen",
+        "Check draft"
+    ],
+    "symcon.steps.transfer": [
+        "Nach Z2M übermitteln",
+        "Transfer to Z2M"
+    ],
+    "symcon.steps.operation": [
+        "Betrieb",
+        "Operation"
+    ],
+    "symcon.steps.projectContext": [
+        "Zentrale · {{name}}",
+        "Centre · {{name}}"
+    ],
+    "symcon.steps.need.project": [
+        "Öffne zuerst die Automationszentrale.",
+        "Open the automation centre first."
+    ],
+    "symcon.steps.need.broker": [
+        "Ordne zuerst eine MQTT-Verbindung zu.",
+        "Assign an MQTT connection first."
+    ],
+    "symcon.steps.need.system": [
+        "Ordne zuerst ein Z2M-System zu.",
+        "Assign a Z2M system first."
+    ],
+    "symcon.steps.storedSource": [
+        "In Z2M gespeichert · Revision {{revision}}",
+        "Stored in Z2M · revision {{revision}}"
+    ],
+    "symcon.steps.lastReadSource": [
+        "Zuletzt gelesen · Revision {{revision}}",
+        "Last read · revision {{revision}}"
+    ],
+    "symcon.connected": [
+        "Verbunden",
+        "Connected"
+    ],
+    "symcon.disconnected": [
+        "Getrennt",
+        "Disconnected"
+    ],
+    "symcon.centre.help": [
+        "Hier verwaltest du die Systeme und Entwürfe dieser Automationszentrale.",
+        "Manage the systems and drafts of this automation centre."
+    ],
+    "symcon.brokers.help": [
+        "MQTT-Verbindungen und Zugangsdaten werden in den Symcon-Verbindungsinstanzen verwaltet. Die Übersicht zeigt die bereits zugeordneten Verbindungen.",
+        "MQTT connections and credentials are managed in the Symcon connection instances. This overview shows the assigned connections."
+    ],
+    "symcon.brokers.connection": [
+        "MQTT-Verbindung #{{id}}",
+        "MQTT connection #{{id}}"
+    ],
+    "symcon.systems.help": [
+        "Wähle vorhandene Z2M-Verbindungen aus. Bestehende Zuordnungen und Entwürfe bleiben erhalten.",
+        "Select existing Z2M connections. Existing assignments and drafts are preserved."
+    ],
+    "symcon.systems.apply": [
+        "Systemzuordnung übernehmen",
+        "Apply system assignments"
+    ],
+    "symcon.systems.saved": [
+        "Systemzuordnung übernommen.",
+        "System assignments saved."
+    ],
+    "symcon.request.failed": [
+        "Die Aktion wurde nicht bestätigt. Aktualisiere die Ansicht.",
+        "The action was not confirmed. Refresh the view."
+    ],
+    "symcon.draft.help": [
+        "Bearbeite den lokalen Entwurf dieses Systems. Die Übermittlung an Z2M erfolgt separat in Schritt 8.",
+        "Edit this system’s local draft. Transfer to Z2M is a separate action in step 8."
+    ],
+    "symcon.draft.export": [
+        "Optional: Entwurf als YAML exportieren",
+        "Optional: export draft as YAML"
+    ],
+    "symcon.draft.summary": [
+        "{{count}} Automationen · Entwurfsrevision {{revision}}",
+        "{{count}} automations · draft revision {{revision}}"
+    ],
+    "symcon.catalog.loaded": [
+        "Geladener Katalog · {{count}} Geräte und Gruppen",
+        "Loaded catalogue · {{count}} devices and groups"
+    ],
+    "symcon.catalog.missing": [
+        "Gerätekatalog noch nicht bestätigt. Lies den Bestand dieses Systems.",
+        "Device catalogue not confirmed yet. Read this system’s inventory."
+    ],
+    "symcon.review.check": [
+        "Entwurf prüfen",
+        "Check draft"
+    ],
+    "symcon.review.unavailable": [
+        "Wähle ein System und lies seinen Bestand.",
+        "Select a system and read its inventory."
+    ],
+    "symcon.transfer.confirm": [
+        "Entwurf nach Z2M übermitteln?",
+        "Transfer draft to Z2M?"
+    ],
+    "symcon.transfer.detail": [
+        "Ziel: {{name}}. {{count}} Automationen, davon {{enabled}} freigegeben. Ein laufender Automatikbetrieb wird gestoppt. Der Entwurf wird erneut geprüft und mit diesen Freigaben gespeichert. Z2M sichert die Vorversion; der Betrieb wird anschließend separat gestartet.",
+        "Target: {{name}}. {{count}} automations, {{enabled}} enabled. Running automatic operation will stop. The draft will be checked again and stored with these permissions. Z2M retains the previous version; starting operation remains a separate action."
+    ],
+    "symcon.transfer.changed": [
+        "Der Entwurf oder das Ziel wurde geändert. Prüfe den aktuellen Stand erneut.",
+        "The draft or target changed. Check the current state again."
+    ],
+    "symcon.transfer.unconfirmed": [
+        "Der Vorgang wurde nicht eindeutig bestätigt. Lies den Status; es wird kein Befehl wiederholt.",
+        "The operation was not confirmed. Read the status; no command will be repeated."
+    ],
+    "symcon.transfer.checkFailed": [
+        "Die erneute Entwurfsprüfung war nicht erfolgreich. Korrigiere die gemeldeten Stellen.",
+        "The fresh draft check failed. Correct the reported findings."
+    ],
+    "symcon.catalog.devices": [
+        "Geräte",
+        "Devices"
+    ],
+    "symcon.catalog.groups": [
+        "Gruppen",
+        "Groups"
+    ],
+    "symcon.releases.title": [
+        "Regeln für den Automatikbetrieb freigeben",
+        "Allow rules for automatic operation"
+    ],
+    "symcon.releases.help": [
+        "Die Häkchen ändern nur den lokalen Entwurf. Prüfe ihn anschließend und übermittle ihn in Schritt 8. Der Start des Automatikbetriebs bleibt ein eigener Schritt.",
+        "The checkboxes change only the local draft. Check it and transmit it in step 8. Starting automatic operation remains a separate action."
+    ],
+    "symcon.releases.count": [
+        "In Z2M freigegeben: {{count}} von {{total}} Automationen.",
+        "Allowed in Z2M: {{count}} of {{total}} automations."
+    ],
+    "symcon.releases.unknown": [
+        "Die gespeicherten Freigaben sind für diesen Entwurf noch nicht bestätigt. Lokale Häkchen gelten erst nach der Übermittlung.",
+        "Stored permissions have not yet been confirmed for this draft. Local checkboxes take effect after transmission."
+    ],
+    "symcon.releases.saving": [
+        "Freigabe wird im lokalen Entwurf gespeichert …",
+        "Saving the permission in the local draft …"
+    ],
+    "symcon.releases.saved": [
+        "Freigabe im Entwurf gespeichert. Jetzt prüfen und in Schritt 8 übermitteln.",
+        "Permission saved in the draft. Now check it and transmit it in step 8."
+    ],
+    "symcon.releases.refresh": [
+        "Die Freigabe wurde lokal gespeichert; die Ansicht konnte nicht bestätigt werden. Bitte aktualisieren.",
+        "The permission was saved locally; the refreshed view could not be confirmed. Please refresh."
+    ],
+    "symcon.systems.assigned": [
+        "Bereits zugeordnet",
+        "Already assigned"
+    ],
+    "symcon.systems.available": [
+        "Verfügbar – zum Zuordnen anhaken",
+        "Available – select to assign"
+    ],
+    "symcon.systems.unavailable": [
+        "Nicht verfügbar – Zuordnung und Besitzer in Symcon prüfen",
+        "Unavailable – check the binding and owner in Symcon"
+    ],
+    "symcon.systems.reopen": [
+        "Bitte den Designer für die Systemzuordnung erneut im Modul öffnen.",
+        "Please reopen the designer from the module to assign systems."
     ]
 }

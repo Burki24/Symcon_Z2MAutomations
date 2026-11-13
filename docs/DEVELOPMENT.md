@@ -1,3 +1,34 @@
+## Gemeinsamer geführter Arbeitsplatz – 13.11.2026
+
+Die kanonischen Quellen liegen weiterhin ausschließlich im App-Repository.
+Hier wurde das geprüfte Paket @z2ma/designer 0.101.0 mit Inhaltskennung
+`be104a15ad93` festgeschrieben. Native Kachel, SDK-/Interaktionshelper,
+Z2M-Erweiterung und Schema bleiben unverändert. ADR 0039 beschreibt die
+Anpassung an Symcon-Zentrale, MQTT-Parents, lokale Entwürfe und native Freigaben.
+
+Lokal erfolgreich: `php tests/run.php` mit allen PHP-Integrationen und 258
+JavaScript-Tests; offizieller StylePHP-JSON-Check für 18 eigene Dateien in einer
+unveränderten isolierten Kopie; PHP CS Fixer 3.95.27 im Prüfmodus ohne Befund
+für 157 Dateien. Nach dem letzten reinen Layoutabgleich zusätzlich Paketprüfung
+und die 20 betroffenen Request-/Übermittlungs-/Betriebstests erfolgreich.
+
+Die echte Offline-Browserprüfung `tests/designer-localization.browser.mjs`
+verwendet eine vorhandene Playwright-Installation über `Z2MA_PLAYWRIGHT_MODULE`.
+Sie prüft im Browser und in der eingebetteten Kachel acht Schritte, getrennte
+Systeme, DE/EN bei offenen Eingaben, 360–3840 Pixel, Hell/Dunkel, tatsächliche
+Mausradbewegung, direkte Korrekturstellen und lokale Freigabehäkchen. Abbrechen
+sendet nichts; nach Bestätigung folgt genau Status, Stopp, Prüfung, Speicherung,
+keine Aktivierung. Der letzte Kacheltest belegte einen auf null schrumpfenden
+Arbeitsbereich bei umgebrochenem Kopf-/Statusbereich. Die native Arbeitsfläche
+scrollt jetzt in diesem Fall als Ganzes und behält eine bedienbare Mindesthöhe;
+der App-Arbeitsplatz verwendet diese native Ausnahme nicht. Fehlerdiagnosen
+enthalten nur begrenzte synthetische DOM-Abmessungen, keine Bilder oder Inhalte.
+
+Die App-Gesamtprüfung, bildfreie Quell-Smoke-Prüfung einschließlich Speichern
+beim Schließen und der bestehende Layout-/Mausradtest sind ebenfalls erfolgreich.
+Keine Screenshots, Live-Systemänderungen oder praktischen Gerätebefehle. Neue
+GitHub-CI und native Symcon-Abnahme nach dem Modulupdate bleiben getrennte Nachweise.
+
 ## Automatische Erweiterungsversion – 08.11.2026
 
 `npm run build:extension` führt eine eigene Versionsfolge ab `0.2.0` in
