@@ -25,8 +25,9 @@ class DesignerProbe extends Z2MAutomations
             $properties[$property] = ['property' => $property, 'type' => 'binary', 'access' => 3, 'label' => $property, 'endpoint' => '', 'values' => ['ON', 'OFF']];
         }
         $properties['action'] = array_replace($properties['action'], ['type' => 'enum', 'access' => 1, 'values' => ['single']]);
-        $properties['state_l2'] = $properties['state'];
-        $properties['state_l2']['property'] = 'state_l2';
+        foreach (['state_l1', 'state_l2'] as $channel) {
+            $properties[$channel] = array_replace($properties['state'], ['property' => $channel]);
+        }
         $properties['level'] = ['property' => 'level', 'type' => 'numeric', 'access' => 3, 'label' => 'Synthetic level', 'endpoint' => '', 'minimum' => 0, 'maximum' => 100, 'step' => 1];
         $properties['temperature'] = ['property' => 'temperature', 'type' => 'numeric', 'access' => 1, 'label' => 'Synthetic temperature', 'endpoint' => ''];
         $properties['color'] = ['property' => 'color', 'type' => 'color', 'access' => 2, 'label' => 'Synthetic color', 'endpoint' => ''];
@@ -221,6 +222,7 @@ require __DIR__ . '/designer-edit.inc.php';
 require __DIR__ . '/designer-sequence.inc.php';
 require __DIR__ . '/designer-manage.inc.php';
 require __DIR__ . '/designer-full-create.inc.php';
+require __DIR__ . '/designer-native-toggle.inc.php';
 require __DIR__ . '/designer-localization.inc.php';
 $module->Mismatch();
 $mismatch = json_decode($module->GetDesignerData(), true);

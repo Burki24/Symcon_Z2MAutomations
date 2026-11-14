@@ -5516,6 +5516,14 @@ und prüft Erstellung, Wiederöffnen, gleiche Geräte-IDs, lesbare Eigenschaften
 entzogene Freigaben und unveränderte Partnerentwürfe ohne MQTT-Aufträge.
 Der bildfreie Browsertest ergänzt den echten Formularablauf in Browser und Kachel.
 
+Native `set.values.state_l1: TOGGLE`-Befehle nutzen die vorhandene begrenzte
+Command-Zeilenkodierung, damit native Bearbeitung sie nicht in die eigene
+`toggle`-Aktion umwandelt. `designer-native-toggle.inc.php` prüft die echten
+Create-/Edit-/YAML-Endpunkte, `editor-commands.inc.php` den nativen Rückweg und
+`workspace-device-picker.inc.php` die Partnerbindung. Der bildfreie Browsertest
+wählt denselben L1-Wert im Formular. Schaltrechte und Wertevalidierung bleiben
+maßgeblich; diese Prüfungen senden keine Gerätebefehle.
+
 Im Desktop-Quellrepo npm run pack:designer ausführen. Das geprüfte Archiv hier
 mit node tests/import-designer.mjs <Archiv.tgz> übernehmen, Diff prüfen und die
 regulären Projektprüfungen ausführen. npm run build:locales und check:locales

@@ -176,6 +176,11 @@ Systeme einander freigeben. Fehlt der bestätigte Gerätekatalog, das betroffene
 System oben auswählen, in Schritt 4 **Gerätedaten aktualisieren** ausführen und
 das Formular erneut öffnen. Geräteauslöser unter **Wenn** bleiben im Netz der Regel.
 
+Bei einem bedienbaren State-Kanal, etwa **Status L1**, unterstützt **Werte setzen**
+die Auswahl **Umschalten**. Der native `TOGGLE`-Wert bleibt auch beim erneuten
+Bearbeiten und beim YAML-Export erhalten. Die eigene Aktionsart **Umschalten**
+behält ihr bisheriges Verhalten.
+
 Die Darstellung folgt der Hell-/Dunkeleinstellung des Browsers. Schrift und
 Anordnung passen sich an die verfügbare Breite an. Auf schmalen Ansichten lassen
 sich die Automationsliste und die Eigenschaften aufklappen.

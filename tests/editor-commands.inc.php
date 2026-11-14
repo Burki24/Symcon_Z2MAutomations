@@ -73,8 +73,18 @@ $check($dialog($colorChoice)['RowColor']['value'] === 0x123456, 'Standalone nati
 $module->ConfigureEditorItem('device', 'TimeEditorActions', $device, '', '""', 'eq', 'combined', $choice);
 $check($module->updates['Choice']['value'] === '' && json_decode($module->updates['RowCommandSummary']['values'], true) === [], 'Changing the device discards its previous composite command');
 $encode = static fn (array $values): string => $device . ':command.' . rtrim(strtr(base64_encode(json_encode($values)), '+/', '-_'), '=');
-foreach ([$encode(['state' => 'TOGGLE']), $encode(['unknown' => 1]), $encode(['color' => ['x' => 0.2, 'y' => 0.3]]), $device . ':command.' . str_repeat('a', 1700)] as $invalid) {
+foreach ([$encode(['display_flag' => 'TOGGLE']), $encode(['unknown' => 1]), $encode(['color' => ['x' => 0.2, 'y' => 0.3]]), $device . ':command.' . str_repeat('a', 1700)] as $invalid) {
     $check(!$module->InspectEditorActions(json_encode([['Choice' => $invalid, 'Delay' => 0]]), 'edit', 'time'), 'Malformed, unsupported and oversized commands cannot be applied');
+}
+foreach ([['state' => 'TOGGLE'], ['level' => 50, 'state' => 'TOGGLE']] as $nativeValues) {
+    $nativeChoice = $encode($nativeValues);
+    $check($module->InspectEditorActions(json_encode([['Choice' => $nativeChoice, 'Delay' => 7]]), 'edit', 'time'), 'Native TOGGLE is a permitted literal value of a writable switch');
+    $fields = $form();
+    $run($fields['TimeUpdateRuleButton']['onClick'], $fields, ['TimeEditorActions' => new ArrayIterator([['Choice' => $nativeChoice, 'Delay' => 7]])]);
+    $fields = $form();
+    $saved = json_decode($fields['YamlInput']['value'], true)['automations'][0]['actions'];
+    $check($saved === [['type' => 'set', 'target' => ['type' => 'device', 'id' => $device], 'values' => $nativeValues, 'delay_seconds' => 7]], 'Native apply preserves literal TOGGLE and the complete command without converting the action kind');
+    $check($fields['TimeEditorActions']['enabled'] && $fields['TimeEditorActions']['values'][0]['Choice'] === $nativeChoice, 'Reopening the native form preserves the exact TOGGLE command');
 }
 $check($module->SelectReusableSequence('') && $module->SaveReusableSequence('', '', 'Synthetic combined definition', json_encode([['Choice' => $before, 'Delay' => 2]])), 'Reusable definitions accept complete compound commands');
 $fields = $form();

@@ -36,7 +36,10 @@ beschreibt die Elterneigenschaft. Die native SelectColor-Ganzzahl von 0 bis
 Farbobjekte und automatische Farbraumumrechnungen werden nicht eingeführt.
 
 Farbe und Farbtemperatur desselben Kanals werden nicht kombiniert. Szenen
-und binäres TOGGLE bleiben gesonderte Aktionen. Gruppenkataloge erhalten keine
+bleiben gesonderte Aktionen. Explizite native TOGGLE-Werte bedienbarer State-Kanäle
+werden als vollständige set-Befehle erhalten, auch bei nur einer Eigenschaft.
+Sie werden beim Bearbeiten nicht in die eigene toggle-Aktion mit Zustandsprüfung
+umgeschrieben. Diese bleibt als getrennte Aktionsart verfügbar. Gruppenkataloge erhalten keine
 erfundenen Farb-/Helligkeitsfähigkeiten. Wiederverwendbare Folgen und explizit
 gewählte entfernte Geräte verwenden dieselben Auswahl-/Rechtepfade. Schema 1,
 Runtime und Mesh bleiben unverändert: ein Schritt übergibt genau einen

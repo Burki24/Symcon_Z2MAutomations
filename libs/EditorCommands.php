@@ -65,8 +65,7 @@ trait EditorCommands
         }
         foreach ($values as $property => $value) {
             $meta = $this->EditorProperties($snapshot, $device, 'Target')[$property] ?? null;
-            if ($meta === null || isset($meta['sceneEndpoint']) || !$this->EditorValueAllowed($snapshot, $device, $property, $value, 'Target')
-                || ($meta['type'] === 'binary' && $value === 'TOGGLE')) {
+            if ($meta === null || isset($meta['sceneEndpoint']) || !$this->EditorValueAllowed($snapshot, $device, $property, $value, 'Target')) {
                 return null;
             }
             if ($meta['type'] === 'color' && preg_match('/\Acolor(_[A-Za-z0-9_]+)?\z/D', $property, $parts) && array_key_exists('color_temp' . ($parts[1] ?? ''), $values)) {

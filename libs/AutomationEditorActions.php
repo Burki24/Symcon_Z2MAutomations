@@ -144,9 +144,11 @@ trait AutomationEditorActions
             $property = array_key_first($values);
             if ($action['type'] === 'set' && ($values[$property] ?? null) === 'TOGGLE'
                 && $this->BuildEditorAction($device, ['property' => $property, 'value' => 'TOGGLE'])['type'] === 'toggle') {
-                // Preserve an explicitly authored native TOGGLE as an advanced rule;
-                // editing must not change it into aggregate-state inversion.
-                return null;
+                // Keep the literal device command distinct from aggregate-state inversion.
+                $key = $this->CommandChoice($snapshot, $device, $values);
+                if ($key === null) return null;
+                $rows[] = ['Choice' => $device . ':' . $key, 'Delay' => $action['delay_seconds'] ?? 0];
+                continue;
             }
             $found = null;
             foreach ($snapshot['devices'][$device]['actions'] ?? [] as $key => $choice) {

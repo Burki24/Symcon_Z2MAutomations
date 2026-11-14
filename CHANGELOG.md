@@ -81,6 +81,10 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
+- „Werte setzen → Umschalten“ wird für bedienbare State-Kanäle einschließlich
+  L1/L2 beim Anlegen und Bearbeiten akzeptiert. Native TOGGLE-Werte bleiben bei
+  Wiederöffnen, gemeinsam gesetzten Werten und YAML-Ausgabe unverändert erhalten.
+
 - Hinweise zu fehlenden oder unbestätigten Gerätedaten nennen im Browserdesigner
   und in der Kachel Schritt 4 und die tatsächliche Aktualisierungsschaltfläche.
   Die hervorgehobene Schaltfläche steht direkt im Warnhinweis unter der

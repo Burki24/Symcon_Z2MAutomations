@@ -59,6 +59,14 @@ try {
         $fields = array_column($decode($reply['result']), null, 'name');
         $check(in_array($remote['key'], array_column($fields['RowDevice']['options'], 'value'), true) === $partnerAllowed, 'Native partner choices belong to conditions, never device triggers');
     }
+    $nativeRule = array_replace($rule, ['name' => 'Remote native switch value', 'actions' => [
+        ['type' => 'set', 'target' => $rule['actions'][0]['target'], 'values' => ['state_l2' => 'TOGGLE'], 'delay_seconds' => 7]]]);
+    [$code, $body] = $postPicker($nativeRule);
+    $check($code === 200, 'Werte setzen with TOGGLE is accepted for a permitted partner channel: ' . $body);
+    $nativeID = $decode($body)['ruleId'];
+    $nativeRule = array_values(array_filter($pickerData()['configuration']['automations'], static fn (array $entry): bool => $entry['id'] === $nativeID))[0];
+    $check(!$nativeRule['enabled'] && $nativeRule['actions'][0] === ['type' => 'set', 'target' => $rule['actions'][0]['target'], 'values' => ['state_l2' => 'TOGGLE'], 'delay_seconds' => 7]
+        && $detail($b)['data'] === $beforePeer, 'Partner ownership, native TOGGLE, delay and other system documents survive unchanged');
     $pickerPeers($b, []);
     $view = $pickerData();
     $owners = array_column($view['deviceSystems'], null, 'key');

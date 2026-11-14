@@ -76,7 +76,8 @@ function model(id = 'a') {
             {type: 'scene', target: {type: 'group', id: '3', system: remote}, scene_id: 1}, {type: 'sequence', sequence_id: sequence.id}]}, ...createdRules.get(id)];
         view.configuration.sequences = [{...sequence, actions: [remoteAction]}];
         if (!networkReason) view.devices.push({...structuredClone(view.devices[0]), key: 'remote-lamp', name: 'Remote device with the same ID', target: remoteAction.target,
-            properties: [...view.devices[0].properties, {id: 'presence', label: 'Synthetic presence', type: 'binary', readable: true, writable: false, values: [true, false], actionValues: [], valueLabels: []}]});
+            properties: [...view.devices[0].properties, {...structuredClone(view.devices[0].properties[0]), id: 'state_l1', label: 'Status L1 [state_l1]'},
+                {id: 'presence', label: 'Synthetic presence', type: 'binary', readable: true, writable: false, values: [true, false], actionValues: [], valueLabels: []}]});
     }
     return view;
 }
@@ -237,16 +238,25 @@ async function verifyNetworkPicker(page, view) {
     const actionProperty = dialog.locator('[data-section="actions"] > fieldset').getByLabel(german['ui.property.channel.b524f965'], {exact: true});
     await actionProperty.selectOption('state');
     assert.equal(await actionProperty.locator('option[value="presence"]').count(), 0, 'read permission never becomes write permission');
+    await dialog.locator('[data-section="actions"] [data-draft-field="add"]').click();
+    const nativeAction = dialog.locator('[data-section="actions"] > fieldset').nth(1);
+    await nativeAction.locator('[data-draft-field="system"]').selectOption('Z2M-2');
+    await nativeAction.locator('[data-draft-field="target"]').selectOption('remote-lamp');
+    await nativeAction.locator('[data-draft-field="property"]').selectOption('state_l1');
+    await nativeAction.locator('[data-draft-field="values"]').selectOption('2');
+    assert.equal(await nativeAction.locator('[data-draft-field="values"] option:checked').innerText(), 'Umschalten');
     await view.locator('#designer-language').selectOption('en');
     assert.equal(await field('conditions', 'system').inputValue(), 'Z2M-2');
     assert.equal(await field('conditions', 'property').inputValue(), 'presence');
     assert.equal(await field('actions', 'system').inputValue(), 'Z2M-2');
+    assert.equal(await nativeAction.locator('[data-draft-field="values"] option:checked').innerText(), 'Toggle');
     await dialog.locator('#edit-submit').click(); await dialog.waitFor({state: 'hidden'});
     await view.getByRole('heading', {name: 'Partner network form', exact: true}).waitFor();
     assert.deepEqual(writes.slice(beforeWrites).map(row => row.route), ['create']);
     assert.deepEqual(writes.at(-1).body.rule.conditions, [{type: 'device_value', device: 'lamp', system: 'Z2M-2', property: 'presence', operator: 'eq', value: true}]);
     assert.equal(writes.at(-1).body.rule.actions[0].target.system, 'Z2M-2');
-    for (const part of ['conditions:0', 'actions:0']) assert.match(await view.locator(`[data-part="${part}"] .card-network`).innerText(), /Eigenes System b · Z2M-2/);
+    assert.deepEqual(writes.at(-1).body.rule.actions[1], {type: 'set', target: {type: 'device', id: 'lamp', system: 'Z2M-2'}, values: {state_l1: 'TOGGLE'}, delay_seconds: 0});
+    for (const part of ['conditions:0', 'actions:0', 'actions:1']) assert.match(await view.locator(`[data-part="${part}"] .card-network`).innerText(), /Eigenes System b · Z2M-2/);
     for (const reason of ['catalog', 'permissions']) {
         networkReason = reason; await page.reload();
         await view.locator('#edit-automation-button:not([disabled])').waitFor();
@@ -654,7 +664,7 @@ try {
     deviceNetworks = false;
     assert.deepEqual(errors, []);
     console.log('Device network labels passed: browser/tile, DE/EN, local/remote devices with identical IDs, conditions, set/toggle/scene/sequence actions and system switches without writes.');
-    console.log('New automation network picker passed: browser/tile, qualified condition and toggle choices, typed read-only values, language preservation and missing-catalog/grant guidance without MQTT.');
+    console.log('New automation network picker passed: browser/tile, qualified conditions, toggle actions and native state_l1 TOGGLE values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
