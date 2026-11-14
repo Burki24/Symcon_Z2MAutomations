@@ -201,8 +201,8 @@ trait SystemWorkspace
                 $source = $this->WorkspaceRecord($state, $SourceSystemID);
                 $target = $this->WorkspaceRecord($state, $TargetSystemID);
                 if ($SourceSystemID !== $TargetSystemID) {
-                    if ($Use !== 'action') throw new RuntimeException('remote_source');
-                    if (!WorkspaceState::Allows($source, $target)) throw new RuntimeException('permission_missing');
+                    if ($Use === 'trigger') throw new RuntimeException('remote_source');
+                    if (!WorkspaceState::Allows($source, $target) || ($Use === 'condition' && !WorkspaceState::Allows($target, $source))) throw new RuntimeException('permission_missing');
                 }
                 if (!$this->WorkspaceConnectionCurrent($source['binding'])) throw new RuntimeException('binding_changed');
                 $catalog = $this->WorkspaceCatalog($target['binding']);

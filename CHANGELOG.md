@@ -6,6 +6,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Im Formular für neue und vorhandene Automationen lassen sich Z2M-Netze
+  auch im Browserdesigner und in der Kachel für Bedingungen und Aktionen wählen.
+  Fehlende Partnerfreigaben und nicht bestätigte Gerätekataloge werden erklärt;
+  Geräteauslöser bleiben lokal.
+
 - Gerätebausteine im Ablauf und ihre Eigenschaften zeigen das zugehörige
   Z2M-Netzwerk mit Systemname und Basistopic, auch bei Partnergeräten.
 

@@ -1,14 +1,14 @@
 {
     "format": 1,
     "name": "@z2ma/designer",
-    "version": "0.105.0",
+    "version": "0.106.0",
     "source": "https://github.com/Burki24/Z2M-Automations",
     "origin": {
         "repository": "https://github.com/Burki24/Symcon_Z2MAutomations",
         "commit": "cd5cfc33c921365c69814078238444c3ea7d5ac5"
     },
     "license": "PolyForm-Noncommercial-1.0.0",
-    "content": "5e2897ea422ce87d89e49046d951a811865414502ed0958f710bac217f9cb387",
+    "content": "5d7cdf9f9bb55d7c403727ebd2be1fdaa59f368b87c440de73c5fd178e57b1e0",
     "assets": {
         "access.js": "d70817675bc4a9e16fa0dfcb175ff201b20aef097b5df4cfbb637b24b3e2e901",
         "action-order.js": "548200e563d1c63410c65742c1c6b4159cbce64c86000b28ef86c78b842d6ba0",
@@ -19,7 +19,7 @@
         "designer.js": "9936c765ab9831e6489fc534a425c532f1836275ba81d0c52290beb3fba82059",
         "diagnostics.js": "6c0b723d02e3d479edce2ea48116ba167ab4da1b5c43b6337333792fd0412bd7",
         "draft-sync.js": "7f99ec0ead4a7411276fc862a49a8acdcfda7b943d99129a42112af6ec101ac4",
-        "editor.js": "ba46656feb22dabd0af2d92b1b2f9111cfa7de6c6cdf7db0f5ef02a0ed0ff3a8",
+        "editor.js": "d7c1f510e38e49674918917d795668dd903f686ddf7785bd5db2c9725a547e1f",
         "embedding.js": "e4f9e3e3c1a2b834ba43574ed9852816a3bee7f5bc238b82664cb7f228f37c4d",
         "guided-workspace.css": "999785cb427453881fc39915aca8b9a174892b83c7bcb1fd1e5331f41f0db131",
         "guided-workspace.js": "14e43c0a315dcb3b89c0085a2ee5de38e73bc55996f82d13d0d14911375c43ab",

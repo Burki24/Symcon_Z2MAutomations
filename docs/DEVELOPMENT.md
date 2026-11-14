@@ -5507,6 +5507,15 @@ unverändert, eigene Änderungen UTF-8 ohne BOM/LF; git diff --check ohne Befund
 
 ## Gemeinsamen Designer aktualisieren
 
+Die Auswahl fremder Gerätenetze im Browserdesigner und in der Kachel wird durch
+die tatsächliche PHP-Ansicht `deviceSystems` gespeist. Aktionen behalten ihre
+gerichtete Freigabe; Gerätebedingungen benötigen zusätzlich die Gegenrichtung.
+`conditionReason` erklärt diesen Unterschied, ohne Schreibrechte abzuleiten.
+`tests/workspace-device-picker.inc.php` läuft innerhalb von `workspace-ui.php`
+und prüft Erstellung, Wiederöffnen, gleiche Geräte-IDs, lesbare Eigenschaften,
+entzogene Freigaben und unveränderte Partnerentwürfe ohne MQTT-Aufträge.
+Der bildfreie Browsertest ergänzt den echten Formularablauf in Browser und Kachel.
+
 Im Desktop-Quellrepo npm run pack:designer ausführen. Das geprüfte Archiv hier
 mit node tests/import-designer.mjs <Archiv.tgz> übernehmen, Diff prüfen und die
 regulären Projektprüfungen ausführen. npm run build:locales und check:locales

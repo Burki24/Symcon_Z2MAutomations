@@ -205,6 +205,7 @@ trait AutomationDesigner
             $data['module']['gateway'] = $ctx['record']['binding']['mqttParent'];
             $data['workspace'] = json_decode($this->WorkspaceOverview($ctx['workspace']), true, 32, JSON_THROW_ON_ERROR);
             $data['workspaceContext'] = ['systemId' => $ctx['id'], 'generation' => $ctx['record']['binding']['generation'], 'fingerprint' => WorkspaceState::Fingerprint($ctx['record'])];
+            $data['deviceSystems'] = $ctx['deviceSystems'];
             $data['catalogAvailable'] = $ctx['catalogAvailable'];
             $data['devicePage'] = ['offset' => $offset, 'total' => count($allDevices), 'hasMore' => $offset + count($devices) < count($allDevices)];
             $data['transfer'] = $this->WorkspaceTransferView($ctx['record']);

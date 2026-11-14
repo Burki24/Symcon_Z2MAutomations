@@ -66,7 +66,9 @@ trait AutomationEditorConditions
             if ($choice === null || !$this->EditorComparisonAllowed($snapshot, $device, $choice, $row['Compare'] ?? null)) {
                 return null;
             }
-            $conditions[] = ['type' => 'device_value', 'device' => $device, 'property' => $choice['property'], 'operator' => $row['Compare'], 'value' => $choice['value']];
+            $target = $snapshot['devices'][$device]['remoteTarget'] ?? ['id' => $device];
+            $conditions[] = ['type' => 'device_value', 'device' => $target['id'], 'property' => $choice['property'], 'operator' => $row['Compare'], 'value' => $choice['value']]
+                + (isset($target['system']) ? ['system' => $target['system']] : []);
             if ($row['StartOnly'] ?? false) {
                 $conditions[array_key_last($conditions)]['start_only'] = true;
             }
@@ -85,12 +87,13 @@ trait AutomationEditorConditions
             if (($condition['type'] ?? '') !== 'device_value') {
                 return null;
             }
-            $key = $this->EditorValueKey($snapshot, $condition['device'], $condition['property'], $condition['value'], 'Source');
-            $choice = $key === null ? null : $this->FindEditorChoice($snapshot, $condition['device'], $key, 'Source');
-            if ($choice === null || !$this->EditorComparisonAllowed($snapshot, $condition['device'], $choice, $condition['operator'])) {
+            $device = isset($condition['system']) ? $this->EditorTargetKey(['type' => 'device', 'id' => $condition['device'], 'system' => $condition['system']]) : $condition['device'];
+            $key = $this->EditorValueKey($snapshot, $device, $condition['property'], $condition['value'], 'Source');
+            $choice = $key === null ? null : $this->FindEditorChoice($snapshot, $device, $key, 'Source');
+            if ($choice === null || !$this->EditorComparisonAllowed($snapshot, $device, $choice, $condition['operator'])) {
                 return null;
             }
-            $rows[] = ['Choice' => $condition['device'] . ':' . $key, 'Compare' => $condition['operator']]
+            $rows[] = ['Choice' => $device . ':' . $key, 'Compare' => $condition['operator']]
                 + (($condition['start_only'] ?? false) ? ['StartOnly' => true] : []);
         }
         return count($rows) <= 16 ? $rows : null;

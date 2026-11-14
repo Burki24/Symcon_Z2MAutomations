@@ -143,8 +143,8 @@ $check($local['items'][0]['key'] !== $targets['items'][0]['key'], 'Equal native 
 $check(isset($local['items'][0]['properties']['state_l2']) && !isset($local['items'][0]['properties']['display_flag']), 'Actions require native write access; display-only variables are excluded');
 $sources = $readEntities($a, $a, 'trigger');
 $check(isset($sources['items'][0]['properties']['display_flag']), 'Readable sensor properties remain trigger choices');
-$check($readEntities($a, $b, 'condition')['error'] === 'remote_source' && $readEntities($b, $a)['error'] === 'permission_missing'
-    && $readEntities($a, $c)['error'] === 'permission_missing', 'Remote sources and ungranted reverse directions stay blocked');
+$check($readEntities($a, $b, 'trigger')['error'] === 'remote_source' && $readEntities($a, $b, 'condition')['error'] === 'permission_missing'
+    && $readEntities($b, $a)['error'] === 'permission_missing' && $readEntities($a, $c)['error'] === 'permission_missing', 'Remote triggers and conditions without reciprocal grants stay blocked');
 $check(isset($targets['items'][1]['properties']['z2ma_scene']), 'Existing group scene selection uses shared metadata conversion');
 $groupVariable = IPS_GetObjectIDByIdent('state', $groups[1]);
 IPS_SetVariableCustomAction($groupVariable, 1);

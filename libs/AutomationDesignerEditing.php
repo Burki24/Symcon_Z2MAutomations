@@ -223,11 +223,12 @@ trait AutomationDesignerEditing
         }
         $type = $item['type'];
         if (($section === 'triggers' && $type === 'device') || ($section === 'conditions' && $type === 'device_value')) {
-            $optional = $type === 'device' ? ['for_seconds', 'on_change'] : ['start_only'];
+            $optional = $type === 'device' ? ['for_seconds', 'on_change'] : ['start_only', 'system'];
             if (!$this->DesignerEditShape($item, ['type', 'device', 'property', 'operator', 'value'], $optional)
                 || !is_string($item['device']) || preg_match('/\A0x[a-f0-9]{16}\z/D', $item['device']) !== 1 || !is_string($item['property'])
                 || !(is_scalar($item['value']) || $item['value'] === null) || (is_string($item['value']) && strlen($item['value']) > 256)
                 || (array_key_exists('for_seconds', $item) && !is_int($item['for_seconds']))
+                || (array_key_exists('system', $item) && !SystemContract::Topic($item['system']))
                 || array_filter(array_intersect_key($item, array_flip(['on_change', 'start_only'])), static fn (mixed $v): bool => !is_bool($v)) !== []) {
                 return false;
             }

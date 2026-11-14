@@ -370,6 +370,8 @@ $check(is_string($item['result']) && str_contains($item['result'], 'WorkspaceEdi
 $check(!$decode($manager->WorkspaceEditorAction($a, 1, $detail($a)['fingerprint'], 'ActivateAutomations', '[]'))['result'], 'Runtime actions are not accepted by the local editor endpoint');
 $check(count($parent->sent) === $sent, 'No UI operation sends MQTT');
 
+require __DIR__ . '/workspace-device-picker.inc.php';
+
 // Eight rich catalogs are read in bounded pages, not as one giant browser response.
 for ($i = 2; $i <= 255; $i++) $catalogData['devices'][] = ['id' => '0x' . str_pad(dechex($i), 16, '0', STR_PAD_LEFT), 'name' => 'Synthetic sensor ' . $i,
     'triggers'                                                  => [], 'actions' => [], 'properties' => [['property' => 'mode', 'type' => 'enum', 'access' => 1, 'label' => 'Mode', 'endpoint' => '',
@@ -403,4 +405,5 @@ $check(count(array_unique($allKeys)) === 2048 && count($parent->sent) === $large
 $largeForm = $manager->GetConfigurationForm();
 $check(strlen($largeForm) < 1048576, 'Native form remains within the Symcon buffer for eight rich catalogs');
 echo 'Workspace UI sizes: native ' . strlen($largeForm) . ', first browser page ' . strlen(json_encode($large)) . " bytes.\n";
+echo "Workspace device picker: network choices, scoped conditions/actions and permission revocation passed.\n";
 echo "Workspace UI: scoped native and browser editing passed.\n";

@@ -24,6 +24,7 @@ trait EditorItemForms
             }
             unset($field);
             $snapshot = $this->EditorSnapshot();
+            if ($context['duration'] === 'Hold') $snapshot['devices'] = array_filter($snapshot['devices'] ?? [], static fn (array $device): bool => !isset($device['remoteTarget']));
             $parts = explode(':', $Choice);
             $device = count($parts) === 2 ? $parts[0] : '';
             $choice = count($parts) === 2 ? $this->FindEditorChoice($snapshot, $device, $parts[1], $context['side']) : null;
@@ -107,6 +108,7 @@ trait EditorItemForms
                 return;
             }
             $snapshot = $this->EditorSnapshot();
+            if ($context['duration'] === 'Hold') $snapshot['devices'] = array_filter($snapshot['devices'] ?? [], static fn (array $device): bool => !isset($device['remoteTarget']));
             $combined = $Kind === 'combined' && $context['side'] === 'Target';
             $commandParts = explode(':', $Choice);
             $command = $Change !== 'device' && count($commandParts) === 2 && $commandParts[0] === $Device ? $this->DecodeCommand($snapshot, $Device, $commandParts[1]) : null;

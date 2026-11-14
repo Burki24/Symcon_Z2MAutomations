@@ -163,12 +163,18 @@ Bildschirmbilder zeigen teilweise den früheren Aufbau.
 | Statuszeile | Zeigt ausgewähltes System, gespeicherte Z2M-Revision und bestätigten Betrieb getrennt. Der lokale Entwurf steht im Arbeitsbereich. |
 | Entwurf prüfen / Nach Z2M übermitteln | Prüfung und bestätigte Übernahme haben eigene Schritte. |
 | Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
+| Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
+| Verwaltung | Aktionsfolgen, Systeme und Diagnose, Partnerfreigaben sowie Ereignisimport öffnen. |
 
 Gerätebausteine zeigen ihr **Z2M-Netzwerk** mit Systemname und Basistopic direkt
 im Ablauf. Das gilt auch für Bedingungen und Aktionen mit Geräten anderer
 Systeme. Die Eigenschaften des angeklickten Bausteins zeigen dieselbe Zuordnung.
-| Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
-| Verwaltung | Aktionsfolgen, Systeme und Diagnose, Partnerfreigaben sowie Ereignisimport öffnen. |
+
+Im Automationsformular wählt **Z2M-System des Geräts** unter **Nur wenn** und
+**Dann** zwischen den zugeordneten Netzen. Für Partnerbedingungen müssen beide
+Systeme einander freigeben. Fehlt der bestätigte Gerätekatalog, das betroffene
+System oben auswählen, in Schritt 4 **Gerätedaten aktualisieren** ausführen und
+das Formular erneut öffnen. Geräteauslöser unter **Wenn** bleiben im Netz der Regel.
 
 Die Darstellung folgt der Hell-/Dunkeleinstellung des Browsers. Schrift und
 Anordnung passen sich an die verfügbare Breite an. Auf schmalen Ansichten lassen

@@ -197,10 +197,17 @@ trait WorkspaceEditorContext
     private function WorkspaceEditorSnapshot(array $workspace, array $source): array
     {
         $snapshot = ['scope' => $this->workspaceEditorContext['scope'], 'devices' => [], 'groups' => [], 'scenes' => [], 'loadedAt' => null];
+        $this->workspaceEditorContext['deviceSystems'] = [];
         foreach ($workspace['systems'] as $id => $target) {
             $local = $id === $source['binding']['systemId'];
-            if (!$local && !WorkspaceState::Allows($source, $target)) continue;
-            $catalog = $this->WorkspaceUsableCatalog($target);
+            $allowed = $local || WorkspaceState::Allows($source, $target);
+            $catalog = $allowed ? $this->WorkspaceUsableCatalog($target) : null;
+            $reason = !$allowed ? 'permissions' : ($catalog === null ? 'catalog' : '');
+            $conditionReason = !$local && !WorkspaceState::Allows($target, $source) ? 'permissions' : $reason;
+            $parent = $target['binding']['mqttParent'];
+            $this->workspaceEditorContext['deviceSystems'][] = ['key' => $local ? '' : $target['binding']['baseTopic'], 'name' => $target['name'],
+                'baseTopic'                                           => $target['binding']['baseTopic'], 'broker' => IPS_ObjectExists($parent) ? IPS_GetName($parent) : '',
+                'reason'                                              => $reason, 'conditionReason' => $conditionReason];
             if ($catalog === null) continue;
             $part = $this->AddEditorScenes($this->AddEditorGroupTargets($catalog));
             if ($local) {
@@ -216,7 +223,7 @@ trait WorkspaceEditorContext
                         'id'                         => str_starts_with((string) $key, 'group.') ? (int) substr($key, 6) : $key, 'system' => $target['binding']['baseTopic']];
                     $entry['name'] = $target['binding']['baseTopic'] . ' · ' . $entry['name'];
                     $entry['triggers'] = $entry['numeric'] = [];
-                    foreach ($entry['properties'] as &$meta) $meta['access'] &= 2;
+                    foreach ($entry['properties'] as &$meta) $meta['access'] &= $conditionReason === '' ? 3 : 2;
                     unset($meta);
                 }
                 $snapshot['devices'][$local ? $key : $this->EditorTargetKey($entry['remoteTarget'])] = $entry;

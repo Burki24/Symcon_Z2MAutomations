@@ -26,6 +26,7 @@ let overflowRules = false; let rejectReview = false;
 let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 'e'.repeat(64);
 let nativeFormEdits = false; let rejectViewRead = false;
 let deviceNetworks = false;
+let networkReason = '';
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
 const draftSyncViews = new Map(); const draftSyncBackups = new Map(); let draftSyncMode = 'updated';
@@ -67,12 +68,15 @@ function model(id = 'a') {
     if (deviceNetworks) {
         const remote = systems.find(system => system.binding.systemId !== id).binding.baseTopic;
         const remoteAction = {...rule.actions[0], target: {type: 'device', id: 'lamp', system: remote}};
+        view.deviceSystems = systems.map(system => ({key: system.binding.systemId === id ? '' : system.binding.baseTopic,
+            name: system.name, baseTopic: system.binding.baseTopic, broker: 'Synthetic broker', reason: system.binding.systemId === id ? '' : networkReason}));
         view.configuration.automations = [{...rule, conditions: [
             {type: 'device_value', device: 'lamp', system: remote, property: 'state', operator: 'eq', value: 'OFF'}, rule.conditions[0]],
         actions: [remoteAction, {type: 'toggle', target: {type: 'device', id: 'lamp'}, property: 'state'},
-            {type: 'scene', target: {type: 'group', id: '3', system: remote}, scene_id: 1}, {type: 'sequence', sequence_id: sequence.id}]}];
+            {type: 'scene', target: {type: 'group', id: '3', system: remote}, scene_id: 1}, {type: 'sequence', sequence_id: sequence.id}]}, ...createdRules.get(id)];
         view.configuration.sequences = [{...sequence, actions: [remoteAction]}];
-        view.devices.push({...structuredClone(view.devices[0]), key: 'remote-lamp', name: 'Remote device with the same ID', target: remoteAction.target});
+        if (!networkReason) view.devices.push({...structuredClone(view.devices[0]), key: 'remote-lamp', name: 'Remote device with the same ID', target: remoteAction.target,
+            properties: [...view.devices[0].properties, {id: 'presence', label: 'Synthetic presence', type: 'binary', readable: true, writable: false, values: [true, false], actionValues: [], valueLabels: []}]});
     }
     return view;
 }
@@ -134,7 +138,7 @@ const server = createServer(async (request, response) => {
         else if (route === 'create') {
             writes.push({route, body, systemId: request.headers['x-z2ma-system-id']});
             if (body.context !== createContext) {response.writeHead(409); response.end(JSON.stringify({ok: false})); return;}
-            const id = 'created_' + active;
+            const id = deviceNetworks ? 'network_created_' + active + '_' + createdRules.get(active).length : 'created_' + active;
             createdRules.get(active).push({...body.rule, id, enabled: false});
             response.end(JSON.stringify({ok: true, ruleId: id})); return;
         }
@@ -203,6 +207,57 @@ async function verifyDeviceNetworks(page, view) {
     }
     assert.equal(writes.length, beforeWrites, 'network labels do not change drafts');
     assert.equal(operations.length, beforeOperations, 'network labels do not issue MQTT commands');
+}
+async function verifyNetworkPicker(page, view) {
+    active = 'a'; await page.reload();
+    await view.locator('#edit-automation-button:not([disabled])').waitFor();
+    await showStep(view, 'automations');
+    await view.locator('#designer-language').selectOption('de');
+    await view.locator('#draft-wizard-start').click();
+    const dialog = view.locator('#edit-dialog'); await dialog.waitFor({state: 'visible'});
+    const field = (section, key) => dialog.locator(`[data-section="${section}"] > fieldset [data-draft-field="${key}"]`).first();
+    const beforeOperations = operations.length; const beforeWrites = writes.length;
+    await dialog.locator('#edit-fields input').first().fill('Partner network form');
+    assert.equal(await field('triggers', 'system').count(), 0, 'device triggers remain local');
+    await field('triggers', 'device').selectOption('lamp');
+    await field('triggers', 'property').selectOption('state');
+    await field('triggers', 'value').selectOption('0');
+    const conditions = dialog.locator('[data-section="conditions"]');
+    if (await conditions.getAttribute('open') === null) await conditions.locator('summary').click();
+    await conditions.locator('[data-draft-field="add"]').click();
+    assert.equal(await field('conditions', 'system').locator('option').count(), 2, 'both networks appear in the new condition');
+    await field('conditions', 'system').selectOption('Z2M-2');
+    assert.deepEqual(await field('conditions', 'device').locator('option').evaluateAll(nodes => nodes.filter(node => node.value).map(node => node.value)), ['remote-lamp']);
+    await field('conditions', 'device').selectOption('remote-lamp');
+    await field('conditions', 'property').selectOption('presence');
+    await field('conditions', 'value').selectOption('0');
+    await field('actions', 'type').selectOption('toggle');
+    await field('actions', 'system').selectOption('Z2M-2');
+    await field('actions', 'target').selectOption('remote-lamp');
+    const actionProperty = dialog.locator('[data-section="actions"] > fieldset').getByLabel(german['ui.property.channel.b524f965'], {exact: true});
+    await actionProperty.selectOption('state');
+    assert.equal(await actionProperty.locator('option[value="presence"]').count(), 0, 'read permission never becomes write permission');
+    await view.locator('#designer-language').selectOption('en');
+    assert.equal(await field('conditions', 'system').inputValue(), 'Z2M-2');
+    assert.equal(await field('conditions', 'property').inputValue(), 'presence');
+    assert.equal(await field('actions', 'system').inputValue(), 'Z2M-2');
+    await dialog.locator('#edit-submit').click(); await dialog.waitFor({state: 'hidden'});
+    await view.getByRole('heading', {name: 'Partner network form', exact: true}).waitFor();
+    assert.deepEqual(writes.slice(beforeWrites).map(row => row.route), ['create']);
+    assert.deepEqual(writes.at(-1).body.rule.conditions, [{type: 'device_value', device: 'lamp', system: 'Z2M-2', property: 'presence', operator: 'eq', value: true}]);
+    assert.equal(writes.at(-1).body.rule.actions[0].target.system, 'Z2M-2');
+    for (const part of ['conditions:0', 'actions:0']) assert.match(await view.locator(`[data-part="${part}"] .card-network`).innerText(), /Eigenes System b · Z2M-2/);
+    for (const reason of ['catalog', 'permissions']) {
+        networkReason = reason; await page.reload();
+        await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'automations'); await view.locator('#draft-wizard-start').click();
+        await dialog.waitFor({state: 'visible'}); await field('actions', 'system').selectOption('Z2M-2');
+        assert.equal(await dialog.locator('[data-section="actions"] .edit-device-system-help').innerText(), catalogs['editor.deviceSystem.' + reason]);
+        assert.equal(await field('actions', 'target').locator('option').count(), 1, 'an unavailable network cannot offer another network device');
+        await dialog.locator('#edit-cancel').click(); await dialog.waitFor({state: 'hidden'});
+    }
+    networkReason = '';
+    assert.equal(operations.length, beforeOperations, 'network selection never transfers or starts anything');
 }
 async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     catalogAvailable = false; storedCatalog = hasStored; catalogFingerprint = 'e'.repeat(64);
@@ -594,9 +649,12 @@ try {
     await verifyDeviceNetworks(page, page);
     await tile.emulateMedia({colorScheme: 'light'});
     await verifyDeviceNetworks(tile, tile.frameLocator('#designer-frame'));
+    await verifyNetworkPicker(page, page);
+    await verifyNetworkPicker(tile, tile.frameLocator('#designer-frame'));
     deviceNetworks = false;
     assert.deepEqual(errors, []);
     console.log('Device network labels passed: browser/tile, DE/EN, local/remote devices with identical IDs, conditions, set/toggle/scene/sequence actions and system switches without writes.');
+    console.log('New automation network picker passed: browser/tile, qualified condition and toggle choices, typed read-only values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
