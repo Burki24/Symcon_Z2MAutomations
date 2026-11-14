@@ -25,6 +25,7 @@ let createContext = 'c'.repeat(64);
 let overflowRules = false; let rejectReview = false;
 let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 'e'.repeat(64);
 let nativeFormEdits = false; let rejectViewRead = false;
+let deviceNetworks = false;
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
 const draftSyncViews = new Map(); const draftSyncBackups = new Map(); let draftSyncMode = 'updated';
@@ -48,7 +49,7 @@ function runtimeView(id) {
 const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'.repeat(64), choices: systems.map((system, index) =>
     ({Connection: index + 10010, Use: true, editable: false, Name: system.name, MQTT: String(system.binding.mqttParent), Topic: system.binding.baseTopic, Status: 'Synthetic ready'}))});
 function model(id = 'a') {
-    return {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
+    const view = {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
         readAt: 1800000000, catalogAvailable, catalogLoadedAt: catalogAvailable ? 1800000000 : null, draftAvailable: true, draftMismatch: false, openFormEdits: nativeFormEdits,
         configuration: {schema_version: 1, revision: 4 + createdRules.get(id).length, mesh_peers: ['kept-peer'],
             automations: [rules.get(id), ...createdRules.get(id), ...(overflowRules ? Array.from({length: 30}, (_, i) => ({...rule, id: 'overflow_' + i, name: 'Synthetic automation ' + i})) : [])], sequences: [sequence]},
@@ -63,6 +64,17 @@ function model(id = 'a') {
             pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
             storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
         draftSyncAllowed: true, draftSync: draftSyncView(id), transfer: transferView(id), runtime: runtimeView(id)};
+    if (deviceNetworks) {
+        const remote = systems.find(system => system.binding.systemId !== id).binding.baseTopic;
+        const remoteAction = {...rule.actions[0], target: {type: 'device', id: 'lamp', system: remote}};
+        view.configuration.automations = [{...rule, conditions: [
+            {type: 'device_value', device: 'lamp', system: remote, property: 'state', operator: 'eq', value: 'OFF'}, rule.conditions[0]],
+        actions: [remoteAction, {type: 'toggle', target: {type: 'device', id: 'lamp'}, property: 'state'},
+            {type: 'scene', target: {type: 'group', id: '3', system: remote}, scene_id: 1}, {type: 'sequence', sequence_id: sequence.id}]}];
+        view.configuration.sequences = [{...sequence, actions: [remoteAction]}];
+        view.devices.push({...structuredClone(view.devices[0]), key: 'remote-lamp', name: 'Remote device with the same ID', target: remoteAction.target});
+    }
+    return view;
 }
 let active = 'a';
 const server = createServer(async (request, response) => {
@@ -161,6 +173,36 @@ async function showStep(view, key) {
     const button = view.locator('#desktop-nav-' + key);
     if (await button.isVisible()) await button.click(); else await view.locator('#desktop-step').selectOption(key);
     await view.locator('#desktop-view-' + key).waitFor({state: 'visible'});
+}
+async function verifyDeviceNetworks(page, view) {
+    const beforeWrites = writes.length; const beforeOperations = operations.length;
+    for (const id of ['a', 'b']) {
+        active = id; await page.reload();
+        await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'automations');
+        const local = systems.find(system => system.binding.systemId === id);
+        const remote = systems.find(system => system.binding.systemId !== id);
+        for (const language of ['de', 'en']) {
+            await view.locator('#designer-language').selectOption(language);
+            const label = system => `${language === 'de' ? 'Z2M-Netzwerk' : 'Z2M network'}: ${system.name} · ${system.binding.baseTopic}`;
+            for (const [part, system] of [['triggers:0', local], ['conditions:0', remote], ['actions:0', remote], ['actions:1', local], ['actions:2', remote]]) {
+                const card = view.locator(`.flow-card[data-part="${part}"]`);
+                assert.equal(await card.locator('.card-network').innerText(), label(system));
+                await card.click();
+                assert.match(await view.locator('#inspector-fields').innerText(), new RegExp(`${system.name} · ${system.binding.baseTopic}`));
+                assert.ok(await card.evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'network labels fit the card in browser and narrow tile');
+            }
+            assert.equal(await view.locator('[data-part="conditions:1"] .card-network, [data-part="actions:3"] .card-network').count(), 0, 'weekdays and sequence calls have no device network');
+            assert.match(await view.locator('[data-part="triggers:0"] .read-summary').innerText(), /Eigener Gerätename/);
+            assert.match(await view.locator('[data-part="actions:0"] .read-summary').innerText(), /Remote device with the same ID/);
+        }
+        const navigation = view.locator('.navigation .designer-fold');
+        if (await navigation.getAttribute('open') === null) await navigation.locator('summary').click();
+        await view.locator('[data-area="sequence"]').click();
+        assert.match(await view.locator('[data-part="actions:0"] .card-network').innerText(), new RegExp(`${remote.name} · ${remote.binding.baseTopic}`), 'sequence actions retain remote ownership');
+    }
+    assert.equal(writes.length, beforeWrites, 'network labels do not change drafts');
+    assert.equal(operations.length, beforeOperations, 'network labels do not issue MQTT commands');
 }
 async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     catalogAvailable = false; storedCatalog = hasStored; catalogFingerprint = 'e'.repeat(64);
@@ -547,7 +589,14 @@ try {
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
     await verifyDraftSynchronization(page, page, 'en');
     await verifyDraftSynchronization(tile, tile.frameLocator('#designer-frame'), 'de');
+    deviceNetworks = true;
+    await page.emulateMedia({colorScheme: 'dark'});
+    await verifyDeviceNetworks(page, page);
+    await tile.emulateMedia({colorScheme: 'light'});
+    await verifyDeviceNetworks(tile, tile.frameLocator('#designer-frame'));
+    deviceNetworks = false;
     assert.deepEqual(errors, []);
+    console.log('Device network labels passed: browser/tile, DE/EN, local/remote devices with identical IDs, conditions, set/toggle/scene/sequence actions and system switches without writes.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');

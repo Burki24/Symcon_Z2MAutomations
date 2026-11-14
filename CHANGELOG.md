@@ -6,6 +6,9 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Gerätebausteine im Ablauf und ihre Eigenschaften zeigen das zugehörige
+  Z2M-Netzwerk mit Systemname und Basistopic, auch bei Partnergeräten.
+
 - Im Browserdesigner und in der Kachel den lokalen Entwurf in Schritt 6 direkt
   aus dem ausgewählten Z2M-System aktualisieren. Eigene Änderungen bleiben bis
   zur ausdrücklichen Ersetzungsbestätigung erhalten; eine private Sicherung

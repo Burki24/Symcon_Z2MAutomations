@@ -2535,6 +2535,10 @@
         "Sprache",
         "Language"
     ],
+    "reader.deviceNetwork": [
+        "Z2M-Netzwerk: {{name}}",
+        "Z2M network: {{name}}"
+    ],
     "rule.summary.one": [
         "Im Entwurf {{state}} · {{count}} Aktionsschritt",
         "{{state}} in draft · {{count}} action step"

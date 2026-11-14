@@ -163,6 +163,10 @@ Bildschirmbilder zeigen teilweise den früheren Aufbau.
 | Statuszeile | Zeigt ausgewähltes System, gespeicherte Z2M-Revision und bestätigten Betrieb getrennt. Der lokale Entwurf steht im Arbeitsbereich. |
 | Entwurf prüfen / Nach Z2M übermitteln | Prüfung und bestätigte Übernahme haben eigene Schritte. |
 | Betrieb | Gespeicherte Regeln aktivieren, stoppen oder einmal ausführen. |
+
+Gerätebausteine zeigen ihr **Z2M-Netzwerk** mit Systemname und Basistopic direkt
+im Ablauf. Das gilt auch für Bedingungen und Aktionen mit Geräten anderer
+Systeme. Die Eigenschaften des angeklickten Bausteins zeigen dieselbe Zuordnung.
 | Gerätedaten | Geräte, Kanäle, Gruppen und Szenen dieses Systems nachladen. |
 | Verwaltung | Aktionsfolgen, Systeme und Diagnose, Partnerfreigaben sowie Ereignisimport öffnen. |
 
