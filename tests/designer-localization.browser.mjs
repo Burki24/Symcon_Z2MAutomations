@@ -18,6 +18,8 @@ const rule = {id: 'rule_a', name: 'Eigener Name – ON', enabled: false, retrigg
         {type: 'set', target: {type: 'device', id: 'lamp'}, values: {state: 'OFF'}, delay_seconds: 0}]};
 const rules = new Map([['a', structuredClone(rule)], ['b', structuredClone(rule)]]);
 const createdRules = new Map([['a', []], ['b', []]]);
+const storedViewFailures = new Map();
+const recoveredStoredViews = new Set();
 const sequence = {id: 'test_steps', name: 'Test action sequence', actions: [rule.actions[0]]};
 const systems = ['a', 'b'].map((name, index) => ({name: 'Eigenes System ' + name, binding: {systemId: name, generation: 1, mqttParent: index + 10001, baseTopic: name === 'a' ? 'zigbee2mqtt' : 'Z2M-2'}}));
 const interaction = readFileSync(new URL('../libs/helper/visualization/interaction.min.js', import.meta.url), 'utf8');
@@ -124,7 +126,10 @@ const server = createServer(async (request, response) => {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
             transferViews.set(id, {...transferView(id), canStore: body.action === 'validate', status: body.action === 'validate' ? 'validated' : 'stored',
                 message: body.action === 'validate' ? 'Synthetic validated' : 'Synthetic stored', storedRevision: body.action === 'store' ? model(id).configuration.revision : 4});
-            if (body.action === 'store') operations.at(-1).storedConfiguration = structuredClone(model(id).configuration);
+            if (body.action === 'store') {
+                operations.at(-1).storedConfiguration = structuredClone(model(id).configuration);
+                storedViewFailures.set(id, 1); recoveredStoredViews.delete(id);
+            }
             if (body.action === 'validate' && rejectReview) transferViews.set(id, {...transferView(id), canStore: false, status: 'error', message: 'Synthetic rejected',
                 findings: [{path: '/automations/0/actions/0/values/state', reason: 'capability_enum', capability: {system: id, device: 'Synthetic lamp', label: 'State', property: 'state', actual: 'INVALID', actualType: 'string', allowed: ['ON', 'OFF']}}]});
             response.end(JSON.stringify({ok: true, transfer: transferView(id)})); return;
@@ -147,7 +152,15 @@ const server = createServer(async (request, response) => {
         else { writes.push({route, body, systemId: request.headers['x-z2ma-system-id']}); if (route === 'edit') Object.assign(rules.get(active), structuredClone(body.changes)); }
         response.end(JSON.stringify({ok: true, ruleId: 'rule_a'})); return;
     }
-    if (route === 'data') {response.setHeader('Content-Type', 'application/json'); if (rejectViewRead) {response.writeHead(503); response.end('{}'); return;} response.end(JSON.stringify(model(active))); return;}
+    if (route === 'data') {
+        response.setHeader('Content-Type', 'application/json');
+        if (rejectViewRead || storedViewFailures.get(active) === 1) {
+            if (!rejectViewRead) storedViewFailures.set(active, 0);
+            response.writeHead(503); response.end('{}'); return;
+        }
+        if (storedViewFailures.get(active) === 0) recoveredStoredViews.add(active);
+        response.end(JSON.stringify(model(active))); return;
+    }
     if (route === 'workspace-status') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(setupView())); return;}
     if (route === 'draft-sync-status') {
         const id = request.headers['x-z2ma-system-id'];
@@ -527,6 +540,9 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     await view.locator('button[data-transfer-action=store]').click();
     await confirmation.locator('button.primary').click();
     await view.locator('.system-transfer:not(.system-runtime)').getByText('Synthetic stored', {exact: true}).waitFor();
+    await view.locator('#validate-button:not([disabled])').waitFor();
+    assert.ok(recoveredStoredViews.has(system), 'the view recovers automatically from one temporary read failure after storage');
+    assert.notEqual(await view.locator('#feedback').getAttribute('data-tone'), 'error', 'a recovered view does not show a stale read warning');
     assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store']]);
     assert.ok(operations.slice(beforeOperations).every(row => row.systemId === system), 'all operations address the explicitly selected system');
     assert.deepEqual(operations.at(-1).storedConfiguration, candidate, 'the confirmed transfer contains the new automation and preserves the existing complete draft');

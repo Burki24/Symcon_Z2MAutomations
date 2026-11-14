@@ -5559,3 +5559,36 @@ Designer-Paket ist `0.108.0`, Inhalt `2e1461f10961`. App-Pflichtprüfung mit Bui
 Typen, Integrität, 193 erfolgreichen Tests und vollständigem Erweiterungsupdate-
 Oberflächentest bestanden; zwei native APT-Prüfungen benötigen Ubuntu.
 CI nach Benutzer-Push und praktische Übermittlung nach Modulupdate bleiben offen.
+
+## Ansicht nach erfolgreicher Übermittlung – 14.11.2026
+
+Der Benutzer bestätigte eine erfolgreiche Übermittlung mit anschließender roter
+Lesemeldung, die durch „Ansicht aktualisieren“ verschwand. Der gespeicherte
+Stand wurde lesend bestätigt. Der ursprüngliche HTTP-Fehler ist nicht belegt.
+Der bildfreie Browsertest reproduzierte die bleibende Warnung durch genau einen
+temporären 503-Lesefehler nach erfolgreichem Speichern.
+
+Der gemeinsame Leser wiederholt einmal nach 250 ms ausschließlich einen
+vollständigen GET-Abruf einschließlich aller Gerätekatalogseiten. Zulässig sind
+temporäre HTTP-Verfügbarkeit und bestätigte alte Workspace-/System-Fingerprints.
+Unvollständige alte Seiten werden verworfen. Fehlende Rechte, fremde Systeme,
+andere Generationen und ungültige Daten werden nicht automatisch wiederholt.
+Ein zweiter Fehler bleibt sichtbar; Übertragung, Installation, Steuerung und
+Bearbeitung liegen außerhalb dieses Wiederholungswegs. Bereinigte Konsolen-
+Ereignisse enthalten nur Leseschritt, festen Grund, HTTP-Status und Versuch.
+
+Gezielte Tests prüfen einen Konflikt nach einer bereits gelesenen Katalogseite,
+neue Fingerprints, vollständigen Neulesezugriff und begrenztes Fehlerverhalten.
+Browser und Kachel prüfen den echten Oberflächenablauf nach dem Speichern,
+unveränderten vollständigen Entwurf und genau einen Speicherauftrag.
+
+Lokal bestanden: PHP-Gesamtsuite mit 268 JavaScript-Tests, vollständiger
+bildfreier Browser-/Kacheltest, Struktur, Kodierung, offizieller StylePHP-Check
+(18 eigene JSON-Dateien) und PHP CS Fixer (161 Dateien ohne Befund).
+Designer-Paket `0.108.0`, Inhalt `5301a9d38c20`. Die App-Pflichtprüfung besteht
+mit 193 erfolgreichen Tests; zwei native APT-Tests benötigen Ubuntu. Der erste
+parallele App-Oberflächentest erreichte sein 30-Sekunden-Limit. Die vollständige
+Pflichtprüfung lief anschließend isoliert erfolgreich durch; der Oberflächenteil
+benötigte 15,4 Sekunden, sein Zeitlimit blieb unverändert. Der bildfreie App-Smoke
+einschließlich Speichern beim Schließen besteht ebenfalls. CI und praktische
+Symcon-Abnahme nach dem Update bleiben separat erforderlich.

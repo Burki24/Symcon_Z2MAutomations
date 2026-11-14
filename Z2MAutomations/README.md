@@ -472,6 +472,11 @@ Eine gespeicherte Wiederanlaufoption verhindert die Übermittlung nicht: Der
 bestätigte Stopp verhindert den automatischen Wiederanlauf, während die
 persönliche Einstellung für eine spätere Aktivierung erhalten bleibt.
 
+Nach dem Speichern aktualisiert sich die Ansicht automatisch. Ist ein Leseabruf
+kurzzeitig nicht möglich, versucht der Designer ihn einmal erneut. Die
+Übertragung wird dabei nicht wiederholt. Bleibt die rote Lesemeldung bestehen,
+**Ansicht aktualisieren** wählen; sie beschreibt den Abruf der Anzeige.
+
 ![Bereich zum Prüfen und Übertragen des ausgewählten Systementwurfs](../docs/screenshots/zentrale-pruefen-uebertragen.png)
 
 Eine Entwurfsänderung oder ein Z2M-Neustart kann eine neue Prüfung erforderlich

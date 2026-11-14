@@ -8,7 +8,7 @@
         "commit": "cd5cfc33c921365c69814078238444c3ea7d5ac5"
     },
     "license": "PolyForm-Noncommercial-1.0.0",
-    "content": "2e1461f109618810a3f4677fcd35aa86da8bfb82d4fd57e008b72c44881fea06",
+    "content": "5301a9d38c20b2f26b62910aefa4f91b3998931e9204cdfdd48e6a07ad7cb0a8",
     "assets": {
         "access.js": "d70817675bc4a9e16fa0dfcb175ff201b20aef097b5df4cfbb637b24b3e2e901",
         "action-order.js": "548200e563d1c63410c65742c1c6b4159cbce64c86000b28ef86c78b842d6ba0",
@@ -35,13 +35,13 @@
         "localization.js": "9372499522939e2ddcf6e29c9dd271f7a6dd0d8d75c05cef91fd7d762cb7463e",
         "management.js": "be993220dad0c435b7f4ad33da2d652aacf11c29f5b42cc483c4001e20c1b2a9",
         "permissions.js": "b0025fa2aa79c869c92ca9cbd92329c739d60507fd231b3814693bbc2b3a1d21",
-        "reader.js": "7a71422297488cf79fea68c66ce0fcf8b164c917ba3e534a6e08b5ffa3254376",
+        "reader.js": "14c8e905e773fd72efbebbf79c8c67b20084b30c6b2444f9bc23a69837befae1",
         "runtime.js": "d1e8429cb1a78650c06d603605bbb303e688909f61043798a5547c562030680c",
         "startup.js": "0a44cf8b5cb7d7ef1f327ddde602779c03eea6787880be6ef92ef2ded3984818",
         "symcon-workspace.js": "04ed196d2a4183b313f8955090b0ee62a8b77fb275f32f14712157d23cc47622",
         "transfer.js": "f73f82e89d3a151ea32a3af087e22b5835e6d00d9d32091eccedd0c34a79ef9c",
         "transport.js": "cef435a52f0c34d581bacc1f245c2b37fc02220d72318021598e15a184d151f4",
         "validation-feedback.js": "538c7c892a071dfc4fc86cac992a6a5d9f9413fcb38d3691c9bc58ea34674b34",
-        "workspace.js": "768c5a366727819aa663d057c6b03db8b68acbd66e88122eff0e9a08147018b6"
+        "workspace.js": "4baff2fc2e087e803afdac990b16a6afe87f18ceef5bba0a709cf0e322346909"
     }
 }
