@@ -81,6 +81,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
+- Die geführte Übermittlung im Browserdesigner und in der Kachel übernimmt
+  neue Automationen auch bei gespeicherter Wiederanlaufoption. Ein bestätigter
+  Stopp entzieht den aktiven Wiederanlauf, behält aber diese Einstellung.
+  Der Ablauf unterscheidet beides, bevor er den vollständigen Entwurf speichert.
+
 - „Werte setzen → Umschalten“ wird für bedienbare State-Kanäle einschließlich
   L1/L2 beim Anlegen und Bearbeiten akzeptiert. Native TOGGLE-Werte bleiben bei
   Wiederöffnen, gemeinsam gesetzten Werten und YAML-Ausgabe unverändert erhalten.

@@ -248,6 +248,7 @@ trait WorkspaceRuntime
             'blocked'            => $blocked, 'pending' => $pending, 'confirmed' => $confirmed, 'executing' => $confirmed ? ($m['executing'] ?? false) : null,
             'storedRevision'     => $confirmed ? $m['storedRevision'] : null, 'activeRevision' => $confirmed ? $m['activeRevision'] : null,
             'resumeAfterRestart' => $confirmed ? ($m['resumeEnabled'] ?? false) : true,
+            'resumeStatus'       => $confirmed ? ($m['resumeStatus'] ?? null) : null,
             'ruleCount'          => $matches ? count($record['data']['document']['editorDraft']['configuration']['automations']) : null,
             'releasedCount'      => $matches ? count(array_filter($record['data']['document']['editorDraft']['configuration']['automations'], static fn (array $rule): bool => $rule['enabled'])) : null,
             'canRefresh'         => $connected && !$pending, 'canActivate' => $canStart, 'canStop' => $connected, 'rules' => $rules,

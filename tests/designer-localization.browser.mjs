@@ -44,7 +44,7 @@ function transferView(id) {
         canValidate: true, canStore: false, context: '1'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64)};
 }
 function runtimeView(id) {
-    return runtimeViews.get(id) ?? {message: 'Synthetic runtime', pending: false, confirmed: true, executing: true, resumeAfterRestart: true,
+    return runtimeViews.get(id) ?? {message: 'Synthetic runtime', pending: false, confirmed: true, executing: true, resumeAfterRestart: true, resumeStatus: 'armed',
         canRefresh: true, canActivate: false, canStop: true, context: '2'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64), rules: {}};
 }
 const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'.repeat(64), choices: systems.map((system, index) =>
@@ -117,13 +117,14 @@ const server = createServer(async (request, response) => {
         }
         else if (route === 'runtime') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
-            if (body.action === 'deactivate') runtimeViews.set(id, {...runtimeView(id), executing: false, resumeAfterRestart: false, status: 'stopped'});
+            if (body.action === 'deactivate') runtimeViews.set(id, {...runtimeView(id), executing: false, resumeStatus: 'stopped', status: 'stopped'});
             response.end(JSON.stringify({ok: true, runtime: runtimeView(id)})); return;
         }
         else if (route === 'transfer') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
             transferViews.set(id, {...transferView(id), canStore: body.action === 'validate', status: body.action === 'validate' ? 'validated' : 'stored',
                 message: body.action === 'validate' ? 'Synthetic validated' : 'Synthetic stored', storedRevision: body.action === 'store' ? model(id).configuration.revision : 4});
+            if (body.action === 'store') operations.at(-1).storedConfiguration = structuredClone(model(id).configuration);
             if (body.action === 'validate' && rejectReview) transferViews.set(id, {...transferView(id), canStore: false, status: 'error', message: 'Synthetic rejected',
                 findings: [{path: '/automations/0/actions/0/values/state', reason: 'capability_enum', capability: {system: id, device: 'Synthetic lamp', label: 'State', property: 'state', actual: 'INVALID', actualType: 'string', allowed: ['ON', 'OFF']}}]});
             response.end(JSON.stringify({ok: true, transfer: transferView(id)})); return;
@@ -528,6 +529,9 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     await view.locator('.system-transfer:not(.system-runtime)').getByText('Synthetic stored', {exact: true}).waitFor();
     assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store']]);
     assert.ok(operations.slice(beforeOperations).every(row => row.systemId === system), 'all operations address the explicitly selected system');
+    assert.deepEqual(operations.at(-1).storedConfiguration, candidate, 'the confirmed transfer contains the new automation and preserves the existing complete draft');
+    assert.equal(runtimeView(system).resumeAfterRestart, true, 'the saved restart preference remains set after a confirmed stop and transfer');
+    assert.equal(runtimeView(system).resumeStatus, 'stopped');
 }
 try {
     const context = await browser.newContext({locale: 'en-GB', viewport: {width: 1440, height: 1000}});

@@ -147,7 +147,7 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
             $active = $kind === 'activate';
             $metadata[$topic] = array_replace($metadata[$topic], ['executing' => $active, 'active_revision' => $active ? 3 : null,
                 'active_checksum'                                             => $active ? $metadata[$topic]['checksum'] : null, 'enabled_count' => 0,
-                'resume_enabled'                                              => $active && $packet['Payload']['resume_after_restart'], 'resume_status' => $active ? 'armed' : 'stopped']);
+                'resume_enabled'                                              => $active ? $packet['Payload']['resume_after_restart'] : $metadata[$topic]['resume_enabled'], 'resume_status' => $active ? 'armed' : 'stopped']);
             $data = $metadata[$topic];
         }
         if ($kind === 'run_once') {
@@ -194,7 +194,9 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $check($active['ok'] && $active['runtime']['status'] === 'activated' && $active['runtime']['executing'] === true && $active['runtime']['resumeAfterRestart'], 'Activation is followed by a fresh status and restart intent confirmation: ' . json_encode($active));
     $check(!$decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'A possible external control prevents a misleading local rollback.');
     foreach (array_slice($systems, 1) as $s) $check($metadata[$s['binding']['baseTopic']] === $before[$s['binding']['baseTopic']], 'Other brokers and identical rule identities remain untouched.');
-    $check($request($first, 'deactivate')['runtime']['status'] === 'stopped', 'Global stop confirmed.');
+    $stopped = $request($first, 'deactivate')['runtime'];
+    $check($stopped['status'] === 'stopped' && $stopped['confirmed'] && !$stopped['executing'], 'Global stop confirmed.');
+    $check($stopped['resumeAfterRestart'] && $stopped['resumeStatus'] === 'stopped', 'Stopping disarms the restart intent without clearing the configured restart preference.');
     $one = $request($first, 'run_once', 'same_rule');
     $check($one['runtime']['status'] === 'run_started' && $one['runtime']['executing'] === false && $one['runtime']['rules']['same_rule']['state'] === 'running', 'Disabled saved rule can run once without arming automatic execution.');
     $run = $one['runtime']['rules']['same_rule']['run'];

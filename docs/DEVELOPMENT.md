@@ -5536,3 +5536,26 @@ zusätzliche echte Offline-Browserprüfung für DE/EN, offene Eingaben, Systemwa
 und 360–3840 Pixel ebenfalls grün. 22 eigene JSON-Dateien im offiziellen
 StylePHP-Check geprüft; PHP CS Fixer im Prüfmodus nach Ausrichtung ohne Befund.
 Keine reale Installation, kein Broker und keine Z2M-Regel geändert.
+
+## Geführte Übermittlung bei gespeicherter Wiederanlaufoption – 14.11.2026
+
+Im Testsystem war der neue Entwurf samt zusätzlicher Regel lokal vorhanden und
+in Z2M validiert, aber noch nicht gespeichert. Der gemeinsame Ablauf wertete
+`resumeAfterRestart: true` nach einem bestätigten Stopp fälschlich als weiterhin
+aktiven Wiederanlauf. Die Erweiterung erhält diese Option absichtlich und setzt
+stattdessen den dauerhaften Betriebszustand auf `stopped`.
+
+`WorkspaceRuntimeView` liefert nun den bestätigten `resumeStatus` zusätzlich.
+Der gemeinsame Ablauf berücksichtigt ihn bei der Stoppentscheidung und beim
+Fortsetzen. Ein Regressionstest reproduzierte den bisherigen Abbruch gezielt.
+Native MQTT-Prüfungen und die bildfreien Browser-/Kacheltests erhalten die
+Wiederanlaufoption beim Stopp und prüfen anschließend die vollständige
+Übermittlung einschließlich neuer Automation. Unsichere oder weiterhin scharfe
+Zustände bleiben gesperrt. Keine Änderung an Erweiterung, Schema oder Live-System.
+Lokal bestanden: PHP-Gesamtsuite einschließlich 264 JavaScript-Tests, vollständiger
+bildfreier Browser-/Kacheltest, Struktur, Kodierung, offizieller JSON-Stilcheck
+(18 eigene Dateien) und PHP CS Fixer (161 Dateien ohne Befund). Das geprüfte
+Designer-Paket ist `0.108.0`, Inhalt `2e1461f10961`. App-Pflichtprüfung mit Build,
+Typen, Integrität, 193 erfolgreichen Tests und vollständigem Erweiterungsupdate-
+Oberflächentest bestanden; zwei native APT-Prüfungen benötigen Ubuntu.
+CI nach Benutzer-Push und praktische Übermittlung nach Modulupdate bleiben offen.

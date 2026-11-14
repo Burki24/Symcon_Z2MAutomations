@@ -468,6 +468,10 @@ Die drei Schritte haben unterschiedliche Auswirkungen:
    Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
 5. Soll die neue Fassung laufen, anschließend im Bereich **Betrieb** aktivieren.
 
+Eine gespeicherte Wiederanlaufoption verhindert die Übermittlung nicht: Der
+bestätigte Stopp verhindert den automatischen Wiederanlauf, während die
+persönliche Einstellung für eine spätere Aktivierung erhalten bleibt.
+
 ![Bereich zum Prüfen und Übertragen des ausgewählten Systementwurfs](../docs/screenshots/zentrale-pruefen-uebertragen.png)
 
 Eine Entwurfsänderung oder ein Z2M-Neustart kann eine neue Prüfung erforderlich

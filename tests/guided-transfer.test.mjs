@@ -30,6 +30,42 @@ test('an already stopped receiver is checked and stored without another stop', a
     assert.deepEqual(calls, ['status', 'validate', 'store']);
 });
 
+test('a confirmed stop retains the restart preference and still stores the complete draft', async () => {
+    const {data, options, calls} = fixture();
+    data.configuration.automations.push({id: 'new_rule', name: 'Synthetic new automation', enabled: false});
+    const expected = structuredClone(data.configuration);
+    const runtime = options.runtime;
+    options.runtime = async (current, action) => ({...await runtime(current, action),
+        resumeAfterRestart: true, resumeStatus: action === 'deactivate' ? 'stopped' : 'armed'});
+    const transfer = options.transfer;
+    const stored = [];
+    options.transfer = async (current, action) => {
+        if (action === 'store') stored.push(structuredClone(current.configuration));
+        return transfer(current, action);
+    };
+    assert.equal((await runGuidedTransfer(options)).status, 'stored');
+    assert.deepEqual(calls, ['status', 'deactivate', 'validate', 'store']);
+    assert.deepEqual(stored, [expected], 'the new disabled rule and existing enabled rule are stored together');
+});
+
+test('a stopped receiver with a retained restart preference needs no repeated stop', async () => {
+    const {options, calls} = fixture({executing: false});
+    const runtime = options.runtime;
+    options.runtime = async (current, action) => ({...await runtime(current, action), resumeAfterRestart: true, resumeStatus: 'stopped'});
+    await runGuidedTransfer(options);
+    assert.deepEqual(calls, ['status', 'validate', 'store']);
+});
+
+test('an armed or unconfirmed restart state after stopping never permits storage', async () => {
+    for (const resumeStatus of ['armed', 'resumed', 'blocked', undefined]) {
+        const {options, calls} = fixture();
+        const runtime = options.runtime;
+        options.runtime = async (current, action) => ({...await runtime(current, action), resumeAfterRestart: true, resumeStatus});
+        await assert.rejects(runGuidedTransfer(options));
+        assert.deepEqual(calls, ['status', 'deactivate']);
+    }
+});
+
 test('unconfirmed stop and changed local input cannot lead to validation or storage', async () => {
     for (const change of [{stopConfirmed: false}, {changeOnReload: true}]) {
         const {options, calls} = fixture(change);

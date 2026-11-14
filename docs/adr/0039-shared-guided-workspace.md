@@ -28,6 +28,13 @@ prüft erneut und speichert einmal. Unbestätigte Ergebnisse sperren den nächst
 Schritt. Begrenztes Cache-Polling liest nur vorhandene Aufträge. Kein erneutes
 Senden, keine automatische Aktivierung.
 
+Der native Status liefert `resumeStatus` getrennt von der gespeicherten
+Wiederanlaufoption. `stopped` bestätigt den entzogenen aktiven Wiederanlauf,
+auch wenn die persönliche Option eingeschaltet bleibt. Dieser bestätigte
+Zustand erlaubt die Übermittlung; eine noch scharfe oder nach dem Stopp nicht
+bestätigte Wiederanlaufeinstellung sperrt sie weiterhin. Die Option wird nicht
+zum Umgehen der Prüfung ausgeschaltet.
+
 Native Freigabeschalter bleiben beim Speichern erhalten. Die vorhandene
 Erweiterung sichert den vorherigen Stand auf dem Z2M-Host. Der private Desktop-
 Dateidialog und dessen Abschaltpolitik werden nicht auf Symcon übertragen.
