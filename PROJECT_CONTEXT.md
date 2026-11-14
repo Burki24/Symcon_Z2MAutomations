@@ -1,5 +1,27 @@
 # Projektkontext: Z2MAutomations
 
+## Betrieb nach der Übermittlung wieder aufnehmen – 14.11.2026
+
+Browserdesigner und Kachel bieten in der Bestätigung von Schritt 8 eine zunächst
+ausgeschaltete Option zur Wiederaufnahme des bisherigen Automatikbetriebs an.
+Voraussetzung ist zuvor bestätigt aktiver Betrieb. Erneute Prüfung, bestätigte
+Speicherung, frischer Ansichtsabruf und gebundene Laufzeitprüfung gehen dem
+einmaligen Start voraus. Neue Regeln bleiben bis zur Freigabe ausgeschaltet,
+die bisherige Wiederanlaufeinstellung bleibt erhalten. Unsichere Befehle und
+unterbrochene Einzelläufe werden nicht wiederholt. Die Rückmeldung zeigt den
+aktuellen bestätigten Betriebszustand auch nach erneutem Laden der Ansicht.
+Die App verwendet ihren bestehenden Hauptprozess für dieselbe Bedienoption.
+Es wurden keine Live-Systeme geändert und keine Erweiterungsprotokolle ergänzt.
+
+Lokal bestanden: vollständige Offline-Suite mit 275 JavaScript-Tests,
+bildfreier Browser-/Kacheltest, Struktur, Kodierung, offizieller JSON-Stilcheck
+(18 eigene Dateien) und PHP CS Fixer (161 Dateien ohne Befund). Festgeschriebenes
+Designer-Paket: `0.114.0`, Inhalt `4bc45f6e49aa`. Die App-Pflichtprüfung besteht
+mit 217 erfolgreichen Tests, zwei unter Windows ausgelassenen Linux-APT-Prüfungen
+und dem vollständigen bildfreien Oberflächentest einschließlich realer
+Bestätigungslogik in DE/EN und beiden Designs. CI und praktische Abnahme nach
+Push und Update bleiben getrennt erforderlich.
+
 ## Geführte Aktivierung benötigter Zielnetze – 14.11.2026
 
 Browserdesigner und Kachel zeigen benötigte Zielnetze bei Gerätebedingungen und

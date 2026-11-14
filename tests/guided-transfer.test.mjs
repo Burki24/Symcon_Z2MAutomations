@@ -115,3 +115,81 @@ test('a failed view refresh after stopping prevents validation and storage', asy
     await assert.rejects(runGuidedTransfer(options));
     assert.deepEqual(calls, ['status', 'deactivate']);
 });
+
+function resumeFixture({wasRunning = true, recovery = true, failAt = '', changeAfterStore = false} = {}) {
+    const {data, options} = fixture(); const calls = []; let executing = wasRunning; let saved = false;
+    data.configuration.automations.push({id: 'new_rule', name: 'New disabled automation', enabled: false});
+    options.resumePrevious = true;
+    options.reload = async () => { if (saved && changeAfterStore) data.configuration.automations[1].enabled = true; };
+    options.runtime = async (_data, action, fields) => {
+        calls.push([action, fields]);
+        if (action === failAt && (saved || action === 'deactivate')) throw new Error('synthetic failure');
+        if (action === 'deactivate') executing = false;
+        if (action === 'activate') { assert.equal(saved, true); assert.equal(fields.resume, recovery); executing = true; }
+        return {confirmed: true, executing, pending: false, canActivate: true, resumeAfterRestart: recovery,
+            resumeStatus: executing ? 'armed' : 'stopped', storedRevision: saved ? 3 : 2, activeRevision: executing ? saved ? 3 : 2 : null};
+    };
+    options.transfer = async (_data, action) => {
+        calls.push([action]);
+        if (action === failAt) throw new Error('synthetic failure');
+        if (action === 'store') saved = true;
+        return {pending: false, canStore: true, status: action === 'validate' ? 'validated' : 'stored', receiverConfirmed: true, storedRevision: 3};
+    };
+    return {data, options, calls};
+}
+
+for (const recovery of [false, true]) test('explicit resume follows verified storage and preserves restart preference ' + recovery, async () => {
+    const {data, options, calls} = resumeFixture({recovery});
+    const before = structuredClone(data.configuration);
+    const result = await runGuidedTransfer(options);
+    assert.equal(result.resumed, true);
+    assert.deepEqual(calls.map(([action]) => action), ['status', 'deactivate', 'validate', 'store', 'status', 'activate']);
+    assert.deepEqual(data.configuration, before, 'resuming never enables the new disabled rule or changes any draft flag');
+});
+
+test('resume consent never starts an already stopped system', async () => {
+    const {options, calls} = resumeFixture({wasRunning: false});
+    await runGuidedTransfer(options);
+    assert.deepEqual(calls.map(([action]) => action), ['status', 'validate', 'store']);
+});
+
+test('failed stop, validation, storage or post-store refresh cannot resume operation', async () => {
+    for (const failure of [{failAt: 'deactivate'}, {failAt: 'validate'}, {failAt: 'store'}, {failAt: 'status'}, {changeAfterStore: true}]) {
+        const {options, calls} = resumeFixture(failure);
+        await assert.rejects(runGuidedTransfer(options));
+        assert.equal(calls.some(([action]) => action === 'activate'), false);
+    }
+});
+
+test('a failed activation is sent once and does not undo or repeat confirmed storage', async () => {
+    const {options, calls} = resumeFixture({failAt: 'activate'});
+    await assert.rejects(runGuidedTransfer(options), /Wiederaufnahme/);
+    assert.equal(calls.filter(([action]) => action === 'activate').length, 1);
+    assert.equal(calls.filter(([action]) => action === 'store').length, 1);
+});
+
+test('missing recovery preference or mismatched stored evidence never permits resumption', async () => {
+    const unknown = resumeFixture(); const initialRuntime = unknown.options.runtime;
+    unknown.options.runtime = async (...args) => { const result = await initialRuntime(...args); delete result.resumeAfterRestart; return result; };
+    await assert.rejects(runGuidedTransfer(unknown.options));
+    assert.deepEqual(unknown.calls.map(([action]) => action), ['status']);
+    for (const changed of [{confirmed: false}, {canActivate: false}, {storedRevision: 99}]) {
+        const {options, calls} = resumeFixture(); const runtime = options.runtime;
+        options.runtime = async (...args) => ({...await runtime(...args), ...(calls.some(([action]) => action === 'store') ? changed : {})});
+        await assert.rejects(runGuidedTransfer(options));
+        assert.equal(calls.some(([action]) => action === 'activate'), false);
+    }
+    const missing = resumeFixture(); const transfer = missing.options.transfer;
+    missing.options.transfer = async (...args) => { const result = await transfer(...args); delete result.storedRevision; return result; };
+    await assert.rejects(runGuidedTransfer(missing.options));
+    assert.equal(missing.calls.some(([action]) => action === 'activate'), false);
+});
+
+test('pending activation is observed without repeating the activation request', async () => {
+    const {options, calls} = resumeFixture(); const runtime = options.runtime;
+    options.wait = async () => {};
+    options.runtime = async (...args) => ({...await runtime(...args), pending: args[1] === 'activate'});
+    assert.equal((await runGuidedTransfer(options)).resumed, true);
+    assert.equal(calls.filter(([action]) => action === 'activate').length, 1);
+    assert.equal(calls.at(-1)[0], 'poll');
+});

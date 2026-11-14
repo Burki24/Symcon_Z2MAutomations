@@ -150,6 +150,16 @@ Als Zweig **main** verwenden.
 6. Den Entwurf in Z2M prüfen, speichern und die gespeicherten Automationen
    aktivieren. Erst dann führt Z2M die eingeschalteten Regeln aus.
 
+In Schritt 8 bietet die Übermittlungsbestätigung **Bisherigen Betrieb anschließend
+wieder aufnehmen** an. Die Option ist bei jeder Übermittlung zunächst aus und
+steht nur bei zuvor bestätigt aktivem Betrieb zur Verfügung. Die Wiederaufnahme
+erfolgt erst nach erfolgreicher Prüfung, bestätigter Speicherung und Rückprüfung.
+Neue Regeln bleiben bis zur ausdrücklichen Freigabe ausgeschaltet. Die bisherige
+Wiederanlaufeinstellung bleibt erhalten; unterbrochene Einzelläufe werden nicht
+wiederholt. Ohne die Option bleibt der Betrieb nach dem Speichern gestoppt.
+Bei unbestätigter Wiederaufnahme den Betriebsstatus lesen; die App wiederholt
+keinen Start automatisch.
+
 Eine Zentrale genügt für bis zu acht Z2M-Systeme. Mehrere Systeme können denselben
 MQTT-Broker verwenden, wenn sie unterschiedliche Basistopics besitzen. Für getrennte
 Broker beschreibt die [Modulanleitung der Verbindung](Z2MConnection/README.md#bis-zu-acht-mqtt-broker-miteinander-verbinden)

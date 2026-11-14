@@ -47,6 +47,7 @@ function transferView(id) {
 }
 function runtimeView(id) {
     return runtimeViews.get(id) ?? {message: 'Synthetic runtime', pending: false, confirmed: true, executing: true, resumeAfterRestart: true, resumeStatus: 'armed',
+        storedRevision: 4, activeRevision: 4,
         ruleCount: 1, releasedCount: rules.get(id).enabled ? 1 : 0, releasedRules: rules.get(id).enabled ? [{id: rule.id, name: rules.get(id).name}] : [],
         canRefresh: true, canActivate: false, canStop: true, context: '2'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64), rules: {}};
 }
@@ -122,7 +123,8 @@ const server = createServer(async (request, response) => {
         else if (route === 'runtime') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
             if (body.action === 'deactivate') runtimeViews.set(id, {...runtimeView(id), executing: false, resumeStatus: 'stopped', status: 'stopped'});
-            if (body.action === 'activate') runtimeViews.set(id, {...runtimeView(id), executing: true, resumeStatus: 'armed', status: 'activated', canActivate: false});
+            if (body.action === 'activate') runtimeViews.set(id, {...runtimeView(id), executing: true, activeRevision: runtimeView(id).storedRevision,
+                resumeAfterRestart: body.resume, resumeStatus: body.resume ? 'armed' : 'stopped', status: 'activated', canActivate: false});
             response.end(JSON.stringify({ok: true, runtime: runtimeView(id)})); return;
         }
         else if (route === 'transfer') {
@@ -131,6 +133,7 @@ const server = createServer(async (request, response) => {
                 message: body.action === 'validate' ? 'Synthetic validated' : 'Synthetic stored', storedRevision: body.action === 'store' ? model(id).configuration.revision : 4});
             if (body.action === 'store') {
                 operations.at(-1).storedConfiguration = structuredClone(model(id).configuration);
+                runtimeViews.set(id, {...runtimeView(id), storedRevision: model(id).configuration.revision, activeRevision: null, executing: false, canActivate: true});
                 storedViewFailures.set(id, 1); recoveredStoredViews.delete(id);
             }
             if (body.action === 'validate' && rejectReview) transferViews.set(id, {...transferView(id), canStore: false, status: 'error', message: 'Synthetic rejected',
@@ -264,6 +267,7 @@ async function verifyOperationReadiness(page, view) {
         await view.locator('.system-runtime .transfer-actions').first().locator('button.primary').waitFor({state: 'hidden'});
         assert.deepEqual(operations.slice(before).map(row => [row.systemId, row.body.action]), [['b', 'activate']], 'only the explicitly selected receiver is started, once');
         await view.locator('button[data-operation-return="a"]').click();
+        await view.locator('#designer-system option[value="a"]:checked').waitFor({state: 'attached'});
         await view.locator('.operation-preparation li[data-state="active"]').waitFor();
         assert.equal(await view.locator('#designer-system').inputValue(), 'a');
         assert.equal(await view.locator('#desktop-view-operation').isVisible(), true, 'the guided return opens the original operation');
@@ -474,6 +478,55 @@ async function verifyDraftSynchronization(page, view, language) {
     assert.deepEqual(rules.get('b'), other, 'polling never mixes system state');
     assert.ok(operations.slice(beforeOperations).every(row => row.route === 'draft-sync'), 'the button cannot transfer, activate, stop, install or issue device commands');
 }
+async function verifyTransferResume(page, view) {
+    const savedRuntime = new Map(runtimeViews); const savedTransfers = new Map(transferViews);
+    const savedRules = structuredClone(createdRules.get('b'));
+    try {
+        active = 'b';
+        createdRules.get('b').push({...structuredClone(savedRules[0]), id: 'resume_new_b', name: 'New resume test rule', enabled: false});
+        runtimeViews.set('b', {...runtimeView('b'), confirmed: true, executing: true, resumeAfterRestart: false, canActivate: false});
+        transferViews.set('b', {...transferView('b'), status: 'idle', message: 'Synthetic transfer', canStore: false});
+        await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await view.locator('#designer-language').selectOption('en');
+        await view.locator('#designer-system').selectOption('b');
+        await showStep(view, 'automations');
+        await view.locator('.desktop-source').getByText('Local draft: revision 6', {exact: true}).waitFor();
+        await showStep(view, 'review');
+        await view.locator('button[data-transfer-action=validate]').click();
+        await view.locator('.desktop-review').getByText('Synthetic validated', {exact: true}).waitFor();
+        await showStep(view, 'transfer');
+        const before = operations.length;
+        await view.locator('button[data-transfer-action=store]').click();
+        const confirmation = view.locator('dialog.guided-confirmation'); const choice = confirmation.locator('#resume-previous-operation');
+        assert.equal(await choice.isChecked(), false);
+        assert.equal(await choice.isEnabled(), true);
+        await choice.check();
+        await view.locator('body').evaluate(async () => (await import('./localization.js')).setLanguage('de'));
+        assert.equal(await choice.isChecked(), true, 'the explicit choice survives a language change');
+        await confirmation.getByText('Bisherigen Betrieb anschließend wieder aufnehmen', {exact: true}).waitFor();
+        await confirmation.press('Escape'); await confirmation.waitFor({state: 'detached'});
+        assert.equal(operations.length, before, 'cancelling a selected resume option sends no stop, store or start');
+        await view.locator('#designer-language').selectOption('en');
+        await view.locator('button[data-transfer-action=store]').click();
+        assert.equal(await choice.isChecked(), false, 'each transfer starts without implicit resume consent');
+        await choice.check(); await confirmation.locator('button.primary').click();
+        await view.locator('.system-transfer:not(.system-runtime)').getByText('Configuration stored and checked. Previous automatic operation has resumed.', {exact: true}).waitFor();
+        assert.deepEqual(operations.slice(before).map(row => [row.route, row.body.action]),
+            [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'], ['runtime', 'status'], ['runtime', 'activate']]);
+        assert.ok(operations.slice(before).every(row => row.systemId === 'b'));
+        assert.equal(operations.at(-1).body.resume, false, 'resume preserves the previous restart preference');
+        const stored = operations.slice(before).find(row => row.route === 'transfer' && row.body.action === 'store').storedConfiguration;
+        assert.equal(stored.automations.find(rule => rule.id === 'resume_new_b').enabled, false);
+        assert.equal(runtimeView('b').executing, true);
+        await page.reload(); await view.locator('#desktop-nav-transfer').waitFor({state: 'visible'}); await showStep(view, 'transfer');
+        await view.locator('.system-transfer:not(.system-runtime)').getByText('Stored configuration confirmed. Automatic operation is running.', {exact: true}).waitFor();
+    } finally {
+        runtimeViews.clear(); for (const [id, value] of savedRuntime) runtimeViews.set(id, value);
+        transferViews.clear(); for (const [id, value] of savedTransfers) transferViews.set(id, value);
+        createdRules.set('b', savedRules);
+    }
+}
+
 async function verifyWorkspaceWheel(page) {
     overflowRules = true;
     await page.reload();
@@ -493,7 +546,7 @@ async function verifyWorkspaceWheel(page) {
     overflowRules = false; await page.reload();
     await page.locator('#edit-automation-button:not(:disabled)').waitFor();
 }
-async function verifyDraftForm(page, view, system, refresh = false) {
+async function verifyDraftForm(page, view, system, refresh = false, resume = false) {
     const start = view.locator('#draft-wizard-start:not(:disabled)');
     await start.waitFor({state: 'attached'});
     const navigation = view.locator('.navigation .designer-fold');
@@ -587,21 +640,33 @@ async function verifyDraftForm(page, view, system, refresh = false) {
     await view.locator('button[data-transfer-action=store]').click();
     const confirmation = view.locator('.guided-confirmation');
     await confirmation.waitFor({state: 'visible'});
+    assert.equal(await confirmation.locator('#resume-previous-operation').isChecked(), false, 'resuming is an explicit per-transfer opt-in');
     assert.ok(await confirmation.locator('button').first().evaluate(node => node === node.ownerDocument.activeElement), 'cancel has the safe initial focus');
     await confirmation.press('Escape');
     await confirmation.waitFor({state: 'detached'});
     assert.equal(operations.length, beforeOperations, 'cancelled transmission sends nothing');
     await view.locator('button[data-transfer-action=store]').click();
+    if (resume) await confirmation.locator('#resume-previous-operation').check();
     await confirmation.locator('button.primary').click();
-    await view.locator('.system-transfer:not(.system-runtime)').getByText('Synthetic stored', {exact: true}).waitFor();
+    try {
+        await view.locator('.system-transfer:not(.system-runtime)').getByText(resume
+            ? /^(Configuration stored and checked\. Previous automatic operation has resumed\.|Stand gespeichert und geprüft\. Der bisherige Automatikbetrieb wurde wieder aufgenommen\.)$/
+            : /^(Stored configuration confirmed\. Automatic operation is stopped\.|Gespeicherter Stand bestätigt\. Der Automatikbetrieb ist gestoppt\.)$/, {exact: true}).waitFor();
+    } catch (error) {
+        console.error('TRANSFER_FIXTURE', JSON.stringify({system, resume, runtime: runtimeView(system),
+            feedback: await view.locator('#feedback').innerText(), transfer: await view.locator('.system-transfer:not(.system-runtime)').innerText(),
+            operations: operations.slice(beforeOperations).map(row => [row.systemId, row.route, row.body.action])}));
+        throw error;
+    }
     await view.locator('#validate-button:not([disabled])').waitFor();
     assert.ok(recoveredStoredViews.has(system), 'the view recovers automatically from one temporary read failure after storage');
     assert.notEqual(await view.locator('#feedback').getAttribute('data-tone'), 'error', 'a recovered view does not show a stale read warning');
-    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store']]);
+    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'],
+        ...(resume ? [['runtime', 'status'], ['runtime', 'activate']] : [])]);
     assert.ok(operations.slice(beforeOperations).every(row => row.systemId === system), 'all operations address the explicitly selected system');
-    assert.deepEqual(operations.at(-1).storedConfiguration, candidate, 'the confirmed transfer contains the new automation and preserves the existing complete draft');
+    assert.deepEqual(operations.slice(beforeOperations).find(row => row.route === 'transfer' && row.body.action === 'store').storedConfiguration, candidate, 'the confirmed transfer contains the new automation and preserves the existing complete draft');
     assert.equal(runtimeView(system).resumeAfterRestart, true, 'the saved restart preference remains set after a confirmed stop and transfer');
-    assert.equal(runtimeView(system).resumeStatus, 'stopped');
+    assert.equal(runtimeView(system).resumeStatus, resume ? 'armed' : 'stopped');
 }
 try {
     const context = await browser.newContext({locale: 'en-GB', viewport: {width: 1440, height: 1000}});
@@ -707,7 +772,7 @@ try {
     await tile.setViewportSize({width: 400, height: 740});
     await tile.goto('http://127.0.0.1:' + server.address().port + '/tile.html');
     await tile.getByText('Designer in der Kachel verbunden.', {exact: false}).waitFor();
-    await verifyDraftForm(tile, tile.frameLocator('#designer-frame'), 'a');
+    await verifyDraftForm(tile, tile.frameLocator('#designer-frame'), 'a', false, true);
     assert.deepEqual(writes.map(write => [write.route, write.systemId]), [['edit', 'a'], ['create', 'b'], ['create', 'b'], ['create', 'a']]);
     assert.equal(writes[1].body.requestId, writes[2].body.requestId, 'refresh retains the request identity');
     assert.deepEqual(exports, [], 'optional step 5 downloads use the displayed local draft without a write request');
@@ -722,6 +787,7 @@ try {
     assert.deepEqual(writes.at(-1).body.changes, {enabled: true});
     assert.deepEqual(model('a').configuration.automations[0], {...beforeRelease.automations[0], enabled: true});
     assert.equal(operations.length, beforeReleaseOperations, 'editing a permission sends no transfer or runtime command');
+    await verifyTransferResume(page, page);
     await verifyMissingCatalogNavigation(page, page, 'en', false);
     await verifyMissingCatalogNavigation(page, page, 'de', true);
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'en', false);
@@ -744,7 +810,7 @@ try {
     console.log('New automation network picker passed: browser/tile, qualified conditions, toggle actions and native state_l1 TOGGLE values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
-    console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
+    console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation, scoped stop/check/store and explicitly selected verified resumption.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {

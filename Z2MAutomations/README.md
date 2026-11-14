@@ -151,6 +151,15 @@ Bildschirmbilder zeigen teilweise den früheren Aufbau.
 | 8. Nach Z2M übermitteln | Ziel und Wirkung bestätigen; Statusprüfung, nötiger Stopp, erneute Prüfung und Speicherung laufen geführt ab. |
 | Betrieb | Gespeicherte Regeln starten, stoppen oder einmal ausführen; Freigaben im lokalen Entwurf ändern. |
 
+Die Bestätigung in Schritt 8 enthält **Bisherigen Betrieb anschließend wieder
+aufnehmen**. Die Option ist jedes Mal zunächst ausgeschaltet und setzt zuvor
+bestätigt aktiven Betrieb voraus. Erst nach erfolgreicher Prüfung, bestätigter
+Speicherung und Rückprüfung wird er wieder aktiviert. Neue Regeln erhalten
+dadurch keine Freigabe. Die bisherige Wiederanlaufeinstellung bleibt erhalten;
+unterbrochene Einzelläufe werden nicht wiederholt. Ohne diese Auswahl bleibt der
+Betrieb gestoppt. Eine unbestätigte Wiederaufnahme erfordert eine Statusabfrage,
+keinen erneuten Upload oder automatischen Startversuch.
+
 ![Browserdesigner mit Automationsliste, Ablauf und Eigenschaften](../docs/screenshots/webfrontend.png)
 
 | Bereich | Bedienung |

@@ -2515,6 +2515,42 @@
         "Diese Verbindung wird von %s (Instanz %d) verwaltet. Die Z2M-Erweiterung bitte in dieser Automationszentrale installieren oder aktualisieren: im Konfigurationsformular der Zentrale oder im Webdesigner.",
         "This connection is managed by %s (instance %d). Install or update the Z2M extension in that automation center, using its configuration form or browser designer."
     ],
+    "project.transferResumePrevious": [
+        "Bisherigen Betrieb anschließend wieder aufnehmen",
+        "Resume previous operation afterwards"
+    ],
+    "project.transferResumeHelp": [
+        "Nur nach bestätigter Speicherung und erfolgreicher Rückprüfung. Die Freigaben im geprüften Entwurf gelten; neue Automationen erhalten dadurch keine Freigabe. Die bisherige Wiederanlaufeinstellung bleibt erhalten.",
+        "Only after confirmed storage and successful readback. Permissions in the checked draft apply; this does not release new automations. The previous restart preference is preserved."
+    ],
+    "project.transferResumeUnavailable": [
+        "Ein bereits gestoppter oder nicht bestätigter Betrieb wird durch diese Übertragung nicht gestartet.",
+        "A stopped or unconfirmed operation will not be started by this transfer."
+    ],
+    "project.transferResumeDetail": [
+        "Ziel: {{system}} · {{topic}}\nBroker: {{broker}}\nRevision: {{revision}} → {{next}}\n\nDer geprüfte Stand mit {{rules}} Automationen wird gespeichert. Nach erfolgreicher Rückprüfung wird der zuvor aktive Betrieb wieder aufgenommen. Freigegeben sind {{enabled}} Automationen:\n{{names}}\n\nEs werden keine zusätzlichen Freigaben vergeben. Die bisherige Wiederanlaufeinstellung bleibt erhalten.",
+        "Target: {{system}} · {{topic}}\nBroker: {{broker}}\nRevision: {{revision}} → {{next}}\n\nThe checked configuration with {{rules}} automations will be stored. After successful readback, previous active operation will resume. Released automations: {{enabled}}\n{{names}}\n\nNo additional permissions will be granted. The previous restart preference is preserved."
+    ],
+    "project.transferResumed": [
+        "Stand gespeichert und geprüft. Der bisherige Automatikbetrieb wurde wieder aufgenommen.",
+        "Configuration stored and checked. Previous automatic operation has resumed."
+    ],
+    "project.transferStoredActive": [
+        "Gespeicherter Stand bestätigt. Der Automatikbetrieb läuft.",
+        "Stored configuration confirmed. Automatic operation is running."
+    ],
+    "project.transferStoredStopped": [
+        "Gespeicherter Stand bestätigt. Der Automatikbetrieb ist gestoppt.",
+        "Stored configuration confirmed. Automatic operation is stopped."
+    ],
+    "project.transferResumeUncertain": [
+        "Die Speicherung wurde bestätigt. Die Wiederaufnahme des Betriebs konnte nicht bestätigt werden. Lies den Betriebsstatus; es wird kein Start automatisch wiederholt.",
+        "Storage was confirmed. Resuming operation could not be confirmed. Read the operating status; no start will be repeated automatically."
+    ],
+    "desktop.transfer.resuming": [
+        "Gespeicherten Stand bestätigt. Der bisherige Betrieb wird wieder aufgenommen …",
+        "Stored configuration confirmed. Resuming previous operation …"
+    ],
     "operation.network.title": [
         "Benötigte Z2M-Netze",
         "Required Z2M networks"
@@ -4512,8 +4548,8 @@
         "Saved device data is not currently confirmed. Open step 4 “Connect and read inventory” and choose “Refresh device data”. Drafts are preserved."
     ],
     "ui.saving.replaces.only.this.system.76c800ba": [
-        "Speichern ersetzt nur die Automationsdatei dieses Systems. Bei Änderungen stoppt dort die bisherige Ausführung. Es wird keine Automation aktiviert.",
-        "Saving replaces only this system’s automation file. If changed, its previous execution stops. No automation is activated."
+        "Speichern ersetzt nur die Automationsdatei dieses Systems. Der bisherige Betrieb wird für die Übertragung gestoppt. Die Wiederaufnahme erfolgt nur nach ausdrücklicher Auswahl und erfolgreicher Prüfung.",
+        "Saving replaces only this system’s automation file. Previous operation stops for the transfer. It resumes only when explicitly selected and after successful checks."
     ],
     "ui.scene.46b80b02": [
         "{{p1}} · Szene: {{p2}}{{p3}}",
@@ -8496,8 +8532,8 @@
         "Transfer draft to Z2M?"
     ],
     "symcon.transfer.detail": [
-        "Ziel: {{name}}. {{count}} Automationen, davon {{enabled}} freigegeben. Ein laufender Automatikbetrieb wird gestoppt. Der Entwurf wird erneut geprüft und mit diesen Freigaben gespeichert. Z2M sichert die Vorversion; der Betrieb wird anschließend separat gestartet.",
-        "Target: {{name}}. {{count}} automations, {{enabled}} enabled. Running automatic operation will stop. The draft will be checked again and stored with these permissions. Z2M retains the previous version; starting operation remains a separate action."
+        "Ziel: {{name}}. {{count}} Automationen, davon {{enabled}} freigegeben. Ein laufender Automatikbetrieb wird gestoppt. Der Entwurf wird erneut geprüft und mit diesen Freigaben gespeichert. Z2M sichert die Vorversion. Ohne die Option zur Wiederaufnahme bleibt der Betrieb gestoppt.",
+        "Target: {{name}}. {{count}} automations, {{enabled}} enabled. Running automatic operation will stop. The draft will be checked again and stored with these permissions. Z2M retains the previous version. Without the resume option, operation stays stopped."
     ],
     "symcon.transfer.changed": [
         "Der Entwurf oder das Ziel wurde geändert. Prüfe den aktuellen Stand erneut.",

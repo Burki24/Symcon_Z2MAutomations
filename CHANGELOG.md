@@ -6,6 +6,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Browserdesigner und Kachel bieten bei der Übermittlung die ausdrückliche
+  Option, den bisherigen Automatikbetrieb nach bestätigter Speicherung und
+  Rückprüfung wieder aufzunehmen. Sie ist standardmäßig aus, erhält die bisherige
+  Wiederanlaufeinstellung und vergibt keine Freigaben für neue Regeln.
+
 - Systemübergreifende Automationen zeigen gestoppte, unbekannte und aktive
   Zielnetze mit verständlichen Hinweisen. Ein direkter Wechsel öffnet deren
   Betrieb; anschließend führt ein Button zum ursprünglichen Netz zurück.

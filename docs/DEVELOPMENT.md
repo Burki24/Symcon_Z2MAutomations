@@ -1,3 +1,34 @@
+## Betrieb nach Übermittlung wieder aufnehmen – 14.11.2026
+
+Der gemeinsame Designer bietet in Schritt 8 eine ausdrücklich zu wählende
+Wiederaufnahme an. Ausgangspunkt ist frischer bestätigter aktiver Betrieb,
+nicht allein ein früherer Anzeigestand. Der Ablauf stoppt, prüft erneut, speichert
+einmal und liest die vollständige Ansicht erneut. Eine neue gebundene Laufzeit-
+prüfung muss dieselbe gespeicherte Revision bestätigen, bevor der bestehende
+Aktivierungsweg einmal mit der bisherigen Wiederanlaufeinstellung aufgerufen
+wird. Neue ausgeschaltete Regeln werden nicht freigegeben. Ohne die Option
+bleibt der Betrieb gestoppt; Abbruch sendet keinen Auftrag. Statusabfragen
+wiederholen keine Mutation. Ein unsicherer Start wird getrennt von der bereits
+bestätigten Speicherung erklärt.
+
+Die Ablaufregression prüft beide Wiederanlaufeinstellungen, bereits gestoppten
+Betrieb, fehlende Metadaten, geänderte Entwürfe/Revisionen, fehlgeschlagene
+Prüfungen, Speicherung, Status und Aktivierung sowie begrenztes lesendes Polling.
+Der bildfreie Browser-/Kacheltest prüft die tatsächliche Bestätigung, Abbruch,
+DE/EN, Erhalt der bewussten Auswahl beim Sprachwechsel, Rücksetzung beim nächsten
+Dialog, exakte Systembindung, unverändert ausgeschaltete neue Regeln und die
+aktuelle Rückmeldung nach erneutem Laden. Er wartet beim Rückweg ausdrücklich
+auf die Auswahl des Ursprungssystems statt auf einen zufällig passenden Zustand
+eines anderen Netzes. Keine Bildschirmaufnahme oder Live-Systemänderung.
+
+Lokal bestanden: `php tests/run.php` einschließlich 275 JavaScript-Tests,
+`CI=true npm run test:browser`, Struktur, Kodierung, offizieller JSON-Stilcheck
+(18 eigene Dateien) und PHP CS Fixer (161 Dateien ohne Befund). Designer-Paket
+`0.114.0`, Inhalt `4bc45f6e49aa`. App-Pflichtprüfung: 217 erfolgreiche Tests,
+zwei native Linux-APT-Checks unter Windows ausgelassen und vollständiger
+bildfreier Oberflächentest mit tatsächlicher Bestätigungslogik bestanden.
+CI und praktische Modulabnahme nach dem Update bleiben separat erforderlich.
+
 ## Zielnetze und Aktivierung – 14.11.2026
 
 Der festgeschriebene gemeinsame Designer enthält eine rein lesende Bereitschafts-
