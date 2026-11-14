@@ -1,3 +1,21 @@
+## Zielnetze und Aktivierung – 14.11.2026
+
+Der festgeschriebene gemeinsame Designer enthält eine rein lesende Bereitschafts-
+anzeige für entfernte Gerätebedingungen, Aktionen und Aktionsfolgen. Systemstatus
+kommt aus dem vorhandenen, bindungsgeprüften Überblick; unbestätigter Betrieb
+liefert keinen geratenen Ein-/Aus-Wert. Der direkte Wechsel verwendet die bestehende
+Systemauswahl. Jede Aktivierung bleibt einzeln bestätigt und nennt die bei passendem
+gespeicherten Dokument freigegebenen Regeln. Die Kachel verwendet dieselben Quellen.
+
+Der bildfreie Browsertest prüft Rot/Gelb/Grün, DE/EN, direkte Navigation und Rückweg,
+Regelnamen als Text, Abbruch ohne MQTT-Auftrag sowie genau eine bestätigte Aktivierung
+des ausgewählten Empfängers. Der native Laufzeittest prüft die neuen Übersichts- und
+Freigabefelder einschließlich fehlender Statusbestätigung. Der Sprachwechsel darf
+keine strukturellen Bedienelemente aus dem Betriebsbereich entfernen.
+Beim Entwurfsabgleich wartet der Browsertest auf die abschließende Rückmeldung.
+Der neue Regelname allein reicht nicht: Er wird bereits innerhalb des erneuten
+Ansichtsabrufs gerendert, bevor der Auftrag seine Fortschrittsanzeige beendet.
+
 ## Entwurf direkt aus Z2M aktualisieren – 14.11.2026
 
 Der gemeinsame Symcon-Adapter ergänzt die Aktion in Schritt 6 und liefert

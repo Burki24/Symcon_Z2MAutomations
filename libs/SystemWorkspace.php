@@ -255,11 +255,13 @@ trait SystemWorkspace
             $current = $this->WorkspaceConnectionCurrent($record['binding']);
             $info = $current ? $this->WorkspaceInfo($record['binding']) : null;
             $configuration = $record['data']['document']['editorDraft']['configuration'] ?? [];
+            $runtimeConfirmed = ($info['state']['runtimeConfirmed'] ?? false) && ($info['state']['mqttConnected'] ?? false) && ($info['state']['bridgeOnline'] ?? false);
             $systems[] = ['systemId' => $id, 'name' => $record['name'], 'binding' => $record['binding'],
                 'fingerprint'        => WorkspaceState::Fingerprint($record), 'connectionCurrent' => $current && $info !== null,
                 'online'             => $info['state']['bridgeOnline'] ?? false, 'confirmed' => $info['state']['extensionConfirmed'] ?? false,
                 'storedRevision'     => $info['state']['extension']['storedRevision'] ?? null,
                 'activeRevision'     => ($info['state']['runtimeConfirmed'] ?? false) ? ($info['state']['extension']['activeRevision'] ?? null) : null,
+                'runtimeConfirmed'   => $runtimeConfirmed, 'executing' => $runtimeConfirmed ? ($info['state']['extension']['executing'] ?? false) : null,
                 'rules'              => count($configuration['automations'] ?? []), 'sequences' => count($configuration['sequences'] ?? []),
                 'hasDocument'        => $record['data']['document'] !== null, 'openInput' => WorkspaceState::Dirty($record)];
         }

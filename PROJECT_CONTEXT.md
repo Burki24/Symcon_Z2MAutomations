@@ -1,5 +1,26 @@
 # Projektkontext: Z2MAutomations
 
+## Geführte Aktivierung benötigter Zielnetze – 14.11.2026
+
+Browserdesigner und Kachel zeigen benötigte Zielnetze bei Gerätebedingungen und
+Aktionen, auch innerhalb von Aktionsfolgen. Die Systemübersicht liefert dafür
+bestätigten aktiven beziehungsweise gestoppten Betrieb getrennt von unbekanntem
+Status. Direkte Navigation öffnet den Betrieb des betroffenen Netzes; ein
+Rückweg führt zum Ausgangsnetz. Die Aktivierungsbestätigung nennt die gespeicherten
+freigegebenen Regeln. Ohne lokale Freigaben wird Partnerempfang gesondert erklärt.
+Der bestehende Bestätigungs-, Bindungs- und MQTT-Steuerungsweg bleibt zuständig.
+Es gibt keinen automatischen Gruppenstart und keine Erweiterungsänderung.
+Strukturelle Betriebselemente bleiben beim Sprachwechsel erhalten.
+
+Die lokalen Tests verwenden synthetische Systeme und bildfreie Browser-/Kachel-
+Interaktionen. CI und praktische Abnahme nach dem Modulupdate bleiben separat.
+Die vollständige Offline-Suite mit 268 JavaScript-Tests, der bildfreie Browser-/
+Kacheltest, Struktur, Kodierung, offizieller JSON-Stilcheck (18 eigene Dateien)
+und PHP CS Fixer (161 Dateien) bestehen. Das geprüfte Designer-Paket ist
+`0.113.0`, Inhalt `85cc9bbdeac9`. Die App-Prüfungen umfassen 210 erfolgreiche
+Tests und zwei unter Windows ausgelassene native APT-Checks sowie den vollständigen
+bildfreien Oberflächentest mit eigenen Desktop-Bereitschaftsprüfungen.
+
 ## Entwurf direkt aus Z2M aktualisieren – 14.11.2026
 
 Schritt 6 bietet im Browserdesigner und in der Kachel „Aus Z2M aktualisieren“

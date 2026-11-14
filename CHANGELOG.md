@@ -6,6 +6,12 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Systemübergreifende Automationen zeigen gestoppte, unbekannte und aktive
+  Zielnetze mit verständlichen Hinweisen. Ein direkter Wechsel öffnet deren
+  Betrieb; anschließend führt ein Button zum ursprünglichen Netz zurück.
+  Die Aktivierung nennt die gespeicherten freigegebenen Regeln. Partnerempfang
+  ohne eigene aktive Regeln wird gesondert erklärt.
+
 - Im Formular für neue und vorhandene Automationen lassen sich Z2M-Netze
   auch im Browserdesigner und in der Kachel für Bedingungen und Aktionen wählen.
   Fehlende Partnerfreigaben und nicht bestätigte Gerätekataloge werden erklärt;

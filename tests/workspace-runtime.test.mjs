@@ -54,7 +54,7 @@ test('a busy HTTP response explains contention, never retries, and allows a new 
 });
 
 class Element {
-    constructor() { this.children = []; this.events = {}; this.disabled = false; this.hidden = false; this.textContent = ''; this.value = ''; }
+    constructor() { this.children = []; this.events = {}; this.disabled = false; this.hidden = false; this.textContent = ''; this.value = ''; this.classList = {toggle() {}}; }
     append(...nodes) { this.children.push(...nodes); }
     replaceChildren() { this.children = []; }
     after(node) { this.next = node; }

@@ -47,6 +47,7 @@ function transferView(id) {
 }
 function runtimeView(id) {
     return runtimeViews.get(id) ?? {message: 'Synthetic runtime', pending: false, confirmed: true, executing: true, resumeAfterRestart: true, resumeStatus: 'armed',
+        ruleCount: 1, releasedCount: rules.get(id).enabled ? 1 : 0, releasedRules: rules.get(id).enabled ? [{id: rule.id, name: rules.get(id).name}] : [],
         canRefresh: true, canActivate: false, canStop: true, context: '2'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64), rules: {}};
 }
 const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'.repeat(64), choices: systems.map((system, index) =>
@@ -62,7 +63,8 @@ function model(id = 'a') {
         timezones: ['UTC', 'Europe/Berlin'], createContext, createAllowed: true, editAllowed: true, manageAllowed: true, sequenceAllowed: true,
         sequenceCreateAllowed: true, createNotice: '', editNotice: '', sequenceNotice: '', sequenceSections: {},
         editSections: {rule_a: {triggers: true, conditions: true, actions: true}},
-        workspace: {fingerprint: 'd'.repeat(64), systems}, workspaceContext: {systemId: id, generation: 1, fingerprint: catalogFingerprint},
+        workspace: {fingerprint: 'd'.repeat(64), systems: systems.map(system => ({...system,
+            runtimeConfirmed: runtimeView(system.binding.systemId).confirmed, executing: runtimeView(system.binding.systemId).executing}))}, workspaceContext: {systemId: id, generation: 1, fingerprint: catalogFingerprint},
         catalogRefresh: {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: catalogAvailable ? 'loaded' : 'idle',
             pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
             storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
@@ -120,6 +122,7 @@ const server = createServer(async (request, response) => {
         else if (route === 'runtime') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
             if (body.action === 'deactivate') runtimeViews.set(id, {...runtimeView(id), executing: false, resumeStatus: 'stopped', status: 'stopped'});
+            if (body.action === 'activate') runtimeViews.set(id, {...runtimeView(id), executing: true, resumeStatus: 'armed', status: 'activated', canActivate: false});
             response.end(JSON.stringify({ok: true, runtime: runtimeView(id)})); return;
         }
         else if (route === 'transfer') {
@@ -223,6 +226,55 @@ async function verifyDeviceNetworks(page, view) {
     assert.equal(writes.length, beforeWrites, 'network labels do not change drafts');
     assert.equal(operations.length, beforeOperations, 'network labels do not issue MQTT commands');
 }
+async function verifyOperationReadiness(page, view) {
+    const before = operations.length; const beforeWrites = writes.length;
+    const saved = new Map(runtimeViews); const enabled = rule.enabled;
+    try {
+        rule.enabled = true;
+        active = 'a';
+        runtimeViews.set('b', {...runtimeView('b'), confirmed: true, executing: false, canActivate: true, releasedCount: 1, ruleCount: 1,
+            releasedRules: [{id: 'receiver_rule', name: '<strong>Synthetic receiver rule</strong>'}]});
+        await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'automations');
+        const row = view.locator('.operation-readiness .operation-networks li');
+        for (const lang of ['de', 'en']) {
+            await view.locator('#designer-language').selectOption(lang);
+            await row.locator('button[data-operation-system="b"]').waitFor();
+            assert.equal(await row.getAttribute('data-state'), 'stopped');
+            assert.match(await row.innerText(), /Eigenes System b · Z2M-2/);
+            assert.match(await row.innerText(), lang === 'de' ? /Automatikbetrieb gestoppt/ : /Automatic operation is stopped/);
+            assert.ok((await view.locator('.system-runtime button').allTextContents()).includes((lang === 'de' ? german : catalogs)['ui.stop.all.automations.of.this.baed310b']), 'operating controls survive language changes and use the selected language');
+            assert.ok((await view.locator('.system-runtime button').allTextContents()).includes((lang === 'de' ? german : catalogs)['desktop.operation.readStatus']), 'the unknown-status guidance names the actual status button in both products');
+        }
+        assert.equal(operations.length, before, 'showing receiver states and changing language issues no runtime request');
+        await row.locator('button[data-operation-system="b"]').click();
+        await view.locator('#desktop-view-operation:not([hidden])').waitFor();
+        assert.equal(await view.locator('#designer-system').inputValue(), 'b');
+        const activate = view.locator('.system-runtime .transfer-actions').first().locator('button').first();
+        await activate.click();
+        let confirmation = view.locator('dialog.guided-confirmation[open]');
+        await confirmation.waitFor();
+        assert.equal(await confirmation.locator('.operation-confirm-rules li').innerText(), '<strong>Synthetic receiver rule</strong>');
+        assert.equal(await confirmation.locator('.operation-confirm-rules strong').count(), 0, 'rule names remain text');
+        await confirmation.getByRole('button', {name: 'Cancel', exact: true}).click();
+        assert.equal(operations.length, before, 'cancelling activation leaves every network untouched');
+        await activate.click();
+        confirmation = view.locator('dialog.guided-confirmation[open]');
+        await confirmation.getByRole('button', {name: 'Confirm', exact: true}).click();
+        await view.locator('.system-runtime .transfer-actions').first().locator('button.primary').waitFor({state: 'hidden'});
+        assert.deepEqual(operations.slice(before).map(row => [row.systemId, row.body.action]), [['b', 'activate']], 'only the explicitly selected receiver is started, once');
+        await view.locator('button[data-operation-return="a"]').click();
+        await view.locator('.operation-preparation li[data-state="active"]').waitFor();
+        assert.equal(await view.locator('#designer-system').inputValue(), 'a');
+        assert.equal(await view.locator('#desktop-view-operation').isVisible(), true, 'the guided return opens the original operation');
+        runtimeViews.set('b', {...runtimeView('b'), confirmed: false, executing: true});
+        await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'automations');
+        await view.locator('.operation-readiness li[data-state="unknown"]').waitFor();
+        assert.equal(writes.length, beforeWrites, 'activation guidance never rewrites an automation draft');
+    } finally { rule.enabled = enabled; runtimeViews.clear(); for (const [id, value] of saved) runtimeViews.set(id, value); }
+}
+
 async function verifyNetworkPicker(page, view) {
     active = 'a'; await page.reload();
     await view.locator('#edit-automation-button:not([disabled])').waitFor();
@@ -385,6 +437,8 @@ async function verifyDraftSynchronization(page, view, language) {
     assert.equal(await refresh.innerText(), language === 'de' ? 'Aus Z2M aktualisieren' : 'Update from Z2M');
     await refresh.click();
     await view.getByRole('heading', {name: 'Fresh Z2M automation a', exact: true}).waitFor();
+    // The heading renders during reload, before the command's final status paint.
+    await feedback.getByText(language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/).waitFor();
     assert.match(await feedback.innerText(), language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/);
     assert.equal(await feedback.getAttribute('data-tone'), 'success');
     assert.ok(await feedback.evaluate(node => getComputedStyle(node).color !== getComputedStyle(node.parentElement).color), 'confirmed feedback uses the semantic success color');
@@ -679,11 +733,14 @@ try {
     await verifyDeviceNetworks(page, page);
     await tile.emulateMedia({colorScheme: 'light'});
     await verifyDeviceNetworks(tile, tile.frameLocator('#designer-frame'));
+    await verifyOperationReadiness(page, page);
+    await verifyOperationReadiness(tile, tile.frameLocator('#designer-frame'));
     await verifyNetworkPicker(page, page);
     await verifyNetworkPicker(tile, tile.frameLocator('#designer-frame'));
     deviceNetworks = false;
     assert.deepEqual(errors, []);
     console.log('Device network labels passed: browser/tile, DE/EN, local/remote devices with identical IDs, conditions, set/toggle/scene/sequence actions and system switches without writes.');
+    console.log('Receiver activation guidance passed: browser/tile, DE/EN, stopped/unknown/active states, direct network navigation, saved rule preview, cancellation, one explicit target start and guided return without draft changes.');
     console.log('New automation network picker passed: browser/tile, qualified conditions, toggle actions and native state_l1 TOGGLE values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');

@@ -190,12 +190,18 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $check($decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'Pure runtime status does not block local return.');
     $check($view($first)['canActivate'], 'Matching saved draft can activate.');
     $check($view($first)['releasedCount'] === 0 && $view($first)['ruleCount'] === 1, 'Confirmed matching stored configuration reports its actual enabled count.');
+    $check($view($first)['releasedRules'] === [], 'An activation preview never includes a disabled saved rule.');
     $active = $request($first, 'activate');
     $check($active['ok'] && $active['runtime']['status'] === 'activated' && $active['runtime']['executing'] === true && $active['runtime']['resumeAfterRestart'], 'Activation is followed by a fresh status and restart intent confirmation: ' . json_encode($active));
+    $overview = $decode($manager->GetWorkspaceOverview());
+    $observed = array_column($overview['systems'], null, 'systemId');
+    $check($observed[$first['systemId']]['runtimeConfirmed'] && $observed[$first['systemId']]['executing'] === true, 'The overview reports the confirmed active network for partner guidance.');
     $check(!$decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'A possible external control prevents a misleading local rollback.');
     foreach (array_slice($systems, 1) as $s) $check($metadata[$s['binding']['baseTopic']] === $before[$s['binding']['baseTopic']], 'Other brokers and identical rule identities remain untouched.');
     $stopped = $request($first, 'deactivate')['runtime'];
     $check($stopped['status'] === 'stopped' && $stopped['confirmed'] && !$stopped['executing'], 'Global stop confirmed.');
+    $observed = array_column($decode($manager->GetWorkspaceOverview())['systems'], null, 'systemId');
+    $check($observed[$first['systemId']]['runtimeConfirmed'] && $observed[$first['systemId']]['executing'] === false, 'A confirmed stopped receiver is distinguishable from unknown status.');
     $check($stopped['resumeAfterRestart'] && $stopped['resumeStatus'] === 'stopped', 'Stopping disarms the restart intent without clearing the configured restart preference.');
     $one = $request($first, 'run_once', 'same_rule');
     $check($one['runtime']['status'] === 'run_started' && $one['runtime']['executing'] === false && $one['runtime']['rules']['same_rule']['state'] === 'running', 'Disabled saved rule can run once without arming automatic execution.');
@@ -234,6 +240,8 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     };
     $unconfirmed = $request($first, 'activate');
     $check($unconfirmed['runtime']['pending'] && !$unconfirmed['runtime']['confirmed'], 'Command acknowledgement alone never confirms activation.');
+    $observed = array_column($decode($manager->GetWorkspaceOverview())['systems'], null, 'systemId');
+    $check(!$observed[$first['systemId']]['runtimeConfirmed'] && $observed[$first['systemId']]['executing'] === null, 'An unconfirmed receiver is unknown rather than active or stopped.');
     $mutate = null;
     $connections[$topic]->clock += 11;
     $check($view($first)['status'] === 'timeout' && !$view($first)['confirmed'], 'Missing final status remains unconfirmed without retry.');

@@ -2515,6 +2515,98 @@
         "Diese Verbindung wird von %s (Instanz %d) verwaltet. Die Z2M-Erweiterung bitte in dieser Automationszentrale installieren oder aktualisieren: im Konfigurationsformular der Zentrale oder im Webdesigner.",
         "This connection is managed by %s (instance %d). Install or update the Z2M extension in that automation center, using its configuration form or browser designer."
     ],
+    "operation.network.title": [
+        "Benötigte Z2M-Netze",
+        "Required Z2M networks"
+    ],
+    "operation.network.help": [
+        "Diese Automation nutzt Geräte in anderen Z2M-Netzen. Dort muss der Automatikbetrieb ebenfalls aktiv sein, damit Gerätebefehle und Gerätebedingungen angenommen werden.",
+        "This automation uses devices in other Z2M networks. Automatic operation must also be active there to accept device commands and device conditions."
+    ],
+    "operation.network.active": [
+        "Bestätigt: Automatikbetrieb aktiv.",
+        "Confirmed: automatic operation is active."
+    ],
+    "operation.network.stopped": [
+        "Automatikbetrieb gestoppt. Dieses Netz nimmt derzeit keine Partnerbefehle oder Gerätebedingungen an. Öffne seinen Betrieb und aktiviere ihn nach Prüfung der freigegebenen Regeln.",
+        "Automatic operation is stopped. This network currently accepts no partner commands or device conditions. Open its operation and activate it after reviewing the released rules."
+    ],
+    "operation.network.unknown": [
+        "Betriebsstatus unbekannt. Öffne den Betrieb dieses Netzes und wähle „Betriebsstatus lesen“.",
+        "Operating status unknown. Open this network's operation and choose “Read operating status”."
+    ],
+    "operation.network.missing": [
+        "Das Zielnetz ist nicht eindeutig zugeordnet. Prüfe seine Zuordnung in Schritt 3.",
+        "The destination network is not assigned unambiguously. Check its assignment in step 3."
+    ],
+    "operation.network.assign": [
+        "Zur Systemzuordnung",
+        "Open system assignment"
+    ],
+    "operation.network.open": [
+        "Betrieb von „{{name}}“ öffnen",
+        "Open operation for “{{name}}”"
+    ],
+    "operation.network.rules": [
+        "Benötigt von: {{names}}",
+        "Required by: {{names}}"
+    ],
+    "operation.prepare.title": [
+        "Automatikbetrieb vorbereiten",
+        "Prepare automatic operation"
+    ],
+    "operation.prepare.rules": [
+        "Wähle unten die Automationen aus, die laufen dürfen, und übernimm geänderte Freigaben.",
+        "Select the automations allowed to run below and apply any changed permissions."
+    ],
+    "operation.prepare.networks": [
+        "Prüfe die hier aufgeführten Zielnetze. Öffne gestoppte Netze und aktiviere dort den Automatikbetrieb ausdrücklich.",
+        "Check the destination networks listed here. Open stopped networks and explicitly activate their automatic operation."
+    ],
+    "operation.prepare.start": [
+        "Aktiviere danach den Automatikbetrieb dieses Netzes. Die Bestätigung zeigt dir die Regeln, die damit aktiv werden.",
+        "Then activate automatic operation on this network. The confirmation shows which rules will become active."
+    ],
+    "operation.prepare.local": [
+        "Die freigegebenen Automationen benötigen keine weiteren Z2M-Netze.",
+        "The released automations do not require any other Z2M networks."
+    ],
+    "operation.prepare.returnHelp": [
+        "Anschließend kannst du zu „{{name}}“ zurückkehren und dort den Betrieb starten oder die Automation testen.",
+        "You can then return to “{{name}}” to start its operation or test the automation."
+    ],
+    "operation.prepare.return": [
+        "Zurück zum Betrieb von „{{name}}“",
+        "Return to operation for “{{name}}”"
+    ],
+    "operation.activate.rules.one": [
+        "Damit wird {{count}} gespeicherte, freigegebene Automation aktiv:",
+        "This activates {{count}} saved, released automation:"
+    ],
+    "operation.activate.rules.other": [
+        "Damit werden {{count}} gespeicherte, freigegebene Automationen aktiv:",
+        "This activates {{count}} saved, released automations:"
+    ],
+    "operation.receiver.activate": [
+        "Partnerempfang aktivieren",
+        "Activate partner reception"
+    ],
+    "operation.receiver.help": [
+        "Es werden keine lokalen Automationen gestartet. Dieses Netz nimmt danach die durch gespeicherte Partnerfreigaben erlaubten Gerätebefehle und Gerätebedingungen an.",
+        "No local automations will be started. This network will accept device commands and device conditions allowed by its saved partner permissions."
+    ],
+    "operation.prepare.receiver": [
+        "Dieses Netz kann Partnerbefehle empfangen, ohne eigene Automationen freizugeben. Wähle unten „Partnerempfang aktivieren“ und bestätige den Start.",
+        "This network can receive partner commands without releasing local automations. Choose “Activate partner reception” below and confirm the start."
+    ],
+    "project.runtimeReceiverOnly": [
+        "Es werden keine lokalen Automationen gestartet. Der Partnerempfang wird mit den gespeicherten Freigaben aktiviert.",
+        "No local automations will be started. Partner reception will be activated with the saved permissions."
+    ],
+    "project.runtimeEnabledRules": [
+        "Folgende gespeicherte, freigegebene Automationen werden aktiv:",
+        "The following saved, released automations will become active:"
+    ],
     "draft.in": [
         "Im Entwurf",
         "In draft"

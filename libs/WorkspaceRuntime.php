@@ -251,6 +251,7 @@ trait WorkspaceRuntime
             'resumeStatus'       => $confirmed ? ($m['resumeStatus'] ?? null) : null,
             'ruleCount'          => $matches ? count($record['data']['document']['editorDraft']['configuration']['automations']) : null,
             'releasedCount'      => $matches ? count(array_filter($record['data']['document']['editorDraft']['configuration']['automations'], static fn (array $rule): bool => $rule['enabled'])) : null,
+            'releasedRules'      => $matches ? array_values(array_map(static fn (array $rule): array => ['id' => $rule['id'], 'name' => $rule['name']], array_filter($record['data']['document']['editorDraft']['configuration']['automations'], static fn (array $rule): bool => $rule['enabled']))) : null,
             'canRefresh'         => $connected && !$pending, 'canActivate' => $canStart, 'canStop' => $connected, 'rules' => $rules,
             'startNotice'        => $matches ? '' : 'Zum Starten muss der Entwurf dem gespeicherten Z2M-Stand entsprechen. Offene Änderungen zuerst übernehmen, prüfen und speichern. Stoppen bleibt möglich.'];
     }

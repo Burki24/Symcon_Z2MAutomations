@@ -506,22 +506,38 @@ anschließende Betriebsbestätigung, nicht deshalb noch einmal speichern.
 
 ## 8. Automationen aktivieren und stoppen
 
+Im Browserdesigner und in der Kachel öffnet der Menüeintrag **Betrieb** die
+geführte Vorbereitung. Zuerst die gewünschten Regeln freigeben, anschließend
+die benötigten Zielnetze aktivieren und zuletzt den Betrieb des Ausgangsnetzes
+starten. Die Bestätigung zeigt, welche gespeicherten Regeln aktiv werden.
+
+Systemübergreifende Automationen zeigen ihre benötigten Netze direkt im Ablauf:
+Rot bedeutet bestätigten Stopp, Gelb einen unbekannten Betriebsstatus und Grün
+bestätigten aktiven Betrieb. **Betrieb von … öffnen** wechselt direkt zum
+betroffenen Netz. Dort gegebenenfalls den Betriebsstatus lesen und die Aktivierung
+bestätigen. Danach zum ursprünglichen Netz zurückkehren. Der Wechsel selbst
+startet keine Automation. Auch Gerätebedingungen benötigen einen aktiven Empfänger.
+
+Ein Netz mit gespeicherten Partnerfreigaben benötigt keine eigene freigegebene
+Automation: **Partnerempfang aktivieren** nimmt erlaubte Partnerbefehle an,
+ohne lokale Regeln zu starten. MQTT-Bridges und Brokerrechte müssen weiterhin
+separat eingerichtet sein.
+
 ### Automatikbetrieb eines Systems
 
-Im Designer zuerst oben das gewünschte **Z2M-System** auswählen. Direkt darunter
-stehen die drei Bereiche **Prüfen & übertragen**, **Betrieb** und **Gerätedaten**.
-Auf **Betrieb** klicken, um die Betriebssteuerung aufzuklappen:
+Im Designer zuerst oben das gewünschte **Z2M-System** auswählen und links den
+Menüeintrag **Betrieb** öffnen:
 
 ![Geöffneter Bereich Betrieb mit Wiederanlaufoption, Aktivierung, Stopp und Einzelstart](../docs/screenshots/zentrale-betrieb.png)
 
-Oben im aufgeklappten Bereich stehen der Systemname und der bestätigte Zustand.
+Im Bereich stehen der Systemname und der bestätigte Zustand.
 Darunter finden Sie die Wiederanlaufoption und die Buttons zum Aktivieren,
 Stoppen und Aktualisieren. Im unteren Teil wird eine einzelne gespeicherte
 Automation für einen einmaligen Start oder gezielten Stopp ausgewählt.
 
-1. Bei unbekanntem Stand **Betriebsstatus in Z2M aktualisieren** wählen.
+1. Bei unbekanntem Stand **Betriebsstatus lesen** wählen.
 2. **Automatikbetrieb nach einem Z2M-Neustart wieder aufnehmen** nach Wunsch einstellen.
-3. **Gespeicherte Automationen aktivieren** wählen und bestätigen.
+3. **Automatikbetrieb aktivieren** wählen und bestätigen.
 4. Die frische Statusbestätigung abwarten. Erst dann gilt die Aktivierung als bestätigt.
 
 Aktiviert wird der gespeicherte Stand mit allen darin eingeschalteten Regeln.
