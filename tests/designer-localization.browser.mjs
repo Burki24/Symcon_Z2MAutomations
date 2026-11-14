@@ -142,7 +142,37 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     await view.locator('#validate-button:not(:disabled)').waitFor();
     assert.equal(catalogAvailable, false, 'refreshing the module view never starts a device read');
     await showStep(view, 'automations');
-    await view.locator('#symcon-open-device-refresh').click();
+    const shortcut = view.locator('#symcon-open-device-refresh');
+    assert.equal(await shortcut.evaluate(button => button.closest('#issues') !== null), true, 'the next action belongs inside the device data warning');
+    assert.equal(await shortcut.getAttribute('aria-describedby'), 'issues-message', 'keyboard navigation retains the warning context');
+    assert.equal(await issues.locator('#issues-message').getAttribute('tabindex'), '0', 'long warning text remains keyboard accessible');
+    const placement = await issues.evaluate(panel => {
+        const message = panel.querySelector('#issues-message').getBoundingClientRect();
+        const button = panel.querySelector('#symcon-open-device-refresh').getBoundingClientRect();
+        const heading = document.querySelector('#desktop-view-automations-title').getBoundingClientRect();
+        return {messageLeft: message.left, messageBottom: message.bottom, buttonLeft: button.left, buttonTop: button.top,
+            buttonRight: button.right, panelBottom: panel.getBoundingClientRect().bottom, headingTop: heading.top, width: innerWidth};
+    });
+    assert.ok(Math.abs(placement.buttonLeft - placement.messageLeft) < 2, 'the action follows the warning at its leading edge');
+    assert.ok(placement.buttonTop >= placement.messageBottom && placement.buttonTop - placement.messageBottom <= 20, 'the action is immediately below the warning text');
+    assert.ok(placement.buttonRight <= placement.width, 'the action fits the browser or tile width');
+    assert.ok(placement.panelBottom <= placement.headingTop + 1, 'the warning and its action precede the work area');
+    const originalScheme = await page.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    for (const colorScheme of ['light', 'dark']) {
+        await page.emulateMedia({colorScheme});
+        const colors = await shortcut.evaluate(button => {
+            const style = getComputedStyle(button);
+            return {background: style.backgroundColor, text: style.color, height: button.getBoundingClientRect().height};
+        });
+        assert.notEqual(colors.background, 'rgba(0, 0, 0, 0)', 'the next action has a filled background in ' + colorScheme);
+        assert.notEqual(colors.text, colors.background, 'the next action has distinct text in ' + colorScheme);
+        assert.ok(colors.height >= 40, 'the next action remains a full-size button');
+    }
+    await page.emulateMedia({colorScheme: originalScheme});
+    await issues.locator('#issues-message').focus();
+    await page.keyboard.press('Tab');
+    assert.equal(await shortcut.evaluate(button => button.ownerDocument.activeElement === button), true, 'Tab reaches the next action from the warning text');
+    if (language === 'de') await page.keyboard.press('Enter'); else await shortcut.click();
     await view.locator('#desktop-view-connection').waitFor({state: 'visible'});
     const refresh = view.locator('.system-catalog button').first();
     assert.equal(await refresh.innerText(), language === 'de' ? 'Gerätedaten aktualisieren' : 'Refresh device data');
@@ -398,6 +428,7 @@ try {
     assert.equal(operations.length, beforeReleaseOperations, 'editing a permission sends no transfer or runtime command');
     await verifyMissingCatalogNavigation(page, page, 'en', false);
     await verifyMissingCatalogNavigation(page, page, 'de', true);
+    await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'en', false);
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
     assert.deepEqual(errors, []);
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');

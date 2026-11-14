@@ -1,3 +1,32 @@
+## Gerätedatenaktion im Warnhinweis – 14.11.2026
+
+Der Benutzer bestätigte mit Library 0.200 den erfolgreichen Geräteabruf im
+Browserdesigner und die anschließende Anzeige der erhaltenen lokalen Entwürfe.
+Der bisher oben rechts platzierte Direktwechsel wurde dabei übersehen.
+Das neu festgeschriebene Designer-Paket `0.102.0`, Inhalt `2acc19572845`, setzt
+den Warnhinweis unter die Systemauswahl und seine hervorgehobene Aktion direkt
+unter den Hinweistext. Nachrichtenbindung und Aktion bleiben getrennte Kinder,
+damit Aktualisierung und Sprachwechsel die Schaltfläche erhalten. Lange Hinweise
+scrollen in einem begrenzten Textbereich; die Aktion bleibt außerhalb dieses
+Bereichs. Der Desktop verwendet weiterhin seine eigene Entwurfsprüfung.
+
+Der bildfreie Browsertest hat die alte Platzierung gezielt abgelehnt. Mit dem
+neuen Paket prüft er Zugehörigkeit zur Warnmeldung, linksbündige Nachbarschaft,
+Anordnung vor dem Arbeitsbereich, Breite und Hell-/Dunkeldarstellung in Browser
+und Kachel. Tab erreicht die beschriebene Aktion; Enter öffnet Schritt 4. Der
+Direktwechsel sendet weiterhin keinen MQTT-Auftrag; nur der separate Abruf
+lädt Daten, ohne den Entwurf zu ändern. Neue native Kachelabnahme und CI dieses
+geänderten Pakets bleiben nach Benutzer-Push und Modulupdate zu bestätigen.
+
+Lokal bestanden: PHP-Gesamtsuite und 261 JavaScript-Tests; nach dem letzten
+Markupabgleich erneut alle 261 Node-Tests und der bildfreie Browserlauf mit
+DE/EN in Browser und Kachel, Tab/Enter, Hell/Dunkel und echten Mausradaktionen.
+Struktur, Kodierung, offizieller StylePHP-Check der 18 eigenen JSON-Dateien und
+PHP CS Fixer für 157 Dateien ohne Befund. App-Build, Typ-/Integritätsprüfung und
+187 Tests erfolgreich; zwei native APT-Tests unter Windows erwartungsgemäß
+übersprungen. Der bildfreie App-Smoke-Test bestätigt auch Layout und Speichern
+beim Schließen. Keine eigene Bildschirmaufnahme oder Live-Systemänderung.
+
 ## Bildfreie Browserprüfung in CI – 13.11.2026
 
 Der Workflow `tests.yml` führt `npm run test:browser` als eigenen Pflichtjob
@@ -27,8 +56,10 @@ Die CI verwendet beide Ausnahmen nicht. Lokal bestanden: frisches `npm ci`,
 der Browserlauf mit gepinntem Chromium unter Windows und drei CI-/Aufnahmesperren-
 Tests, PHP-Gesamtsuite mit 261 JavaScript-Tests, Strukturprüfung, actionlint 1.7.12,
 offizieller StylePHP-Check der 18 eigenen JSON-Dateien und PHP CS Fixer ohne
-Befund für 157 Dateien. Der neue Linux-Containerjob muss nach Commit und Push
-auf GitHub erstmals bestätigt werden; lokal ist kein Docker installiert.
+Befund für 157 Dateien. Der Linux-Containerjob ist inzwischen für Library 0.200
+in [CI-Lauf 43462572195](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/43462572195)
+ebenfalls erfolgreich bestätigt. Lokal ist kein Docker installiert; der neue
+Paketstand benötigt nach dem Benutzer-Push seinen eigenen CI-Nachweis.
 
 ## Eindeutiger Gerätedatenhinweis – 13.11.2026
 

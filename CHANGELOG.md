@@ -70,7 +70,8 @@ Versionierung der Library bleibt maßgeblich.
 
 - Hinweise zu fehlenden oder unbestätigten Gerätedaten nennen im Browserdesigner
   und in der Kachel Schritt 4 und die tatsächliche Aktualisierungsschaltfläche.
-  Ein direkter Navigationsbutton öffnet den Bereich. Der Abruf startet erst über
+  Die hervorgehobene Schaltfläche steht direkt im Warnhinweis unter der
+  Systemauswahl und öffnet den Bereich. Der Abruf startet erst über
   „Gerätedaten aktualisieren“.
 
 - Zentral verwaltete Z2M-Verbindungen zeigen anstelle des gesperrten

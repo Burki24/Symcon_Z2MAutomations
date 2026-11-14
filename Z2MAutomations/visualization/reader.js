@@ -305,7 +305,7 @@ import {installNativeEmbedding} from './embedding.js';
         if (data.draftMismatch) notices.push(t("ui.the.yaml.draft.differs.from.417e170d"));
         if (data.openFormEdits) notices.push(t("ui.the.native.form.has.input.d0b78d48"));
         $('#issues').hidden = data.catalogAvailable && data.draftAvailable && !data.openFormEdits;
-        bindText($('#issues'), () => notices.join(' '));
+        bindText($('#issues-message') ?? $('#issues'), () => notices.join(' '));
         $('#feedback').dataset.tone = '';
         message(() => (notices[0]));
     }
@@ -363,7 +363,7 @@ import {installNativeEmbedding} from './embedding.js';
         } catch (error) {
             const text = error.message === 'access' ? t("ui.read.access.is.missing.or.e380a485") : t("ui.module.data.could.not.be.80c47bf5");
             message(text); $('#feedback').dataset.tone = 'error';
-            $('#issues').hidden = false; bindText($('#issues'), () => text);
+            $('#issues').hidden = false; bindText($('#issues-message') ?? $('#issues'), () => text);
             return false;
         } finally {
             busy = false; $('#validate-button').disabled = false; updateTransfers(); updateRuntime(); updateCatalog(); updateDiagnostics(); updatePermissions(); management?.refresh(category, stateFilter); eventImport?.refresh(); updateLayout();

@@ -122,9 +122,13 @@ export function installSymconWorkspace({getData, reload = async () => false}) {
         nodes = {centreName, brokerList, systemList, inventoryStatus, devices, groups, draftStatus, download, reviewStatus, reviewDetails, findings, storedStatus, runtimeStatus, releasedCount, ruleSwitches, releaseFeedback};
         shell.mountDesigner();
         // Request failures must remain visible in setup, review and operation too.
-        shell.context.after(document.querySelector('.designer-feedback'));
-        const catalogShortcut = shell.link(document.querySelector('.designer-feedback'), 'connection', 'symcon.catalog.openRefresh');
-        catalogShortcut.id = 'symcon-open-device-refresh'; catalogShortcut.hidden = true;
+        const statusFeedback = document.querySelector('.designer-feedback');
+        shell.context.after(statusFeedback);
+        const issues = document.querySelector('#issues');
+        statusFeedback.after(issues);
+        const catalogShortcut = shell.link(issues, 'connection', 'symcon.catalog.openRefresh');
+        catalogShortcut.id = 'symcon-open-device-refresh'; catalogShortcut.className = 'primary'; catalogShortcut.hidden = true;
+        catalogShortcut.setAttribute('aria-describedby', 'issues-message');
         nodes.catalogShortcut = catalogShortcut;
         document.querySelector('#validate-button')?.addEventListener('click', () => shell.show('connection'));
         document.addEventListener('z2ma-workflow-next', event => shell.show(event.detail?.next === 'store' ? 'transfer' : event.detail?.next === 'review' ? 'review' : 'connection'));

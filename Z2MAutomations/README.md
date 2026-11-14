@@ -181,8 +181,10 @@ oder ausdrücklich verworfen werden. Regeln und Aktionsfolgen bleiben je System 
 **Ansicht aktualisieren** liest nur den bereits vorhandenen Modulstand aus
 Symcon. Für frische Gerätedaten aus Z2M:
 
-Bei fehlenden oder unbestätigten Gerätedaten führt **Zu Schritt 4: Gerätedaten**
-direkt in den richtigen Bereich. Der Button öffnet nur den Bereich; den Abruf
+Bei fehlenden oder unbestätigten Gerätedaten steht der Hinweis direkt unter der
+Systemauswahl. Darin führt die hervorgehobene Schaltfläche
+**Zu Schritt 4: Gerätedaten** direkt in den richtigen Bereich.
+Der Button öffnet nur den Bereich; den Abruf
 starten Sie dort ausdrücklich mit **Gerätedaten aktualisieren**.
 
 1. Das gewünschte System auswählen und Schritt 4 **Verbinden und Bestand lesen** öffnen.
