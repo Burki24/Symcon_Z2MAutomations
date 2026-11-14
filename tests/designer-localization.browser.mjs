@@ -24,6 +24,7 @@ const interaction = readFileSync(new URL('../libs/helper/visualization/interacti
 let createContext = 'c'.repeat(64);
 let overflowRules = false; let rejectReview = false;
 let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 'e'.repeat(64);
+let nativeFormEdits = false; let rejectViewRead = false;
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
 function transferView(id) {
@@ -38,7 +39,7 @@ const setupView = () => ({ok: true, fingerprint: 'd'.repeat(64), candidates: '3'
     ({Connection: index + 10010, Use: true, editable: false, Name: system.name, MQTT: String(system.binding.mqttParent), Topic: system.binding.baseTopic, Status: 'Synthetic ready'}))});
 function model(id = 'a') {
     return {contractVersion: 1, mode: 'read', module: {id: 1, name: 'Synthetic centre', baseTopic: id === 'a' ? 'zigbee2mqtt' : 'Z2M-2', gateway: 2},
-        readAt: 1800000000, catalogAvailable, catalogLoadedAt: catalogAvailable ? 1800000000 : null, draftAvailable: true, draftMismatch: false, openFormEdits: false,
+        readAt: 1800000000, catalogAvailable, catalogLoadedAt: catalogAvailable ? 1800000000 : null, draftAvailable: true, draftMismatch: false, openFormEdits: nativeFormEdits,
         configuration: {schema_version: 1, revision: 4 + createdRules.get(id).length, mesh_peers: ['kept-peer'],
             automations: [rules.get(id), ...createdRules.get(id), ...(overflowRules ? Array.from({length: 30}, (_, i) => ({...rule, id: 'overflow_' + i, name: 'Synthetic automation ' + i})) : [])], sequences: [sequence]},
         devices: [{key: 'lamp', name: 'Eigener Gerätename – Ein', target: {type: 'device', id: 'lamp'},
@@ -102,7 +103,7 @@ const server = createServer(async (request, response) => {
         else { writes.push({route, body, systemId: request.headers['x-z2ma-system-id']}); if (route === 'edit') Object.assign(rules.get(active), structuredClone(body.changes)); }
         response.end(JSON.stringify({ok: true, ruleId: 'rule_a'})); return;
     }
-    if (route === 'data') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(model(active))); return;}
+    if (route === 'data') {response.setHeader('Content-Type', 'application/json'); if (rejectViewRead) {response.writeHead(503); response.end('{}'); return;} response.end(JSON.stringify(model(active))); return;}
     if (route === 'workspace-status') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(setupView())); return;}
     if (!/^[a-z-]+\.(?:js|html|css)$/.test(route)) {response.writeHead(404); response.end(); return;}
     try {
@@ -176,6 +177,41 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     await view.locator('#desktop-view-connection').waitFor({state: 'visible'});
     const refresh = view.locator('.system-catalog button').first();
     assert.equal(await refresh.innerText(), language === 'de' ? 'Gerätedaten aktualisieren' : 'Refresh device data');
+    assert.equal(await issues.isVisible(), false, 'step 4 uses its own device data card instead of a navigation warning');
+    assert.equal(await shortcut.isVisible(), false, 'step 4 never links to itself');
+    assert.equal(await refresh.evaluate(button => button.classList.contains('primary')), true, 'the explicit device read is highlighted in step 4');
+    assert.equal(catalogAvailable, false, 'hiding the navigation warning does not confirm the catalog');
+    for (const step of ['project', 'broker', 'system', 'draft', 'automations', 'review', 'transfer', 'operation']) {
+        await showStep(view, step);
+        assert.equal(await issues.isVisible(), true, 'the device data warning remains available in ' + step);
+        assert.equal(await shortcut.isVisible(), true, 'the direct device data link remains available in ' + step);
+    }
+    await showStep(view, 'connection');
+    assert.equal(await issues.isVisible(), false, 'manual navigation back to step 4 also hides the redundant warning');
+    const otherLanguage = language === 'de' ? 'en' : 'de';
+    await view.locator('#designer-language').selectOption(otherLanguage);
+    assert.equal(await issues.isVisible(), false, 'a language change cannot restore the redundant navigation warning');
+    await view.locator('#designer-language').selectOption(language);
+    nativeFormEdits = true;
+    await view.locator('#validate-button').click();
+    await issues.waitFor({state: 'visible'});
+    assert.doesNotMatch(await issues.innerText(), /Schritt 4|step 4/i, 'other form warnings remain visible without device navigation instructions');
+    assert.equal(await shortcut.isVisible(), false, 'other warnings do not restore a link to the current step');
+    nativeFormEdits = false;
+    await view.locator('#validate-button:not(:disabled)').click();
+    await issues.waitFor({state: 'hidden'});
+    rejectViewRead = true;
+    await view.locator('#validate-button:not(:disabled)').click();
+    await issues.waitFor({state: 'visible'});
+    const readError = (language === 'de' ? german : catalogs)['ui.module.data.could.not.be.80c47bf5'];
+    assert.equal(await view.locator('#issues-message').innerText(), readError, 'failed view reads remain visible in step 4');
+    await showStep(view, 'automations');
+    await showStep(view, 'connection');
+    assert.equal(await view.locator('#issues-message').innerText(), readError, 'navigation preserves the read failure');
+    rejectViewRead = false;
+    await view.locator('#validate-button:not(:disabled)').click();
+    await issues.waitFor({state: 'hidden'});
+    assert.equal(catalogAvailable, false, 'view recovery is not a device read');
     assert.equal(operations.length, beforeOperations, 'the shortcut only navigates and sends no MQTT request');
     await refresh.click();
     await issues.waitFor({state: 'hidden'});

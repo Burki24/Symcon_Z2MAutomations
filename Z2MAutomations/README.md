@@ -184,8 +184,12 @@ Symcon. Für frische Gerätedaten aus Z2M:
 Bei fehlenden oder unbestätigten Gerätedaten steht der Hinweis direkt unter der
 Systemauswahl. Darin führt die hervorgehobene Schaltfläche
 **Zu Schritt 4: Gerätedaten** direkt in den richtigen Bereich.
-Der Button öffnet nur den Bereich; den Abruf
-starten Sie dort ausdrücklich mit **Gerätedaten aktualisieren**.
+Der Button öffnet nur den Bereich. In Schritt 4 entfällt dieser zusätzliche
+Navigationshinweis. Dort starten Sie den Abruf ausdrücklich mit der
+hervorgehobenen Schaltfläche **Gerätedaten aktualisieren** in der Gerätedaten-Karte.
+Andere Formularhinweise und Fehlermeldungen bleiben sichtbar. Beim Wechsel in
+einen anderen Schritt erscheint der Gerätedatenhinweis wieder, solange der
+Bestand noch nicht bestätigt ist.
 
 1. Das gewünschte System auswählen und Schritt 4 **Verbinden und Bestand lesen** öffnen.
 2. **Gerätedaten aktualisieren** wählen.

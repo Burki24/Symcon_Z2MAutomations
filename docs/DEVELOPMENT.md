@@ -3,23 +3,33 @@
 Der Benutzer bestätigte mit Library 0.200 den erfolgreichen Geräteabruf im
 Browserdesigner und die anschließende Anzeige der erhaltenen lokalen Entwürfe.
 Der bisher oben rechts platzierte Direktwechsel wurde dabei übersehen.
-Das neu festgeschriebene Designer-Paket `0.102.0`, Inhalt `2acc19572845`, setzt
+Das neu festgeschriebene Designer-Paket `0.102.0`, Inhalt `cc0beb1bbbc3`, setzt
 den Warnhinweis unter die Systemauswahl und seine hervorgehobene Aktion direkt
 unter den Hinweistext. Nachrichtenbindung und Aktion bleiben getrennte Kinder,
 damit Aktualisierung und Sprachwechsel die Schaltfläche erhalten. Lange Hinweise
 scrollen in einem begrenzten Textbereich; die Aktion bleibt außerhalb dieses
-Bereichs. Der Desktop verwendet weiterhin seine eigene Entwurfsprüfung.
+Bereichs. In Schritt 4 entfällt ausschließlich der zusätzliche Katalog-
+Navigationshinweis. Die Gerätedaten-Karte hebt ihren Aktualisierungsbutton hervor.
+In allen anderen Schritten erscheint der Hinweis weiterhin. Navigation, manuelle
+Schrittauswahl, Sprachwechsel und neue Modulansichten werten denselben aktiven
+Schritt aus. Andere Formularhinweise und fehlgeschlagene Ansichtsabrufe bleiben
+auch in Schritt 4 sichtbar; die Bestätigung des Gerätekatalogs wird nicht geändert.
+Der Desktop verwendet weiterhin seine eigene Entwurfsprüfung und weist keinen
+entsprechenden Selbstverweis auf. Sein Smoke-Test prüft dies jetzt ausdrücklich.
 
-Der bildfreie Browsertest hat die alte Platzierung gezielt abgelehnt. Mit dem
+Der bildfreie Browsertest hat den bisherigen Selbstverweis in Schritt 4
+gezielt nachgewiesen und abgelehnt. Mit dem
 neuen Paket prüft er Zugehörigkeit zur Warnmeldung, linksbündige Nachbarschaft,
 Anordnung vor dem Arbeitsbereich, Breite und Hell-/Dunkeldarstellung in Browser
 und Kachel. Tab erreicht die beschriebene Aktion; Enter öffnet Schritt 4. Der
 Direktwechsel sendet weiterhin keinen MQTT-Auftrag; nur der separate Abruf
-lädt Daten, ohne den Entwurf zu ändern. Neue native Kachelabnahme und CI dieses
+lädt Daten, ohne den Entwurf zu ändern. Zusätzliche Fälle prüfen alle anderen
+acht Bereiche, Ansichtsaktualisierung, offene native Formulare, Lesefehler und
+Erholung. Neue native Kachelabnahme und CI dieses
 geänderten Pakets bleiben nach Benutzer-Push und Modulupdate zu bestätigen.
 
-Lokal bestanden: PHP-Gesamtsuite und 261 JavaScript-Tests; nach dem letzten
-Markupabgleich erneut alle 261 Node-Tests und der bildfreie Browserlauf mit
+Lokal mit diesem Paket bestanden: PHP-Gesamtsuite und 261 JavaScript-Tests
+sowie der bildfreie Browserlauf mit
 DE/EN in Browser und Kachel, Tab/Enter, Hell/Dunkel und echten Mausradaktionen.
 Struktur, Kodierung, offizieller StylePHP-Check der 18 eigenen JSON-Dateien und
 PHP CS Fixer für 157 Dateien ohne Befund. App-Build, Typ-/Integritätsprüfung und
