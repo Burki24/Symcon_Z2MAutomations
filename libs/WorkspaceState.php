@@ -17,6 +17,9 @@ final class WorkspaceState
     public const MAX_DATA = 524288;
     public const JSON_FLAGS = JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
     public const MESSAGES = [
+        'draft_sync_changed'           => 'Entwurf, Z2M-Stand oder Verbindung wurde inzwischen geändert. Bitte erneut aus Z2M aktualisieren. Der lokale Entwurf wurde nicht ersetzt.',
+        'draft_sync_failed'            => 'Der aktuelle Z2M-Stand konnte nicht vollständig bestätigt oder sicher übernommen werden. Der lokale Entwurf bleibt erhalten. Bitte Verbindung und Erweiterung prüfen.',
+        'draft_sync_timeout'           => 'Die Wartezeit auf den Z2M-Stand ist abgelaufen. Der lokale Entwurf bleibt erhalten. Es wird nichts automatisch erneut gesendet.',
         'permissions_stale'            => 'Die Systemdaten oder Entwürfe haben sich inzwischen geändert. Bitte den Dialog schließen, die Partnerfreigaben neu öffnen und die Änderungen erneut prüfen. Es wurde nichts übernommen.',
         'diagnostics_changed'          => 'Die Verbindung oder die Aufzeichnung hat sich geändert. Bitte den Diagnosestand neu laden und danach erneut wählen.',
         'diagnostics_unavailable'      => 'Die Diagnose ist derzeit nicht verfügbar. Bitte die Z2M-Verbindung und ihren Erweiterungsstatus prüfen; gegebenenfalls das Verbindungsmodul aktualisieren.',

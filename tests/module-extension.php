@@ -117,8 +117,10 @@ class ObservedAutomationModule extends Z2MAutomations
     protected function UpdateFormField(string $Field, string $Parameter, mixed $Value): bool
     {
         static $knownFields = null;
-        $sourceForm = json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
-        $knownFields ??= formFields(array_merge($sourceForm['elements'], $sourceForm['actions']));
+        if ($knownFields === null) {
+            $sourceForm = json_decode(file_get_contents(dirname(__DIR__) . '/Z2MAutomations/form.json'), true, 512, JSON_THROW_ON_ERROR);
+            $knownFields = formFields(array_merge($sourceForm['elements'], $sourceForm['actions']));
+        }
         if (!isset($knownFields[$Field])) {
             throw new RuntimeException('Live update targets an unknown form field: ' . $Field);
         }

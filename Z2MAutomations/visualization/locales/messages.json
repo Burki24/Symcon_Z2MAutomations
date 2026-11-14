@@ -8470,5 +8470,97 @@
     "symcon.catalog.openRefresh": [
         "Zu Schritt 4: Gerätedaten",
         "Open step 4: device data"
+    ],
+    "symcon.draftSync.refresh": [
+        "Aus Z2M aktualisieren",
+        "Update from Z2M"
+    ],
+    "symcon.draftSync.replace": [
+        "Z2M-Stand stattdessen übernehmen",
+        "Use the Z2M version instead"
+    ],
+    "symcon.draftSync.restore": [
+        "Vorherigen Entwurf wiederherstellen",
+        "Restore the previous draft"
+    ],
+    "symcon.draftSync.idle": [
+        "Liest den aktuellen Stand des ausgewählten Z2M-Systems. Ein unveränderter Entwurf wird bei neuerer Z2M-Basis direkt aktualisiert.",
+        "Reads the selected Z2M system. An unchanged draft updates directly when its Z2M base is newer."
+    ],
+    "symcon.draftSync.reading": [
+        "Aktueller Z2M-Stand wird gelesen …",
+        "Reading the current Z2M configuration …"
+    ],
+    "symcon.draftSync.verifying": [
+        "Z2M-Stand vor der lokalen Übernahme erneut bestätigen …",
+        "Confirming the Z2M version again before updating the local draft …"
+    ],
+    "symcon.draftSync.updated": [
+        "Entwurf von „{{name}}“ aus Z2M aktualisiert (Revision {{revision}}). Z2M und laufender Betrieb bleiben unverändert. Der vorherige Entwurf ist gesichert.",
+        "Draft for “{{name}}” updated from Z2M (revision {{revision}}). Z2M and running automations are unchanged. The previous draft is backed up."
+    ],
+    "symcon.draftSync.current": [
+        "Die Z2M-Basis ist aktuell. Dein lokaler Entwurf bleibt unverändert, einschließlich eigener Änderungen.",
+        "The Z2M base is current. Your local draft, including your own changes, is unchanged."
+    ],
+    "symcon.draftSync.conflict": [
+        "In Z2M und im lokalen Entwurf gibt es abweichende Änderungen. Dein Entwurf bleibt erhalten. Du kannst weiterbearbeiten oder ihn ausdrücklich durch den gelesenen Z2M-Stand ersetzen.",
+        "Z2M and the local draft have diverged. Your draft is preserved. Continue editing or explicitly replace it with the version read from Z2M."
+    ],
+    "symcon.draftSync.older": [
+        "Z2M meldet eine ältere Basis als dein Entwurf. Es wird nichts ersetzt. Prüfe, ob du das richtige System ausgewählt hast oder in Z2M eine ältere Version wiederhergestellt wurde.",
+        "Z2M reports an older base than your draft. Nothing was replaced. Check the selected system and whether an older version was restored in Z2M."
+    ],
+    "symcon.draftSync.restored": [
+        "Vorheriger lokaler Entwurf wiederhergestellt. Z2M und laufender Betrieb bleiben unverändert.",
+        "Previous local draft restored. Z2M and running automations are unchanged."
+    ],
+    "symcon.draftSync.differences": [
+        "Z2M-Basis: {{base}} → {{remote}}. Gegenüber deinem Entwurf: {{added}} neu, {{changed}} geändert, {{removed}} entfernt (Automationen und Aktionsfolgen).",
+        "Z2M base: {{base}} → {{remote}}. Compared with your draft: {{added}} added, {{changed}} changed, {{removed}} removed (automations and action sequences)."
+    ],
+    "symcon.draftSync.permissions": [
+        "Auch Partnerfreigaben unterscheiden sich.",
+        "Partner grants also differ."
+    ],
+    "symcon.draftSync.replaceConfirm": [
+        "Den lokalen Entwurf von „{{name}}“ vollständig durch den gelesenen Z2M-Stand ersetzen? Eigene Entwurfsänderungen werden vorher gesichert. Partnerfreigaben werden aus Z2M übernommen. Z2M und laufende Automationen bleiben unverändert.",
+        "Replace the entire local draft for “{{name}}” with the version read from Z2M? Your draft changes will be backed up first. Partner grants will be copied from Z2M. Z2M and running automations are unchanged."
+    ],
+    "symcon.draftSync.restoreConfirm": [
+        "Den vor der Aktualisierung gesicherten Entwurf von „{{name}}“ lokal wiederherstellen? Der aktuelle Z2M-Stand bleibt dort gespeichert.",
+        "Restore the draft backed up before updating “{{name}}” locally? The current Z2M version remains stored in Z2M."
+    ],
+    "symcon.draftSync.failed": [
+        "Der aktuelle Z2M-Stand konnte nicht vollständig bestätigt oder sicher übernommen werden. Der lokale Entwurf bleibt erhalten. Bitte Verbindung und Erweiterung prüfen.",
+        "The current Z2M version could not be fully confirmed or safely imported. Your local draft is preserved. Check the connection and extension."
+    ],
+    "symcon.draftSync.changed": [
+        "Entwurf, Z2M-Stand oder Verbindung wurde inzwischen geändert. Bitte erneut aus Z2M aktualisieren. Der lokale Entwurf wurde nicht ersetzt.",
+        "The draft, Z2M version or connection has changed. Update from Z2M again. The local draft was not replaced."
+    ],
+    "symcon.draftSync.unconfirmed": [
+        "Keine eindeutige Rückmeldung zum Entwurfsabgleich. Bitte die Ansicht aktualisieren. Es wird nichts automatisch erneut gesendet.",
+        "No clear reply about the draft update. Refresh the view. Nothing is automatically sent again."
+    ],
+    "symcon.draftSync.reload": [
+        "Der Abgleich wurde bearbeitet. Schließe offene Formulare und wähle „Ansicht aktualisieren“, um das Ergebnis zu sehen. Deine Eingaben bleiben erhalten.",
+        "The update request was processed. Close any open forms and choose “Refresh view” to see the result. Your inputs are preserved."
+    ],
+    "symcon.draftSync.openInput": [
+        "Bitte zuerst offene Eingaben übernehmen oder das Formular schließen. Dein Entwurf wird währenddessen nicht ersetzt.",
+        "Apply your open inputs or close the form first. Your draft will not be replaced in the meantime."
+    ],
+    "symcon.draftSync.busy": [
+        "Die Verbindung bearbeitet noch einen Auftrag. Warte dessen Abschluss ab und aktualisiere dann aus Z2M.",
+        "The connection is processing another request. Wait for it to finish, then update from Z2M."
+    ],
+    "symcon.draftSync.connection": [
+        "Für den Entwurfsabgleich muss das ausgewählte Z2M-System verbunden und dieser Automationszentrale zugeordnet sein. Prüfe Schritt 3 und 4.",
+        "The selected Z2M system must be connected and owned by this automation centre. Check steps 3 and 4."
+    ],
+    "symcon.draftSync.timeout": [
+        "Die Wartezeit auf den Z2M-Stand ist abgelaufen. Der lokale Entwurf bleibt erhalten. Es wird nichts automatisch erneut gesendet.",
+        "The wait for the Z2M version has expired. Your local draft is preserved. Nothing is automatically sent again."
     ]
 }

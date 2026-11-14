@@ -6,6 +6,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Im Browserdesigner und in der Kachel den lokalen Entwurf in Schritt 6 direkt
+  aus dem ausgewählten Z2M-System aktualisieren. Eigene Änderungen bleiben bis
+  zur ausdrücklichen Ersetzungsbestätigung erhalten; eine private Sicherung
+  ermöglicht die lokale Wiederherstellung. Die Übermittlung nach Z2M bleibt separat.
+
 - Nummerierter Arbeitsplatz im Browserdesigner und in der Kachel: Einrichtung,
   Entwurf, Prüfung, bestätigte Übermittlung und Betrieb haben eigene Bereiche.
   Fehler lassen sich an der benannten Stelle korrigieren; Freigabeschalter sind

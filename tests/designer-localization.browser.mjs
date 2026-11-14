@@ -27,6 +27,16 @@ let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 
 let nativeFormEdits = false; let rejectViewRead = false;
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
+const draftSyncViews = new Map(); const draftSyncBackups = new Map(); let draftSyncMode = 'updated';
+function draftSyncView(id) {
+    return draftSyncViews.get(id) ?? {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: 'idle',
+        pending: false, canStart: true, canReplace: false, canRestore: false, baseRevision: 4, remoteRevision: null,
+        counts: {added: 0, changed: 0, removed: 0}, permissionsChanged: false, error: ''};
+}
+function finishDraftSync(id) {
+    Object.assign(rules.get(id), {...draftSyncBackups.get(id), name: 'Fresh Z2M automation ' + id});
+    draftSyncViews.set(id, {...draftSyncView(id), phase: 'updated', pending: false, canStart: true, canReplace: false, canRestore: true});
+}
 function transferView(id) {
     return transferViews.get(id) ?? {message: 'Synthetic transfer', details: '', pending: false, receiverConfirmed: true, storedRevision: 4,
         canValidate: true, canStore: false, context: '1'.repeat(64), status: 'idle', systemId: id, generation: 1, fingerprint: 'e'.repeat(64)};
@@ -52,7 +62,7 @@ function model(id = 'a') {
         catalogRefresh: {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: catalogAvailable ? 'loaded' : 'idle',
             pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
             storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
-        transfer: transferView(id), runtime: runtimeView(id)};
+        draftSyncAllowed: true, draftSync: draftSyncView(id), transfer: transferView(id), runtime: runtimeView(id)};
 }
 let active = 'a';
 const server = createServer(async (request, response) => {
@@ -66,6 +76,22 @@ const server = createServer(async (request, response) => {
         else if (route === 'select-system') active = body.systemId;
         else if (route === 'workspace-configure') {
             operations.push({route, body}); response.end(JSON.stringify(setupView())); return;
+        }
+        else if (route === 'draft-sync') {
+            const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            if (body.action === 'restore') {
+                Object.assign(rules.get(id), draftSyncBackups.get(id));
+                draftSyncViews.set(id, {...draftSyncView(id), phase: 'restored', canRestore: false});
+            } else if (body.action === 'replace') finishDraftSync(id);
+            else {
+                draftSyncBackups.set(id, structuredClone(rules.get(id)));
+                draftSyncViews.set(id, {...draftSyncView(id), operation: body.requestId.replaceAll('-', ''), remoteRevision: 74,
+                    phase: draftSyncMode === 'pending' ? 'reading' : draftSyncMode, pending: draftSyncMode === 'pending',
+                    canStart: draftSyncMode !== 'pending', canReplace: draftSyncMode === 'conflict', canRestore: false,
+                    counts: {added: 0, changed: 1, removed: 0}});
+                if (draftSyncMode === 'updated') finishDraftSync(id);
+            }
+            response.end(JSON.stringify({ok: true, draftSync: draftSyncView(id)})); return;
         }
         else if (route === 'catalog-refresh') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
@@ -105,6 +131,11 @@ const server = createServer(async (request, response) => {
     }
     if (route === 'data') {response.setHeader('Content-Type', 'application/json'); if (rejectViewRead) {response.writeHead(503); response.end('{}'); return;} response.end(JSON.stringify(model(active))); return;}
     if (route === 'workspace-status') {response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify(setupView())); return;}
+    if (route === 'draft-sync-status') {
+        const id = request.headers['x-z2ma-system-id'];
+        if (draftSyncView(id).pending) finishDraftSync(id);
+        response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ok: true, draftSync: draftSyncView(id)})); return;
+    }
     if (!/^[a-z-]+\.(?:js|html|css)$/.test(route)) {response.writeHead(404); response.end(); return;}
     try {
         let body = route === 'interaction.js' ? interaction : readFileSync(new URL(route, assets), 'utf8');
@@ -219,6 +250,54 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     assert.deepEqual(operations.slice(beforeOperations).map(row => row.route), ['catalog-refresh']);
     assert.equal(writes.length, beforeWrites, 'reading device data performs no draft write');
     assert.deepEqual(model(active).configuration, before, 'the local automation draft is preserved');
+}
+async function verifyDraftSynchronization(page, view, language) {
+    active = 'a'; draftSyncMode = 'updated'; draftSyncViews.clear();
+    await page.reload();
+    await view.locator('#symcon-refresh-draft:not([disabled])').waitFor();
+    await view.locator('#designer-language').selectOption(language);
+    await showStep(view, 'automations');
+    const refresh = view.locator('#symcon-refresh-draft');
+    const feedback = view.locator('#symcon-draft-sync-status');
+    const confirmation = view.locator('.guided-confirmation');
+    const beforeOperations = operations.length; const before = structuredClone(rules.get('a')); const other = structuredClone(rules.get('b'));
+    assert.equal(await refresh.innerText(), language === 'de' ? 'Aus Z2M aktualisieren' : 'Update from Z2M');
+    await refresh.click();
+    await view.getByRole('heading', {name: 'Fresh Z2M automation a', exact: true}).waitFor();
+    assert.match(await feedback.innerText(), language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/);
+    assert.equal(await feedback.getAttribute('data-tone'), 'success');
+    assert.ok(await feedback.evaluate(node => getComputedStyle(node).color !== getComputedStyle(node.parentElement).color), 'confirmed feedback uses the semantic success color');
+    assert.ok(await view.locator('#symcon-draft-sync').evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'draft feedback fits the browser and narrow tile');
+    assert.deepEqual(rules.get('b'), other);
+    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action, row.systemId]), [['draft-sync', 'refresh', 'a']]);
+    const restore = view.locator('#symcon-restore-draft');
+    await restore.click();
+    assert.ok(await confirmation.locator('button').first().evaluate(node => node === node.ownerDocument.activeElement), 'restoring has cancellation as initial focus');
+    await confirmation.press('Escape'); await confirmation.waitFor({state: 'detached'});
+    assert.equal(operations.length, beforeOperations + 1, 'cancelling restore sends nothing');
+    await restore.click(); await confirmation.locator('button.primary').click();
+    await view.getByRole('heading', {name: before.name, exact: true}).waitFor();
+    assert.deepEqual(rules.get('a'), before);
+    draftSyncMode = 'conflict'; await refresh.click();
+    const replace = view.locator('#symcon-replace-draft'); await replace.waitFor({state: 'visible'});
+    assert.deepEqual(rules.get('a'), before, 'a conflict keeps the current local draft');
+    assert.match(await feedback.innerText(), language === 'de' ? /abweichende Änderungen/ : /diverged/);
+    await replace.click(); await confirmation.press('Escape'); await confirmation.waitFor({state: 'detached'});
+    assert.deepEqual(rules.get('a'), before);
+    await replace.click(); await confirmation.locator('button.primary').click();
+    await view.getByRole('heading', {name: 'Fresh Z2M automation a', exact: true}).waitFor();
+    await view.locator('#edit-automation-button').click();
+    const dialog = view.locator('#edit-dialog'); await dialog.waitFor({state: 'visible'});
+    const field = dialog.locator('input[type=text]').first(); await field.fill('Unsaved draft sync input');
+    const requestsBeforeOpenInput = operations.length;
+    await refresh.evaluate(node => node.click());
+    assert.equal(operations.length, requestsBeforeOpenInput, 'an open edit dialog cannot start synchronization');
+    assert.equal(await field.inputValue(), 'Unsaved draft sync input');
+    await view.locator('#edit-cancel').click();
+    draftSyncMode = 'pending'; await refresh.click();
+    await feedback.getByText(language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/).waitFor();
+    assert.deepEqual(rules.get('b'), other, 'polling never mixes system state');
+    assert.ok(operations.slice(beforeOperations).every(row => row.route === 'draft-sync'), 'the button cannot transfer, activate, stop, install or issue device commands');
 }
 async function verifyWorkspaceWheel(page) {
     overflowRules = true;
@@ -466,7 +545,10 @@ try {
     await verifyMissingCatalogNavigation(page, page, 'de', true);
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'en', false);
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
+    await verifyDraftSynchronization(page, page, 'en');
+    await verifyDraftSynchronization(tile, tile.frameLocator('#designer-frame'), 'de');
     assert.deepEqual(errors, []);
+    console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation and scoped stop/check/store without activation.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');

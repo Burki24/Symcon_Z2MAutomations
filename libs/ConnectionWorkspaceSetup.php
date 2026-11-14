@@ -15,40 +15,12 @@ trait ConnectionWorkspaceSetup
 {
     public function RequestWorkspaceSnapshot(int $Owner, string $OperationID, bool $Verify = false): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Owner, $OperationID, $Verify): string
-        {
-            try {
-                $authority = $this->WorkspaceSnapshotAuthority($Owner, $OperationID);
-                if ($authority['phase'] !== ($Verify ? 'verifying' : 'reading')) throw new RuntimeException('setup_stale');
-                $frame = $this->WithTransportLock(function () use ($Owner, $OperationID, $Verify, $authority): array
-                {
-                    $entry = $this->ReadWorkspaceSnapshot();
-                    if ($entry !== null && $entry['owner'] === $Owner && $entry['operation'] === $OperationID
-                        && (!$Verify || $entry['verify'])) return [];
-                    if ($Verify && ($entry === null || $entry['owner'] !== $Owner || $entry['operation'] !== $OperationID || $entry['status'] !== 'ready')) throw new RuntimeException('setup_stale');
-                    $state = $this->RefreshState();
-                    if ($state['workflow'] !== null || $state['pending'] !== null) throw new RuntimeException('busy');
-                    if (!$state['mqttConnected']) throw new RuntimeException('not_connected');
-                    $entry = ['owner' => $Owner, 'operation' => $OperationID, 'binding' => $authority['binding'], 'scope' => $state['scope'],
-                        'verify'      => $Verify, 'status' => 'pending', 'error' => '', 'snapshot' => $Verify ? $entry['snapshot'] : null];
-                    $this->WriteWorkspaceSnapshot($entry);
-                    $state['workflow'] = ['id' => $OperationID, 'kind' => 'setup_read', 'target' => null, 'setupRequest' => ['owner' => $Owner, 'operation' => $OperationID, 'binding' => $authority['binding'], 'verify' => $Verify]];
-                    $state['operation'] = ['kind' => 'setup_read', 'status' => 'pending', 'transaction' => $OperationID];
-                    $state['lastError'] = '';
-                    $frame = $this->ExtensionFrame($state, 'status');
-                    $this->SaveState($state);
-                    $this->DebugEvent('SENDEN', $Verify ? 'Gespeicherten Z2M-Stand vor der lokalen Übernahme erneut prüfen. Keine Dateiänderung und keine Aktivierung.'
-                        : 'Vorhandene Z2M-Automationen für die Einrichtung nur lesen. Keine alte Einzelinstanz erforderlich.', ['Systembezug' => $authority['binding']['systemId']]);
-                    return $frame;
-                });
-                if ($frame !== []) $this->DispatchExtensionFrame($frame);
-                return $this->GetWorkspaceSnapshotResult($Owner, $OperationID);
-            } catch (Throwable $error) {
-                $code = $error instanceof RuntimeException && in_array($error->getMessage(), ['setup_stale', 'ownership_required', 'busy', 'not_connected'], true) ? $error->getMessage() : 'setup_unavailable';
-                $this->DebugEvent('FEHLER', 'Einlesen für die Zentrale nicht gestartet. Bestehender Betrieb und Entwürfe bleiben erhalten.', ['Ursache' => $code]);
-                return json_encode(['ok' => false, 'error' => $code], JSON_THROW_ON_ERROR);
-            }
-        });
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->RequestWorkspaceSnapshotFor($Owner, $OperationID, $Verify, 'setup'));
+    }
+
+    public function RequestWorkspaceDraftSnapshot(int $Owner, string $OperationID, bool $Verify): string
+    {
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, fn (): string => $this->RequestWorkspaceSnapshotFor($Owner, $OperationID, $Verify, 'draft'));
     }
 
     public function GetWorkspaceSnapshotResult(int $Owner, string $OperationID): string
@@ -80,7 +52,8 @@ trait ConnectionWorkspaceSetup
         return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($Owner, $OperationID): bool
         {
             try {
-                $authority = $this->WorkspaceSnapshotAuthority($Owner, $OperationID);
+                $purpose = $this->ReadWorkspaceSnapshot()['purpose'] ?? 'setup';
+                $authority = $this->WorkspaceSnapshotAuthority($Owner, $OperationID, $purpose);
                 if ($authority['phase'] !== 'cancelled') return false;
                 return $this->WithTransportLock(function () use ($Owner, $OperationID): bool
                 {
@@ -98,17 +71,53 @@ trait ConnectionWorkspaceSetup
         });
     }
 
-    private function WorkspaceSnapshotAuthority(int $owner, string $operation): array
+    private function RequestWorkspaceSnapshotFor(int $Owner, string $OperationID, bool $Verify, string $Purpose): string
     {
-        if (!DraftTransferProtocol::Operation($operation) || !IPS_InstanceExists($owner)
+        try {
+            $authority = $this->WorkspaceSnapshotAuthority($Owner, $OperationID, $Purpose);
+            if ($authority['phase'] !== ($Verify ? 'verifying' : 'reading')) throw new RuntimeException('setup_stale');
+            $frame = $this->WithTransportLock(function () use ($Owner, $OperationID, $Verify, $Purpose, $authority): array
+            {
+                $entry = $this->ReadWorkspaceSnapshot();
+                if ($entry !== null && $entry['owner'] === $Owner && $entry['operation'] === $OperationID
+                    && ($entry['purpose'] ?? 'setup') === $Purpose && (!$Verify || $entry['verify'])) return [];
+                if ($Verify && ($entry === null || $entry['owner'] !== $Owner || $entry['operation'] !== $OperationID || $entry['status'] !== 'ready' || ($entry['purpose'] ?? 'setup') !== $Purpose)) throw new RuntimeException('setup_stale');
+                $state = $this->RefreshState();
+                if ($state['workflow'] !== null || $state['pending'] !== null) throw new RuntimeException('busy');
+                if (!$state['mqttConnected']) throw new RuntimeException('not_connected');
+                $entry = ['owner' => $Owner, 'operation' => $OperationID, 'binding' => $authority['binding'], 'scope' => $state['scope'],
+                    'verify'      => $Verify, 'purpose' => $Purpose, 'status' => 'pending', 'error' => '', 'snapshot' => $Verify ? $entry['snapshot'] : null];
+                $this->WriteWorkspaceSnapshot($entry);
+                $state['workflow'] = ['id' => $OperationID, 'kind' => 'setup_read', 'target' => null, 'setupRequest' => ['owner' => $Owner, 'operation' => $OperationID, 'binding' => $authority['binding'], 'verify' => $Verify, 'purpose' => $Purpose]];
+                $state['operation'] = ['kind' => 'setup_read', 'status' => 'pending', 'transaction' => $OperationID];
+                $state['lastError'] = '';
+                $frame = $this->ExtensionFrame($state, 'status');
+                $this->SaveState($state);
+                $this->DebugEvent('SENDEN', $Verify ? 'Gespeicherten Z2M-Stand vor der lokalen Übernahme erneut prüfen. Keine Dateiänderung und keine Aktivierung.'
+                    : 'Vorhandene Z2M-Automationen für die Einrichtung nur lesen. Keine alte Einzelinstanz erforderlich.', ['Systembezug' => $authority['binding']['systemId']]);
+                return $frame;
+            });
+            if ($frame !== []) $this->DispatchExtensionFrame($frame);
+            return $this->GetWorkspaceSnapshotResult($Owner, $OperationID);
+        } catch (Throwable $error) {
+            $code = $error instanceof RuntimeException && in_array($error->getMessage(), ['setup_stale', 'ownership_required', 'busy', 'not_connected'], true) ? $error->getMessage() : 'setup_unavailable';
+            $this->DebugEvent('FEHLER', 'Einlesen für die Zentrale nicht gestartet. Bestehender Betrieb und Entwürfe bleiben erhalten.', ['Ursache' => $code]);
+            return json_encode(['ok' => false, 'error' => $code], JSON_THROW_ON_ERROR);
+        }
+    }
+
+    private function WorkspaceSnapshotAuthority(int $owner, string $operation, string $purpose = 'setup'): array
+    {
+        if (!in_array($purpose, ['setup', 'draft'], true) || !DraftTransferProtocol::Operation($operation) || !IPS_InstanceExists($owner)
             || IPS_GetInstance($owner)['ModuleInfo']['ModuleID'] !== SystemContract::SOURCE_MODULE) throw new RuntimeException('ownership_required');
-        $reply = json_decode(Z2MA_GetWorkspaceSetupAuthority($owner, $operation), true, 16, JSON_THROW_ON_ERROR);
+        $reply = json_decode($purpose === 'draft' ? Z2MA_GetWorkspaceDraftSyncAuthority($owner, $operation) : Z2MA_GetWorkspaceSetupAuthority($owner, $operation), true, 16, JSON_THROW_ON_ERROR);
         $binding = $reply['binding'] ?? [];
         if (($reply['ok'] ?? false) !== true || !is_array($binding) || SystemContract::RegistryError([$binding]) !== ''
             || $binding['ownerInstance'] !== $owner || $binding['connectionInstance'] !== $this->InstanceID
             || $binding['mqttParent'] !== $this->GetParentID() || $binding['baseTopic'] !== $this->ReadPropertyString('BaseTopic')
             || $binding['systemId'] !== $this->ReadPropertyString('SystemID') || $binding['generation'] !== $this->ReadPropertyInteger('Generation')) throw new RuntimeException('ownership_required');
         $marker = $this->OwnershipMarker();
+        if ($purpose === 'draft' && $marker === []) throw new RuntimeException('ownership_required');
         if ($marker !== [] && (($marker['role'] ?? '') !== 'connection' || ($marker['owner'] ?? 0) !== $owner || ($marker['operation'] ?? '') !== ($reply['epoch'] ?? '')
             || $marker['systemId'] !== $binding['systemId'] || $marker['generation'] !== $binding['generation'])) throw new RuntimeException('ownership_required');
         return $reply;
@@ -119,7 +128,7 @@ trait ConnectionWorkspaceSetup
         $request = $state['workflow']['setupRequest'] ?? null;
         if ($request === null) return true;
         try {
-            $authority = $this->WorkspaceSnapshotAuthority($request['owner'], $request['operation']);
+            $authority = $this->WorkspaceSnapshotAuthority($request['owner'], $request['operation'], $request['purpose'] ?? 'setup');
             if ($authority['binding'] !== $request['binding'] || $authority['phase'] !== ($request['verify'] ? 'verifying' : 'reading')) throw new RuntimeException();
             return true;
         } catch (Throwable) {

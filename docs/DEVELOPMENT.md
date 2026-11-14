@@ -1,3 +1,36 @@
+## Entwurf direkt aus Z2M aktualisieren – 14.11.2026
+
+Der gemeinsame Symcon-Adapter ergänzt die Aktion in Schritt 6 und liefert
+DE/EN-Rückmeldungen zu Lesen, Aktualität, abweichenden Änderungen, Übernahme und
+Wiederherstellung. Der native Ablauf verwendet ausschließlich korrelierte
+status/editor-Leseanfragen des vorhandenen Verbindungsmoduls. Prüfsummen und
+remote Basisrevision schützen lokale Änderungen; ein Compare-and-swap verhindert
+die Ersetzung inzwischen bearbeiteter Entwürfe. Ein gleicher Revisionsstand mit
+anderer Prüfsumme wird zur Prüfung vorgelegt. Aktuelle Gerätedaten werden auch
+bei einem unveränderten Entwurf oder einer Konfliktvorschau verfügbar gehalten.
+
+`php tests/workspace-draft-sync.php` prüft den echten PHP-Verbund mit zwei
+synthetischen Z2M-Systemen, frischen Antworten und privaten Testarchiven:
+unabhängige Revisionszähler, exakte YAML-Bytes und Regelkennungen, Freigaben,
+Ersetzungsbestätigung, Wiederherstellung, Zwischenänderungen, Zeitüberschreitung,
+Hook-Zugang und ausschließlich lesende MQTT-Anfragen. Der Test gehört zur
+Gesamtsuite. Der bildfreie Browsertest ergänzt Browser und Kachel um direkte
+Übernahme, Abbruch/Bestätigung, Rückweg, offene Eingaben und Statusabfrage.
+Der lange PHP/JavaScript-Integrationstest liest seine unveränderliche
+Formularvorlage nur noch beim Aufbau des Feldindexes. Das beseitigt den
+zusätzlichen Spitzenverbrauch des bisherigen erneuten Einlesens bei jedem
+Feldwechsel: isoliert gemessen 128 statt 130 MiB; der bestehende Test besteht
+mit der unveränderten lokalen PHP-Speichergrenze von 128 MB.
+CI und praktische Modulabnahme bleiben nach Push und Update separat erforderlich.
+
+Abschließend lokal bestanden: Gesamtsuite einschließlich 261 JavaScript-Tests
+und des neuen nativen Abgleichs, bildfreier Browser-/Kacheltest, Struktur und
+Kodierung, offizieller JSON-Stilcheck (18 eigene Dateien) und PHP CS Fixer
+(159 Dateien). Das festgeschriebene Designer-Paket ist `0.104.0`, Inhalt
+`fb9ee8931548`. App-Build/Typ-/Integritätsprüfung, 190 Tests und bildfreier
+Windows-Smoke einschließlich Speichern beim Schließen bestanden; zwei native
+APT-Prüfungen bleiben dem Ubuntu-Runner vorbehalten. Keine Live-Systemänderung.
+
 ## Gerätedatenaktion im Warnhinweis – 14.11.2026
 
 Der Benutzer bestätigte mit Library 0.200 den erfolgreichen Geräteabruf im

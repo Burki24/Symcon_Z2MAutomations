@@ -1,5 +1,18 @@
 # Projektkontext: Z2MAutomations
 
+## Entwurf direkt aus Z2M aktualisieren – 14.11.2026
+
+Schritt 6 bietet im Browserdesigner und in der Kachel „Aus Z2M aktualisieren“
+für das ausgewählte System. Maßgeblich sind dessen gespeicherte Z2M-Basisrevision
+und Prüfsumme, nicht der unabhängige lokale Revisionszähler. Ein unveränderter
+Entwurf übernimmt einen frisch gelesenen und erneut bestätigten neueren Stand.
+Abweichende lokale Änderungen erfordern eine ausdrückliche Ersetzungsbestätigung;
+die geprüfte private Sicherung lässt sich direkt zurückholen. Ältere Z2M-Basen,
+offene native Eingaben und inzwischen geänderte Stände werden nicht still übernommen.
+Z2M-Datei, Laufzeit und andere Systeme werden dabei nicht verändert.
+Die Desktop-Oberfläche erhält diese Symcon-Aktion nicht. CI und praktische
+Modulabnahme des neuen Standes sind nach Benutzer-Push und Update noch offen.
+
 ## Gemeinsamer Arbeitsplatz – 13.11.2026
 
 Die mit App 0.99.0 praktisch abgenommene Bedienführung wird als geprüftes

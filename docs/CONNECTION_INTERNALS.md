@@ -40,6 +40,32 @@ Entwurf. Sitzungsdaten, YAML und Kataloginhalte werden nicht ins Debug geschrieb
 Die vorhandene Anbindung und ihre Passwörter werden durch die Einrichtung nicht
 umgestellt.
 
+## Entwurf aus Z2M aktualisieren
+
+`RequestWorkspaceDraftSnapshot` verwendet denselben begrenzten status/editor-
+Abruf mit eigenem, festem Zweck und einer passenden Freigabe über
+`GetWorkspaceDraftSyncAuthority`. Die bisherigen Signaturen des Einrichtungs-
+APIs bleiben erhalten. Besitzer, System, Generation, Topic, Sitzung und Auftrag
+werden vor jedem Folgeschritt geprüft. Eine erneute Statusantwort bestätigt den
+gelesenen Stand vor der lokalen Übernahme. Es werden keine Schreib- oder
+Betriebsbefehle gesendet und keine fremden Verbindungen übernommen.
+
+Die Zentrale vergleicht `baseRevision` und `baseChecksum` des lokalen Entwurfs mit
+dem frisch gelesenen Stand. Der lokale Revisionszähler ist davon unabhängig.
+Nur ein unveränderter Entwurf oder ein inhaltsgleicher Stand wird automatisch
+aktualisiert. Abweichende lokale Änderungen und unterschiedliche Prüfsummen
+bei gleicher Basisrevision ergeben eine Vorschau zur ausdrücklichen Ersetzung.
+Eine ältere Z2M-Basis wird nicht automatisch übernommen. Der gesamte bisherige
+lokale Datensatz wird vor einer Ersetzung im privaten `MigrationArchive` gesichert.
+Wiederherstellung ist nur möglich, solange der übernommene Entwurf unverändert ist.
+
+`draft-sync` ist eine feste, durch Bearbeitungsrecht, Origin, JSON-Form,
+Systemgeneration und Fingerprint begrenzte POST-Route. `draft-sync-status` fragt
+nur den begonnenen Vorgang ab. Lesen und erneute Bestätigung sind begrenzt;
+Zeitüberschreitungen und Änderungen am Entwurf, Besitzer oder Remote-Stand
+brechen ab. Es gibt keinen automatischen Neuversand. Der gerätebezogene Abruf
+in Schritt 4 bleibt davon getrennt und ersetzt weiterhin keinen Entwurf.
+
 ## Betriebsaufträge der Zentrale
 
 Die zuständige Zentrale kann gespeicherte Automationen aktivieren oder stoppen

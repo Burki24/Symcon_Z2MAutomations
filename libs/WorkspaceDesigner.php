@@ -25,6 +25,7 @@ trait WorkspaceDesigner
             'status'                                              => ['confirmed' => false], 'devices' => [], 'configuration' => null, 'draftAvailable' => false, 'createAllowed' => false, 'editAllowed' => false], JSON_THROW_ON_ERROR);
         $this->SyncWorkspaceTransfer($system);
         $this->SyncWorkspaceRuntime($system);
+        $this->SyncWorkspaceDraft($system);
         unset($state);
         return $this->WithWorkspaceEditor($system, null, null, false, fn (): string => $this->DesignerData());
     }
@@ -85,6 +86,14 @@ trait WorkspaceDesigner
                 $result = json_decode($this->GetWorkspaceDiagnostics($system), true, 32, JSON_THROW_ON_ERROR);
                 return [$result['ok'] ? 200 : 409, $result];
             }
+            if ($asset === 'draft-sync-status') {
+                if (!$this->DesignerWriteAccess($token, 'edit')) return [403, ['message' => 'Bitte den Designer zum Bearbeiten erneut im Modul öffnen.']];
+                $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
+                $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system);
+                if ((string) $record['binding']['generation'] !== ($_SERVER['HTTP_X_Z2MA_GENERATION'] ?? '')) throw new RuntimeException('binding_changed');
+                $result = json_decode($this->GetWorkspaceDraftSyncStatus($system), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'catalog-status') {
                 $system = $_SERVER['HTTP_X_Z2MA_SYSTEM_ID'] ?? '';
                 $record = $this->WorkspaceRecord($this->ReadWorkspace(), $system);
@@ -132,6 +141,17 @@ trait WorkspaceDesigner
             $fingerprint = $_SERVER['HTTP_X_Z2MA_FINGERPRINT'] ?? '';
             if (!SystemContract::SystemID($system) || !is_string($rawGeneration) || preg_match('/\A[1-9][0-9]{0,15}\z/D', $rawGeneration) !== 1
                 || !ExtensionContract::Checksum($fingerprint)) throw new RuntimeException('invalid_request');
+            if ($asset === 'draft-sync') {
+                if (!$this->DesignerWriteAccess($token, 'edit')) return [403, ['message' => 'Bitte den Designer zum Bearbeiten erneut im Modul öffnen.']];
+                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
+                if (!$this->DesignerEditShape($body, ['requestId', 'action', 'operation']) || !RuntimeDebugContract::UUID($body['requestId'])
+                    || !in_array($body['action'], ['refresh', 'replace', 'restore'], true)
+                    || ($body['action'] === 'refresh' ? $body['operation'] !== '' : !DraftTransferProtocol::Operation($body['operation']))) throw new RuntimeException('invalid_request');
+                $result = json_decode($body['action'] === 'refresh'
+                    ? $this->StartWorkspaceDraftSync($system, (int) $rawGeneration, $fingerprint, str_replace('-', '', $body['requestId']))
+                    : $this->ResolveWorkspaceDraftSync($system, (int) $rawGeneration, $fingerprint, $body['operation'], $body['action']), true, 32, JSON_THROW_ON_ERROR);
+                return [$result['ok'] ? 200 : 409, $result];
+            }
             if ($asset === 'catalog-refresh') {
                 if (!$this->DesignerWriteAccess($token, 'catalog')) return [403, ['message' => 'Bitte den Designer zum Aktualisieren der Gerätedaten erneut im Modul öffnen.']];
                 $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
