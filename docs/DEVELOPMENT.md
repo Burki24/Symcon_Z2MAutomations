@@ -5668,3 +5668,21 @@ Pflichtprüfung lief anschließend isoliert erfolgreich durch; der Oberflächent
 benötigte 15,4 Sekunden, sein Zeitlimit blieb unverändert. Der bildfreie App-Smoke
 einschließlich Speichern beim Schließen besteht ebenfalls. CI und praktische
 Symcon-Abnahme nach dem Update bleiben separat erforderlich.
+## Connected draft reconciliation and portable files – 2026-11-15
+
+`tests/draft-merge.php` covers stable identities, unknown bases, independent edits,
+deletions and permission conflicts. `tests/workspace-draft-sync.php` exercises actual
+scoped PHP requests, second-read choice verification, portable import, disabled
+additions, unchanged grants, complete workspace export and local backup undo.
+The capture-free browser/tile fixture tests automatic initial reads, no duplicate
+read on view refresh, per-entry choices, selected `.z2mad` downloads, `.z2map`
+snapshots, file input and source/target mapping in DE/EN. No live system is used.
+
+Final local evidence: full PHP suite and 278 JavaScript tests passed, including
+structure and encoding. The complete capture-free browser/tile test passed with
+actual target-network selection and automatic target reads before import. Official
+StylePHP JSON checks passed for 20 own files; PHP CS Fixer found no changes in
+164 files. The verified shared package is `0.116.0`, content `0fde49a6e850`.
+App `verify:local` passed 230 tests (two Ubuntu-only APT checks skipped), the full
+capture-free extension-update UI test and the subsequent capture-free Electron
+smoke. New platform CI and installed/live acceptance remain separate.

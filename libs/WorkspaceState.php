@@ -17,6 +17,7 @@ final class WorkspaceState
     public const MAX_DATA = 524288;
     public const JSON_FLAGS = JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION;
     public const MESSAGES = [
+        'draft_sync_required'          => 'Bitte zuerst den Z2M-Abgleich unter „Automationen bearbeiten“ abschließen und offene Versionskonflikte auflösen. Es wurde nichts übertragen.',
         'draft_sync_changed'           => 'Entwurf, Z2M-Stand oder Verbindung wurde inzwischen geändert. Bitte erneut aus Z2M aktualisieren. Der lokale Entwurf wurde nicht ersetzt.',
         'draft_sync_failed'            => 'Der aktuelle Z2M-Stand konnte nicht vollständig bestätigt oder sicher übernommen werden. Der lokale Entwurf bleibt erhalten. Bitte Verbindung und Erweiterung prüfen.',
         'draft_sync_timeout'           => 'Die Wartezeit auf den Z2M-Stand ist abgelaufen. Der lokale Entwurf bleibt erhalten. Es wird nichts automatisch erneut gesendet.',
@@ -151,12 +152,15 @@ final class WorkspaceState
         $bindings = [];
         foreach ($state['systems'] as $id => $record) {
             if (!SystemContract::SystemID($id) || !is_array($record) || !self::Keys($record, array_key_exists('ownershipEpoch', $record)
-                ? ['binding', 'name', 'data', 'catalog', 'nativeBindings', 'ownershipEpoch'] : ['binding', 'name', 'data', 'catalog', 'nativeBindings'])
+                ? ['binding', 'name', 'data', 'catalog', 'nativeBindings', 'ownershipEpoch', ...(array_key_exists('mergeBase', $record) ? ['mergeBase'] : [])] : ['binding', 'name', 'data', 'catalog', 'nativeBindings', ...(array_key_exists('mergeBase', $record) ? ['mergeBase'] : [])])
                 || (array_key_exists('ownershipEpoch', $record) && (!is_string($record['ownershipEpoch']) || preg_match('/\A[a-f0-9]{32}\z/D', $record['ownershipEpoch']) !== 1))
                 || !is_array($record['binding']) || ($record['binding']['systemId'] ?? null) !== $id
                 || !is_string($record['name']) || strlen($record['name']) > 480 || preg_match('/[\x00-\x1f\x7f]/', $record['name'])
                 || self::DataError($record['data']) !== '' || !is_array($record['nativeBindings'])
                 || ($record['catalog'] !== null && !is_array($record['catalog']))) return 'workspace_corrupt';
+            if (isset($record['mergeBase']) && (!is_array($record['mergeBase']) || !self::Keys($record['mergeBase'], ['revision', 'checksum', 'configuration'])
+                || !ExtensionContract::Revision($record['mergeBase']['revision']) || ($record['mergeBase']['revision'] > 0 && !ExtensionContract::Checksum($record['mergeBase']['checksum']))
+                || !is_array($record['mergeBase']['configuration']) || strlen(json_encode($record['mergeBase'], self::JSON_FLAGS)) > self::MAX_DATA)) return 'workspace_corrupt';
             $bindings[] = $record['binding'];
         }
         $error = SystemContract::RegistryError($bindings);

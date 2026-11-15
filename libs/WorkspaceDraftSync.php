@@ -48,18 +48,32 @@ trait WorkspaceDraftSync
         });
     }
 
-    public function ResolveWorkspaceDraftSync(string $SystemID, int $Generation, string $Fingerprint, string $OperationID, string $Action): string
+    public function ResolveWorkspaceDraftSync(string $SystemID, int $Generation, string $Fingerprint, string $OperationID, string $Action, string $ChoicesJSON = '{}'): string
     {
-        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($SystemID, $Generation, $Fingerprint, $OperationID, $Action): string
+        return $this->TraceModuleCall(__FUNCTION__, __LINE__, function () use ($SystemID, $Generation, $Fingerprint, $OperationID, $Action, $ChoicesJSON): string
         {
             try {
                 $record = $this->WorkspaceRecord($this->ReadWorkspace(), $SystemID, $Generation, $Fingerprint);
                 $this->WorkspaceRuntimeAccess($record);
                 $jobs = $this->ReadWorkspaceDraftSync();
                 $job = $jobs['systems'][$SystemID] ?? null;
+                if ($Action === 'offline') {
+                    if (WorkspaceState::Dirty($record) || ($job !== null && in_array($job['phase'], ['reading', 'verifying'], true))) throw new RuntimeException('open_input');
+                    $jobs['systems'][$SystemID] = ['binding' => $record['binding'], 'epoch' => $record['ownershipEpoch'], 'operation' => $OperationID,
+                        'fingerprint'                        => $Fingerprint, 'after' => '', 'phase' => 'offline', 'error' => '', 'baseRevision' => $record['data']['document']['editorDraft']['baseRevision'] ?? 0,
+                        'remoteRevision'                     => null, 'counts' => ['added' => 0, 'changed' => 0, 'removed' => 0], 'permissionsChanged' => false, 'deadline' => $this->Now()];
+                    $this->WriteWorkspaceDraftSync($jobs);
+                    return $this->GetWorkspaceDraftSyncStatus($SystemID);
+                }
                 if ($job === null || $job['operation'] !== $OperationID || $job['binding'] !== $record['binding']) throw new RuntimeException('draft_sync_changed');
-                if ($Action === 'replace' && $job['phase'] === 'conflict' && $Fingerprint === $job['fingerprint']) {
+                if (in_array($Action, ['replace', 'merge'], true) && $job['phase'] === 'conflict' && $Fingerprint === $job['fingerprint']) {
                     if (WorkspaceState::Dirty($record)) throw new RuntimeException('open_input');
+                    $choices = $this->DecodeWorkspaceInput($ChoicesJSON, 32768);
+                    $archive = $this->WorkspaceDraftArchive($job);
+                    $plan = $this->WorkspaceDraftMergePlan($record, $archive['snapshot']);
+                    if ($Action === 'merge' && (count($choices) !== count($plan['conflicts']) || array_filter($plan['conflicts'], static fn (array $conflict): bool => !in_array($choices[$conflict['key']] ?? '', ['local', 'remote'], true)) !== [])) throw new RuntimeException('invalid_request');
+                    $jobs['systems'][$SystemID]['choices'] = $choices;
+                    $jobs['systems'][$SystemID]['replacement'] = $Action === 'replace';
                     $jobs['systems'][$SystemID]['phase'] = 'verifying';
                     $jobs['systems'][$SystemID]['deadline'] = $this->Now() + min(600, max(15, 3 * (int) IPS_GetProperty($record['binding']['connectionInstance'], 'RequestTimeout') + 15));
                     $this->WriteWorkspaceDraftSync($jobs);
@@ -74,6 +88,8 @@ trait WorkspaceDraftSync
                         $workspace = $this->ReadWorkspace();
                         $record = $this->WorkspaceRecord($workspace, $SystemID, $Generation, $Fingerprint);
                         $record['data'] = $archive['before']['data'];
+                        unset($record['mergeBase']);
+                        if (isset($archive['before']['mergeBase'])) $record['mergeBase'] = $archive['before']['mergeBase'];
                         $workspace['systems'][$SystemID] = $record;
                         $this->WriteWorkspace($workspace);
                     });
@@ -194,15 +210,26 @@ trait WorkspaceDraftSync
                 return $config;
             };
             $equivalent = $local !== null && $same($local['editorDraft']['configuration']) === $same($remote['editorDraft']['configuration']);
-            $clean = $local === null || $local['editorDraft']['draftChecksum'] === $local['editorDraft']['baseChecksum'];
             $sameBase = $local !== null && $local['editorDraft']['baseRevision'] === $job['remoteRevision'] && $local['editorDraft']['baseChecksum'] === $remote['editorDraft']['baseChecksum'];
+            $plan = $this->WorkspaceDraftMergePlan($record, $snapshot);
+            $job['counts'] = $this->WorkspaceDraftDifference($local['editorDraft']['configuration'] ?? [], $plan['configuration']);
             $job['phase'] = match (true) {
-                $job['remoteRevision'] < $job['baseRevision']                                      => 'older',
-                $sameBase                                                                          => 'current',
-                $local !== null && $job['remoteRevision'] === $job['baseRevision'] && !$equivalent => 'conflict',
-                $clean || $equivalent                                                              => 'verifying',
-                default                                                                            => 'conflict'
+                $job['remoteRevision'] < $job['baseRevision']                                                                                                         => 'older',
+                $plan['conflicts'] !== []                                                                                                                             => 'conflict',
+                $sameBase && $local !== null && DraftMerge::Same($same($plan['configuration']), $same(DraftMerge::Normalize($local['editorDraft']['configuration']))) => 'current',
+                default                                                                                                                                               => 'verifying'
             };
+            if ($job['phase'] === 'current') {
+                $this->WithWorkspaceLock(function () use ($system, &$job, $snapshot): void
+                {
+                    $workspace = $this->ReadWorkspace();
+                    $record = $this->WorkspaceRecord($workspace, $system, $job['binding']['generation'], $job['fingerprint']);
+                    $record['mergeBase'] = $this->WorkspaceDraftMergeBase($snapshot);
+                    $workspace['systems'][$system] = $record;
+                    $this->WriteWorkspace($workspace);
+                    $job['fingerprint'] = WorkspaceState::Fingerprint($record);
+                });
+            }
             if (in_array($job['phase'], ['verifying', 'conflict'], true)) {
                 $this->MigrationArchive()->Write($job['operation'] . '-draft', ['binding' => $job['binding'], 'before' => $record, 'snapshot' => $snapshot], true);
             }
@@ -228,7 +255,27 @@ trait WorkspaceDraftSync
             $workspace = $this->ReadWorkspace();
             $record = $this->WorkspaceRecord($workspace, $system, $job['binding']['generation'], $job['fingerprint']);
             if (!$this->WorkspaceConnectionCurrent($job['binding'])) throw new RuntimeException('binding_changed');
+            $plan = $this->WorkspaceDraftMergePlan($record, $snapshot = $archive['snapshot'], $job['choices'] ?? []);
+            if (!($job['replacement'] ?? false) && $plan['conflicts'] !== []) throw new RuntimeException('draft_sync_changed');
             $record['data'] = $archive['snapshot']['data'];
+            if (!($job['replacement'] ?? false)) {
+                $configuration = $plan['configuration'];
+                $remoteConfiguration = DraftMerge::Normalize($snapshot['data']['document']['editorDraft']['configuration']);
+                $compare = static function (array $value): array
+                {
+                    unset($value['revision']);
+                    return $value;
+                };
+                if (!DraftMerge::Same($compare($configuration), $compare($remoteConfiguration))) {
+                    $configuration['revision'] = max($configuration['revision'], $snapshot['metadata']['storedRevision'] + 1);
+                    $yaml = json_encode($configuration, WorkspaceState::JSON_FLAGS | JSON_PRETTY_PRINT) . "\n";
+                    $record['data']['document']['yaml'] = $yaml;
+                    $record['data']['document']['editorDraft']['configuration'] = $configuration;
+                    $record['data']['document']['editorDraft']['draftChecksum'] = hash('sha256', $yaml);
+                }
+            }
+            $record['mergeBase'] = $this->WorkspaceDraftMergeBase($snapshot);
+            $job['counts'] = $this->WorkspaceDraftDifference($archive['before']['data']['document']['editorDraft']['configuration'] ?? [], $record['data']['document']['editorDraft']['configuration']);
             foreach (['rule' => 'automations', 'sequence' => 'sequences'] as $kind => $collection) {
                 $selected = $archive['before']['data']['selection'][$kind];
                 if (in_array($selected, array_column($record['data']['document']['editorDraft']['configuration'][$collection] ?? [], 'id'), true)) $record['data']['selection'][$kind] = $selected;
@@ -253,9 +300,27 @@ trait WorkspaceDraftSync
             $after = array_column($remote[$kind] ?? [], null, 'id');
             $counts['added'] += count(array_diff_key($after, $before));
             $counts['removed'] += count(array_diff_key($before, $after));
-            foreach (array_intersect_key($after, $before) as $id => $entry) if ($entry !== $before[$id]) $counts['changed']++;
+            foreach (array_intersect_key($after, $before) as $id => $entry) if (!DraftMerge::Same($entry, $before[$id])) $counts['changed']++;
         }
         return $counts;
+    }
+
+    private function WorkspaceDraftMergeBase(array $snapshot): array
+    {
+        return ['revision'  => $snapshot['metadata']['storedRevision'], 'checksum' => $snapshot['metadata']['checksum'],
+            'configuration' => DraftMerge::Normalize($snapshot['data']['document']['editorDraft']['configuration'])];
+    }
+
+    private function WorkspaceDraftMergePlan(array $record, array $snapshot, array $choices = []): array
+    {
+        $editor = $record['data']['document']['editorDraft'] ?? null;
+        $remote = $snapshot['data']['document']['editorDraft']['configuration'];
+        $base = $editor !== null && ($record['mergeBase']['revision'] ?? null) === $editor['baseRevision']
+            && ($record['mergeBase']['checksum'] ?? null) === $editor['baseChecksum'] ? $record['mergeBase']['configuration'] : null;
+        if ($base === null && $editor !== null) {
+            if ($editor['draftChecksum'] === $editor['baseChecksum']) $base = $editor['configuration'];
+        }
+        return DraftMerge::Plan($editor['configuration'] ?? $remote, $remote, $base, $choices);
     }
 
     private function WorkspaceDraftArchive(array $job): array
@@ -273,6 +338,8 @@ trait WorkspaceDraftSync
         $current = $job !== null && $job['binding'] === $record['binding']
             && ($job['phase'] === 'error' || in_array($fingerprint, [$job['fingerprint'], $job['after']], true));
         $phase = $current ? $job['phase'] : 'idle';
+        $conflicts = [];
+        if ($phase === 'conflict') $conflicts = $this->WorkspaceDraftMergePlan($record, $this->WorkspaceDraftArchive($job)['snapshot'])['conflicts'];
         $blocked = '';
         try {
             $info = $this->WorkspaceRuntimeAccess($record);
@@ -285,10 +352,11 @@ trait WorkspaceDraftSync
         return ['systemId'       => $record['binding']['systemId'], 'generation' => $record['binding']['generation'], 'fingerprint' => $fingerprint,
             'operation'          => $current ? $job['operation'] : '', 'phase' => $phase, 'pending' => in_array($phase, ['reading', 'verifying'], true),
             'canStart'           => $blocked === '' && !in_array($phase, ['reading', 'verifying'], true), 'canReplace' => $phase === 'conflict' && $blocked === '',
-            'canRestore'         => $phase === 'updated' && $fingerprint === $job['after'] && $blocked === '',
+            'canRestore'         => $phase === 'updated' && $fingerprint === $job['after'] && $blocked === '', 'conflicts' => $conflicts,
             'baseRevision'       => $current ? $job['baseRevision'] : ($record['data']['document']['editorDraft']['baseRevision'] ?? 0),
             'remoteRevision'     => $current ? $job['remoteRevision'] : null, 'counts' => $current ? $job['counts'] : ['added' => 0, 'changed' => 0, 'removed' => 0],
-            'permissionsChanged' => $current && $job['permissionsChanged'], 'error' => $phase === 'error' ? $job['error'] : $blocked];
+            'permissionsChanged' => $current && $job['permissionsChanged'], 'error' => $phase === 'error' ? $job['error'] : $blocked, 'source' => $current ? ($job['source'] ?? 'z2m') : 'z2m',
+            'automatic'          => $phase !== 'offline', 'canOffline' => $record['data']['document'] !== null, 'connection' => hash('sha256', json_encode([$record['binding'], $info['state']['extension']['session'] ?? null], WorkspaceState::JSON_FLAGS))];
     }
 
     private function FailWorkspaceDraftSync(string $system, Throwable $exception): void
@@ -314,7 +382,7 @@ trait WorkspaceDraftSync
                 || SystemContract::RegistryError([$job['binding']]) !== '' || $job['binding']['systemId'] !== $system || $job['binding']['ownerInstance'] !== $this->InstanceID
                 || !DraftTransferProtocol::Operation($job['operation'] ?? null) || !DraftTransferProtocol::Operation($job['epoch'] ?? null)
                 || !ExtensionContract::Checksum($job['fingerprint'] ?? null) || (($job['after'] ?? '') !== '' && !ExtensionContract::Checksum($job['after']))
-                || !in_array($job['phase'] ?? null, ['reading', 'verifying', 'conflict', 'updated', 'current', 'older', 'restored', 'error'], true)
+                || !in_array($job['phase'] ?? null, ['reading', 'verifying', 'conflict', 'updated', 'current', 'older', 'restored', 'error', 'offline'], true)
                 || !is_string($job['error'] ?? null) || !is_int($job['deadline'] ?? null) || !ExtensionContract::Revision($job['baseRevision'] ?? null)
                 || !array_key_exists('remoteRevision', $job) || ($job['remoteRevision'] !== null && !ExtensionContract::Revision($job['remoteRevision']))
                 || !is_bool($job['permissionsChanged'] ?? null) || !is_array($job['counts'] ?? null)) throw new RuntimeException('draft_sync_failed');

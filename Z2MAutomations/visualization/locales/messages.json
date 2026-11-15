@@ -2519,6 +2519,10 @@
         "Diese Verbindung wird von %s (Instanz %d) verwaltet. Die Z2M-Erweiterung bitte in dieser Automationszentrale installieren oder aktualisieren: im Konfigurationsformular der Zentrale oder im Webdesigner.",
         "This connection is managed by %s (instance %d). Install or update the Z2M extension in that automation center, using its configuration form or browser designer."
     ],
+    "server.fd959e7113be3c48": [
+        "Bitte zuerst den Z2M-Abgleich unter „Automationen bearbeiten“ abschließen und offene Versionskonflikte auflösen. Es wurde nichts übertragen.",
+        "Complete the Z2M reconciliation under “Edit automations” and resolve any version conflicts first. Nothing was transferred."
+    ],
     "desktop.connection.catalogLimit": [
         "Der Gerätekatalog ist zu groß, um ihn vollständig zu laden. Es wurde kein unvollständiger Katalog übernommen.",
         "The device catalog is too large to load completely. No incomplete catalog was accepted."
@@ -8636,8 +8640,8 @@
         "Restore the previous draft"
     ],
     "symcon.draftSync.idle": [
-        "Liest den aktuellen Stand des ausgewählten Z2M-Systems. Ein unveränderter Entwurf wird bei neuerer Z2M-Basis direkt aktualisiert.",
-        "Reads the selected Z2M system. An unchanged draft updates directly when its Z2M base is newer."
+        "Beim Verbinden wird der aktuelle Z2M-Bestand automatisch mit deinem lokalen Arbeitsstand abgeglichen.",
+        "On connection, the current Z2M inventory is automatically reconciled with your local workspace."
     ],
     "symcon.draftSync.reading": [
         "Aktueller Z2M-Stand wird gelesen …",
@@ -8648,16 +8652,16 @@
         "Confirming the Z2M version again before updating the local draft …"
     ],
     "symcon.draftSync.updated": [
-        "Entwurf von „{{name}}“ aus Z2M aktualisiert (Revision {{revision}}). Z2M und laufender Betrieb bleiben unverändert. Der vorherige Entwurf ist gesichert.",
-        "Draft for “{{name}}” updated from Z2M (revision {{revision}}). Z2M and running automations are unchanged. The previous draft is backed up."
+        "Arbeitsstand von „{{name}}“ mit Z2M zusammengeführt (Revision {{revision}}). Lokale Ergänzungen bleiben erhalten. Der vorherige Arbeitsstand ist gesichert; Z2M und Betrieb bleiben unverändert.",
+        "Workspace for “{{name}}” merged with Z2M (revision {{revision}}). Local additions are preserved. The previous workspace is backed up; Z2M and operation remain unchanged."
     ],
     "symcon.draftSync.current": [
         "Die Z2M-Basis ist aktuell. Dein lokaler Entwurf bleibt unverändert, einschließlich eigener Änderungen.",
         "The Z2M base is current. Your local draft, including your own changes, is unchanged."
     ],
     "symcon.draftSync.conflict": [
-        "In Z2M und im lokalen Entwurf gibt es abweichende Änderungen. Dein Entwurf bleibt erhalten. Du kannst weiterbearbeiten oder ihn ausdrücklich durch den gelesenen Z2M-Stand ersetzen.",
-        "Z2M and the local draft have diverged. Your draft is preserved. Continue editing or explicitly replace it with the version read from Z2M."
+        "Einige Automationen wurden auf beiden Seiten unterschiedlich geändert oder gelöscht. Wähle für diese Einträge die gewünschte Fassung. Alle übrigen Ergänzungen werden zusammengeführt.",
+        "Some automations were changed differently or deleted on both sides. Choose the desired version for these entries. All other additions will be merged."
     ],
     "symcon.draftSync.older": [
         "Z2M meldet eine ältere Basis als dein Entwurf. Es wird nichts ersetzt. Prüfe, ob du das richtige System ausgewählt hast oder in Z2M eine ältere Version wiederhergestellt wurde.",
@@ -8714,5 +8718,141 @@
     "symcon.draftSync.timeout": [
         "Die Wartezeit auf den Z2M-Stand ist abgelaufen. Der lokale Entwurf bleibt erhalten. Es wird nichts automatisch erneut gesendet.",
         "The wait for the Z2M version has expired. Your local draft is preserved. Nothing is automatically sent again."
+    ],
+    "draft.sync.merge": [
+        "Auswahl zusammenführen",
+        "Merge choices"
+    ],
+    "draft.sync.mergeConfirm": [
+        "Die gewählten Fassungen mit den übrigen Automationen von „{{name}}“ lokal zusammenführen? Der vorherige Arbeitsstand wird gesichert. Z2M und laufende Automationen bleiben unverändert.",
+        "Merge the chosen versions with the other automations of “{{name}}” locally? The previous workspace is backed up. Z2M and running automations remain unchanged."
+    ],
+    "draft.sync.offline": [
+        "Offline-Bearbeitung gewählt. Vor der Übertragung wird der Z2M-Bestand abgeglichen.",
+        "Offline editing selected. The Z2M inventory is reconciled before transfer."
+    ],
+    "draft.sync.editOffline": [
+        "Offline bearbeiten",
+        "Edit offline"
+    ],
+    "draft.sync.permissions": [
+        "Partnerfreigaben",
+        "Partner permissions"
+    ],
+    "draft.sync.local": [
+        "Meine Fassung behalten",
+        "Keep my version"
+    ],
+    "draft.sync.remote": [
+        "Gelesene Fassung übernehmen",
+        "Use the read version"
+    ],
+    "draft.sync.choose": [
+        "Bitte Fassung auswählen",
+        "Choose a version"
+    ],
+    "draft.sync.deleted": [
+        "Gelöscht",
+        "Deleted"
+    ],
+    "draft.file.save": [
+        "Entwurfsdatei speichern (.z2mad)",
+        "Save draft file (.z2mad)"
+    ],
+    "draft.file.open": [
+        "Entwurfsdatei hinzufügen",
+        "Add draft file"
+    ],
+    "draft.file.projectSave": [
+        "Projektdatei speichern (.z2map)",
+        "Save project file (.z2map)"
+    ],
+    "draft.file.projectOpen": [
+        "Projektdatei hinzufügen",
+        "Add project file"
+    ],
+    "draft.file.select": [
+        "Automationen für die Entwurfsdatei auswählen",
+        "Select automations for the draft file"
+    ],
+    "draft.file.all": [
+        "Alle Automationen",
+        "All automations"
+    ],
+    "draft.file.mapping": [
+        "Zielnetz auswählen",
+        "Choose destination network"
+    ],
+    "draft.file.confirm": [
+        "Die ausgewählten Automationen zu diesem Arbeitsstand hinzufügen? Neue Regeln bleiben ausgeschaltet. Der vorherige Arbeitsstand wird gesichert.",
+        "Add the selected automations to this workspace? New rules remain disabled. The previous workspace is backed up."
+    ],
+    "draft.file.saved": [
+        "Datei gespeichert.",
+        "File saved."
+    ],
+    "draft.file.added": [
+        "Automationen zum Arbeitsstand hinzugefügt. Z2M bleibt unverändert.",
+        "Automations added to the workspace. Z2M remains unchanged."
+    ],
+    "draft.file.failed": [
+        "Die Datei konnte nicht sicher übernommen werden. Bitte Format, Netzzuordnung und Unterschiede prüfen. Dein Arbeitsstand bleibt erhalten.",
+        "The file could not be safely imported. Check its format, network mapping and differences. Your workspace is preserved."
+    ],
+    "draft.file.source": [
+        "Quelle: {{name}} · {{topic}}",
+        "Source: {{name}} · {{topic}}"
+    ],
+    "draft.sync.initial": [
+        "Automationen aus Z2M werden zuerst eingelesen. Alternativ kannst du bewusst offline arbeiten.",
+        "Automations are read from Z2M first. You can also explicitly choose offline editing."
+    ],
+    "draft.file.sourceChoice": [
+        "Z2M-Netz in der Datei",
+        "Z2M network in the file"
+    ],
+    "draft.file.target": [
+        "Hinzufügen zu: {{name}}",
+        "Add to: {{name}}"
+    ],
+    "draft.file.cancel": [
+        "Abbrechen",
+        "Cancel"
+    ],
+    "draft.file.conflict": [
+        "Unterschiedliche Fassungen auswählen",
+        "Choose between different versions"
+    ],
+    "draft.preview.counts": [
+        "{{triggers}} Auslöser · {{conditions}} Bedingungen · {{actions}} Aktionen",
+        "{{triggers}} triggers · {{conditions}} conditions · {{actions}} actions"
+    ],
+    "draft.preview.technical": [
+        "Technische Angaben anzeigen",
+        "Show technical details"
+    ],
+    "project.draftInitialRead": [
+        "Bitte zuerst den Z2M-Bestand einlesen oder ausdrücklich „Offline bearbeiten“ wählen.",
+        "Read the Z2M inventory first or explicitly choose “Edit offline”."
+    ],
+    "project.projectFile": [
+        "Z2M-Automations-Projekt",
+        "Z2M-Automations project"
+    ],
+    "project.draftFile": [
+        "Entwurf / YAML / JSON",
+        "Draft / YAML / JSON"
+    ],
+    "project.draftSyncRequired": [
+        "Bitte zuerst den Z2M-Abgleich unter „Automationen bearbeiten“ abschließen und offene Versionskonflikte auflösen. Es wurde nichts übertragen.",
+        "Complete the Z2M reconciliation under “Edit automations” and resolve any version conflicts first. Nothing was transferred."
+    ],
+    "mqtt.error.draftSyncRequired": [
+        "Bitte zuerst den Z2M-Abgleich unter „Automationen bearbeiten“ abschließen und offene Versionskonflikte auflösen. Es wurde nichts übertragen.",
+        "Complete the Z2M reconciliation under “Edit automations” and resolve any version conflicts first. Nothing was transferred."
+    ],
+    "draft.sync.dependency": [
+        "Eine erhaltene Automation benötigt diese gelöschte Aktionsfolge. Wähle ausdrücklich, ob die Aktionsfolge erhalten bleiben soll.",
+        "A retained automation needs this deleted sequence. Explicitly choose whether to keep the sequence."
     ]
 }

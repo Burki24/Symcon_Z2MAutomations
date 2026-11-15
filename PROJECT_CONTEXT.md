@@ -1198,3 +1198,15 @@ Symcon verfügbar, werden aber nicht unabhängig weiterentwickelt. Der feste
 HTTP-Assetzugang kennt nun transport.js; bestehende Endpunkte, Kachel, Helper
 und Erweiterung bleiben erhalten. Prüfungen benötigen das Desktop-Repo nicht.
 Keine Installation und kein Live-System wurde verändert.
+## Connected workspaces and portable drafts – 2026-11-15
+
+Browser designer and tile automatically request a full automation read on an
+observed connection. Fresh remote content and local additions are reconciled
+against a persistent base configuration. Divergent rule/sequence versions and
+edit/delete conflicts use explicit per-entry choices. Native binding/CAS guards,
+second-read verification and private automatic backups preserve local work.
+
+Shared `.z2mad` selection files and `.z2map` workspace snapshots can be downloaded
+and added to a chosen existing network. Legacy standalone `.z2ma` projects remain
+usable as import sources. File operations neither widen destination grants nor
+send runtime commands; new additions remain disabled. See ADR 0040.

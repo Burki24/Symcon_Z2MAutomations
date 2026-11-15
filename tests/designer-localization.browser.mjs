@@ -33,6 +33,8 @@ let networkReason = '';
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
 const draftSyncViews = new Map(); const draftSyncBackups = new Map(); let draftSyncMode = 'updated';
+let automaticDraftReads = false;
+let automaticFileTarget = '';
 function draftSyncView(id) {
     return draftSyncViews.get(id) ?? {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: 'idle',
         pending: false, canStart: true, canReplace: false, canRestore: false, baseRevision: 4, remoteRevision: null,
@@ -70,7 +72,7 @@ function model(id = 'a') {
         catalogRefresh: {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: catalogAvailable ? 'loaded' : 'idle',
             pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
             storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
-        draftSyncAllowed: true, draftSync: draftSyncView(id), transfer: transferView(id), runtime: runtimeView(id)};
+        draftSyncAllowed: true, draftSync: {...draftSyncView(id), automatic: automaticDraftReads || automaticFileTarget === id, connection: 'synthetic-session'}, transfer: transferView(id), runtime: runtimeView(id)};
     if (deviceNetworks) {
         const remote = systems.find(system => system.binding.systemId !== id).binding.baseTopic;
         const remoteAction = {...rule.actions[0], target: {type: 'device', id: 'lamp', system: remote}};
@@ -115,16 +117,30 @@ const server = createServer(async (request, response) => {
             if (body.action === 'restore') {
                 Object.assign(rules.get(id), draftSyncBackups.get(id));
                 draftSyncViews.set(id, {...draftSyncView(id), phase: 'restored', canRestore: false});
-            } else if (body.action === 'replace') finishDraftSync(id);
+            } else if (body.action === 'replace' || body.action === 'merge') finishDraftSync(id);
             else {
                 draftSyncBackups.set(id, structuredClone(rules.get(id)));
                 draftSyncViews.set(id, {...draftSyncView(id), operation: body.requestId.replaceAll('-', ''), remoteRevision: 74,
                     phase: draftSyncMode === 'pending' ? 'reading' : draftSyncMode, pending: draftSyncMode === 'pending',
                     canStart: draftSyncMode !== 'pending', canReplace: draftSyncMode === 'conflict', canRestore: false,
-                    counts: {added: 0, changed: 1, removed: 0}});
+                    counts: {added: 0, changed: 1, removed: 0}, conflicts: draftSyncMode === 'conflict' ? [{key: 'automations:' + rules.get(id).id, kind: 'automations', id: rules.get(id).id,
+                        name: rules.get(id).name, local: structuredClone(rules.get(id)), remote: {...rules.get(id), name: 'Fresh Z2M automation ' + id}, base: null}] : []});
                 if (draftSyncMode === 'updated') finishDraftSync(id);
             }
             response.end(JSON.stringify({ok: true, draftSync: draftSyncView(id)})); return;
+        }
+        else if (route === 'draft-files') {
+            const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            if (body.action === 'project') {
+                response.end(JSON.stringify({ok: true, file: {format: 'z2m-automations-workspace', version: 1, name: 'Synthetic', systems: ['a', 'b'].map(system => ({
+                    format: 'z2m-automations-draft', version: 1, system: {id: system, name: model(system).module.name, baseTopic: model(system).module.baseTopic},
+                    configuration: model(system).configuration, base: null}))}})); return;
+            }
+            if (body.action === 'import') {
+                for (const rule of body.file.configuration.automations) if (!model(id).configuration.automations.some(item => item.id === rule.id)) createdRules.get(id).push({...rule, enabled: false});
+                response.end(JSON.stringify({ok: true, applied: true})); return;
+            }
+            throw new Error('Unsupported synthetic file action');
         }
         else if (route === 'catalog-refresh') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
@@ -482,8 +498,8 @@ async function verifyDraftSynchronization(page, view, language) {
     await refresh.click();
     await view.getByRole('heading', {name: 'Fresh Z2M automation a', exact: true}).waitFor();
     // The heading renders during reload, before the command's final status paint.
-    await feedback.getByText(language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/).waitFor();
-    assert.match(await feedback.innerText(), language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/);
+    await feedback.getByText(language === 'de' ? /mit Z2M zusammengeführt/ : /merged with Z2M/).waitFor();
+    assert.match(await feedback.innerText(), language === 'de' ? /mit Z2M zusammengeführt/ : /merged with Z2M/);
     assert.equal(await feedback.getAttribute('data-tone'), 'success');
     assert.ok(await feedback.evaluate(node => getComputedStyle(node).color !== getComputedStyle(node.parentElement).color), 'confirmed feedback uses the semantic success color');
     assert.ok(await view.locator('#symcon-draft-sync').evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'draft feedback fits the browser and narrow tile');
@@ -500,7 +516,9 @@ async function verifyDraftSynchronization(page, view, language) {
     draftSyncMode = 'conflict'; await refresh.click();
     const replace = view.locator('#symcon-replace-draft'); await replace.waitFor({state: 'visible'});
     assert.deepEqual(rules.get('a'), before, 'a conflict keeps the current local draft');
-    assert.match(await feedback.innerText(), language === 'de' ? /abweichende Änderungen/ : /diverged/);
+    assert.match(await feedback.innerText(), language === 'de' ? /unterschiedlich geändert/ : /changed differently/);
+    assert.equal(await replace.isDisabled(), true, 'every divergent rule requires an explicit version choice');
+    await view.locator('.draft-conflicts select').selectOption('remote');
     await replace.click(); await confirmation.press('Escape'); await confirmation.waitFor({state: 'detached'});
     assert.deepEqual(rules.get('a'), before);
     await replace.click(); await confirmation.locator('button.primary').click();
@@ -514,10 +532,92 @@ async function verifyDraftSynchronization(page, view, language) {
     assert.equal(await field.inputValue(), 'Unsaved draft sync input');
     await view.locator('#edit-cancel').click();
     draftSyncMode = 'pending'; await refresh.click();
-    await feedback.getByText(language === 'de' ? /aus Z2M aktualisiert/ : /updated from Z2M/).waitFor();
+    await feedback.getByText(language === 'de' ? /mit Z2M zusammengeführt/ : /merged with Z2M/).waitFor();
     assert.deepEqual(rules.get('b'), other, 'polling never mixes system state');
     assert.ok(operations.slice(beforeOperations).every(row => row.route === 'draft-sync'), 'the button cannot transfer, activate, stop, install or issue device commands');
 }
+async function verifyAutomaticDraftRead(page, view) {
+    const saved = structuredClone(rules.get('a')); const savedCreated = structuredClone(createdRules.get('a'));
+    const otherPages = page.context().pages().filter(other => other !== page).map(other => [other, other.url()]);
+    for (const [other] of otherPages) await other.goto('about:blank');
+    try {
+        active = 'a'; automaticDraftReads = true; draftSyncMode = 'updated'; draftSyncViews.clear();
+        createdRules.get('a').push({...saved, id: 'unsent-local', name: 'Unsent local automation', enabled: false});
+        const before = operations.length;
+        await page.reload();
+        await view.locator('#symcon-draft-sync-status').getByText(/merged with Z2M|mit Z2M zusammengeführt/).waitFor();
+        assert.ok(model('a').configuration.automations.some(item => item.id === 'unsent-local' && item.enabled === false), 'the automatic initial read preserves an unsent local rule');
+        assert.deepEqual(operations.slice(before).map(row => [row.route, row.body.action]), [['draft-sync', 'refresh']], 'connecting the designer starts exactly one read and no control commands');
+        await view.locator('#validate-button').click();
+        await view.locator('#validate-button:not([disabled])').waitFor();
+        assert.equal(operations.length, before + 1, 'refreshing the presentation does not repeat the connection read');
+    } finally {
+        automaticDraftReads = false; rules.set('a', saved); createdRules.set('a', savedCreated); draftSyncViews.clear();
+        await page.reload();
+        for (const [other, url] of otherPages) await other.goto(url);
+    }
+}
+
+async function verifyPortableFiles(page, view, language) {
+    const savedCreated = new Map([...createdRules].map(([id, value]) => [id, structuredClone(value)]));
+    const savedRules = new Map([...rules].map(([id, value]) => [id, structuredClone(value)]));
+    const savedRuntime = structuredClone([...runtimeViews]);
+    // The synthetic server has one selection; isolate clients while exercising a target switch.
+    const otherPages = page.context().pages().filter(other => other !== page).map(other => [other, other.url()]);
+    for (const [other] of otherPages) await other.goto('about:blank');
+    try {
+        active = 'a'; await page.reload();
+        await view.locator('#draft-file-save:not([disabled])').waitFor({state: 'attached'});
+        await view.locator('#designer-language').selectOption(language); await showStep(view, 'draft');
+        const configuration = model(active).configuration;
+        const draftDownload = page.waitForEvent('download');
+        await view.locator('#draft-file-save').click();
+        const dialog = view.locator('#draft-file-dialog'); await dialog.waitFor({state: 'visible'});
+        const checkboxes = dialog.locator('.guided-inventory input');
+        for (let i = 0; i < await checkboxes.count(); i++) await checkboxes.nth(i).uncheck();
+        await checkboxes.first().check(); await dialog.locator('button.primary').click();
+        const draft = await draftDownload; assert.match(draft.suggestedFilename(), /\.z2mad$/);
+        const file = JSON.parse(readFileSync(await draft.path(), 'utf8'));
+        assert.equal(file.format, 'z2m-automations-draft'); assert.equal(file.configuration.automations.length, 1);
+        assert.equal(file.configuration.automations[0].id, configuration.automations[0].id);
+        assert.equal(file.system.baseTopic, model(active).module.baseTopic);
+        const projectDownload = page.waitForEvent('download'); await view.locator('#draft-file-project-save').click();
+        const project = await projectDownload; assert.match(project.suggestedFilename(), /\.z2map$/);
+        const projectFile = JSON.parse(readFileSync(await project.path(), 'utf8')); assert.equal(projectFile.systems.length, 2);
+        const id = 'portable_' + language;
+        const target = active === 'a' ? 'b' : 'a';
+        automaticFileTarget = target;
+        const targetConfiguration = structuredClone(model(target).configuration);
+        file.configuration.automations[0] = {...file.configuration.automations[0], id, name: 'Portable draft ' + language, enabled: true};
+        file.configuration.mesh_peers = ['unapproved'];
+        const chooser = page.waitForEvent('filechooser'); await view.locator('#draft-file-open').click();
+        await (await chooser).setFiles({name: 'synthetic.z2mad', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file))});
+        await dialog.waitFor({state: 'visible'});
+        await dialog.locator('#draft-file-target').selectOption(target);
+        await view.locator('#designer-language').selectOption(language === 'en' ? 'de' : 'en');
+        assert.equal(await dialog.locator('#draft-file-target').inputValue(), target, 'language changes preserve the mapped target');
+        assert.equal(await dialog.locator('#draft-file-source').inputValue(), '0', 'language changes preserve the source network');
+        await view.locator('#designer-language').selectOption(language);
+        assert.equal(await dialog.locator('.guided-inventory input:checked').count(), 1, 'changing the target preserves the selected automation');
+        await dialog.locator('button.primary').click();
+        const confirmation = view.locator('.guided-confirmation'); await confirmation.waitFor({state: 'visible'});
+        await confirmation.locator('button.primary').click();
+        await view.getByText(language === 'de' ? 'Automationen zum Arbeitsstand hinzugefügt. Z2M bleibt unverändert.' : 'Automations added to the workspace. Z2M remains unchanged.', {exact: true}).waitFor();
+        const imported = model(target).configuration.automations.find(item => item.id === id);
+        assert.ok(imported && imported.enabled === false, 'the chosen draft adds a disabled rule');
+        assert.deepEqual(model(target).configuration.mesh_peers, targetConfiguration.mesh_peers, 'draft import cannot introduce partner grants');
+        assert.deepEqual([...runtimeViews], savedRuntime, 'file operations cannot change runtime');
+        assert.ok(await view.locator('#desktop-view-draft').evaluate(node => node.scrollWidth <= node.clientWidth + 1), 'file controls fit the tile');
+    } finally {
+        automaticFileTarget = ''; draftSyncViews.clear();
+        for (const [id, value] of savedCreated) createdRules.set(id, value);
+        for (const [id, value] of savedRules) rules.set(id, value);
+        await page.reload();
+        await view.locator('#draft-file-save:not([disabled])').waitFor({state: 'attached'});
+        for (const [other, url] of otherPages) await other.goto(url);
+    }
+}
+
 async function verifyTransferResume(page, view) {
     const savedRuntime = new Map(runtimeViews); const savedTransfers = new Map(transferViews);
     const savedRules = structuredClone(createdRules.get('b'));
@@ -834,6 +934,10 @@ try {
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
     await verifyDraftSynchronization(page, page, 'en');
     await verifyDraftSynchronization(tile, tile.frameLocator('#designer-frame'), 'de');
+    await verifyAutomaticDraftRead(page, page);
+    await verifyAutomaticDraftRead(tile, tile.frameLocator('#designer-frame'));
+    await verifyPortableFiles(page, page, 'en');
+    await verifyPortableFiles(tile, tile.frameLocator('#designer-frame'), 'de');
     await verifySourceCatalog(page, page);
     await verifySourceCatalog(tile, tile.frameLocator('#designer-frame'));
     deviceNetworks = true;
@@ -852,6 +956,7 @@ try {
     console.log('Receiver activation guidance passed: browser/tile, DE/EN, stopped/unknown/active states, direct network navigation, saved rule preview, cancellation, one explicit target start and guided return without draft changes.');
     console.log('New automation network picker passed: browser/tile, qualified conditions, toggle actions and native state_l1 TOGGLE values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');
+    console.log('Connected workspace and portable files passed: automatic first read, no duplicate view-refresh read, preserved unsent drafts, selected .z2mad export/import, .z2map snapshots and direct target-network mapping in browser/tile and DE/EN.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation, scoped stop/check/store and explicitly selected verified resumption.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');

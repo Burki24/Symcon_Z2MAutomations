@@ -22,6 +22,8 @@ require_once __DIR__ . '/../libs/WorkspaceSetup.php';
 require_once __DIR__ . '/../libs/WorkspaceRuntime.php';
 require_once __DIR__ . '/../libs/WorkspaceCatalogRefresh.php';
 require_once __DIR__ . '/../libs/WorkspaceDraftSync.php';
+require_once __DIR__ . '/../libs/DraftMerge.php';
+require_once __DIR__ . '/../libs/WorkspaceFiles.php';
 require_once __DIR__ . '/../libs/WorkspaceRuntimeForm.php';
 require_once __DIR__ . '/../libs/SystemMigration.php';
 require_once __DIR__ . '/../libs/SystemOwnership.php';
@@ -88,6 +90,7 @@ class Z2MAutomations extends IPSModuleStrict
     use Z2MAutomations\WorkspaceRuntime;
     use Z2MAutomations\WorkspaceCatalogRefresh;
     use Z2MAutomations\WorkspaceDraftSync;
+    use Z2MAutomations\WorkspaceFiles;
     use Z2MAutomations\WorkspaceRuntimeForm;
     use Z2MAutomations\SystemMigration;
     use Z2MAutomations\SystemOwnership;

@@ -173,10 +173,10 @@ $local['document']['yaml'] = json_encode($local['document']['editorDraft']['conf
 $local['document']['editorDraft']['draftChecksum'] = hash('sha256', $local['document']['yaml']);
 $update($local);
 $check($sync()['draftSync']['phase'] === 'current' && $detail($system)['data'] === $local, 'A different local revision counter is not evidence of an older draft; local edits survive an unchanged remote base.');
-$remote($topic, 75, [$rule]);
+$remote($topic, 75, [array_replace($rule, ['name' => 'PRIVATE_REMOTE_EDIT'])]);
 $read = $sync()['draftSync'];
 $check($read['phase'] === 'conflict' && $read['canReplace'] && $detail($system)['data'] === $local
-    && $read['counts'] === ['added' => 0, 'changed' => 1, 'removed' => 1], 'Divergent persisted changes produce a review without silently replacing any rules.');
+    && $read['counts'] === ['added' => 0, 'changed' => 0, 'removed' => 1], 'Divergent persisted changes produce a review without silently replacing any rules.');
 $record = $detail($system);
 $confirmed = $decode($manager->ResolveWorkspaceDraftSync($system, 1, $record['fingerprint'], $read['operation'], 'replace'));
 $check(($confirmed['draftSync']['phase'] ?? '') === 'updated' && $detail($system)['data']['document']['yaml'] === $documents[$topic]['yaml'], 'Explicit replacement re-verifies the remote version and imports only the selected system.');
@@ -228,6 +228,7 @@ $check($pending['draftSync']['phase'] === 'error' && $pending['draftSync']['erro
 $hold = false;
 foreach ($held as $packet) $parent->publish(str_replace('/request/', '/response/', $packet['Topic']), ['protocol_version' => 1,
     'transaction'                                                                                                         => $packet['Payload']['transaction'], 'status' => 'ok', 'data' => $metadata[$topic]]);
+$remote($topic, 77, [array_replace($rule, ['name' => 'PRIVATE_REMOTE_EDIT'])]);
 $token = explode('#', $manager->OpenAutomationDesigner())[1];
 $record = $detail($system);
 $headers = ['HTTP_X_Z2MA_SYSTEM_ID' => $system, 'HTTP_X_Z2MA_GENERATION' => '1', 'HTTP_X_Z2MA_FINGERPRINT' => $record['fingerprint']];
@@ -241,6 +242,47 @@ $check($http === 200 && ($decode($body)['draftSync']['phase'] ?? '') === 'confli
 [$http, $body] = $manager->Hook('data', $token, $headers, 'GET');
 $model = $decode($body);
 $check($http === 200 && $model['draftSyncAllowed'] && $model['draftSync']['systemId'] === $system, 'The real browser adapter exposes only the selected system view and its edit capability.');
+$record = $detail($system);
+$transferView = $decode($manager->GetWorkspaceTransferStatus($system))['transfer'];
+$packetsBeforeConflict = count($packets);
+$blockedTransfer = $decode($manager->RequestWorkspaceTransfer($system, 1, $record['fingerprint'], 'validate', $op(), $transferView['context']));
+$check(!$blockedTransfer['ok'] && $blockedTransfer['error'] === 'draft_sync_required' && count($packets) === $packetsBeforeConflict, 'Unresolved merge conflicts cannot be bypassed through the transfer API.');
+$headers['HTTP_X_Z2MA_FINGERPRINT'] = $record['fingerprint'];
+$choices = array_fill_keys(array_column($model['draftSync']['conflicts'], 'key'), 'local');
+$manager->body = json_encode(['requestId' => '22222222-2222-4222-8222-222222222222', 'action' => 'merge', 'operation' => $model['draftSync']['operation'], 'choices' => $choices]);
+[$http, $body] = $manager->Hook('draft-sync', $token, $headers);
+$check($http === 200 && $decode($body)['draftSync']['phase'] === 'updated', 'Explicit per-rule choices re-read and merge through the actual authenticated endpoint.');
+$check($detail($system)['data']['document']['editorDraft']['configuration']['automations'][0]['name'] === 'PRIVATE_CONCURRENT_EDIT', 'The chosen local edit survives the fresh remote read.');
+$beforeFile = $detail($system);
+$beforePackets = count($packets);
+$headers['HTTP_X_Z2MA_FINGERPRINT'] = $beforeFile['fingerprint'];
+$imported = array_replace($rule, ['id' => 'file_rule', 'name' => 'PRIVATE_FILE_RULE', 'enabled' => true]);
+$fileConfiguration = $beforeFile['data']['document']['editorDraft']['configuration'];
+$fileConfiguration['automations'] = [$imported];
+$fileConfiguration['mesh_peers'] = ['unapproved_peer'];
+$file = ['format'   => 'z2m-automations-draft', 'version' => 1, 'system' => ['id' => 'source', 'name' => 'Synthetic source', 'baseTopic' => 'source'],
+    'configuration' => $fileConfiguration, 'base' => null];
+$manager->body = json_encode(['requestId' => '33333333-3333-4333-8333-333333333333', 'action' => 'import', 'file' => $file, 'choices' => []]);
+[$http, $body] = $manager->Hook('draft-files', $token, $headers);
+$check($http === 200 && ($decode($body)['applied'] ?? false), 'A portable draft is imported through the real scoped endpoint.');
+$afterFile = $detail($system);
+$rules = array_column($afterFile['data']['document']['editorDraft']['configuration']['automations'], null, 'id');
+$check(isset($rules['file_rule']) && $rules['file_rule']['enabled'] === false && count($rules) === 2, 'File import adds a disabled rule while preserving existing automation.');
+$check(!in_array('unapproved_peer', $afterFile['data']['document']['editorDraft']['configuration']['mesh_peers'], true) && count($packets) === $beforePackets, 'Import grants no new partner access and sends no MQTT commands.');
+$headers['HTTP_X_Z2MA_FINGERPRINT'] = $afterFile['fingerprint'];
+$manager->body = json_encode(['requestId' => '44444444-4444-4444-8444-444444444444', 'action' => 'project']);
+[$http, $body] = $manager->Hook('draft-files', $token, $headers);
+$export = $decode($body)['file'] ?? [];
+$check($http === 200 && count($export['systems'] ?? []) === 2 && $export['format'] === 'z2m-automations-workspace', 'Project export includes all assigned local workspaces.');
+$check(!str_contains($body, 'ownerInstance') && !str_contains($body, 'mqttParent') && !str_contains($body, 'password'), 'Portable files contain no native authority or broker secrets.');
+$fileJob = $decode($manager->GetWorkspaceDraftSyncStatus($system))['draftSync'];
+$restoredFile = $decode($manager->ResolveWorkspaceDraftSync($system, 1, $afterFile['fingerprint'], $fileJob['operation'], 'restore'));
+$check($restoredFile['draftSync']['phase'] === 'restored' && $detail($system)['data'] === $beforeFile['data'] && count($packets) === $beforePackets, 'File import can be undone locally from its automatic backup.');
+$headers['HTTP_X_Z2MA_FINGERPRINT'] = $detail($system)['fingerprint'];
+$file['configuration']['automations'][0]['password'] = 'PRIVATE_NOT_ALLOWED';
+$manager->body = json_encode(['requestId' => '55555555-5555-4555-8555-555555555555', 'action' => 'import', 'file' => $file, 'choices' => []]);
+[$http, $body] = $manager->Hook('draft-files', $token, $headers);
+$check($http === 409 && $detail($system)['data'] === $beforeFile['data'], 'Private fields in portable rules are rejected without changing the workspace.');
 $check($detail($systems[1]) === $other, 'All error and restore paths leave the other system untouched.');
 $check(!str_contains(implode(' ', $manager->debug), 'PRIVATE_'), 'Debug output must not contain private rule names, YAML or open input.');
 foreach ($connections as $connection) $check(!str_contains(implode(' ', IPS\InstanceManager::getInstanceInterface($connection)->debug), 'PRIVATE_'), 'The connection must never log the returned configuration.');

@@ -207,7 +207,10 @@ trait WorkspaceTransfer
         }
         $marker = $this->OwnershipMarker();
         $pending = $job !== null && in_array($job['status'], ['prepared', 'pending'], true);
+        $draftJob = $this->ReadWorkspaceDraftSync()['systems'][$record['binding']['systemId']] ?? null;
+        $draftBlocked = $draftJob !== null && $draftJob['binding'] === $record['binding'] && in_array($draftJob['phase'], ['reading', 'verifying', 'conflict', 'error', 'older', 'offline'], true);
         $blocked = match (true) {
+            $draftBlocked                                          => 'draft_sync_required',
             !$available                                            => 'connection_unavailable',
             !$this->WorkspaceConnectionCurrent($record['binding']) => 'binding_changed',
             ($marker['role'] ?? '') !== 'manager' || ($marker['owner'] ?? 0) !== $this->InstanceID || !$this->MigrationWorkspaceWritable()

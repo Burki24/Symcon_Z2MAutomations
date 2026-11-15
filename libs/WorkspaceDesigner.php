@@ -143,14 +143,19 @@ trait WorkspaceDesigner
                 || !ExtensionContract::Checksum($fingerprint)) throw new RuntimeException('invalid_request');
             if ($asset === 'draft-sync') {
                 if (!$this->DesignerWriteAccess($token, 'edit')) return [403, ['message' => 'Bitte den Designer zum Bearbeiten erneut im Modul öffnen.']];
-                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 4096);
-                if (!$this->DesignerEditShape($body, ['requestId', 'action', 'operation']) || !RuntimeDebugContract::UUID($body['requestId'])
-                    || !in_array($body['action'], ['refresh', 'replace', 'restore'], true)
-                    || ($body['action'] === 'refresh' ? $body['operation'] !== '' : !DraftTransferProtocol::Operation($body['operation']))) throw new RuntimeException('invalid_request');
+                $body = $this->DecodeWorkspaceInput($this->DesignerRequestBody(), 32768);
+                if (!$this->DesignerEditShape($body, ['requestId', 'action', 'operation', ...(isset($body['choices']) ? ['choices'] : [])]) || !RuntimeDebugContract::UUID($body['requestId'])
+                    || !in_array($body['action'], ['refresh', 'replace', 'restore', 'merge', 'offline'], true)
+                    || (isset($body['choices']) && !is_array($body['choices']))
+                    || (in_array($body['action'], ['refresh', 'offline'], true) ? $body['operation'] !== '' : !DraftTransferProtocol::Operation($body['operation']))) throw new RuntimeException('invalid_request');
                 $result = json_decode($body['action'] === 'refresh'
                     ? $this->StartWorkspaceDraftSync($system, (int) $rawGeneration, $fingerprint, str_replace('-', '', $body['requestId']))
-                    : $this->ResolveWorkspaceDraftSync($system, (int) $rawGeneration, $fingerprint, $body['operation'], $body['action']), true, 32, JSON_THROW_ON_ERROR);
+                    : $this->ResolveWorkspaceDraftSync($system, (int) $rawGeneration, $fingerprint, $body['action'] === 'offline' ? str_replace('-', '', $body['requestId']) : $body['operation'], $body['action'], json_encode($body['choices'] ?? [], JSON_THROW_ON_ERROR)), true, 48, JSON_THROW_ON_ERROR);
                 return [$result['ok'] ? 200 : 409, $result];
+            }
+            if ($asset === 'draft-files') {
+                if (!$this->DesignerWriteAccess($token, 'edit')) return [403, ['message' => 'Bitte den Designer zum Bearbeiten erneut im Modul öffnen.']];
+                return [200, $this->WorkspaceFileRequest($this->DecodeWorkspaceInput($this->DesignerRequestBody(), 2097152), $system, (int) $rawGeneration, $fingerprint)];
             }
             if ($asset === 'catalog-refresh') {
                 if (!$this->DesignerWriteAccess($token, 'catalog')) return [403, ['message' => 'Bitte den Designer zum Aktualisieren der Gerätedaten erneut im Modul öffnen.']];

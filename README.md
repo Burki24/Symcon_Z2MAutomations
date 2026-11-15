@@ -154,6 +154,16 @@ In Schritt 8 bietet die Übermittlungsbestätigung **Bisherigen Betrieb anschlie
 wieder aufnehmen** an. Die Option ist bei jeder Übermittlung zunächst aus und
 steht nur bei zuvor bestätigt aktivem Betrieb zur Verfügung. Die Wiederaufnahme
 erfolgt erst nach erfolgreicher Prüfung, bestätigter Speicherung und Rückprüfung.
+
+Nach der Zuordnung liest der Browserdesigner beziehungsweise die Kachel beim
+Verbinden die vorhandenen Automationen ein und führt sie mit lokalen Ergänzungen
+zusammen. Unterschiedliche Fassungen derselben Regel werden zur Auswahl gezeigt.
+Unter **Arbeitsstand wählen** lassen sich ausgewählte Regeln samt benötigter
+Aktionsfolgen als **`.z2mad`** sichern und einem gewählten Netz hinzufügen.
+**`.z2map`** sichert die Entwürfe aller zugeordneten Netze. Auch ältere
+**`.z2ma`**-App-Projekte lassen sich als Quelle auswählen. Neue importierte Regeln
+bleiben ausgeschaltet; eine lokale Zusammenführung kann bis zur nächsten Änderung
+über die automatische Sicherung zurückgenommen werden.
 Neue Regeln bleiben bis zur ausdrücklichen Freigabe ausgeschaltet. Die bisherige
 Wiederanlaufeinstellung bleibt erhalten; unterbrochene Einzelläufe werden nicht
 wiederholt. Ohne die Option bleibt der Betrieb nach dem Speichern gestoppt.
