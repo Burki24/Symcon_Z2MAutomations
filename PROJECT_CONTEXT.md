@@ -1,5 +1,20 @@
 # Projektkontext: Z2MAutomations
 
+## Bounded module-view recovery – 2026-11-15
+
+Browser designer and tile keep the current model while transient module-view
+reads recover. Five increasing GET-only retries may start within ten seconds.
+Localized neutral waiting feedback replaces premature red warnings; permanent
+failures still become visible after recovery ends. Authorization, malformed data
+and foreign system/generation errors are not retried. The synthetic browser/tile
+fixture covers multiple post-store failures, both languages and exactly one store.
+The canonical shared package is `0.117.0`, content `1dc396096d94`.
+The full PHP/279-JavaScript suite and capture-free browser/tile checks pass, as do
+structure, encoding, official JSON style (20 files) and PHP CS Fixer (164 files).
+The app passes `verify:local` (230 tests, two Ubuntu-only APT skips), its complete
+capture-free UI check and actual capture-free Electron smoke. Live acceptance and
+new platform CI runs remain separate.
+
 ## Vollständige typisierte Geräteauswahl – 15.11.2026
 
 Die fehlenden Fenstergriffe ließen sich mit ausgeschöpften alten Auswahllisten

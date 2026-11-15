@@ -98,10 +98,11 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
-- Nach erfolgreicher Übermittlung erholt sich die Modulansicht einmal von
-  einem kurzzeitig fehlgeschlagenen Leseabruf. Teilweise geladene alte
-  Gerätekataloge werden verworfen; Übertragung und Steuerbefehle werden nicht
-  wiederholt. Dauerhafte Lesefehler bleiben sichtbar.
+- Bei kurzzeitig beschäftigtem Modul zeigt die Ansicht im Browserdesigner und
+  in der Kachel zunächst einen Wartehinweis und lädt mehrmals begrenzt nach.
+  Erst nach erfolgloser Wartephase erscheint der Lesefehler. Teilweise geladene
+  alte Gerätekataloge werden verworfen; Übertragung und Steuerbefehle werden
+  nicht wiederholt. Dauerhafte Lesefehler bleiben sichtbar.
 
 - Die geführte Übermittlung im Browserdesigner und in der Kachel übernimmt
   neue Automationen auch bei gespeicherter Wiederanlaufoption. Ein bestätigter

@@ -5686,3 +5686,25 @@ StylePHP JSON checks passed for 20 own files; PHP CS Fixer found no changes in
 App `verify:local` passed 230 tests (two Ubuntu-only APT checks skipped), the full
 capture-free extension-update UI test and the subsequent capture-free Electron
 smoke. New platform CI and installed/live acceptance remain separate.
+
+## Bounded view recovery – 2026-11-15
+
+The prior single retry after 250 ms failed while module contention lasted longer.
+The shared GET reader now retries at 250/500/1000/2000/2000 ms, with at most five
+retries and no new read starting outside its ten-second recovery window. Existing
+request timeouts still apply. Every retry rebuilds the entire snapshot and catalog;
+authorization failures, invalid data and foreign bindings remain immediate errors.
+
+During recovery the view retains its prior model and shows localized neutral
+waiting feedback. Red read warnings return only after final failure. The refresh
+control stays busy until completion. Control requests and their confirmation
+rules are unchanged; no write is repeated by the recovery loop.
+
+The focused regression first failed against the old reader. Fresh checks pass:
+full PHP suite with 279 JavaScript tests, complete capture-free browser/tile
+acceptance in DE/EN (three consecutive post-store read failures, neutral waiting,
+permanent failure and exactly one store), structure, encoding, official JSON style
+(20 files) and PHP CS Fixer (164 files). The app passes `verify:local` with 230
+tests, two Ubuntu-only APT skips, the full capture-free extension-update UI check
+and capture-free Electron smoke. Package `0.117.0`, content `1dc396096d94`.
+New CI and practical acceptance after updating remain separate; no live access.

@@ -3919,6 +3919,10 @@
         "Moduldaten werden geladen …",
         "Loading module data …"
     ],
+    "view.read.waiting": [
+        "Ansicht wird aktualisiert … Das Modul ist noch beschäftigt. Bitte kurz warten.",
+        "Updating the view … The module is still busy. Please wait a moment."
+    ],
     "ui.loads.only.devices.channels.groups.813e397b": [
         "Lädt nur Geräte, Kanäle, Gruppen und Szenen dieses Systems. Automationsentwürfe und laufende Regeln bleiben erhalten.",
         "Loads only devices, channels, groups and scenes for this system. Automation drafts and running rules are preserved."

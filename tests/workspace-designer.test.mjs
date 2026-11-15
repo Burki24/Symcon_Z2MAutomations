@@ -32,15 +32,16 @@ test('HTTP failures stop paging without discarding the previous displayed model'
     assert.equal(data.devices[0].key, 'local');
 });
 
-test('one temporary module read is retried without repeating a control request', async () => {
-    let reads = 0; const pauses = [];
+test('temporary module contention waits through several GET reads and reports neutral progress', async () => {
+    let reads = 0; const pauses = []; const progress = [];
     const expected = {workspaceContext: context, devices: [], configuration: {revision: 5, automations: [{id: 'new_rule'}]}};
     const result = await loadSystemView(async () => {
-        await checkViewResponse({ok: ++reads > 1, status: reads === 1 ? 503 : 200});
+        await checkViewResponse({ok: ++reads > 3, status: reads <= 3 ? 503 : 200});
         return structuredClone(expected);
-    }, {base: 'http://127.0.0.1/view/', wait: async ms => pauses.push(ms)});
+    }, {base: 'http://127.0.0.1/view/', wait: async ms => pauses.push(ms), onRetry: value => progress.push(value)});
     assert.deepEqual(result, expected);
-    assert.equal(reads, 2); assert.deepEqual(pauses, [250]);
+    assert.equal(reads, 4); assert.deepEqual(pauses, [250, 500, 1000]);
+    assert.deepEqual(progress.map(value => value.attempt), [1, 2, 3]);
 });
 
 test('a changed paged snapshot restarts the whole GET read and discards partial old devices', async () => {
@@ -66,13 +67,32 @@ test('a changed paged snapshot restarts the whole GET read and discards partial 
 });
 
 test('read recovery is bounded and authorization or unrelated conflicts are never retried', async () => {
-    for (const [status, error, expectedReads] of [[503, '', 2], [403, '', 1], [409, 'ownership_required', 1], [422, '', 1]]) {
+    for (const [status, error, expectedReads] of [[503, '', 6], [403, '', 1], [409, 'ownership_required', 1], [422, '', 1]]) {
         let reads = 0;
         await assert.rejects(loadSystemView(async () => {
             reads++; await checkViewResponse({ok: false, status, json: async () => ({error})});
         }, {wait: async () => {}}));
         assert.equal(reads, expectedReads);
     }
+});
+
+test('a slow failure exhausts the recovery window and cancellation stops further reads', async () => {
+    let clock = 0; let reads = 0; const pauses = [];
+    await assert.rejects(loadSystemView(async () => {
+        reads++; clock = 10000;
+        await checkViewResponse({ok: false, status: 503});
+    }, {now: () => clock, wait: async ms => pauses.push(ms)}));
+    assert.equal(reads, 1); assert.deepEqual(pauses, []);
+    clock = 0; reads = 0;
+    await assert.rejects(loadSystemView(async () => {
+        reads++; await checkViewResponse({ok: false, status: 503});
+    }, {now: () => clock, wait: async () => { clock = 10000; }}));
+    assert.equal(reads, 1, 'an overdue wait cannot start another request outside the recovery window');
+    const controller = new AbortController(); reads = 0;
+    await assert.rejects(loadSystemView(async () => {
+        reads++; await checkViewResponse({ok: false, status: 503});
+    }, {signal: controller.signal, wait: async () => controller.abort()}), {name: 'AbortError'});
+    assert.equal(reads, 1);
 });
 
 test('foreign systems, generations and malformed pages never trigger automatic read recovery', async () => {

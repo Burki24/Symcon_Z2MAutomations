@@ -161,7 +161,7 @@ const server = createServer(async (request, response) => {
             if (body.action === 'store') {
                 operations.at(-1).storedConfiguration = structuredClone(model(id).configuration);
                 runtimeViews.set(id, {...runtimeView(id), storedRevision: model(id).configuration.revision, activeRevision: null, executing: false, canActivate: true});
-                storedViewFailures.set(id, 1); recoveredStoredViews.delete(id);
+                storedViewFailures.set(id, 3); recoveredStoredViews.delete(id);
             }
             if (body.action === 'validate' && rejectReview) transferViews.set(id, {...transferView(id), canStore: false, status: 'error', message: 'Synthetic rejected',
                 findings: [{path: '/automations/0/actions/0/values/state', reason: 'capability_enum', capability: {system: id, device: 'Synthetic lamp', label: 'State', property: 'state', actual: 'INVALID', actualType: 'string', allowed: ['ON', 'OFF']}}]});
@@ -187,8 +187,8 @@ const server = createServer(async (request, response) => {
     }
     if (route === 'data') {
         response.setHeader('Content-Type', 'application/json');
-        if (rejectViewRead || storedViewFailures.get(active) === 1) {
-            if (!rejectViewRead) storedViewFailures.set(active, 0);
+        if (rejectViewRead || storedViewFailures.get(active) > 0) {
+            if (!rejectViewRead) storedViewFailures.set(active, storedViewFailures.get(active) - 1);
             response.writeHead(503); response.end('{}'); return;
         }
         if (storedViewFailures.get(active) === 0) recoveredStoredViews.add(active);
@@ -466,6 +466,7 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     await issues.waitFor({state: 'hidden'});
     rejectViewRead = true;
     await view.locator('#validate-button:not(:disabled)').click();
+    await assertViewReadWait(view, language);
     await issues.waitFor({state: 'visible'});
     const readError = (language === 'de' ? german : catalogs)['ui.module.data.could.not.be.80c47bf5'];
     assert.equal(await view.locator('#issues-message').innerText(), readError, 'failed view reads remain visible in step 4');
@@ -475,6 +476,7 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     rejectViewRead = false;
     await view.locator('#validate-button:not(:disabled)').click();
     await issues.waitFor({state: 'hidden'});
+    await view.locator('#validate-button:not(:disabled)').waitFor();
     assert.equal(catalogAvailable, false, 'view recovery is not a device read');
     assert.equal(operations.length, beforeOperations, 'the shortcut only navigates and sends no MQTT request');
     await refresh.click();
@@ -483,6 +485,14 @@ async function verifyMissingCatalogNavigation(page, view, language, hasStored) {
     assert.deepEqual(operations.slice(beforeOperations).map(row => row.route), ['catalog-refresh']);
     assert.equal(writes.length, beforeWrites, 'reading device data performs no draft write');
     assert.deepEqual(model(active).configuration, before, 'the local automation draft is preserved');
+}
+async function assertViewReadWait(view, language) {
+    const expected = (language === 'de' ? german : catalogs)['view.read.waiting'];
+    await view.locator('#feedback').getByText(expected, {exact: true}).waitFor();
+    assert.equal(await view.locator('#feedback').getAttribute('data-tone'), 'pending', 'contention shows neutral progress before an error');
+    assert.equal(await view.locator('#issues').isVisible(), false, 'the previous red read warning is hidden during recovery');
+    assert.equal(await view.locator('#validate-button').getAttribute('aria-busy'), 'true', 'the view remains busy throughout recovery');
+    assert.equal(await view.locator('#validate-button').isDisabled(), true, 'waiting cannot enqueue another manual read');
 }
 async function verifyDraftSynchronization(page, view, language) {
     active = 'a'; draftSyncMode = 'updated'; draftSyncViews.clear();
@@ -650,6 +660,7 @@ async function verifyTransferResume(page, view) {
         await view.locator('button[data-transfer-action=store]').click();
         assert.equal(await choice.isChecked(), false, 'each transfer starts without implicit resume consent');
         await choice.check(); await confirmation.locator('button.primary').click();
+        await assertViewReadWait(view, 'en');
         await view.locator('.system-transfer:not(.system-runtime)').getByText('Configuration stored and checked. Previous automatic operation has resumed.', {exact: true}).waitFor();
         assert.deepEqual(operations.slice(before).map(row => [row.route, row.body.action]),
             [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'], ['runtime', 'status'], ['runtime', 'activate']]);
@@ -788,6 +799,7 @@ async function verifyDraftForm(page, view, system, refresh = false, resume = fal
     await view.locator('button[data-transfer-action=store]').click();
     if (resume) await confirmation.locator('#resume-previous-operation').check();
     await confirmation.locator('button.primary').click();
+    await assertViewReadWait(view, await view.locator('html').getAttribute('lang'));
     try {
         await view.locator('.system-transfer:not(.system-runtime)').getByText(resume
             ? /^(Configuration stored and checked\. Previous automatic operation has resumed\.|Stand gespeichert und geprüft\. Der bisherige Automatikbetrieb wurde wieder aufgenommen\.)$/
@@ -799,7 +811,7 @@ async function verifyDraftForm(page, view, system, refresh = false, resume = fal
         throw error;
     }
     await view.locator('#validate-button:not([disabled])').waitFor();
-    assert.ok(recoveredStoredViews.has(system), 'the view recovers automatically from one temporary read failure after storage');
+    assert.ok(recoveredStoredViews.has(system), 'the view recovers automatically from several temporary read failures after storage');
     assert.notEqual(await view.locator('#feedback').getAttribute('data-tone'), 'error', 'a recovered view does not show a stale read warning');
     assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'],
         ...(resume ? [['runtime', 'status'], ['runtime', 'activate']] : [])]);

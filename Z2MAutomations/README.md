@@ -481,9 +481,11 @@ Eine gespeicherte Wiederanlaufoption verhindert die Übermittlung nicht: Der
 bestätigte Stopp verhindert den automatischen Wiederanlauf, während die
 persönliche Einstellung für eine spätere Aktivierung erhalten bleibt.
 
-Nach dem Speichern aktualisiert sich die Ansicht automatisch. Ist ein Leseabruf
-kurzzeitig nicht möglich, versucht der Designer ihn einmal erneut. Die
-Übertragung wird dabei nicht wiederholt. Bleibt die rote Lesemeldung bestehen,
+Nach dem Speichern aktualisiert sich die Ansicht automatisch. Ist das Modul noch
+beschäftigt, erscheint zunächst **Ansicht wird aktualisiert …**. Der Designer lädt
+die Ansicht mit kurzen, wachsenden Wartezeiten bis zu fünfmal erneut, bevor er
+einen dauerhaften Lesefehler meldet. Die Übertragung wird dabei nicht wiederholt.
+Bleibt die rote Lesemeldung nach dieser Wartephase bestehen,
 **Ansicht aktualisieren** wählen; sie beschreibt den Abruf der Anzeige.
 
 ![Bereich zum Prüfen und Übertragen des ausgewählten Systementwurfs](../docs/screenshots/zentrale-pruefen-uebertragen.png)
