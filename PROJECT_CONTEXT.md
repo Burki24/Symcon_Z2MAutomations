@@ -1,5 +1,24 @@
 # Projektkontext: Z2MAutomations
 
+## Vollständige typisierte Geräteauswahl – 15.11.2026
+
+Die fehlenden Fenstergriffe ließen sich mit ausgeschöpften alten Auswahllisten
+nachstellen: Die globale Grenze von 1.024 Einträgen unterdrückte zusätzlich
+typisierte Eigenschaften späterer Geräte. Die Erweiterung erzeugt diese
+Metadaten jetzt unabhängig davon und erhält vollständige Enum-Werte sowie
+numerische Einheiten. Die bisherigen Legacy-Grenzen bleiben bestehen. Eine
+gesonderte Kataloggrenze von 512 KiB führt zu einem ausdrücklichen Fehler statt
+unbemerkt unvollständigen Daten. Symcon und App übernehmen numerische Einheiten
+auch ohne Legacy-Eintrag. Browserdesigner und Kachel erklären, dass Messwerte
+auch bei Tastern und Radarsensoren vorkommen können; gefiltert werden Kanäle,
+keine Gerätenamen. Lokale synthetische Prüfungen ersetzen keine Live-Abnahme.
+
+Erweiterung `0.2.4`, Build `3f8a06859635`; gemeinsames Designer-Paket `0.115.0`,
+Inhalt `fe1ad9a4a062`. Die vollständige Offline-Suite mit 278 JavaScript-Tests,
+der bildfreie Browser-/Kacheltest, Struktur, Kodierung, offizieller JSON-Stilcheck
+(18 Dateien) und PHP CS Fixer (161 Dateien) bestehen. Zum Einbinden dieses
+Erweiterungsartefakts in die App ist noch der lokale Quellcommit erforderlich.
+
 ## Betrieb nach der Übermittlung wieder aufnehmen – 14.11.2026
 
 Browserdesigner und Kachel bieten in der Bestätigung von Schritt 8 eine zunächst

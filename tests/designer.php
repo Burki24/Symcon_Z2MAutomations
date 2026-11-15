@@ -11,6 +11,20 @@ foreach ([$root . '/Z2MAutomations', __DIR__ . '/fixtures/MQTTClient', __DIR__ .
     IPS\ModuleLoader::loadSingleModule($path, $library['id']);
 }
 
+$catalogReader = new class() {
+    use \Z2MAutomations\DeviceCatalog {
+        ReadDeviceCatalog as public readCatalog;
+    }
+};
+$typedCatalog = json_decode('{"devices":[{"id":"0x0000000000000001","name":"Synthetic handle","triggers":[],"actions":[],"numeric":[],"properties":[{"property":"position","type":"enum","access":1,"label":"Position","endpoint":"","values":["up","right","down","left"]},{"property":"temperature","type":"numeric","access":1,"label":"Temperature","endpoint":"","values":[],"unit":"°C"}]}]}', false, 16, JSON_THROW_ON_ERROR);
+$parsedCatalog = $catalogReader->readCatalog($typedCatalog);
+if (($parsedCatalog[0]['0x0000000000000001']['numeric']['temperature'] ?? '') !== '°C'
+    || ($parsedCatalog[0]['0x0000000000000001']['properties']['position']['values'] ?? []) !== ['up', 'right', 'down', 'left']) {
+    throw new RuntimeException('Typed units and window states must survive exhausted legacy lists.');
+}
+$typedCatalog->devices[0]->properties[1]->unit = new stdClass();
+if ($catalogReader->readCatalog($typedCatalog) !== null) throw new RuntimeException('Malformed typed units must be rejected.');
+
 class DesignerProbe extends Z2MAutomations
 {
     public int $clock = 1800000000;

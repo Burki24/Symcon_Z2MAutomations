@@ -10,6 +10,34 @@ import Extension, {validateYaml, LIMITS, buildEditorCatalog, buildEditorGroups} 
 const emptyYaml = revision => `schema_version: 1\nrevision: ${revision}\nautomations: []\n`;
 const fixtureYaml = await readFile(new URL('../libs/z2m/examples/automations.yaml', import.meta.url), 'utf8');
 
+test('typed window-handle and sensor capabilities survive exhaustion of legacy choice lists', () => {
+    const devices = Array.from({length: 12}, (_, i) => ({ieeeAddr: '0x' + (i + 1).toString(16).padStart(16, '0'), name: 'Synthetic options', isDevice: () => true,
+        exposes: () => Array.from({length: 8}, (_, n) => ({property: 'special_' + n, type: 'enum', access: 3, values: Array.from({length: 32}, (_, v) => 'option_' + v)}))}));
+    devices.push({ieeeAddr: '0x00000000000000fe', name: 'Synthetic window handle', isDevice: () => true, exposes: () => [
+        {property: 'opening_mode', type: 'enum', access: 1, values: ['closed', 'tilted']},
+        {property: 'position', type: 'enum', access: 1, values: ['up', 'right', 'down', 'left']},
+        {property: 'button_left', type: 'enum', access: 1, values: ['released', 'pressed']},
+        {property: 'temperature', type: 'numeric', access: 1, unit: '°C'}]});
+    devices.push({ieeeAddr: '0x00000000000000ff', name: 'Synthetic later humidity sensor', isDevice: () => true,
+        exposes: () => [{property: 'humidity', type: 'numeric', access: 1, unit: '%'}]});
+    const catalog = buildEditorCatalog({devicesIterator: () => devices});
+    const handle = catalog.find(device => device.id === '0x00000000000000fe');
+    assert.ok(handle, 'a window handle must not disappear when other devices use the legacy choice budget');
+    assert.deepEqual(handle.properties.find(p => p.property === 'position').values, ['up', 'right', 'down', 'left']);
+    assert.deepEqual(handle.properties.find(p => p.property === 'button_left').values, ['released', 'pressed']);
+    assert.equal(handle.properties.find(p => p.property === 'temperature').unit, '°C');
+    assert.equal(catalog.find(device => device.id === '0x00000000000000ff').properties[0].unit, '%');
+    assert.ok(catalog.reduce((sum, device) => sum + device.actions.length + device.triggers.length + device.numeric.length, 0) <= 1024);
+});
+
+test('oversized typed catalogs fail explicitly instead of silently omitting later devices', () => {
+    const features = Array.from({length: 64}, (_, n) => ({property: 'option_' + n, type: 'enum', access: 1,
+        values: Array.from({length: 32}, (_, v) => 'bounded_' + v + '_'.repeat(240))}));
+    const devices = Array.from({length: 256}, (_, i) => ({ieeeAddr: '0x' + (i + 1).toString(16).padStart(16, '0'), name: 'Synthetic bounded device', isDevice: () => true,
+        exposes: () => features}));
+    assert.throws(() => buildEditorCatalog({devicesIterator: () => devices}), error => error.code === 'catalog_limit');
+});
+
 test('color capabilities stay nested, writable and bounded instead of exporting composite children as commands', () => {
     const [device] = buildEditorCatalog({devicesIterator: () => [{ieeeAddr: '0x0000000000000009', name: 'Synthetic RGB', isDevice: () => true,
         exposes: () => [{type: 'light', endpoint: 'rgb', features: [

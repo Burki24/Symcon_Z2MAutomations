@@ -6,6 +6,12 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Neu
 
+- Der Gerätekatalog erhält Fenstergriffstellungen, Sensorwerte und andere
+  typisierte Eigenschaften unabhängig von der Grenze der alten Auswahllisten.
+  Später eingelesene Geräte verschwinden dadurch nicht mehr bei vielen
+  Gerätefunktionen. Die Auswahl erklärt Zustands- und Messwertkanäle; gemischte
+  Geräte bleiben für beide Arten nutzbar.
+
 - Browserdesigner und Kachel bieten bei der Übermittlung die ausdrückliche
   Option, den bisherigen Automatikbetrieb nach bestätigter Speicherung und
   Rückprüfung wieder aufzunehmen. Sie ist standardmäßig aus, erhält die bisherige

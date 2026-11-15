@@ -1,3 +1,30 @@
+## Typisierte Geräteauswahl und Kataloggrenzen – 15.11.2026
+
+Der Regressionstest füllt die bisherigen 1.024 Legacy-Einträge mit synthetischen
+Geräten, bevor ein Fenstergriff mit Stellung, Kippzustand und Tasten sowie ein
+Messsensor eingelesen werden. Vor der Korrektur fehlt der Fenstergriff vollständig.
+Die typisierten Eigenschaften werden nun unabhängig von diesem Legacy-Budget
+ausgegeben. Geräte-/Feld-/Verschachtelungsgrenzen bleiben bestehen; eine zusätzliche
+Bytezählung begrenzt den gesamten Gerätekatalog auf 512 KiB und liefert bei
+Überschreitung `catalog_limit` statt einer stillen Teilliste. Kein neues Rohdaten-
+oder Steuerungsprotokoll. Beide Adapter lesen numerische Einheiten direkt aus
+typisierten Eigenschaften und behalten den Legacy-Fallback.
+
+Der Parser-Test prüft Griffzustände und Einheiten bei leeren Legacy-Listen sowie
+ungültige Einheiten. Der bildfreie Browser-/Kacheltest wählt in DE/EN tatsächliche
+Griffstellungen und ausschließlich passende Zahlenkanäle gemischter Geräte.
+Tasterbatterie und Radarhelligkeit bleiben wählbar; ein reiner Messsensor erscheint
+nicht unter Gerätestatus. Die Erläuterung macht diesen Unterschied sichtbar.
+Keine echte Installation, Geräteaktion oder Bildschirmaufnahme.
+
+Nachgewiesen mit Erweiterung `0.2.4` (Build `3f8a06859635`) und Designer-Paket
+`0.115.0` (`fe1ad9a4a062`): vollständige PHP-Suite einschließlich 278 JavaScript-
+Tests, bildfreier Browser-/Kacheltest, Struktur, Kodierung, offizieller JSON-
+Stilcheck mit 18 eigenen Dateien und PHP CS Fixer mit 161 Dateien ohne Befund.
+Der Größenregressionstest teilt seine unveränderliche Expose-Vorlage zwischen
+synthetischen Geräten; er erzeugt keine unnötigen Kopien großer Testdefinitionen.
+Live-Abnahme und CI nach dem Benutzer-Push bleiben separat erforderlich.
+
 ## Betrieb nach Übermittlung wieder aufnehmen – 14.11.2026
 
 Der gemeinsame Designer bietet in Schritt 8 eine ausdrücklich zu wählende

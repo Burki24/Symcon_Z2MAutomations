@@ -11,7 +11,7 @@ final class ExtensionContract
     public const NAME = 'z2m-automations.mjs';
     public const PREFIX = 'symcon/automations/';
     public const MAX_YAML_BYTES = 131072;
-    public const ERROR_CODES = ['rule_missing', 'rule_busy', 'run_conflict', 'invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'scene_unavailable', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed'];
+    public const ERROR_CODES = ['rule_missing', 'rule_busy', 'run_conflict', 'invalid_request', 'invalid_yaml', 'invalid_schema', 'invalid_semantics', 'session_mismatch', 'revision_conflict', 'revision_reused', 'storage_unavailable', 'storage_error', 'busy', 'not_ready', 'activation_expired', 'checksum_mismatch', 'unknown_entity', 'scene_unavailable', 'runtime_unavailable', 'mesh_unavailable', 'mesh_not_allowed', 'catalog_limit'];
     public const RUNTIME_ERRORS = ['', 'storage_error', 'unknown_entity', 'scene_unavailable', 'action_failed', 'action_timeout', 'rate_limited', 'state_unavailable', 'mesh_unavailable', 'mesh_not_allowed', 'mesh_timeout', 'mesh_rejected', 'mesh_stopped', 'mesh_busy'];
 
     public static function ValidYamlText(string $yaml): bool
@@ -161,6 +161,7 @@ final class ExtensionContract
             'unknown_entity'        => 'A configured device or group is unavailable in Z2M.',
             'scene_unavailable'     => 'The selected scene is no longer available. Reload the device data and select an existing scene.',
             'runtime_unavailable'   => 'Update the bundled extension to use execution controls.',
+            'catalog_limit'         => 'The device catalog is too large to load completely. No incomplete catalog was accepted.',
             'execution_unavailable' => 'Individual execution controls are unavailable. Update the extension and request its status.',
             'execution_draft'       => 'Load the saved automations or validate and store your changes before a single run.',
             'rule_missing'          => 'The selected automation is not stored. Reload the saved automations.',

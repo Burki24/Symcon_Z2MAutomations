@@ -28,6 +28,7 @@ let overflowRules = false; let rejectReview = false;
 let catalogAvailable = true; let storedCatalog = true; let catalogFingerprint = 'e'.repeat(64);
 let nativeFormEdits = false; let rejectViewRead = false;
 let deviceNetworks = false;
+let sourceCatalog = false;
 let networkReason = '';
 const operations = [];
 const transferViews = new Map(); const runtimeViews = new Map();
@@ -83,6 +84,16 @@ function model(id = 'a') {
         if (!networkReason) view.devices.push({...structuredClone(view.devices[0]), key: 'remote-lamp', name: 'Remote device with the same ID', target: remoteAction.target,
             properties: [...view.devices[0].properties, {...structuredClone(view.devices[0].properties[0]), id: 'state_l1', label: 'Status L1 [state_l1]'},
                 {id: 'presence', label: 'Synthetic presence', type: 'binary', readable: true, writable: false, values: [true, false], actionValues: [], valueLabels: []}]});
+    }
+    if (sourceCatalog) {
+        const property = (id, type, values = [], unit = '') => ({id, label: id, type, values, unit, readable: true, writable: false, actionValues: []});
+        for (const [key, properties] of [
+            ['handle', [property('position', 'enum', ['up', 'right', 'down', 'left']), property('opening_mode', 'enum', ['closed', 'tilted']), property('temperature', 'numeric', [], '°C')]],
+            ['button', [property('action', 'enum', ['single']), property('battery', 'numeric', [], '%')]],
+            ['radar', [property('presence', 'binary', [true, false]), property('illuminance', 'numeric', [], 'lx')]],
+            ['thermometer', [property('temperature', 'numeric', [], '°C')]]]) {
+            view.devices.push({key, name: 'Synthetic ' + key, target: {type: 'device', id: key}, properties});
+        }
     }
     return view;
 }
@@ -198,6 +209,35 @@ async function showStep(view, key) {
     const button = view.locator('#desktop-nav-' + key);
     if (await button.isVisible()) await button.click(); else await view.locator('#desktop-step').selectOption(key);
     await view.locator('#desktop-view-' + key).waitFor({state: 'visible'});
+}
+async function verifySourceCatalog(page, view) {
+    const before = writes.length; const beforeOperations = operations.length;
+    sourceCatalog = true; active = 'a';
+    try {
+        await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'automations'); await view.locator('#draft-wizard-start').click();
+        const row = view.locator('#edit-dialog [data-section=triggers] > fieldset').first();
+        const field = key => row.locator('[data-draft-field="' + key + '"]');
+        for (const language of ['de', 'en']) {
+            await view.locator('body').evaluate(async (_node, language) => (await import('./localization.js')).setLanguage(language), language);
+            await field('type').selectOption('status');
+            assert.equal(await field('device').locator('option[value=handle]').count(), 1);
+            assert.equal(await field('device').locator('option[value=thermometer]').count(), 0);
+            await field('device').selectOption('handle');
+            assert.deepEqual(await field('property').locator('option').evaluateAll(nodes => nodes.map(node => node.value).filter(Boolean)), ['position', 'opening_mode']);
+            await field('property').selectOption('position');
+            assert.deepEqual(await field('value').locator('option').evaluateAll(nodes => nodes.map(node => node.value).filter(Boolean)), ['0', '1', '2', '3']);
+            await field('type').selectOption('measurement');
+            for (const key of ['handle', 'button', 'radar', 'thermometer']) assert.equal(await field('device').locator('option[value=' + key + ']').count(), 1);
+            assert.match(await row.locator('.edit-device-system-help').innerText(), language === 'de' ? /Batteriestand/ : /battery level/);
+            await field('device').selectOption('button');
+            assert.deepEqual(await field('property').locator('option').evaluateAll(nodes => nodes.map(node => node.value).filter(Boolean)), ['battery']);
+            await field('device').selectOption('radar');
+            assert.deepEqual(await field('property').locator('option').evaluateAll(nodes => nodes.map(node => node.value).filter(Boolean)), ['illuminance']);
+        }
+        await view.locator('#edit-cancel').click();
+        assert.equal(writes.length, before); assert.equal(operations.length, beforeOperations, 'source selection has no runtime side effects');
+    } finally { sourceCatalog = false; }
 }
 async function verifyDeviceNetworks(page, view) {
     const beforeWrites = writes.length; const beforeOperations = operations.length;
@@ -794,6 +834,8 @@ try {
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'de', true);
     await verifyDraftSynchronization(page, page, 'en');
     await verifyDraftSynchronization(tile, tile.frameLocator('#designer-frame'), 'de');
+    await verifySourceCatalog(page, page);
+    await verifySourceCatalog(tile, tile.frameLocator('#designer-frame'));
     deviceNetworks = true;
     await page.emulateMedia({colorScheme: 'dark'});
     await verifyDeviceNetworks(page, page);
@@ -806,6 +848,7 @@ try {
     deviceNetworks = false;
     assert.deepEqual(errors, []);
     console.log('Device network labels passed: browser/tile, DE/EN, local/remote devices with identical IDs, conditions, set/toggle/scene/sequence actions and system switches without writes.');
+    console.log('Source catalog passed: browser/tile, DE/EN, window-handle states, numeric sensor values, mixed battery/illuminance channels and no writes.');
     console.log('Receiver activation guidance passed: browser/tile, DE/EN, stopped/unknown/active states, direct network navigation, saved rule preview, cancellation, one explicit target start and guided return without draft changes.');
     console.log('New automation network picker passed: browser/tile, qualified conditions, toggle actions and native state_l1 TOGGLE values, language preservation and missing-catalog/grant guidance without MQTT.');
     console.log('Fresh Z2M-to-draft update passed: browser/tile, direct adoption, conflict confirmation/cancellation, backup restoration, open-input protection and bounded polling.');

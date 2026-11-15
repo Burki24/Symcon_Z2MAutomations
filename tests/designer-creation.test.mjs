@@ -19,6 +19,19 @@ test('creation searches names, exact identities and systems without merging equa
     assert.deepEqual(creationDevices(data, 'source', 'unavailable'), []);
 });
 
+test('source kinds filter actual channels while mixed devices remain usable for states and measurements', () => {
+    const handle = {key: 'handle', name: 'Synthetic window handle', target: {type: 'device', id: 'handle'}, properties: [
+        {id: 'position', type: 'enum', readable: true, writable: false, values: ['up', 'right', 'down', 'left']},
+        {id: 'temperature', type: 'numeric', readable: true, writable: false, unit: '°C'}]};
+    const temperature = {key: 'temperature', name: 'Synthetic thermometer', target: {type: 'device', id: 'temperature'}, properties: [handle.properties[1]]};
+    const button = {...data.devices[0], properties: [...data.devices[0].properties, {id: 'battery', type: 'numeric', readable: true, writable: false, unit: '%'}]};
+    const mixed = {module: data.module, devices: [handle, temperature, button]};
+    assert.deepEqual(creationDevices(mixed, 'source', '', 'status').map(device => device.key), ['handle', 'button']);
+    assert.deepEqual(creationDevices(mixed, 'source', '', 'measurement').map(device => device.key), ['handle', 'temperature', 'button']);
+    assert.deepEqual(creationProperties(button, 'source', 'measurement').map(property => property.id), ['battery']);
+    assert.deepEqual(creationProperties(handle, 'source', 'status').map(property => property.id), ['position']);
+});
+
 test('clock creation normalises seconds and keeps every chosen time and timezone', () => {
     assert.deepEqual(creationSchedule('time', {times: ['00:00', '23:59:59'], timezone: 'Europe/Berlin'}),
         {type: 'time', times: ['00:00:00', '23:59:59'], timezone: 'Europe/Berlin'});

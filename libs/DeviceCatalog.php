@@ -41,6 +41,11 @@ trait DeviceCatalog
             }
             $devices[$device->id] = $entry;
             $devices[$device->id]['numeric'] = [];
+            foreach ($entry['properties'] as $meta) {
+                if ($meta['type'] === 'numeric' && ($meta['access'] & 1) !== 0 && isset($meta['unit'])) {
+                    $devices[$device->id]['numeric'][$meta['property']] = $meta['unit'];
+                }
+            }
             if (!is_array($device->numeric ?? []) || count($device->numeric ?? []) > 64) {
                 return null;
             }
@@ -78,6 +83,10 @@ trait DeviceCatalog
                     return null;
                 }
                 $meta = ['property' => $p->property, 'type' => $p->type, 'access' => $p->access, 'label' => $p->label, 'endpoint' => $p->endpoint, 'values' => $p->values];
+                if (isset($p->unit)) {
+                    if (!is_string($p->unit) || strlen($p->unit) > 96 || preg_match('/[\x00-\x1f\x7f]/', $p->unit)) return null;
+                    $meta['unit'] = $p->unit;
+                }
                 foreach ($p->values as $value) {
                     if (!(is_scalar($value) || $value === null) || (is_string($value) && strlen($value) > 1024)) {
                         return null;

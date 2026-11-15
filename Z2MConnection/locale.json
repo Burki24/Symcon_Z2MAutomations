@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "The device catalog is too large to load completely. No incomplete catalog was accepted.": "Der Gerätekatalog ist zu groß, um ihn vollständig zu laden. Es wurde kein unvollständiger Katalog übernommen.",
             "": "",
             "Waiting time for a response (seconds)": "Wartezeit auf eine Antwort (Sekunden)",
             "Request extension status": "Erweiterungsstatus abfragen",
