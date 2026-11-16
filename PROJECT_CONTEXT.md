@@ -1,5 +1,20 @@
 # Projektkontext: Z2MAutomations
 
+## Partner-device preflight – 2026-11-16
+
+Browser designer and tile validate the current draft and required partner device
+catalogs before stopping operation. Missing data abort with a DE/EN step-4 hint;
+execution and local work remain unchanged, with or without resume consent.
+Conditions and action sequences are included. Unrelated missing catalogs do not
+block local-only drafts. A required stop is followed by fresh validation, and
+the final native store check remains in place. The desktop backend already has
+fresh partner checks before stop, including after confirmation; its regression
+tests now prove this for actions, conditions and sequences on separate brokers.
+
+The canonical package is `0.117.0`, content `3deb84bb5545`. No extension or schema
+change is needed; extension `0.2.4` remains pinned. Checks use synthetic fixtures
+without captures or live control.
+
 ## Bounded module-view recovery – 2026-11-15
 
 Browser designer and tile keep the current model while transient module-view

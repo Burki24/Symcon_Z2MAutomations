@@ -54,6 +54,12 @@ class TransferManagerProbe extends Z2MAutomations
     {
         return $this->ReadAttributeString($attribute);
     }
+    public function SetCatalog(string $id, ?array $catalog): void
+    {
+        $state = json_decode($this->ReadAttributeString('SystemWorkspace'), true, 64, JSON_THROW_ON_ERROR);
+        $state['systems'][$id]['catalog'] = $catalog;
+        $this->WriteAttributeString('SystemWorkspace', json_encode($state, JSON_THROW_ON_ERROR));
+    }
     public function ResetTransient(): void
     {
         $this->SetBuffer('WorkspaceEditorViews', '');
@@ -248,15 +254,62 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
     $second = $systems[1];
     $secondTopic = array_keys($connections)[1];
     $connection = $connections[$secondTopic];
-    $update = static function (string $id, callable $change) use ($detail, $manager, $decode, $op, $check): void
+    $update = static function (string $id, callable $change, bool $permissions = false) use ($detail, $manager, $decode, $op, $check): void
     {
         $record = $detail($id);
         $data = $record['data'];
         $change($data);
         $data['document']['yaml'] = json_encode($data['document']['editorDraft']['configuration']) . "\n";
         $data['document']['editorDraft']['draftChecksum'] = hash('sha256', $data['document']['yaml']);
-        $check($decode($manager->UpdateWorkspaceSystem($id, $record['generation'], $record['fingerprint'], json_encode($data), $op()))['ok'], 'Synthetic local edit accepted.');
+        $check($decode($manager->UpdateWorkspaceSystem($id, $record['generation'], $record['fingerprint'], json_encode($data), $op(), $permissions))['ok'], 'Synthetic local edit accepted.');
     };
+    $originalFirst = $detail($first)['data'];
+    $originalSecond = $detail($second)['data'];
+    $firstTopic = array_keys($connections)[0];
+    $partnerCatalog = $decode($manager->Raw('SystemWorkspace'))['systems'][$first]['catalog'];
+    $update($first, static function (array &$data) use ($secondTopic): void
+    { $data['document']['editorDraft']['configuration']['mesh_peers'] = [$secondTopic]; }, true);
+    foreach (['action', 'condition', 'sequence'] as $dependency) {
+        $update($second, static function (array &$data) use ($originalSecond, $firstTopic, $dependency): void
+        {
+            $data = $originalSecond;
+            $configuration = &$data['document']['editorDraft']['configuration'];
+            $configuration['mesh_peers'] = [$firstTopic];
+            $action = $configuration['automations'][0]['actions'][0];
+            $action['target']['system'] = $firstTopic;
+            if ($dependency === 'condition') $configuration['automations'][0]['conditions'] = [['type' => 'device_value', 'system' => $firstTopic,
+                'device'                                                                               => '0x00124b0000000001', 'property' => 'state', 'operator' => 'eq', 'value' => 'ON']];
+            elseif ($dependency === 'sequence') {
+                $configuration['sequences'] = [['id' => 'remote_steps', 'name' => 'Synthetic partner steps', 'actions' => [$action]]];
+                $configuration['automations'][0]['actions'] = [['type' => 'sequence', 'sequence_id' => 'remote_steps']];
+            } else $configuration['automations'][0]['actions'] = [$action];
+        }, true);
+        $manager->SetCatalog($first, null);
+        $sent = $sentCount();
+        $unchanged = $receivers;
+        $draft = $detail($second)['data'];
+        $check(
+            $request($second, 'validate')['error'] === 'partner_catalog_unavailable' && $sentCount() === $sent,
+            'Required partner data block validation before any MQTT request: ' . $dependency
+        );
+        $check($detail($second)['data'] === $draft && $receivers === $unchanged, 'Failed preflight preserves drafts and receiver states.');
+        $manager->SetCatalog($first, $partnerCatalog);
+        $check($request($second, 'validate')['transfer']['canStore'], 'Restored partner data permit validation: ' . $dependency);
+        $manager->SetCatalog($first, null);
+        $sent = $sentCount();
+        $check(
+            $request($second, 'store')['error'] === 'partner_catalog_unavailable' && $sentCount() === $sent,
+            'The final store guard also rejects partner data lost after validation: ' . $dependency
+        );
+        $manager->SetCatalog($first, $partnerCatalog);
+    }
+    $update($second, static function (array &$data) use ($originalSecond): void
+    { $data = $originalSecond; }, true);
+    $manager->SetCatalog($first, null);
+    $check($request($second, 'validate')['transfer']['canStore'], 'An unrelated missing partner catalog does not block a local-only draft.');
+    $manager->SetCatalog($first, $partnerCatalog);
+    $update($first, static function (array &$data) use ($originalFirst): void
+    { $data = $originalFirst; }, true);
     $rejectValidation = true;
     $failed = $request($second, 'validate');
     $check($failed['transfer']['status'] === 'error' && str_contains($failed['transfer']['details'], 'PRIVATE_RULE') && str_contains($failed['transfer']['details'], '1'), 'Detailed validation feedback names rule and action.');
@@ -291,6 +344,10 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
     $check($request($first, 'validate')['transfer']['canStore'], 'Another system remains independently usable.');
     $connection->clock += 11;
     $check($status($second)['transfer']['status'] === 'timeout', 'Pending validation expires without retry.');
+    $connection->CheckHealth(false);
+    $connection->RequestDeviceCatalog();
+    $record = $detail($second);
+    $check($decode($manager->RefreshWorkspaceCatalog($second, 1, $record['fingerprint'], $op()))['ok'], 'Read fresh device data after a timed-out validation.');
 
     // Wrong protocol, retained and wrong transaction responses cannot release store.
     $onReply = static function (array $packet, array $reply) use ($parent, $connection): bool
@@ -302,9 +359,14 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
         $parent->publish(str_replace('/validate', '/store', $topic), $reply);
         return false;
     };
-    $check($request($second, 'validate')['transfer']['pending'], 'Uncorrelated replies do not finish validation.');
+    $uncorrelated = $request($second, 'validate');
+    $check($uncorrelated['transfer']['pending'] ?? false, 'Uncorrelated replies do not finish validation: ' . json_encode($uncorrelated));
     $connection->clock += 11;
     $check(!$status($second)['transfer']['canStore'], 'Invalid responses cannot enable store.');
+    $connection->CheckHealth(false);
+    $connection->RequestDeviceCatalog();
+    $record = $detail($second);
+    $check($decode($manager->RefreshWorkspaceCatalog($second, 1, $record['fingerprint'], $op()))['ok'], 'Read fresh device data after ignored responses.');
     $onReply = static function (array $packet, array $reply) use ($parent): bool
     {
         if (!str_ends_with($packet['Topic'], '/validate')) return true;
@@ -313,6 +375,9 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
     };
     $check($request($second, 'validate')['transfer']['status'] === 'error', 'A correlated incompatible protocol is rejected explicitly.');
     $onReply = null;
+    $connection->CheckHealth(false);
+    $connection->RequestDeviceCatalog();
+    $check($decode($manager->RefreshWorkspaceCatalog($second, 1, $detail($second)['fingerprint'], $op()))['ok'], 'Read fresh device data after an incompatible response.');
     $check($request($second, 'validate')['transfer']['canStore'], 'Fresh proof after timeout.');
     IPS_DisconnectInstance($native[$secondTopic]);
     $sent = $sentCount();
@@ -324,9 +389,9 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
     $check(!$request($second, 'store')['transfer']['canStore'] && $storePackets() === $stores, 'A changed receiver session invalidates the receipt before wire store.');
 
     // Store acknowledgement without final status is explicitly unconfirmed, not successful.
-    $check($request($second, 'validate')['transfer']['canStore'], 'Validation follows new receiver session.');
     $connection->RequestDeviceCatalog();
     $check($decode($manager->RefreshWorkspaceCatalog($second, 1, $detail($second)['fingerprint'], $op()))['ok'], 'Refresh device proof for the changed receiver session.');
+    $check($request($second, 'validate')['transfer']['canStore'], 'Validation follows new receiver session.');
     $statusAfterStore = true;
     $check($request($second, 'store')['transfer']['pending'], 'File accepted but final status pending.');
     $connection->clock += 11;
@@ -409,6 +474,8 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $separate])
     $drop = '';
     $firstConnection = $connections[array_keys($connections)[0]];
     $firstConnection->CheckHealth(false);
+    $firstConnection->RequestDeviceCatalog();
+    $check($decode($manager->RefreshWorkspaceCatalog($first, 1, $detail($first)['fingerprint'], $op()))['ok'], 'Restore device proof after transient transport reset.');
     $drop = 'status';
     $check($request($first, 'validate')['transfer']['pending'], 'Prepare pending request before gateway loss.');
     IPS_DisconnectInstance($detail($first)['binding']['connectionInstance']);

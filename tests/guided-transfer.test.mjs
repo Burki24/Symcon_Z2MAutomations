@@ -21,13 +21,37 @@ function fixture({executing = true, stopConfirmed = true, validated = true, lose
 test('guided transfer reads status, stops once, revalidates and stores without activating', async () => {
     const {options, calls} = fixture();
     assert.equal((await runGuidedTransfer(options)).status, 'stored');
-    assert.deepEqual(calls, ['status', 'deactivate', 'validate', 'store']);
+    assert.deepEqual(calls, ['status', 'validate', 'deactivate', 'validate', 'store']);
 });
 
 test('an already stopped receiver is checked and stored without another stop', async () => {
     const {options, calls} = fixture({executing: false});
     await runGuidedTransfer(options);
     assert.deepEqual(calls, ['status', 'validate', 'store']);
+});
+
+test('missing partner catalogs abort preflight without stopping, storing or restarting', async () => {
+    for (const resumePrevious of [false, true]) {
+        const {options, calls} = resumeFixture();
+        options.resumePrevious = resumePrevious;
+        options.transfer = async (_data, action) => {
+            calls.push([action]);
+            throw new Error('partner_catalog_unavailable');
+        };
+        await assert.rejects(runGuidedTransfer(options), /partner_catalog_unavailable/);
+        assert.deepEqual(calls.map(([action]) => action), ['status', 'validate']);
+    }
+});
+
+test('pending preflight is only polled and rejection never stops the running receiver', async () => {
+    const {options, calls} = fixture();
+    options.wait = async () => {};
+    options.transfer = async (_data, action) => {
+        calls.push(action);
+        return {pending: action === 'validate', status: 'error', canStore: false};
+    };
+    await assert.rejects(runGuidedTransfer(options));
+    assert.deepEqual(calls, ['status', 'validate', 'status']);
 });
 
 test('a confirmed stop retains the restart preference and still stores the complete draft', async () => {
@@ -44,7 +68,7 @@ test('a confirmed stop retains the restart preference and still stores the compl
         return transfer(current, action);
     };
     assert.equal((await runGuidedTransfer(options)).status, 'stored');
-    assert.deepEqual(calls, ['status', 'deactivate', 'validate', 'store']);
+    assert.deepEqual(calls, ['status', 'validate', 'deactivate', 'validate', 'store']);
     assert.deepEqual(stored, [expected], 'the new disabled rule and existing enabled rule are stored together');
 });
 
@@ -62,22 +86,22 @@ test('an armed or unconfirmed restart state after stopping never permits storage
         const runtime = options.runtime;
         options.runtime = async (current, action) => ({...await runtime(current, action), resumeAfterRestart: true, resumeStatus});
         await assert.rejects(runGuidedTransfer(options));
-        assert.deepEqual(calls, ['status', 'deactivate']);
+        assert.deepEqual(calls, ['status', 'validate', 'deactivate']);
     }
 });
 
-test('unconfirmed stop and changed local input cannot lead to validation or storage', async () => {
+test('unconfirmed stop and changed local input cannot lead to storage', async () => {
     for (const change of [{stopConfirmed: false}, {changeOnReload: true}]) {
         const {options, calls} = fixture(change);
         await assert.rejects(runGuidedTransfer(options));
-        assert.deepEqual(calls, ['status', 'deactivate']);
+        assert.deepEqual(calls, change.changeOnReload ? ['status'] : ['status', 'validate', 'deactivate']);
     }
 });
 
 test('a failed validation never sends store and a lost store acknowledgement is never replayed', async () => {
     const invalid = fixture({validated: false});
     await assert.rejects(runGuidedTransfer(invalid.options));
-    assert.deepEqual(invalid.calls, ['status', 'deactivate', 'validate']);
+    assert.deepEqual(invalid.calls, ['status', 'validate']);
     const lost = fixture({loseStore: true});
     await assert.rejects(runGuidedTransfer(lost.options), /lost acknowledgement/);
     assert.equal(lost.calls.filter(action => action === 'store').length, 1);
@@ -97,7 +121,7 @@ test('restart intent or a remaining single run requires a confirmed complete sto
         const runtime = options.runtime;
         options.runtime = async (data, action) => ({...await runtime(data, action), ...(action === 'status' ? remaining : {})});
         await runGuidedTransfer(options);
-        assert.deepEqual(calls, ['status', 'deactivate', 'validate', 'store']);
+        assert.deepEqual(calls, ['status', 'validate', 'deactivate', 'validate', 'store']);
     }
 });
 
@@ -110,10 +134,24 @@ test('validation findings are observed even when storage is refused', async () =
     assert.ok(!calls.includes('store'));
 });
 
-test('a failed view refresh after stopping prevents validation and storage', async () => {
+test('a failed view refresh before preflight prevents stopping, validation and storage', async () => {
     const {options, calls} = fixture(); options.reload = async () => false;
     await assert.rejects(runGuidedTransfer(options));
-    assert.deepEqual(calls, ['status', 'deactivate']);
+    assert.deepEqual(calls, ['status']);
+});
+
+test('a failed refresh or validation after stopping still prevents store and resume', async () => {
+    for (const failure of ['refresh', 'validate']) {
+        const {options, calls} = resumeFixture();
+        const reload = options.reload; const transfer = options.transfer;
+        options.reload = async () => calls.some(([action]) => action === 'deactivate') && failure === 'refresh' ? false : reload();
+        options.transfer = async (...args) => {
+            if (calls.some(([action]) => action === 'deactivate') && failure === 'validate') throw new Error('partner_catalog_unavailable');
+            return transfer(...args);
+        };
+        await assert.rejects(runGuidedTransfer(options));
+        assert.deepEqual(calls.map(([action]) => action), ['status', 'validate', 'deactivate']);
+    }
 });
 
 function resumeFixture({wasRunning = true, recovery = true, failAt = '', changeAfterStore = false} = {}) {
@@ -143,7 +181,7 @@ for (const recovery of [false, true]) test('explicit resume follows verified sto
     const before = structuredClone(data.configuration);
     const result = await runGuidedTransfer(options);
     assert.equal(result.resumed, true);
-    assert.deepEqual(calls.map(([action]) => action), ['status', 'deactivate', 'validate', 'store', 'status', 'activate']);
+    assert.deepEqual(calls.map(([action]) => action), ['status', 'validate', 'deactivate', 'validate', 'store', 'status', 'activate']);
     assert.deepEqual(data.configuration, before, 'resuming never enables the new disabled rule or changes any draft flag');
 });
 

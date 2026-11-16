@@ -1,3 +1,33 @@
+## Partner-device checks before stopping – 2026-11-16
+
+The shared guided transfer first reads runtime and refreshes its bound model,
+then validates the draft without stopping. Native validation now checks the same
+catalogs and actions as storage, including partner references in conditions and
+sequences. Missing required catalogs reject before an MQTT validation request.
+Only a successful preflight permits a stop; fresh validation and the final store
+guard still apply afterward. No stop, store or activation is retried.
+
+Focused regressions reproduced the old stop-before-check order. PHP integration
+checks reject missing partner catalogs, accept restored catalogs, preserve the
+final store guard and allow an unrelated missing catalog. Protocol/time-out
+fixtures explicitly re-read device data before another validation when their
+previous response invalidated catalog confirmation.
+
+The capture-free browser/tile fixture exercises DE/EN and both resume choices;
+it asserts the error hint, no deactivate/store/activate, unchanged runtime on
+both networks and preserved local flags and content. Desktop regressions use
+two independent synthetic MQTT brokers and remove partner data both before
+validation and during confirmation. No private configuration or live access is
+used. Shared package: `0.117.0`, content `3deb84bb5545`.
+
+Fresh verification passes the complete PHP suite with 282 JavaScript tests,
+`CI=true npm run test:browser`, structure, encoding, official JSON style (20 own
+files) and PHP CS Fixer (164 files). Windows `npm run verify:local` passes 233
+tests and the complete capture-free UI test; two APT tests require Ubuntu. The
+capture-free Electron smoke also passes. One initial UI run finished its DOM
+assertions but timed out during process exit; the isolated full recheck passed
+without changing the deadline. No live or new platform CI result is claimed.
+
 ## Typisierte Geräteauswahl und Kataloggrenzen – 15.11.2026
 
 Der Regressionstest füllt die bisherigen 1.024 Legacy-Einträge mit synthetischen

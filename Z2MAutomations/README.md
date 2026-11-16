@@ -472,8 +472,12 @@ Die drei Schritte haben unterschiedliche Auswirkungen:
 3. Bei erfolgreicher Prüfung Schritt 8 **Nach Z2M übermitteln** öffnen und
    **Geprüften Entwurf in Z2M speichern** wählen. Den
    Bestätigungsdialog lesen und bestätigen.
-4. Der Designer liest den Betriebsstatus, stoppt nötigenfalls Betrieb,
-   Wiederanlauf und offene Einzelläufe und prüft den aktuellen Entwurf erneut.
+4. Der Designer liest den Betriebsstatus und prüft zuerst den aktuellen Entwurf
+   einschließlich der benötigten Partner-Gerätedaten. Fehlen Daten, bricht er
+   vor einem Stopp ab. Zum Einlesen das Partner-System auswählen und dort in
+   Schritt 4 **Gerätedaten aktualisieren** wählen. Erst nach erfolgreicher Prüfung
+   stoppt er nötigenfalls Betrieb, Wiederanlauf und offene Einzelläufe,
+   prüft erneut und speichert.
    Auf **Übertragung und gespeicherter Stand wurden von Z2M bestätigt** warten.
 5. Soll die neue Fassung laufen, anschließend im Bereich **Betrieb** aktivieren.
 

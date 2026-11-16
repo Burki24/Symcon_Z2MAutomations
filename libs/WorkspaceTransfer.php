@@ -27,7 +27,7 @@ trait WorkspaceTransfer
                 $view = $this->WorkspaceTransferView($record);
                 if ($view['context'] !== $TransferContext) throw new RuntimeException('stale_transfer');
                 if (!$view[$Action === 'validate' ? 'canValidate' : 'canStore']) throw new RuntimeException($view['blocked'] !== '' ? $view['blocked'] : 'not_validated');
-                if ($Action === 'store') $this->CheckWorkspaceTransferActions($record);
+                $this->CheckWorkspaceTransferActions($record);
                 $document = $record['data']['document'];
                 $editor = $document['editorDraft'];
                 $request = ['owner'    => $this->InstanceID, 'operation' => $OperationID, 'binding' => $record['binding'], 'epoch' => $record['ownershipEpoch'],
@@ -257,6 +257,21 @@ trait WorkspaceTransfer
         {
             if (!$this->workspaceEditorContext['catalogAvailable']) throw new RuntimeException('catalog_unavailable');
             $configuration = $this->ReadEditorDraft()['configuration'];
+            $partners = [];
+            foreach (['automations', 'sequences'] as $kind) foreach ($configuration[$kind] ?? [] as $entry) {
+                foreach ($entry['conditions'] ?? [] as $condition) {
+                    if (($condition['type'] ?? '') === 'device_value' && isset($condition['system'])) $partners[$condition['system']] = true;
+                }
+                foreach ($entry['actions'] ?? [] as $action) {
+                    if (isset($action['target']['system'])) $partners[$action['target']['system']] = true;
+                }
+            }
+            foreach ($this->workspaceEditorContext['deviceSystems'] as $partner) {
+                if ($partner['key'] !== '' && isset($partners[$partner['baseTopic']]) && $partner['reason'] === 'catalog') {
+                    $this->DebugEvent('FEHLER', 'Prüfung vor Übertragung gesperrt: Bestätigte Gerätedaten eines benötigten Partnersystems fehlen. Kein Steuerbefehl gesendet.', ['Systembezug' => $this->workspaceEditorContext['id']]);
+                    throw new RuntimeException('partner_catalog_unavailable');
+                }
+            }
             foreach (['automations', 'sequences'] as $kind) foreach ($configuration[$kind] ?? [] as $index => $entry) {
                 if ($this->DesignerEditSectionError('actions', $entry['actions'] ?? null) !== '') {
                     $this->DebugEvent('FEHLER', 'Übertragung vor dem Senden gesperrt: Aktionsziel, Kanal, Wert oder Schaltrecht nicht mehr verfügbar.', ['Bereich' => $kind, 'Eintrag' => $index + 1]);

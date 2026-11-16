@@ -98,6 +98,12 @@ Versionierung der Library bleibt maßgeblich.
 
 ## Fixes
 
+- Browserdesigner und Kachel prüfen benötigte Partner-Gerätedaten vor einem
+  Betriebsstopp. Bei fehlenden Daten wird nichts gestoppt oder übertragen;
+  der Hinweis führt zum Aktualisieren im Partner-System. Die Prüfung erfasst
+  auch Bedingungen und Aktionsfolgen. Die abschließenden Prüfungen vor dem
+  Speichern und die ausdrückliche Wiederaufnahme bleiben erhalten.
+
 - Bei kurzzeitig beschäftigtem Modul zeigt die Ansicht im Browserdesigner und
   in der Kachel zunächst einen Wartehinweis und lädt mehrmals begrenzt nach.
   Erst nach erfolgloser Wartephase erscheint der Lesefehler. Teilweise geladene

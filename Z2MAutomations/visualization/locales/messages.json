@@ -8560,8 +8560,8 @@
         "Transfer draft to Z2M?"
     ],
     "symcon.transfer.detail": [
-        "Ziel: {{name}}. {{count}} Automationen, davon {{enabled}} freigegeben. Ein laufender Automatikbetrieb wird gestoppt. Der Entwurf wird erneut geprüft und mit diesen Freigaben gespeichert. Z2M sichert die Vorversion. Ohne die Option zur Wiederaufnahme bleibt der Betrieb gestoppt.",
-        "Target: {{name}}. {{count}} automations, {{enabled}} enabled. Running automatic operation will stop. The draft will be checked again and stored with these permissions. Z2M retains the previous version. Without the resume option, operation stays stopped."
+        "Ziel: {{name}}. {{count}} Automationen, davon {{enabled}} freigegeben. Zuerst werden der Entwurf und benötigte Partner-Gerätedaten geprüft. Nur bei erfolgreicher Prüfung wird ein laufender Betrieb gestoppt. Danach wird erneut geprüft und mit diesen Freigaben gespeichert. Z2M sichert die Vorversion. Ohne die Option zur Wiederaufnahme bleibt der Betrieb gestoppt.",
+        "Target: {{name}}. {{count}} automations, {{enabled}} enabled. The draft and required partner device data are checked first. Running operation stops only after a successful check. The draft is then checked again and stored with these permissions. Z2M retains the previous version. Without the resume option, operation stays stopped."
     ],
     "symcon.transfer.changed": [
         "Der Entwurf oder das Ziel wurde geändert. Prüfe den aktuellen Stand erneut.",
@@ -8858,5 +8858,9 @@
     "draft.sync.dependency": [
         "Eine erhaltene Automation benötigt diese gelöschte Aktionsfolge. Wähle ausdrücklich, ob die Aktionsfolge erhalten bleiben soll.",
         "A retained automation needs this deleted sequence. Explicitly choose whether to keep the sequence."
+    ],
+    "symcon.transfer.partnerCatalog": [
+        "Für ein benötigtes Partner-System fehlen bestätigte Gerätedaten. Wähle das Partner-System und aktualisiere dort in Schritt 4 die Gerätedaten. Es wurde nichts übertragen.",
+        "Confirmed device data are missing for a required partner system. Select the partner system and update its device data in step 4. Nothing was transferred."
     ]
 }

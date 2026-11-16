@@ -156,6 +156,12 @@ const server = createServer(async (request, response) => {
         }
         else if (route === 'transfer') {
             const id = request.headers['x-z2ma-system-id']; operations.push({route, systemId: id, body});
+            if (deviceNetworks && networkReason === 'catalog') {
+                const key = 'symcon.transfer.partnerCatalog';
+                response.writeHead(409);
+                response.end(JSON.stringify({ok: false, error: 'partner_catalog_unavailable', message: german[key],
+                    presentation: {version: 1, messages: [{path: ['message'], key, values: {}}]}})); return;
+            }
             transferViews.set(id, {...transferView(id), canStore: body.action === 'validate', status: body.action === 'validate' ? 'validated' : 'stored',
                 message: body.action === 'validate' ? 'Synthetic validated' : 'Synthetic stored', storedRevision: body.action === 'store' ? model(id).configuration.revision : 4});
             if (body.action === 'store') {
@@ -663,7 +669,7 @@ async function verifyTransferResume(page, view) {
         await assertViewReadWait(view, 'en');
         await view.locator('.system-transfer:not(.system-runtime)').getByText('Configuration stored and checked. Previous automatic operation has resumed.', {exact: true}).waitFor();
         assert.deepEqual(operations.slice(before).map(row => [row.route, row.body.action]),
-            [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'], ['runtime', 'status'], ['runtime', 'activate']]);
+            [['runtime', 'status'], ['transfer', 'validate'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'], ['runtime', 'status'], ['runtime', 'activate']]);
         assert.ok(operations.slice(before).every(row => row.systemId === 'b'));
         assert.equal(operations.at(-1).body.resume, false, 'resume preserves the previous restart preference');
         const stored = operations.slice(before).find(row => row.route === 'transfer' && row.body.action === 'store').storedConfiguration;
@@ -675,6 +681,39 @@ async function verifyTransferResume(page, view) {
         runtimeViews.clear(); for (const [id, value] of savedRuntime) runtimeViews.set(id, value);
         transferViews.clear(); for (const [id, value] of savedTransfers) transferViews.set(id, value);
         createdRules.set('b', savedRules);
+    }
+}
+
+async function verifyPartnerCatalogPreflight(page, view) {
+    const savedNetworks = deviceNetworks; const savedReason = networkReason;
+    const savedRuntime = new Map(runtimeViews); const savedTransfers = new Map(transferViews);
+    try {
+        deviceNetworks = true; networkReason = 'catalog'; active = 'b';
+        for (const language of ['de', 'en']) for (const resume of [false, true]) {
+            runtimeViews.set('b', {...runtimeView('b'), confirmed: true, executing: true, resumeAfterRestart: true, resumeStatus: 'armed'});
+            transferViews.set('b', {...transferView('b'), status: 'validated', canStore: true});
+            await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+            await view.locator('#designer-language').selectOption(language);
+            await showStep(view, 'transfer');
+            const before = operations.length;
+            const unchanged = structuredClone(model('b').configuration);
+            const beforeRuntime = structuredClone([runtimeView('a'), runtimeView('b')]);
+            await view.locator('button[data-transfer-action=store]').click();
+            const confirmation = view.locator('dialog.guided-confirmation');
+            if (resume) await confirmation.locator('#resume-previous-operation').check();
+            await confirmation.locator('button.primary').click();
+            const message = (language === 'de' ? german : catalogs)['symcon.transfer.partnerCatalog'];
+            await view.locator('#feedback').getByText(message, {exact: true}).waitFor();
+            await view.locator('button[data-transfer-action=store]:not([disabled])').waitFor();
+            assert.deepEqual(operations.slice(before).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['transfer', 'validate']],
+                'missing partner data send no stop, store or activation, regardless of resume consent');
+            assert.deepEqual([runtimeView('a'), runtimeView('b')], beforeRuntime, 'both networks keep running with their existing restart preference');
+            assert.deepEqual(model('b').configuration, unchanged, 'all local work and release flags remain unchanged');
+        }
+    } finally {
+        deviceNetworks = savedNetworks; networkReason = savedReason;
+        runtimeViews.clear(); for (const [id, value] of savedRuntime) runtimeViews.set(id, value);
+        transferViews.clear(); for (const [id, value] of savedTransfers) transferViews.set(id, value);
     }
 }
 
@@ -813,7 +852,7 @@ async function verifyDraftForm(page, view, system, refresh = false, resume = fal
     await view.locator('#validate-button:not([disabled])').waitFor();
     assert.ok(recoveredStoredViews.has(system), 'the view recovers automatically from several temporary read failures after storage');
     assert.notEqual(await view.locator('#feedback').getAttribute('data-tone'), 'error', 'a recovered view does not show a stale read warning');
-    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'],
+    assert.deepEqual(operations.slice(beforeOperations).map(row => [row.route, row.body.action]), [['runtime', 'status'], ['transfer', 'validate'], ['runtime', 'deactivate'], ['transfer', 'validate'], ['transfer', 'store'],
         ...(resume ? [['runtime', 'status'], ['runtime', 'activate']] : [])]);
     assert.ok(operations.slice(beforeOperations).every(row => row.systemId === system), 'all operations address the explicitly selected system');
     assert.deepEqual(operations.slice(beforeOperations).find(row => row.route === 'transfer' && row.body.action === 'store').storedConfiguration, candidate, 'the confirmed transfer contains the new automation and preserves the existing complete draft');
@@ -940,6 +979,8 @@ try {
     assert.deepEqual(model('a').configuration.automations[0], {...beforeRelease.automations[0], enabled: true});
     assert.equal(operations.length, beforeReleaseOperations, 'editing a permission sends no transfer or runtime command');
     await verifyTransferResume(page, page);
+    await verifyPartnerCatalogPreflight(page, page);
+    await verifyPartnerCatalogPreflight(tile, tile.frameLocator('#designer-frame'));
     await verifyMissingCatalogNavigation(page, page, 'en', false);
     await verifyMissingCatalogNavigation(page, page, 'de', true);
     await verifyMissingCatalogNavigation(tile, tile.frameLocator('#designer-frame'), 'en', false);
@@ -971,6 +1012,7 @@ try {
     console.log('Connected workspace and portable files passed: automatic first read, no duplicate view-refresh read, preserved unsent drafts, selected .z2mad export/import, .z2map snapshots and direct target-network mapping in browser/tile and DE/EN.');
     console.log('Missing device data guidance passed: DE/EN, browser/tile, module refresh versus explicit step 4 read, no implicit MQTT and preserved drafts.');
     console.log('Offline guided workspace passed: browser and tile, eight steps, existing system choices, local form, optional export, cancellation, scoped stop/check/store and explicitly selected verified resumption.');
+    console.log('Partner catalog preflight passed: browser/tile, DE/EN, missing required data before stop, running networks and drafts preserved, with and without resume consent.');
     console.log('Offline browser localization passed: DE/EN, open input identity, selections, checkboxes, search, scroll, system switch, saved preference and 360–3840px in light/dark.');
     await context.close();
     for (const [browserLocale, expected] of [['de-DE', 'de'], ['fr-FR', 'en']]) {
