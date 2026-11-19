@@ -6,6 +6,8 @@
 [![Check Style](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/style.yml/badge.svg?branch=main)](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/style.yml?query=branch%3Amain)
 [![Tests](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Burki24/Symcon_Z2MAutomations/actions/workflows/tests.yml?query=branch%3Amain)
 
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#8-spenden)
+
 ![Z2MAutomations – visueller Automationsdesigner für bis zu acht Z2M-Systeme](docs/z2mautomations-title.webp)
 
 Erstellt und verwaltet Automationen für Zigbee2MQTT: Geräteauslöser, Uhrzeiten,
@@ -31,6 +33,7 @@ Die native Symcon-Kachel bietet einen zusätzlichen Zugang zum Designer.
 - [5. Konfiguration in Symcon](#5-konfiguration-in-symcon)
 - [6. Änderungen](#6-änderungen)
 - [7. Lizenz](#7-lizenz)
+- [8. Spenden](#8-spenden)
 
 ## Screenshots
 
@@ -193,3 +196,9 @@ Neue Funktionen und Fehlerkorrekturen stehen im [Changelog](CHANGELOG.md).
 ## 7. Lizenz
 
 [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+## 8. Spenden
+
+Mit einer freiwilligen Spende kannst du die Weiterentwicklung dieses Projekts unterstützen.
+
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://www.paypal.me/BurkhardKneiseler)
