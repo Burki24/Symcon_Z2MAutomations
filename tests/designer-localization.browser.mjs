@@ -67,8 +67,14 @@ function model(id = 'a') {
         timezones: ['UTC', 'Europe/Berlin'], createContext, createAllowed: true, editAllowed: true, manageAllowed: true, sequenceAllowed: true,
         sequenceCreateAllowed: true, createNotice: '', editNotice: '', sequenceNotice: '', sequenceSections: {},
         editSections: {rule_a: {triggers: true, conditions: true, actions: true}},
-        workspace: {fingerprint: 'd'.repeat(64), systems: systems.map(system => ({...system,
-            runtimeConfirmed: runtimeView(system.binding.systemId).confirmed, executing: runtimeView(system.binding.systemId).executing}))}, workspaceContext: {systemId: id, generation: 1, fingerprint: catalogFingerprint},
+        workspace: {fingerprint: 'd'.repeat(64), systems: systems.map(system => {
+            const systemId = system.binding.systemId;
+            const runtime = runtimeView(systemId);
+            return {...system, systemId, runtimeConfirmed: runtime.confirmed, executing: runtime.confirmed ? runtime.executing : null,
+                automationOverview: {revision: 4, confirmed: runtime.confirmed, rules: [
+                    {id: 'same_saved_rule', name: '<strong>Stored rule ' + systemId + '</strong>', enabled: systemId === 'a', run: systemId === 'a' ? 'running' : null}
+                ]}};
+        })}, workspaceContext: {systemId: id, generation: 1, fingerprint: catalogFingerprint},
         catalogRefresh: {systemId: id, generation: 1, fingerprint: catalogFingerprint, operation: '', phase: catalogAvailable ? 'loaded' : 'idle',
             pending: false, canRefresh: true, message: 'Synthetic catalogue', loadedAt: catalogAvailable ? 1800000000 : null,
             storedAt: storedCatalog ? 1800000000 : null, counts: {devices: catalogAvailable ? 1 : 0, groups: 0, scenes: 0}},
@@ -300,6 +306,20 @@ async function verifyOperationReadiness(page, view) {
         runtimeViews.set('b', {...runtimeView('b'), confirmed: true, executing: false, canActivate: true, releasedCount: 1, ruleCount: 1,
             releasedRules: [{id: 'receiver_rule', name: '<strong>Synthetic receiver rule</strong>'}]});
         await page.reload(); await view.locator('#edit-automation-button:not([disabled])').waitFor();
+        await showStep(view, 'overview');
+        const overview = view.locator('#desktop-view-overview');
+        for (const lang of ['de', 'en']) {
+            await view.locator('#designer-language').selectOption(lang);
+            assert.match(await overview.locator('h1').innerText(), lang === 'de' ? /Automationsübersicht/ : /Automation overview/);
+            assert.match(await overview.locator('#automation-overview-a').locator('..').innerText(), lang === 'de' ? /Automatikbetrieb läuft/ : /Automatic operation is running/);
+            assert.match(await overview.locator('#automation-overview-b').locator('..').innerText(), lang === 'de' ? /Automatikbetrieb ist gestoppt/ : /Automatic operation is stopped/);
+            assert.deepEqual(await overview.locator('tbody th').allTextContents(), ['<strong>Stored rule a</strong>', '<strong>Stored rule b</strong>']);
+            assert.equal(await overview.locator('tbody strong').count(), 0, 'stored names remain plain text');
+        }
+        await overview.locator('#automation-overview-reload').click();
+        await overview.locator('#automation-overview-reload:not([disabled])').waitFor();
+        assert.equal(await view.locator('#designer-system').inputValue(), 'a');
+        assert.equal(operations.length, before, 'opening and refreshing the overview does not send MQTT commands');
         await showStep(view, 'automations');
         const row = view.locator('.operation-readiness .operation-networks li');
         for (const lang of ['de', 'en']) {

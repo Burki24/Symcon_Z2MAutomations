@@ -275,6 +275,7 @@ trait WorkspaceSetup
         $candidate['catalog'] = $catalog;
         $candidate['nativeBindings'] = $this->WorkspaceNativeBindings($record['binding']);
         $candidate['ownershipEpoch'] = $job['epoch'];
+        $candidate['mergeBase'] = $this->WorkspaceDraftMergeBase($snapshot);
         $check = $workspace;
         $check['systems'][$record['binding']['systemId']] = $candidate;
         if (WorkspaceState::Error($check) !== '') throw new RuntimeException('invalid_data');

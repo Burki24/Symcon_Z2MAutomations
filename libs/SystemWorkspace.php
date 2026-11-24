@@ -255,18 +255,45 @@ trait SystemWorkspace
             $current = $this->WorkspaceConnectionCurrent($record['binding']);
             $info = $current ? $this->WorkspaceInfo($record['binding']) : null;
             $configuration = $record['data']['document']['editorDraft']['configuration'] ?? [];
-            $runtimeConfirmed = ($info['state']['runtimeConfirmed'] ?? false) && ($info['state']['mqttConnected'] ?? false) && ($info['state']['bridgeOnline'] ?? false);
+            $status = $info['state'] ?? [];
+            $runtimeConfirmed = ($status['runtimeConfirmed'] ?? false) && ($status['mqttConnected'] ?? false) && ($status['bridgeOnline'] ?? false);
             $systems[] = ['systemId' => $id, 'name' => $record['name'], 'binding' => $record['binding'],
                 'fingerprint'        => WorkspaceState::Fingerprint($record), 'connectionCurrent' => $current && $info !== null,
                 'online'             => $info['state']['bridgeOnline'] ?? false, 'confirmed' => $info['state']['extensionConfirmed'] ?? false,
                 'storedRevision'     => $info['state']['extension']['storedRevision'] ?? null,
                 'activeRevision'     => ($info['state']['runtimeConfirmed'] ?? false) ? ($info['state']['extension']['activeRevision'] ?? null) : null,
                 'runtimeConfirmed'   => $runtimeConfirmed, 'executing' => $runtimeConfirmed ? ($info['state']['extension']['executing'] ?? false) : null,
+                'automationOverview' => $this->WorkspaceStoredAutomationOverview($record, $status, $runtimeConfirmed),
                 'rules'              => count($configuration['automations'] ?? []), 'sequences' => count($configuration['sequences'] ?? []),
                 'hasDocument'        => $record['data']['document'] !== null, 'openInput' => WorkspaceState::Dirty($record)];
         }
         $this->DebugEvent('AKTION', 'Zentrale Systemübersicht gelesen. Entwürfe und Z2M bleiben unverändert.', ['Systeme' => count($systems)]);
         return $this->WorkspaceResult('', ['fingerprint' => WorkspaceState::Fingerprint($state), 'selectedSystem' => $state['selectedSystem'], 'systems' => $systems]);
+    }
+
+    private function WorkspaceStoredAutomationOverview(array $record, array $status, bool $runtimeConfirmed): array
+    {
+        $metadata = $status['extension'] ?? [];
+        $revision = $metadata['storedRevision'] ?? null;
+        $checksum = $metadata['checksum'] ?? null;
+        $fresh = ($status['extensionConfirmed'] ?? false) && ($status['mqttConnected'] ?? false) && ($status['bridgeOnline'] ?? false);
+        $stored = $record['mergeBase'] ?? null;
+        $document = $record['data']['document'];
+        $draft = $document['editorDraft'] ?? null;
+        if ($fresh && $revision === 0 && ($metadata['storage'] ?? '') === 'empty') {
+            $stored = ['revision' => 0, 'checksum' => null, 'configuration' => ['automations' => []]];
+        } elseif (is_string($checksum) && ($draft['configuration']['revision'] ?? null) === $revision
+            && ($draft['draftChecksum'] ?? null) === $checksum && hash('sha256', $document['yaml']) === $checksum) {
+            $stored = ['revision' => $revision, 'checksum' => $checksum, 'configuration' => $draft['configuration']];
+        }
+        $confirmed = $fresh && $stored !== null && $stored['revision'] === $revision && $stored['checksum'] === $checksum;
+        $execution = $status['execution'] ?? [];
+        $runs = $runtimeConfirmed && $confirmed && ($execution['session'] ?? '') === ($metadata['session'] ?? null)
+            && ($execution['revision'] ?? null) === $revision && ($execution['checksum'] ?? '') === $checksum ? $execution['runs'] : [];
+        $rules = $stored === null ? null : array_map(static fn (array $rule): array => [
+            'id' => $rule['id'], 'name' => $rule['name'], 'enabled' => $rule['enabled'], 'run' => $runs[$rule['id']]['state'] ?? null
+        ], $stored['configuration']['automations'] ?? []);
+        return ['revision' => $stored['revision'] ?? null, 'confirmed' => $confirmed, 'rules' => $rules];
     }
 
     private function WorkspaceConnectionBinding(int $id): ?array

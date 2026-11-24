@@ -2523,6 +2523,146 @@
         "Bitte zuerst den Z2M-Abgleich unter „Automationen bearbeiten“ abschließen und offene Versionskonflikte auflösen. Es wurde nichts übertragen.",
         "Complete the Z2M reconciliation under “Edit automations” and resolve any version conflicts first. Nothing was transferred."
     ],
+    "desktop.help.image": [
+        "Abbildung vergrößern",
+        "Enlarge illustration"
+    ],
+    "desktop.help.close": [
+        "Schließen",
+        "Close"
+    ],
+    "ui.flow.then": [
+        "DANN",
+        "THEN"
+    ],
+    "desktop.help.button": [
+        "Hilfe · F1",
+        "Help · F1"
+    ],
+    "desktop.help.title": [
+        "Z2M-Automations · Anwenderhandbuch",
+        "Z2M-Automations · User manual"
+    ],
+    "desktop.help.contents": [
+        "Inhalt",
+        "Contents"
+    ],
+    "desktop.help.search": [
+        "Handbuch durchsuchen",
+        "Search manual"
+    ],
+    "desktop.help.next": [
+        "Nächster Treffer",
+        "Next match"
+    ],
+    "desktop.help.matches": [
+        "Treffer {{current}} von {{count}}",
+        "Match {{current}} of {{count}}"
+    ],
+    "desktop.help.noMatches": [
+        "Keine Treffer",
+        "No matches"
+    ],
+    "desktop.help.failed": [
+        "Das lokale Handbuch konnte nicht geöffnet werden. Bitte prüfe die App-Installation.",
+        "The local manual could not be opened. Please check the app installation."
+    ],
+    "desktop.helpOpened": [
+        "Offline-Anwenderhandbuch geöffnet",
+        "Offline user manual opened"
+    ],
+    "desktop.tip.open": [
+        "Öffnet das Offline-Handbuch beim Kapitel zu diesem Schritt. F1 funktioniert auch beim Bearbeiten; deine Eingaben bleiben erhalten.",
+        "Open the offline manual at the chapter for this step. F1 also works while editing; your input is preserved."
+    ],
+    "desktop.tip.save": [
+        "Speichert Projekt und Entwürfe auf diesem Rechner. Dadurch werden keine Regeln an Zigbee2MQTT übertragen und der Automatikbetrieb wird nicht gestartet.",
+        "Save your project and drafts on this computer. This does not transfer rules to Zigbee2MQTT or start automatic operation."
+    ],
+    "desktop.tip.system": [
+        "Wählt das Netz zum Bearbeiten oder Steuern. Prüfe die Auswahl vor Übermittlung, Freigabe oder Aktivierung.",
+        "Choose the network you are editing or controlling. Check this selection before transfer, release or activation."
+    ],
+    "desktop.tip.connect": [
+        "Verbindet den eingerichteten Broker und liest dieses Netz ein. Gespeicherte Regeln werden mit deinem Entwurf abgeglichen; das Lesen startet oder stoppt keinen Betrieb.",
+        "Connect to the configured broker and read this network. Stored rules are compared with your local draft; reading does not start or stop operation."
+    ],
+    "desktop.tip.catalog": [
+        "Liest aktuelle Geräte, Kanäle, Gruppen und Szenen. Dein Entwurf und laufende Automationen bleiben erhalten.",
+        "Read current devices, channels, groups and scenes. Your draft and running automations are preserved."
+    ],
+    "desktop.tip.merge": [
+        "Liest die aktuellen Z2M-Regeln und führt sie mit deinem Entwurf zusammen. Bei Konflikten entscheidest du; eine Wiederherstellungskopie wird angelegt. Keine Regel wird übertragen oder gestartet.",
+        "Read the current Z2M rules and merge them with your draft. You decide conflicting changes; a recovery copy is created. No rules are transferred or started."
+    ],
+    "desktop.tip.restore": [
+        "Stellt einen früher gespeicherten Arbeitsstand wieder her. Prüfe den Entwurf vor einer gesonderten Übermittlung.",
+        "Recover a previously saved working copy. Review the restored draft before any separate transfer."
+    ],
+    "desktop.tip.export": [
+        "Exportiert die Konfiguration als YAML. Speichere das Projekt zusätzlich, um Verbindungen und Entwürfe aller Netze zu behalten.",
+        "Export the configuration as YAML. Save the project separately to keep its connections and all network drafts."
+    ],
+    "desktop.tip.import": [
+        "Importiert YAML oder JSON nach Sicherung und Bestätigung in den lokalen Entwurf. Dabei kann der Entwurf ersetzt werden; an Z2M wird nichts übertragen.",
+        "Import YAML or JSON into the local draft after backup and confirmation. This can replace the draft; it does not transfer anything to Z2M."
+    ],
+    "desktop.tip.workingCopy": [
+        "Wähle den lokalen Entwurf oder gleiche ihn mit der in Zigbee2MQTT gespeicherten Konfiguration ab. Deine lokalen Änderungen bleiben erhalten; bei Konflikten entscheidest du.",
+        "Choose the local draft or compare it with the configuration stored in Zigbee2MQTT. Your local changes are preserved; conflicts require your choice."
+    ],
+    "desktop.tip.new": [
+        "Erstellt eine Regel im lokalen Entwurf. Neue Regeln bleiben bis zu deiner ausdrücklichen Freigabe ausgeschaltet.",
+        "Create a rule in the local draft. New rules remain disabled until you explicitly release them."
+    ],
+    "desktop.tip.check": [
+        "Prüft den gesamten Entwurf anhand aktueller Gerätedaten. Eine erfolgreiche Prüfung bereitet die gesonderte Übermittlung vor; sie aktiviert keine Regeln.",
+        "Check the whole draft against current device capabilities. A successful check prepares a separate transfer; it does not activate rules."
+    ],
+    "desktop.tip.transfer": [
+        "Übermittelt den geprüften Entwurf nach Bestätigung an das gewählte Netz. Ein laufender Betrieb kann gestoppt werden. Eine Wiederaufnahme erfolgt nur bei ausdrücklicher Auswahl und erfolgreicher Prüfung.",
+        "Transfer the checked draft to the selected network after confirmation. A running network may be stopped. Resume previous operation only if explicitly selected and verification succeeds."
+    ],
+    "desktop.tip.readOnly": [
+        "Liest das Ergebnis des vorherigen Vorgangs. Installation, Übermittlung oder Gerätebefehl werden nicht erneut ausgeführt.",
+        "Read the result of the previous operation. The original installation, transfer or device command is not repeated."
+    ],
+    "desktop.tip.extension": [
+        "Installiert oder aktualisiert die mitgelieferte Z2M-Erweiterung nach Bestätigung. Das kann den Betrieb stoppen und Zigbee2MQTT neu starten; lies die sichtbare Bestätigung genau.",
+        "Install or update the included Z2M extension after confirmation. This may stop operation and restart Zigbee2MQTT; read the visible confirmation carefully."
+    ],
+    "desktop.tip.activate": [
+        "Startet den Automatikbetrieb mit den freigegebenen gespeicherten Regeln. Systemübergreifende Aktionen benötigen auch im Zielnetz einen aktiven Betrieb.",
+        "Start automatic operation with the released stored rules. Cross-network actions also need active operation on their target network."
+    ],
+    "desktop.tip.stop": [
+        "Stoppt den gesamten Betrieb im gewählten Netz, einschließlich laufender Regeln und Empfang systemübergreifender Aktionen.",
+        "Stop all operation on the selected network, including running rules and reception of cross-network actions."
+    ],
+    "desktop.tip.flags": [
+        "Wählt, welche gespeicherten Regeln automatisch laufen dürfen. Die Übernahme erfordert Prüfung und Bestätigung; beachte dort die Angaben zum Stopp und zur Wiederaufnahme.",
+        "Choose which stored rules may run automatically. Applying releases requires checks and confirmation; review the stop and resume options there."
+    ],
+    "desktop.tip.once": [
+        "Führt die gewählte gespeicherte Regel nach Bestätigung einmal aus. Ihre Aktionen können Geräte schalten; die Regel wird dadurch nicht für automatische Auslöser freigegeben.",
+        "Run the selected stored rule once after confirmation. Its actions can change devices; this does not release the rule for automatic triggers."
+    ],
+    "desktop.tip.restart": [
+        "Erlaubt die Fortsetzung des Automatikbetriebs nach einem Zigbee2MQTT-Neustart. Dies ist unabhängig von der Wiederaufnahme nach einer Übermittlung.",
+        "Allow automatic operation to continue after a Zigbee2MQTT restart. This is separate from resuming operation after a transfer."
+    ],
+    "desktop.tip.triggers": [
+        "Jeder einzelne Auslöser kann die Regel starten. Eine Mindestdauer muss durchgehend erfüllt sein. Zusätzliche Voraussetzungen gehören unter Nur wenn.",
+        "Any one trigger can start the rule. A minimum duration must be fulfilled continuously. Additional requirements belong under Only if."
+    ],
+    "desktop.tip.conditions": [
+        "Alle aufgeführten Bedingungen müssen erfüllt sein, bevor Aktionen erlaubt sind. Unbekannte oder nicht verfügbare Werte erlauben keine Ausführung.",
+        "All listed conditions must be fulfilled before the actions are allowed. Unknown or unavailable values do not authorize execution."
+    ],
+    "desktop.tip.actions": [
+        "Aktionen laufen in dieser Reihenfolge. Eine Wartezeit gilt vor dem jeweiligen Schritt. Wähle für jedes Ziel das zugehörige Netz und einen bedienbaren Kanal.",
+        "Actions run in this order. A delay applies before its step. Choose the owning network and a writable channel for each target."
+    ],
     "desktop.connection.catalogLimit": [
         "Der Gerätekatalog ist zu groß, um ihn vollständig zu laden. Es wurde kein unvollständiger Katalog übernommen.",
         "The device catalog is too large to load completely. No incomplete catalog was accepted."
@@ -5414,6 +5554,66 @@
     "desktop.steps.operation": [
         "Betrieb",
         "Operation"
+    ],
+    "desktop.steps.overview": [
+        "Automationsübersicht",
+        "Automation overview"
+    ],
+    "automationOverview.reload": [
+        "Übersicht neu laden",
+        "Reload overview"
+    ],
+    "automationOverview.reading": [
+        "Übersicht wird neu geladen …",
+        "Reloading overview…"
+    ],
+    "automationOverview.failed": [
+        "Die Übersicht konnte nicht neu geladen werden.",
+        "The overview could not be reloaded."
+    ],
+    "automationOverview.operation.running": [
+        "Automatikbetrieb läuft",
+        "Automatic operation is running"
+    ],
+    "automationOverview.operation.stopped": [
+        "Automatikbetrieb ist gestoppt",
+        "Automatic operation is stopped"
+    ],
+    "automationOverview.operation.unknown": [
+        "Automatikbetrieb nicht bestätigt",
+        "Automatic operation is unconfirmed"
+    ],
+    "automationOverview.current": [
+        "Bestätigter Speicherstand · Revision {{revision}}",
+        "Confirmed stored revision {{revision}}"
+    ],
+    "automationOverview.lastRead": [
+        "Letzter bekannter Speicherstand · Revision {{revision}} · aktueller Stand nicht bestätigt",
+        "Last known stored revision {{revision}} · current state unconfirmed"
+    ],
+    "automationOverview.unread": [
+        "Für dieses Netzwerk wurde noch kein gespeicherter Stand gelesen.",
+        "No stored configuration has been read for this network."
+    ],
+    "automationOverview.empty": [
+        "Diese Revision enthält keine Automationen.",
+        "No automations in this revision."
+    ],
+    "automationOverview.noSystems": [
+        "Keine Zigbee2MQTT-Netze verfügbar.",
+        "No Zigbee2MQTT networks available."
+    ],
+    "automationOverview.rule": [
+        "Automation",
+        "Automation"
+    ],
+    "automationOverview.enabled": [
+        "Freigabe in Z2M",
+        "Permission in Z2M"
+    ],
+    "automationOverview.run": [
+        "Zuletzt gemeldeter Lauf",
+        "Last reported run"
     ],
     "desktop.steps.need.project": [
         "Öffne oder erstelle zuerst ein Projekt.",
@@ -8466,6 +8666,10 @@
     "symcon.steps.operation": [
         "Betrieb",
         "Operation"
+    ],
+    "symcon.steps.overview": [
+        "Automationsübersicht",
+        "Automation overview"
     ],
     "symcon.steps.projectContext": [
         "Zentrale · {{name}}",

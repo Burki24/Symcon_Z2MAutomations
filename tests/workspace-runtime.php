@@ -196,6 +196,14 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $overview = $decode($manager->GetWorkspaceOverview());
     $observed = array_column($overview['systems'], null, 'systemId');
     $check($observed[$first['systemId']]['runtimeConfirmed'] && $observed[$first['systemId']]['executing'] === true, 'The overview reports the confirmed active network for partner guidance.');
+    foreach ($observed as $network) {
+        $inventory = $network['automationOverview'];
+        $check(
+            $inventory['confirmed'] && $inventory['revision'] === 3
+            && $inventory['rules'] === [['id' => 'same_rule', 'name' => 'PRIVATE_RUNTIME_RULE', 'enabled' => false, 'run' => null]],
+            'The overview projects each network separately, including identical rule IDs.'
+        );
+    }
     $check(!$decode($manager->GetWorkspaceSetupStatus())['setup']['canRollback'], 'A possible external control prevents a misleading local rollback.');
     foreach (array_slice($systems, 1) as $s) $check($metadata[$s['binding']['baseTopic']] === $before[$s['binding']['baseTopic']], 'Other brokers and identical rule identities remain untouched.');
     $stopped = $request($first, 'deactivate')['runtime'];
@@ -205,6 +213,9 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $check($stopped['resumeAfterRestart'] && $stopped['resumeStatus'] === 'stopped', 'Stopping disarms the restart intent without clearing the configured restart preference.');
     $one = $request($first, 'run_once', 'same_rule');
     $check($one['runtime']['status'] === 'run_started' && $one['runtime']['executing'] === false && $one['runtime']['rules']['same_rule']['state'] === 'running', 'Disabled saved rule can run once without arming automatic execution.');
+    $observed = array_column($decode($manager->GetWorkspaceOverview())['systems'], null, 'systemId');
+    $check($observed[$first['systemId']]['automationOverview']['rules'][0]['run'] === 'running', 'The overview can show a single run while the rule remains disabled.');
+    foreach (array_slice($systems, 1) as $s) $check($observed[$s['systemId']]['automationOverview']['rules'][0]['run'] === null, 'A run is never attributed to the same rule ID on another network.');
     $run = $one['runtime']['rules']['same_rule']['run'];
     $check($request($first, 'stop_rule', 'same_rule', $run)['runtime']['status'] === 'run_stopped', 'Targeted stop acknowledges exactly the captured run.');
     $condition = false;
@@ -347,5 +358,13 @@ foreach ([[1, false], [2, false], [2, true], [8, false]] as [$count, $split]) {
     $check($details($first)['data'] === $original, 'Native and browser control retain all draft data.');
     $debug = implode(' ', $manager->debug) . implode(' ', $connections[$topic]->debug);
     $check(str_contains($debug, 'Betriebsauftrag') && !str_contains($debug, 'PRIVATE_RUNTIME_RULE') && !str_contains($debug, 'PRIVATE_UNSAVED'), 'German debug does not expose names or form contents.');
+    $parents[$first['binding']['mqttParent']]->publish($first['binding']['baseTopic'] . '/bridge/state', ['state' => 'offline']);
+    $offline = array_column($decode($manager->GetWorkspaceOverview())['systems'], null, 'systemId')[$first['systemId']];
+    $check(
+        $offline['executing'] === null && !$offline['automationOverview']['confirmed']
+        && ($offline['automationOverview']['rules'][0]['name'] ?? null) === 'PRIVATE_RUNTIME_RULE'
+        && $offline['automationOverview']['rules'][0]['run'] === null,
+        'Offline rules retain the last read inventory without confirmed runtime or run status.'
+    );
 }
 echo "Central runtime: 1/2/8 systems, confirmed activation/stop, exact single runs, conditions, priorities, isolation and no draft changes passed.\n";

@@ -176,6 +176,8 @@ trait WorkspaceTransfer
                         || $record['data']['document']['editorDraft']['baseChecksum'] !== $job['request']['checksum'])) {
                     $record['data']['document']['editorDraft']['baseRevision'] = $job['request']['revision'];
                     $record['data']['document']['editorDraft']['baseChecksum'] = $job['request']['checksum'];
+                    $record['mergeBase'] = ['revision' => $job['request']['revision'], 'checksum' => $job['request']['checksum'],
+                        'configuration'                => DraftMerge::Normalize($record['data']['document']['editorDraft']['configuration'])];
                     $workspace['systems'][$system] = $record;
                     $this->WriteWorkspace($workspace);
                     $changedBase = true;
