@@ -1,10 +1,22 @@
 # Unveröffentlicht
 
-Vorbereiteter Umfang der ersten Beta. Versionsnummer und Veröffentlichungsdatum
-werden erst dem bestätigten Veröffentlichungscommit zugeordnet; die automatische
-Versionierung der Library bleibt maßgeblich.
+Laufende Änderungs- und Funktionsübersicht einschließlich des bereits mit Beta
+0.189 verfügbaren Grundumfangs. Die Abgrenzung des nächsten Beta-Updates und der
+geprüfte Quellstand stehen in [der Beta-Abnahme](docs/BETA_ABNAHME.md).
+Versionsnummer und Veröffentlichungsdatum werden dem endgültigen
+Veröffentlichungscommit zugeordnet; die automatische Versionierung bleibt maßgeblich.
 
 ## Neu
+
+- Eine gemeinsame Übersicht zeigt die gespeicherten Automationen aller
+  zugeordneten Z2M-Systeme, deren Freigaben und den bestätigten Betriebszustand.
+  Bei unterbrochener Verbindung bleiben frühere Beobachtungen als solche erkennbar.
+
+- Browserdesigner und Kachel gleichen frisch gelesene Z2M-Automationen mit dem
+  lokalen Entwurf ab. Unabhängige Änderungen lassen sich zusammenführen;
+  widersprüchliche Änderungen werden je Eintrag entschieden und lokal gesichert.
+  Ausgewählte Regeln als `.z2mad` und lokale Arbeitsstände als `.z2map` austauschen
+  und einem vorhandenen System zuordnen. Neu hinzugefügte Regeln beginnen aus.
 
 - Der Gerätekatalog erhält Fenstergriffstellungen, Sensorwerte und andere
   typisierte Eigenschaften unabhängig von der Grenze der alten Auswahllisten.
@@ -44,10 +56,10 @@ Versionierung der Library bleibt maßgeblich.
   Der Start bleibt separat. Sprache wird zentral gewählt, YAML bei Bedarf in
   Schritt 5 exportiert. Vorhandene Symcon-Verbindungen und Entwürfe bleiben erhalten.
 
-- The shared Z2M extension supports device-value conditions on explicitly
-  permitted partner systems. Each check asks the owning extension for a fresh
-  decision; missing values, stopped receivers and timeouts prevent the action.
-  The desktop app exposes this selection; the Symcon forms remain unchanged.
+- Gerätewerte ausdrücklich freigegebener Partnersysteme als Bedingungen
+  verwenden. Jede Prüfung fragt die zuständige Erweiterung nach einer frischen
+  Entscheidung. Fehlende Werte, gestoppte Empfänger und Zeitüberschreitungen
+  verhindern die Aktion.
 
 - Im Browserdesigner und in der Kachel Automationen in einem Formular erstellen
   und den vollständigen Systementwurf optional als YAML herunterladen. Neue

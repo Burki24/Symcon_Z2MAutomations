@@ -124,9 +124,10 @@ Die Bedienung der einzelnen Funktionen steht in der README des jeweiligen Moduls
 
 ## 4. Installation
 
-Nach Veröffentlichung der ersten Beta im **Module Store** nach
-**Z2MAutomations** suchen und den **Beta-Kanal** wählen. Der aktuelle
-Vorbereitungsstand steht in der [Beta-Abnahme](docs/BETA_ABNAHME.md).
+Im **Module Store** nach **Z2MAutomations** suchen und den **Beta-Kanal**
+wählen. Hinweise zu Sicherung, Einrichtung und Rückmeldungen stehen in der
+[Beta-Anleitung](docs/BETA.md). Den Prüfstand des nächsten Updates nennt die
+[Beta-Abnahme](docs/BETA_ABNAHME.md).
 
 Alternativ die Library über die Symcon-Modulverwaltung aus dem Repository
 [Burki24/Symcon_Z2MAutomations](https://github.com/Burki24/Symcon_Z2MAutomations) hinzufügen.

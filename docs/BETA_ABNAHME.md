@@ -1,5 +1,78 @@
 # Beta-Abnahme – Veröffentlichungsstand vorbereiten
 
+## Nächstes Beta-Update – 27.11.2026
+
+**BEDINGT EINREICHUNGSREIF.** Geprüfte Quellbasis auf `dev` ist
+`021ecbb23425928ac38b5b8d02a0e5e291f4a3a2`, Library 0.220. Die anschließenden
+redaktionellen Änderungen dieses Vorbereitungsauftrags benötigen noch den
+Benutzer-Commit/Push, die automatische Versionierung und eine neue CI. Deshalb
+ist 0.220 die geprüfte Ausgangsbasis, keine festgelegte nächste Release-Version.
+
+Im Store ist Beta 0.189 unter
+`fd5d11fea85e94370b69167cfe6265cc33ed1372` veröffentlicht. `main` enthält ebenfalls
+Metadaten 0.189. Der endgültige Store-Commit wird erst nach dem Release-PR von
+`dev` nach `main` festgelegt. Die bisherigen Nachweise B1–B4 und N1/N2 gelten
+weiter mit ihren dokumentierten Versions- und Umfangsgrenzen.
+
+### Änderungen gegenüber Beta 0.189
+
+- Gemeinsamer nummerierter Arbeitsplatz im Browserdesigner und in der Kachel.
+- Gespeicherte Automationen und bestätigter Betrieb aller Systeme in einer Übersicht.
+- Frisch gelesene Z2M-Stände mit lokalen Entwürfen abgleichen, Konflikte je Eintrag
+  entscheiden und private Sicherungen wiederherstellen. Ausgewählte Regeln und
+  Arbeitsstände über `.z2mad` beziehungsweise `.z2map` austauschen.
+- Partnernetze für Bedingungen und Aktionen auswählen, benötigten Empfangsbetrieb
+  erkennen und zur passenden Bedienseite wechseln.
+- Bisherigen Automatikbetrieb nach bestätigter Übertragung auf ausdrücklichen
+  Wunsch wieder aufnehmen. Partner-Gerätedaten werden vor einem nötigen Stopp geprüft.
+- Vollständige typisierte Gerätekanäle und verbesserte Geräteabruf-/Wartehinweise.
+- Sichtbare eigenständige Erweiterungsversion, aktuell 0.2.4. Beim Update ausgehend
+  von 0.189 die Erweiterung aktualisieren und den Gerätekatalog frisch laden.
+
+### Frische Nachweise
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| `php tests/run.php` | Vollständige PHP-Prüfprogramme und 282 JavaScript-Tests bestanden. |
+| `CI=true npm run test:browser` | Bildfreie Browser-/Kachelprüfung mit synthetischen Loopback-Daten bestanden, DE/EN, Hell/Dunkel, Systemwechsel, Eingabeerhalt, Übertragung und 360–3840 Pixel. |
+| Ausgeliefertes PHP | 96 Dateien mit PHP 8.5.10 ohne Syntaxfehler. |
+| PHP CS Fixer 3.95.27 | Prüfmodus, 0 von 164 Dateien zu ändern. |
+| JSON-Stil, Helper und Dokumentation | 15 eigene JSON-Dateien mit der unveränderten offiziellen StylePHP-Prüffunktion bestanden; 13 Helperdateien und Assets manifesttreu. Struktur, Kodierung und der lokale Dokumentationsdiff bestehen. |
+| Designer und Erweiterung | Paket 0.145.0, Inhalt `5b7d57d2a384`; Erweiterung 0.2.4, Build `3f8a06859635`; Integritätsprüfungen bestanden. |
+| GitHub-CI der Quellbasis | [Tests und Browser/Kachel](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/45354245699) und [Check Style](https://github.com/Burki24/Symcon_Z2MAutomations/actions/runs/45354245401) erfolgreich. Versionsautomatik für den Quellcommit ebenfalls erfolgreich. |
+| Statischer Store-Scanner | 0 Blocker, 19 Dateizugriffs-Prüfstellen im Kontext geprüft. Begrenzte Anfragekörper, feste eigene Assets und instanzgebundene private Sicherungen. |
+
+Der erste lokale Browserlauf scheiterte vor dem Laden an Chromiums Sperre des
+zufällig vergebenen Ports 1723. Der vollständige zweite Lauf mit neuem Port bestand.
+Ein zusätzlicher Leerzeilenhinweis in der bereits festgeschriebenen gemeinsamen
+Datei `validation-feedback.js` ist redaktionell und kein fehlgeschlagener Projektcheck.
+
+Die Prüfung verwendet bestehende synthetische Tests. Eine erneute native
+Praxisabnahme des gesamten neueren Designerstands nach dem Modulupdate ist damit
+nicht belegt. Bisherige echte Praxisnachweise bleiben getrennt dokumentiert.
+Windows-Dateirechte bleiben eine lokale Schutzempfehlung. Weitere reale Broker
+und Gerätefälle bleiben zusätzliche Kompatibilitätsarbeit.
+
+Vor Veröffentlichung sind der Benutzer-Commit/Push samt Versionsautomatik, die
+CI des endgültigen Stands, der PR nach `main` und die Bindung der Storevorlage
+an genau diesen Commit abzuschließen. Der Dokumentationslink muss denselben
+Commit verwenden. Beta-Einreichen veröffentlicht unmittelbar.
+
+Storevorlage 22733 ist als unveröffentlichter Beta-Entwurf vorbereitet. Sie
+enthält die deutsche Beschreibung, Änderungshinweise und die bisherigen
+Kategorien. Funktionale Änderungen sind gekennzeichnet. Als vorläufige
+Quellbindung dient die geprüfte Basis 0.220; nach dem endgültigen PR-Abschluss
+sind Commit, Dokumentationslink und daraus gelesene Version erneut abzugleichen.
+
+Der GitHub-Connector konnte den Entwurfs-PR wegen fehlender Integrationsrechte
+nicht anlegen (HTTP 403). Nach Commit, Push und Versionsautomatik lässt sich
+der [Release-PR direkt von dev nach main vorbereiten](https://github.com/Burki24/Symcon_Z2MAutomations/compare/main...dev?expand=1).
+
+[Offizielle Store-Regeln](https://www.symcon.de/de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/store/einreichen/)
+wurden am 27.11.2026 erneut geprüft.
+
+Die folgenden Abschnitte sind historische Abnahmen.
+
 ## Planungsabgleich – 08.11.2026
 
 Die erste main-Basis 0.185 ist im lokalen Repository unter 973929a vorhanden;

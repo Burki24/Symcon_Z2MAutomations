@@ -1,5 +1,16 @@
 # Aktueller Umsetzungs- und Prüfstand
 
+## Beta-Update vorbereiten – 27.11.2026
+
+Die Quellbasis 0.220 wurde vollständig offline und bildfrei im Browser sowie in
+der Kachel geprüft. Tests und Check Style sind für denselben Commit auf GitHub
+grün. B1–B4 und N1/N2 bleiben mit ihren bisherigen Nachweisen abgeschlossen.
+Offen sind Benutzer-Commit/Push dieser Vorbereitung, die daraus folgende
+Versionsautomatik und CI, Release-PR nach `main` und die endgültige Bindung der
+Storevorlage. Der neuere Designerstand benötigt eine gesonderte native
+Praxisbestätigung nach Update. Umfang und Grenzen stehen in der
+[aktuellen Beta-Abnahme](BETA_ABNAHME.md#nächstes-beta-update--27112026).
+
 ## Neustartprüfungen und Planungsabgleich – 08.11.2026
 
 Beide Praxisaufträge abgeschlossen. Umgebung: Test-Symcon 9.1 mit ausdrücklich

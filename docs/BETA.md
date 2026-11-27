@@ -1,7 +1,24 @@
-# Erste Beta: Einrichtung und Rückmeldungen
+# Beta: Einrichtung, Updates und Rückmeldungen
 
-Diese Anleitung bereitet die erste Beta vor. Sie ist noch keine Veröffentlichung.
-Den aktuellen Freigabestand nennt die [Beta-Abnahme](BETA_ABNAHME.md).
+Z2MAutomations ist im Beta-Kanal des Module Store erhältlich. Diese Anleitung
+beschreibt Einrichtung, Updates und hilfreiche Fehlerrückmeldungen. Den
+Prüfstand des nächsten Updates nennt die [Beta-Abnahme](BETA_ABNAHME.md).
+
+## Bestehende Beta aktualisieren
+
+1. Symcon-Konfiguration und den Datenordner der beteiligten Z2M-Systeme sichern.
+2. Die Library in Symcon aktualisieren und den Designer neu öffnen.
+3. Für jedes System unter Einrichtung und Diagnose den installierten mit dem
+   mitgelieferten Erweiterungsstand vergleichen. Bei einem Update ausgehend von
+   Beta 0.189 auch die Erweiterung auf den mitgelieferten Stand 0.2.4 aktualisieren.
+   Dies kann laufende Abläufe kurz unterbrechen. Die vorhandene
+   Wiederanlaufeinstellung vorab prüfen.
+4. Nach bestätigter Installation die Gerätedaten laden lassen. Die neue Auswahl
+   verwendet zusätzliche typisierte Eigenschaften, etwa Fenstergriffstellungen.
+5. Vorhandene Entwürfe, den gespeicherten Z2M-Stand und den Betriebsstatus je
+   System kontrollieren. Gewünschte Änderungen anschließend ausdrücklich prüfen
+   und übertragen. Die Wiederaufnahme nach einer Übertragung wird im
+   Bestätigungsdialog gesondert ausgewählt.
 
 ## Belegte Umgebung und Grenzen
 
